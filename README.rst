@@ -22,17 +22,17 @@ Overview
     :alt: Documentation Status
 
 
-.. |travis| image:: https://travis-ci.org/gnn/oemof-tabular.svg?branch=master
+.. |travis| image:: https://travis-ci.org/oemof/oemof-tabular.svg?branch=master
     :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/gnn/oemof-tabular
+    :target: https://travis-ci.org/oemof/oemof-tabular
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/gnn/oemof-tabular?branch=master&svg=true
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/oemof/oemof-tabular?branch=master&svg=true
     :alt: AppVeyor Build Status
     :target: https://ci.appveyor.com/project/gnn/oemof-tabular
 
-.. |requires| image:: https://requires.io/github/gnn/oemof-tabular/requirements.svg?branch=master
+.. |requires| image:: https://requires.io/github/oemof/oemof-tabular/requirements.svg?branch=master
     :alt: Requirements Status
-    :target: https://requires.io/github/gnn/oemof-tabular/requirements/?branch=master
+    :target: https://requires.io/github/oemof/oemof-tabular/requirements/?branch=master
 
 .. |coveralls| image:: https://coveralls.io/repos/gnn/oemof-tabular/badge.svg?branch=master&service=github
     :alt: Coverage Status
