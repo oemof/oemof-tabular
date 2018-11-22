@@ -74,9 +74,9 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.python.org/pypi/oemof.tabular
 
-.. |scrutinizer| image:: https://img.shields.io/scrutinizer/g/gnn/oemof-tabular/master.svg
+.. |scrutinizer| image:: https://img.shields.io/scrutinizer/g/oemof/oemof-tabular/master.svg
     :alt: Scrutinizer Status
-    :target: https://scrutinizer-ci.com/g/gnn/oemof-tabular/
+    :target: https://scrutinizer-ci.com/g/oemof/oemof-tabular/
 
 
 .. end-badges
