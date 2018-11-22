@@ -34,24 +34,24 @@ Overview
     :alt: Requirements Status
     :target: https://requires.io/github/oemof/oemof-tabular/requirements/?branch=master
 
-.. |coveralls| image:: https://coveralls.io/repos/gnn/oemof-tabular/badge.svg?branch=master&service=github
+.. |coveralls| image:: https://coveralls.io/repos/oemof/oemof-tabular/badge.svg?branch=master&service=github
     :alt: Coverage Status
-    :target: https://coveralls.io/r/gnn/oemof-tabular
+    :target: https://coveralls.io/r/oemof/oemof-tabular
 
-.. |codecov| image:: https://codecov.io/github/gnn/oemof-tabular/coverage.svg?branch=master
+.. |codecov| image:: https://codecov.io/github/oemof/oemof-tabular/coverage.svg?branch=master
     :alt: Coverage Status
-    :target: https://codecov.io/github/gnn/oemof-tabular
+    :target: https://codecov.io/github/oemof/oemof-tabular
 
 .. |landscape| image:: https://landscape.io/github/gnn/oemof-tabular/master/landscape.svg?style=flat
     :target: https://landscape.io/github/gnn/oemof-tabular/master
     :alt: Code Quality Status
 
-.. |codacy| image:: https://img.shields.io/codacy/REPLACE_WITH_PROJECT_ID.svg
+.. |codacy| image:: https://img.shields.io/codacy/grade/14dbd9b9c5e34f8b80e73887b5aa6e6c.svg
     :target: https://www.codacy.com/app/gnn/oemof-tabular
     :alt: Codacy Code Quality Status
 
-.. |codeclimate| image:: https://codeclimate.com/github/gnn/oemof-tabular/badges/gpa.svg
-   :target: https://codeclimate.com/github/gnn/oemof-tabular
+.. |codeclimate| image:: https://codeclimate.com/github/oemof/oemof-tabular/badges/gpa.svg
+   :target: https://codeclimate.com/github/oemof/oemof-tabular
    :alt: CodeClimate Quality Status
 
 .. |version| image:: https://img.shields.io/pypi/v/oemof.tabular.svg
