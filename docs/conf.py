@@ -22,17 +22,17 @@ if os.getenv('SPELLCHECK'):
 
 source_suffix = '.rst'
 master_doc = 'index'
-project = 'oemof tabular'
+project = 'oemof.tabular'
 year = '2018'
 author = 'Stephan Günther'
 copyright = '{0}, {1}'.format(year, author)
-version = release = '0.0.1'
+version = release = '0.0.0'
 
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/gnn/oemof-tabular/issues/%s', '#'),
-    'pr': ('https://github.com/gnn/oemof-tabular/pull/%s', 'PR #'),
+    'issue': ('https://github.com/oemof/oemof-tabular/issues/%s', '#'),
+    'pr': ('https://github.com/oemof/oemof-tabular/pull/%s', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

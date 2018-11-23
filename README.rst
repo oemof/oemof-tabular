@@ -42,8 +42,8 @@ Overview
     :alt: Coverage Status
     :target: https://codecov.io/github/oemof/oemof-tabular
 
-.. |landscape| image:: https://landscape.io/github/gnn/oemof-tabular/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/gnn/oemof-tabular/master
+.. |landscape| image:: https://landscape.io/github/oemof/oemof-tabular/master/landscape.svg?style=flat
+    :target: https://landscape.io/github/oemof/oemof-tabular/master
     :alt: Code Quality Status
 
 .. |codacy| image:: https://img.shields.io/codacy/grade/14dbd9b9c5e34f8b80e73887b5aa6e6c.svg
@@ -58,9 +58,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.python.org/pypi/oemof.tabular
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/gnn/oemof-tabular/v0.0.1.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/oemof/oemof-tabular/v0.0.0.svg
     :alt: Commits since latest release
-    :target: https://github.com/gnn/oemof-tabular/compare/v0.0.1...master
+    :target: https://github.com/oemof/oemof-tabular/compare/v0.0.0...master
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/oemof.tabular.svg
     :alt: PyPI Wheel

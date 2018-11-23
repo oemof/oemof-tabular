@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use oemof tabular in a project::
+To use oemof.tabular in a project::
 
 	import oemof.tabular

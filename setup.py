@@ -25,7 +25,7 @@ def read(*names, **kwargs):
 
 setup(
     name='oemof.tabular',
-    version='0.0.1',
+    version='0.0.0',
     license='BSD 3-Clause License',
     description='Load oemof energy systems from tabular data sources.',
     long_description='%s\n%s' % (
@@ -35,7 +35,7 @@ setup(
     ),
     author='Stephan Günther',
     author_email='gnn.code@gmail.com',
-    url='https://github.com/gnn/oemof-tabular',
+    url='https://github.com/oemof/oemof-tabular',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
