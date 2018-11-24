@@ -42,10 +42,6 @@ Overview
     :alt: Coverage Status
     :target: https://codecov.io/github/oemof/oemof-tabular
 
-.. |landscape| image:: https://landscape.io/github/oemof/oemof-tabular/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/oemof/oemof-tabular/master
-    :alt: Code Quality Status
-
 .. |codacy| image:: https://img.shields.io/codacy/grade/14dbd9b9c5e34f8b80e73887b5aa6e6c.svg
     :target: https://www.codacy.com/app/gnn/oemof-tabular
     :alt: Codacy Code Quality Status
