@@ -11,7 +11,7 @@ from os.path import dirname
 from os.path import join
 from os.path import splitext
 
-from setuptools import find_namespace_packages
+from setuptools import find_packages
 from setuptools import setup
 
 
@@ -36,7 +36,7 @@ setup(
     author='Stephan Günther',
     author_email='gnn.code@gmail.com',
     url='https://github.com/oemof/oemof-tabular',
-    packages=find_namespace_packages('src'),
+    packages=['oemof'] + ['oemof.' + p for p in find_packages('src/oemof')],
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
