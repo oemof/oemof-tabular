@@ -13,7 +13,7 @@ Overview
       - | |travis| |appveyor| |requires|
         | |coveralls| |codecov|
         | |scrutinizer| |codacy| |codeclimate|
-    * - package
+..    * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
 
@@ -50,23 +50,28 @@ Overview
    :target: https://codeclimate.com/github/oemof/oemof-tabular
    :alt: CodeClimate Quality Status
 
-.. |version| image:: https://img.shields.io/pypi/v/oemof.tabular.svg
+..
+  |version| image:: https://img.shields.io/pypi/v/oemof.tabular.svg
     :alt: PyPI Package latest release
     :target: https://pypi.python.org/pypi/oemof.tabular
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/oemof/oemof-tabular/v0.0.0.svg
+..
+  |commits-since| image:: https://img.shields.io/github/commits-since/oemof/oemof-tabular/v0.0.0.svg
     :alt: Commits since latest release
     :target: https://github.com/oemof/oemof-tabular/compare/v0.0.0...master
 
-.. |wheel| image:: https://img.shields.io/pypi/wheel/oemof.tabular.svg
+..
+  |wheel| image:: https://img.shields.io/pypi/wheel/oemof.tabular.svg
     :alt: PyPI Wheel
     :target: https://pypi.python.org/pypi/oemof.tabular
 
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/oemof.tabular.svg
+..
+  |supported-versions| image:: https://img.shields.io/pypi/pyversions/oemof.tabular.svg
     :alt: Supported versions
     :target: https://pypi.python.org/pypi/oemof.tabular
 
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/oemof.tabular.svg
+..
+  |supported-implementations| image:: https://img.shields.io/pypi/implementation/oemof.tabular.svg
     :alt: Supported implementations
     :target: https://pypi.python.org/pypi/oemof.tabular
 
