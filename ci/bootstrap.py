@@ -41,7 +41,8 @@ if __name__ == "__main__":
         loader=jinja2.FileSystemLoader(join(base_path, "ci", "templates")),
         trim_blocks=True,
         lstrip_blocks=True,
-        keep_trailing_newline=True
+        keep_trailing_newline=True,
+        autoescape=True
     )
 
     tox_environments = {}
