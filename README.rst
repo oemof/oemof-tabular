@@ -4,9 +4,9 @@ Overview
 
 .. start-badges
 
-|version| |commits-since| |supported-versions| |wheel|
+|version| |commits-since| |supported-versions|
 
-|travis| |appveyor| |docs| |requires|
+|travis| |appveyor| |docs| |requires| |wheel|
 
 |coveralls| |codecov| |scrutinizer| |codacy| |codeclimate|
 
