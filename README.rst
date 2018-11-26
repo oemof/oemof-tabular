@@ -4,7 +4,7 @@ Overview
 
 .. start-badges
 
-|version| |commits-since| |supported-versions|
+|version| |commits-since| |supported-versions| |license|
 
 |travis| |appveyor| |docs| |requires| |wheel|
 
@@ -63,6 +63,9 @@ Overview
     :alt: Scrutinizer Status
     :target: https://scrutinizer-ci.com/g/oemof/oemof-tabular/
 
+.. |license| image:: https://img.shields.io/pypi/l/oemof-tabular.svg?colorB=blue
+    :alt: PyPI - License
+    :target: https://github.com/oemof/oemof-tabular/blob/master/LICENSE
 
 .. end-badges
 
