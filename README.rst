@@ -4,18 +4,11 @@ Overview
 
 .. start-badges
 
-.. list-table::
-    :stub-columns: 1
+|version| |commits-since| |supported-versions| |wheel|
 
-    * - docs
-      - |docs|
-    * - tests
-      - | |travis| |appveyor| |requires|
-        | |coveralls| |codecov|
-        | |scrutinizer| |codacy| |codeclimate|
-    * - package
-      - | |version| |wheel| |supported-versions|
-        | |commits-since|
+|travis| |appveyor| |docs| |requires|
+
+|coveralls| |codecov| |scrutinizer| |codacy| |codeclimate|
 
 .. |docs| image:: https://readthedocs.org/projects/oemof-tabular/badge/?style=flat
     :target: https://readthedocs.org/projects/oemof-tabular
