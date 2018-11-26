@@ -14,7 +14,7 @@ Overview
         | |coveralls| |codecov|
         | |scrutinizer| |codacy| |codeclimate|
     * - package
-      - | |version| |wheel| |supported-versions| |supported-implementations|
+      - | |version| |wheel| |supported-versions|
         | |commits-since|
 
 .. |docs| image:: https://readthedocs.org/projects/oemof-tabular/badge/?style=flat
@@ -64,10 +64,6 @@ Overview
 
 .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/oemof.tabular.svg
     :alt: Supported versions
-    :target: https://pypi.python.org/pypi/oemof.tabular
-
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/oemof.tabular.svg
-    :alt: Supported implementations
     :target: https://pypi.python.org/pypi/oemof.tabular
 
 .. |scrutinizer| image:: https://img.shields.io/scrutinizer/g/oemof/oemof-tabular/master.svg
