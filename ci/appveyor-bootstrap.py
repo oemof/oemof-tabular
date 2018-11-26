@@ -40,9 +40,8 @@ INSTALL_CMD = {
 
 def download_file(url, path):
     print("Downloading: {} (into {})".format(url, path))
-    progress = [0, 0]
 
-    def report(count, size, total):
+    def report(count, size, total, progress=[0, 0]):
         progress[0] = count * size
         if progress[0] - progress[1] > 1000000:
             progress[1] = progress[0]
