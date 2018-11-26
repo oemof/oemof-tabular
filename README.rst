@@ -47,7 +47,7 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.python.org/pypi/oemof.tabular
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/oemof/oemof-tabular/v0.0.0.svg
+.. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-tabular%2Fcompare%2Fv0.0.0...master&query=%24.total_commits&colorB=blue
     :alt: Commits since latest release
     :target: https://github.com/oemof/oemof-tabular/compare/v0.0.0...master
 
