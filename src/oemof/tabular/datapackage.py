@@ -21,6 +21,7 @@ import datapackage
 from datapackage import exceptions
 import pandas as pd
 
+from oemof.energy_system import EnergySystem
 from oemof.network import Bus, Component
 
 
@@ -380,3 +381,7 @@ def deserialize_energy_system(cls, path,
 
     else:
         raise ValueError("Timeindices in resources differ!")
+
+
+EnergySystem.from_datapackage = classmethod(deserialize_energy_system)
+
