@@ -17,8 +17,7 @@ import json
 import re
 import types
 
-import datapackage
-from datapackage import exceptions
+import datapackage as dp
 import pandas as pd
 
 from oemof.energy_system import EnergySystem
@@ -131,14 +130,14 @@ def deserialize_energy_system(cls, path,
         if v.get('name') is None:
             attributemap[k]['name'] = 'label'
 
-    package = datapackage.Package(path)
+    package = dp.Package(path)
     # This is necessary because before reading a resource for the first
     # time its `headers` attribute is `None`.
     for r in package.resources:
         try:
             r.read()
-        except exceptions.CastError:
-            raise exceptions.CastError(
+        except dp.exceptions.CastError:
+            raise dp.exceptions.CastError(
                 (cast_error_msg).format(r.name))
     empty = types.SimpleNamespace()
     empty.read = lambda *xs, **ks: ()
@@ -320,10 +319,10 @@ def deserialize_energy_system(cls, path,
                for p in listify(r.descriptor['path'], 1)):
             try:
                 facade_data = r.read(keyed=True, relations=True)
-            except exceptions.CastError:
-                raise exceptions.LoadError((cast_error_msg).format(r.name))
+            except dp.exceptions.CastError:
+                raise dp.exceptions.LoadError((cast_error_msg).format(r.name))
             except Exception as e:
-                raise exceptions.LoadError(
+                raise dp.exceptions.LoadError(
                     ("Could not read data for resource with name `{}`. "
                      " Maybe wrong foreign keys?\n"
                      "Exception was: {}").format(r.name, e))
