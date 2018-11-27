@@ -46,12 +46,13 @@ class HSN(types.SimpleNamespace):
 DEFAULT = object()
 FLOW_TYPE = object()
 
-def remap(attributes, translations, target_class):
+
+def remap(attributes, renamings, target_class):
     mro = getattr(target_class, "mro", lambda: [target_class])
     for c in mro():
-        if c in translations:
+        if c in renamings:
             break
-    return {translations.get(c, {}).get(k, k): v for k, v in attributes.items()}
+    return {renamings.get(c, {}).get(k, k): v for k, v in attributes.items()}
 
 
 def sequences(r, timeindices=None):
@@ -68,6 +69,7 @@ def sequences(r, timeindices=None):
         for name in result
         if name != 'timeindex'}
     return result
+
 
 def read_facade(facade, facades, create, typemap, data, objects,
                 sequence_names,
@@ -89,7 +91,8 @@ def read_facade(facade, facades, create, typemap, data, objects,
         elif facade[field][reference['fields']] in facades:
             facade[field] = facades[facade[field][reference['fields']]]
         else:
-            foreign_keys = {fk["fields"]: fk["reference"]
+            foreign_keys = {
+                fk["fields"]: fk["reference"]
                 for fk in (resources(reference["resource"])
                            .descriptor['schema']
                            .get("foreignKeys", ()))}
@@ -110,7 +113,7 @@ def deserialize_energy_system(cls, path,
                               typemap={},
                               attributemap={}):
     cast_error_msg = (
-        "Metadata structure of resource `{}` does not match data " +
+        "Metadata structure of resource `{}` does not match data "
         "structure. Check the column names, types and their order.")
 
     default_typemap = {'bus': Bus,
@@ -128,8 +131,6 @@ def deserialize_energy_system(cls, path,
         if v.get('name') is None:
             attributemap[k]['name'] = 'label'
 
-
-
     package = datapackage.Package(path)
     # This is necessary because before reading a resource for the first
     # time its `headers` attribute is `None`.
@@ -142,14 +143,20 @@ def deserialize_energy_system(cls, path,
     empty = types.SimpleNamespace()
     empty.read = lambda *xs, **ks: ()
     empty.headers = ()
-    parse = lambda s: (json.loads(s) if s else {})
+
+    def parse(s):
+        return json.loads(s) if s else {}
+
     data = {}
-    listify = lambda x, n=None: (x
-                                 if isinstance(x, list)
-                                 else repeat(x)
-                                 if not n
-                                 else repeat(x, n))
-    resource = lambda r: package.get_resource(r) or empty
+
+    def listify(x, n=None):
+        return (
+            x if isinstance(x, list)
+            else repeat(x) if not n
+            else repeat(x, n))
+
+    def resource(r):
+        return package.get_resource(r) or empty
 
     timeindices = {}
 
@@ -213,9 +220,9 @@ def deserialize_energy_system(cls, path,
         arbitrary levels are resolved.
         """
         for key in source:
-            if (isinstance(source[key], str) and
-                    key in data and
-                    source[key] in data[key]):
+            if (isinstance(source[key], str)
+                    and key in data
+                    and source[key] in data[key]):
 
                 source[key] = data[key][source[key]]
 
@@ -237,6 +244,7 @@ def deserialize_energy_system(cls, path,
                      for name in bus_names}
 
     objects = {}
+
     def create(cls, init, attributes):
         """ Creates an instance of `cls` and sets `attributes`.
         """
@@ -313,14 +321,15 @@ def deserialize_energy_system(cls, path,
             try:
                 facade_data = r.read(keyed=True, relations=True)
             except exceptions.CastError:
+                raise exceptions.LoadError((cast_error_msg).format(r.name))
+            except Exception as e:
                 raise exceptions.LoadError(
-                        (cast_error_msg).format(r.name))
-            except:
-                raise exceptions.LoadError(
-                    ("Could not read data for resource with name `{}`. " +
-                     " Maybe wrong foreign keys?").format(r.name))
+                    ("Could not read data for resource with name `{}`. "
+                     " Maybe wrong foreign keys?\n"
+                     "Exception was: {}").format(r.name, e))
 
-            foreign_keys = {fk["fields"]: fk["reference"]
+            foreign_keys = {
+                fk["fields"]: fk["reference"]
                 for fk in r.descriptor['schema'].get("foreignKeys", ())}
             for facade in facade_data:
                 # convert decimal to float
@@ -339,8 +348,8 @@ def deserialize_energy_system(cls, path,
         # look for temporal resource and if present, take as timeindex from it
         if package.get_resource('temporal'):
             temporal = pd.DataFrame.from_dict(
-                package.get_resource('temporal').\
-                    read(keyed=True)).set_index('timeindex').astype(float)
+                package.get_resource('temporal').read(keyed=True)
+            ).set_index('timeindex').astype(float)
             # for correct freq setting of timeindex
             temporal.index = pd.DatetimeIndex(
                 temporal.index.values, freq=temporal.index.inferred_freq,
