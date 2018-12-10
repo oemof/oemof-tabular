@@ -15,7 +15,6 @@ from itertools import chain, groupby, repeat
 import collections.abc as cabc
 import json
 import re
-import types
 
 import datapackage as dp
 import pandas as pd
@@ -23,35 +22,10 @@ import pandas as pd
 from oemof.energy_system import EnergySystem
 from oemof.network import Bus, Component
 
-
-def raisestatement(exception, message=""):
-    if message:
-        raise exception(message)
-    else:
-        raise exception()
-    return "No one should ever see this."
-
-
-class HSN(types.SimpleNamespace):
-    """ A hashable variant of `types.Simplenamespace`.
-
-    By making it hashable, we can use the instances as dictionary keys, which
-    is necessary, as this is the default type for flows.
-    """
-    def __hash__(self):
-        return id(self)
-
+from .tools import HSN, raisestatement, remap
 
 DEFAULT = object()
 FLOW_TYPE = object()
-
-
-def remap(attributes, renamings, target_class):
-    mro = getattr(target_class, "mro", lambda: [target_class])
-    for c in mro():
-        if c in renamings:
-            break
-    return {renamings.get(c, {}).get(k, k): v for k, v in attributes.items()}
 
 
 def sequences(r, timeindices=None):
@@ -139,7 +113,7 @@ def deserialize_energy_system(cls, path,
         except dp.exceptions.CastError:
             raise dp.exceptions.CastError(
                 (cast_error_msg).format(r.name))
-    empty = types.SimpleNamespace()
+    empty = HSN()
     empty.read = lambda *xs, **ks: ()
     empty.headers = ()
 
