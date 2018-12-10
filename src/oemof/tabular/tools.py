@@ -41,10 +41,10 @@ def remap(mapping, renamings, selection):
     --------
     >>> renamings = {'R1': {'zero': 'nada'}, 'R2': {'foo': 'bar'}}
     >>> mapping = {'zero': 0, 'foo': 'foobar'}
-    >>> remap(mapping, renamings, 'R1')
-    {'nada': 0, 'foo': 'foobar'}
-    >>> remap(mapping, renamings, 'R2')
-    {'bar': 'foobar', 'zero': 0}
+    >>> remap(mapping, renamings, 'R1') == {'nada': 0, 'foo': 'foobar'}
+    True
+    >>> remap(mapping, renamings, 'R2') == {'zero': 0, 'bar': 'foobar'}
+    True
 
     As a special case, if `selection` is a `class`, not only `selection` is
     considered to select a renaming, but the classes in `selection`'s `mro` are
