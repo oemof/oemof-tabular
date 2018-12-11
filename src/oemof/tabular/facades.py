@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
-""" This module is designed to contain classes that act as simplified / reduced
-energy specific interfaces (facades) for solph components to simplify its
-application and work with the oemof datapackage - reader functionality
+""" `Facade`s are classes providing a simplified view on more complex classes.
+
+More specifically, the `Facade`s in this module act as simplified, energy
+specific  wrappers around `oemof`'s and `oemof.solph`'s more abstract and
+complex classes. The idea is to be able to instantiate a `Facade` using keyword
+arguments, whose value are derived from simple, tabular data sources. Under the
+hood the `Facade` then uses these arguments to construct an `oemof` or
+`oemof.solph` component and sets it up to be easily used in an `EnergySystem`.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
