@@ -12,9 +12,9 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 from oemof.network import Node
-from oemof.solph import Flow, Investment, Sink, Source, Transformer
+from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
 from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
-from oemof.solph.custom import Link
+from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
 
 
@@ -760,3 +760,23 @@ class Generator(Dispatchable):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+TYPEMAP = {
+    'backpressure': BackpressureTurbine,
+    'bus': Bus,
+    'conversion': Conversion,
+    'dispatchable': Dispatchable,
+    'electrical bus': ElectricalBus,
+    'electrical line': ElectricalLine,
+    'excess': Excess,
+    'extraction': ExtractionTurbine,
+    'generator': Generator,
+    'link': Link,
+    'load': Load,
+    'reservoir': Reservoir,
+    'shortage': Shortage,
+    'storage': Storage,
+    'volatile': Volatile,
+}
+
