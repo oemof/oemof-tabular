@@ -4,7 +4,9 @@ GLOBALS = {
     'serializer': '{{major}}.{{minor}}.{{patch}}{{status if status}}',
 }
 
-FILES = ['README.rst', 'docs/conf.py', 'setup.py',
+FILES = [{ 'path': 'README.rst',
+           'serializer': '{{major}}.{{minor}}.{{patch}}'},
+         'docs/conf.py', 'setup.py',
          'src/oemof/tabular/__init__.py']
 
 VERSION = ['major', 'minor', 'patch',
