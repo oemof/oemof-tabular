@@ -65,7 +65,7 @@ setup(
     ],
     install_requires=[
         'datapackage',
-        'oemof',
+        'oemof==0.2.4.dev0',
     ],
     extras_require={
         # eg:
@@ -75,5 +75,5 @@ setup(
     dependency_links=[
         ('git+https://git@github.com/oemof/oemof.git'
          '@features/move-datapackage-reader-into-standalone-package'
-         '#egg=oemof')],
+         '#egg=oemof-0.2.4.dev0')],
 )
