@@ -6,5 +6,4 @@ building.infer_metadata(package_name='renpass-foreignkeys-examples',
                             'profile': ['component'],
                             'from_to_bus': [],
                             'chp': []
-                            }
-                        )
+                        })
