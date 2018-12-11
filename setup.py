@@ -72,4 +72,8 @@ setup(
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
     },
+    dependency_links=[
+        ('git+https://git@github.com/oemof/oemof.git'
+         '@features/move-datapackage-reader-into-standalone-package'
+         '#egg=oemof')],
 )
