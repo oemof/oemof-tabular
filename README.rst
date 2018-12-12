@@ -78,7 +78,10 @@ Installation
 
 ::
 
-    pip install oemof.tabular
+    pip install --process-dependency-links oemof.tabular
+
+Unfortunately you need the :code:`--process-dependency-links` flag until
+`oemof` releases a version after :code:`v0.2.3`.
 
 Documentation
 =============
