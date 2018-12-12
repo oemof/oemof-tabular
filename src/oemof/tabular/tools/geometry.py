@@ -12,18 +12,17 @@ Copyright 2015-2017 Frankfurt Institute for Advanced Studies
 """
 
 from collections import OrderedDict
-from itertools import takewhile
-import numpy as np
-from operator import itemgetter, attrgetter
-import pandas as pd
-import pyproj
-import shapefile
-from shapely.geometry import LinearRing, Polygon, MultiPolygon
 from functools import partial
+from itertools import product, takewhile
+from operator import attrgetter, itemgetter
+
+from shapely.geometry import LinearRing, MultiPolygon, Polygon
 from shapely.ops import transform
 from shapely.prepared import prep
-from itertools import product
+import numpy as np
+import pyproj
 import scipy.sparse as sparse
+import shapefile
 
 
 def _shape2poly(sh, tolerance=0.03, minarea=0.03, projection=None):
@@ -39,33 +38,48 @@ def _shape2poly(sh, tolerance=0.03, minarea=0.03, projection=None):
 
     if projection is None:
         pts = sh.points
-    elif projection == 'invwgs':
-        pts = np.asarray(_shape2poly.wgs(*np.asarray(sh.points).T, inverse=True)).T
+    elif projection == "invwgs":
+        pts = np.asarray(
+            _shape2poly.wgs(*np.asarray(sh.points).T, inverse=True)
+        ).T
     else:
         raise TypeError("Unknown projection {}".format(projection))
 
-    minlength = 2 * np.pi* np.sqrt(minarea / np.pi)
+    minlength = 2 * np.pi * np.sqrt(minarea / np.pi)
+
     def parts2polys(parts):
         rings = list(map(LinearRing, parts))
-        while(rings):
+        while rings:
             exterior = rings.pop(0)
-            interiors = list(takewhile(attrgetter('is_ccw'), rings))
+            interiors = list(takewhile(attrgetter("is_ccw"), rings))
             rings = rings[len(interiors):]
-            yield Polygon(exterior, [x for x in interiors if x.length > minlength])
+            yield Polygon(
+                exterior, [x for x in interiors if x.length > minlength]
+            )
 
-    polys = sorted(parts2polys(np.split(pts, sh.parts[1:])),
-                   key=attrgetter('area'), reverse=True)
+    polys = sorted(
+        parts2polys(np.split(pts, sh.parts[1:])),
+        key=attrgetter("area"),
+        reverse=True,
+    )
     mainpoly = polys[0]
-    mainlength = np.sqrt(mainpoly.area/(2.*np.pi))
+    mainlength = np.sqrt(mainpoly.area / (2.0 * np.pi))
     if mainpoly.area > minarea:
         mpoly = MultiPolygon(
-            [p for p in takewhile(lambda p: p.area > minarea, polys)
-             if mainpoly.distance(p) < mainlength])
+            [
+                p
+                for p in takewhile(lambda p: p.area > minarea, polys)
+                if mainpoly.distance(p) < mainlength
+            ]
+        )
     else:
         mpoly = mainpoly
     return simplify_poly(mpoly, tolerance)
-_shape2poly.wgs = pyproj.Proj('+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84' \
-                              ' +units=m +no_defs')
+
+
+_shape2poly.wgs = pyproj.Proj(
+    "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84" " +units=m +no_defs"
+)
 
 
 def simplify_poly(poly, tolerance):
@@ -81,7 +95,7 @@ def simplify_poly(poly, tolerance):
         return poly.simplify(tolerance, preserve_topology=True)
 
 
-def nuts(filepath=None, nuts=0, subset=None, tolerance=0.03, minarea=1.):
+def nuts(filepath=None, nuts=0, subset=None, tolerance=0.03, minarea=1.0):
     """
     Reads shapefile with nuts regions and converts to polygons
 
@@ -97,14 +111,23 @@ def nuts(filepath=None, nuts=0, subset=None, tolerance=0.03, minarea=1.):
     Copyright 2015-2017 Frankfurt Institute for Advanced Studies
     """
     sf = shapefile.Reader(filepath)
-    nuts = OrderedDict(sorted([(rec[0], _shape2poly(sh, tolerance, minarea))
-                               for rec, sh in zip(sf.iterRecords(), sf.iterShapes())
-                               if rec[1] == nuts],
-                              key=itemgetter(0)))
+    nuts = OrderedDict(
+        sorted(
+            [
+                (rec[0], _shape2poly(sh, tolerance, minarea))
+                for rec, sh in zip(sf.iterRecords(), sf.iterShapes())
+                if rec[1] == nuts
+            ],
+            key=itemgetter(0),
+        )
+    )
 
     return nuts
 
-def reproject(geom, fr=pyproj.Proj(proj='longlat'), to=pyproj.Proj(proj='aea')):
+
+def reproject(
+    geom, fr=pyproj.Proj(proj="longlat"), to=pyproj.Proj(proj="aea")
+):
     """
     Notes
     -----
@@ -115,7 +138,9 @@ def reproject(geom, fr=pyproj.Proj(proj='longlat'), to=pyproj.Proj(proj='aea')):
     return transform(reproject_pts, geom)
 
 
-def Shapes2Shapes(orig, dest, normed=True, equalarea=False, prep_first=True, **kwargs):
+def Shapes2Shapes(
+    orig, dest, normed=True, equalarea=False, prep_first=True, **kwargs
+):
     """
     Notes
     -----
@@ -135,16 +160,15 @@ def Shapes2Shapes(orig, dest, normed=True, equalarea=False, prep_first=True, **k
     for i, j in product(range(len(dest)), range(len(orig))):
         if orig_prepped[j].intersects(dest[i]):
             area = orig[j].intersection(dest[i]).area
-            transfer[i,j] = area/dest[i].area
+            transfer[i, j] = area / dest[i].area
 
     # sum of input vectors must be preserved
     if normed:
         ssum = np.squeeze(np.asarray(transfer.sum(axis=0)), axis=0)
-        for i,j in zip(*transfer.nonzero()):
-            transfer[i,j] /= ssum[j]
+        for i, j in zip(*transfer.nonzero()):
+            transfer[i, j] /= ssum[j]
 
     return transfer
-
 
 
 def intersects(geom, labels, geometries):
@@ -153,4 +177,4 @@ def intersects(geom, labels, geometries):
     for label, geom_to_check in zip(labels, geometries):
         if geom.intersects(geom_to_check):
             return label
-    return float('NaN')
+    return float("NaN")

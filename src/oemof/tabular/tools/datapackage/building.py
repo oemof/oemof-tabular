@@ -1,40 +1,42 @@
 # -*- coding: utf-8 -*-
-import json
-import logging
-import os, errno
-import urllib.request, urllib.parse, urllib.error
-import shutil
-import zipfile
-import tarfile
-import paramiko
 from ftplib import FTP
 from urllib.parse import urlparse
+import errno
+import json
+import logging
+import os
+import shutil
+import tarfile
+import urllib.request
+import zipfile
+
+from datapackage import Package, Resource, infer
+from geojson import Feature, FeatureCollection, dump, load
 from shapely.geometry import shape
-from geojson import FeatureCollection, Feature, dump, load
-
-from datapackage import infer, Package, Resource
 import pandas as pd
+import paramiko
 
-def infer_resources(directory='data/elements'):
+
+def infer_resources(directory="data/elements"):
     """
     """
-    if not os.path.exists('resources'):
-        os.makedirs('resources')
+    if not os.path.exists("resources"):
+        os.makedirs("resources")
 
     # create meta data resources
     for f in os.listdir(directory):
-        r = Resource({'path': os.path.join(directory,f)})
+        r = Resource({"path": os.path.join(directory, f)})
         r.infer()
-        r.save(os.path.join('resources', f.replace('.csv', '.json')))
+        r.save(os.path.join("resources", f.replace(".csv", ".json")))
 
 
 def update_package_descriptor():
     """
     """
-    p = Package('datapackage.json')
+    p = Package("datapackage.json")
 
-    for f in os.listdir('resources'):
-        path = os.path.join('resources', f)
+    for f in os.listdir("resources"):
+        path = os.path.join("resources", f)
 
         r = Resource(path)
 
@@ -44,22 +46,29 @@ def update_package_descriptor():
 
         os.remove(path)
 
-    os.rmdir('resources')
+    os.rmdir("resources")
 
-    p.save('datapackage.json')
-
-
+    p.save("datapackage.json")
 
 
-def infer_metadata(package_name='default-name', keep_resources=False,
-                   foreign_keys={
-                    'bus': ['volatile', 'dispatchable', 'storage', 'load',
-                            'shortage', 'excess'],
-                    'profile': ['load', 'volatile'],
-                    'from_to_bus': ['connection' ,'line', 'conversion'],
-                    'chp': ['backpressure', 'extraction', 'chp']
-                   },
-                   path=None):
+def infer_metadata(
+    package_name="default-name",
+    keep_resources=False,
+    foreign_keys={
+        "bus": [
+            "volatile",
+            "dispatchable",
+            "storage",
+            "load",
+            "shortage",
+            "excess",
+        ],
+        "profile": ["load", "volatile"],
+        "from_to_bus": ["connection", "line", "conversion"],
+        "chp": ["backpressure", "extraction", "chp"],
+    },
+    path=None,
+):
     """ Add basic meta data for a datapackage
 
     Parameters
@@ -80,99 +89,99 @@ def infer_metadata(package_name='default-name', keep_resources=False,
     """
     current_path = os.getcwd()
     if path:
-        logging.info('Setting current work directory to {}'.format(path))
+        logging.info("Setting current work directory to {}".format(path))
         os.chdir(path)
 
     p = Package()
-    p.descriptor['name'] = package_name
-    p.descriptor['profile'] = 'tabular-data-package'
+    p.descriptor["name"] = package_name
+    p.descriptor["profile"] = "tabular-data-package"
     p.commit()
-    if not os.path.exists('resources'):
-        os.makedirs('resources')
+    if not os.path.exists("resources"):
+        os.makedirs("resources")
 
     # create meta data resources elements
-    if not os.path.exists('data/elements'):
+    if not os.path.exists("data/elements"):
         logging.warning(
-            'No data path found in directory {}. Skipping...'.format(os.getcwd()))
+            "No data path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
     else:
-        for f in os.listdir('data/elements'):
-            r = Resource({'path': os.path.join('data/elements',f)})
+        for f in os.listdir("data/elements"):
+            r = Resource({"path": os.path.join("data/elements", f)})
             r.infer()
-            r.descriptor['schema']['primaryKey'] = 'name'
+            r.descriptor["schema"]["primaryKey"] = "name"
 
+            if r.name in foreign_keys["bus"]:
+                r.descriptor["schema"]["foreignKeys"] = [
+                    {
+                        "fields": "bus",
+                        "reference": {"resource": "bus", "fields": "name"},
+                    }
+                ]
 
-            if r.name in foreign_keys['bus']:
-                r.descriptor['schema']['foreignKeys'] =   [{
-                    "fields": "bus",
-                    "reference": {
-                        "resource": "bus",
-                        "fields": "name"}}]
+                if r.name in foreign_keys["profile"]:
+                    r.descriptor["schema"]["foreignKeys"].append(
+                        {
+                            "fields": "profile",
+                            "reference": {"resource": r.name + "_profile"},
+                        }
+                    )
 
-                if r.name in foreign_keys['profile']:
-                    r.descriptor['schema']['foreignKeys'].append({
-                        "fields": "profile",
-                        "reference": {
-                            "resource": r.name + "_profile"}})
-
-            elif r.name in foreign_keys['from_to_bus']:
-                r.descriptor['schema']['foreignKeys'] =   [{
-                    "fields": "from_bus",
-                    "reference": {
-                        "resource": "bus",
-                        "fields": "name"}
+            elif r.name in foreign_keys["from_to_bus"]:
+                r.descriptor["schema"]["foreignKeys"] = [
+                    {
+                        "fields": "from_bus",
+                        "reference": {"resource": "bus", "fields": "name"},
                     },
                     {
                         "fields": "to_bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"}
-                    }]
+                        "reference": {"resource": "bus", "fields": "name"},
+                    },
+                ]
 
-            elif r.name in foreign_keys['chp']:
-                r.descriptor['schema']['foreignKeys'] =   [{
-                    "fields": "fuel_bus",
-                    "reference": {
-                        "resource": "bus",
-                        "fields": "name"}
+            elif r.name in foreign_keys["chp"]:
+                r.descriptor["schema"]["foreignKeys"] = [
+                    {
+                        "fields": "fuel_bus",
+                        "reference": {"resource": "bus", "fields": "name"},
                     },
                     {
                         "fields": "electricity_bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"}
+                        "reference": {"resource": "bus", "fields": "name"},
                     },
                     {
                         "fields": "heat_bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"}
-                    }]
+                        "reference": {"resource": "bus", "fields": "name"},
+                    },
+                ]
 
             r.commit()
-            r.save(os.path.join('resources', f.replace('.csv', '.json')))
+            r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
-
 
     # create meta data resources elements
-    if not os.path.exists('data/sequences'):
+    if not os.path.exists("data/sequences"):
         logging.warning(
-            'No data path found in directory {}. Skipping...'.format(os.getcwd()))
+            "No data path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
     else:
-        for f in os.listdir('data/sequences'):
-            r = Resource({'path': os.path.join('data/sequences',f)})
+        for f in os.listdir("data/sequences"):
+            r = Resource({"path": os.path.join("data/sequences", f)})
             r.infer()
             r.commit()
-            r.save(os.path.join('resources', f.replace('.csv', '.json')))
+            r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
 
-
     p.commit()
-    p.save('datapackage.json')
+    p.save("datapackage.json")
 
     if not keep_resources:
-        shutil.rmtree('resources')
+        shutil.rmtree("resources")
 
-    logging.info('Created meta data file in {}'.format(path))
+    logging.info("Created meta data file in {}".format(path))
     os.chdir(current_path)
 
 
@@ -191,7 +200,7 @@ def package_from_resources(resource_path, output_path, clean=True):
     """
     p = Package()
 
-    p.descriptor['profile'] = 'tabular-data-package'
+    p.descriptor["profile"] = "tabular-data-package"
     p.commit()
 
     for f in os.listdir(resource_path):
@@ -208,10 +217,10 @@ def package_from_resources(resource_path, output_path, clean=True):
     if clean:
         os.rmdir(resource_path)
 
-    p.save(os.path.join(output_path, 'datapackage.json'))
+    p.save(os.path.join(output_path, "datapackage.json"))
 
 
-def _ftp(remotepath, localpath, hostname, username=None, passwd=''):
+def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
     """ Download data with FTP
 
     Parameters
@@ -235,14 +244,19 @@ def _ftp(remotepath, localpath, hostname, username=None, passwd=''):
     else:
         ftp.login()
 
-    ftp.retrbinary('RETR ' + remotepath, open(localpath, 'wb').write)
+    ftp.retrbinary("RETR " + remotepath, open(localpath, "wb").write)
     ftp.quit()
 
     return
 
 
-def _sftp(remotepath, localpath, hostname='atlite.openmod.net',
-        username='atlite', password=''):
+def _sftp(
+    remotepath,
+    localpath,
+    hostname="atlite.openmod.net",
+    username="atlite",
+    password="",
+):
     """ Download data with SFTP
 
     Parameters
@@ -258,7 +272,7 @@ def _sftp(remotepath, localpath, hostname='atlite.openmod.net',
     """
 
     client = paramiko.SSHClient()
-    client.load_host_keys(os.path.expanduser('~/.ssh/known_hosts'))
+    client.load_host_keys(os.path.expanduser("~/.ssh/known_hosts"))
     client.connect(hostname=hostname, username=username, password=password)
 
     sftp = client.open_sftp()
@@ -281,8 +295,11 @@ def _http(url, path):
         The destination path on localhost.
     """
 
-    user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
-    headers = {'User-Agent': user_agent,}
+    user_agent = (
+        "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) "
+        "Gecko/2009021910 "
+        "Firefox/3.0.7")
+    headers = {"User-Agent": user_agent}
     request = urllib.request.Request(url, None, headers)
 
     f = urllib.request.urlopen(request)
@@ -293,7 +310,7 @@ def _http(url, path):
     return
 
 
-def download_data(url, directory='cache', unzip_file=None, **kwargs):
+def download_data(url, directory="cache", unzip_file=None, **kwargs):
     """
     Downloads data and stores it in specified directory
 
@@ -324,43 +341,48 @@ def download_data(url, directory='cache', unzip_file=None, **kwargs):
 
     else:
 
-        if scheme in ['http', 'https']:
+        if scheme in ["http", "https"]:
             _http(url, copypath)
 
-        elif scheme == 'sftp':
+        elif scheme == "sftp":
             _sftp(path, copypath, hostname=netloc, **kwargs)
 
-        elif scheme == 'ftp':
+        elif scheme == "ftp":
             _ftp(path, copypath, hostname=netloc, **kwargs)
 
         else:
-            raise ValueError('Cannot download data. Not supported scheme \
-                             in {}.'.format(url))
+            raise ValueError(
+                "Cannot download data. Not supported scheme \
+                             in {}.".format(
+                    url
+                )
+            )
 
     if unzip_file is not None:
 
-        if copypath.endswith('.zip'):
-            zipped = zipfile.ZipFile(copypath, 'r')
-            if unzip_file.endswith('/'):
-                member = lambda x: x.startswith(unzip_file.split('/')[0])
+        def member(x):
+            return x.startswith(unzip_file.split("/")[0])
 
-                zipped.extractall(filepath,
-                                members=list(filter(member, zipped.namelist())))
+        if copypath.endswith(".zip"):
+            zipped = zipfile.ZipFile(copypath, "r")
+            if unzip_file.endswith("/"):
+                zipped.extractall(
+                    filepath, members=list(filter(member, zipped.namelist()))
+                )
             else:
                 zipped.extract(unzip_file, directory)
 
             zipped.close()
 
-        elif copypath.endswith('.tar.gz'):
-            tar = tarfile.open(copypath, 'r:gz')
-            if unzip_file.endswith('/'):
-                member = lambda x: x.startswith(unzip_file.split('/')[0])
-
+        elif copypath.endswith(".tar.gz"):
+            tar = tarfile.open(copypath, "r:gz")
+            if unzip_file.endswith("/"):
                 tar.extractall(
                     filepath,
                     members=list(
-                        filter(member, [t.name for t in tar.getmembers()])))
-
+                        filter(member, [t.name for t in tar.getmembers()])
+                    ),
+                )
             else:
                 tar.extract(unzip_file, directory)
 
@@ -377,13 +399,13 @@ def timeindex(year=None, periods=None, freq=None):
     config = get_config()
 
     if not year:
-        year = str(config.get('year', '2050'))
+        year = str(config.get("year", "2050"))
 
     if not periods:
-        periods = config.get('periods', 8760)
+        periods = config.get("periods", 8760)
 
     if not freq:
-        freq = 'H'
+        freq = "H"
 
     idx = pd.date_range(start=year, periods=periods, freq=freq)
 
@@ -395,14 +417,15 @@ def initialize_dpkg(config=None, splitted_resource=False):
     """
     if not config:
         try:
-            default = 'config.json'
+            default = "config.json"
             config = get_config(default)
         except FileNotFoundError:
             raise FileNotFoundError(
-                'Default path `{}` of config file not found!'.format(default))
+                "Default path `{}` of config file not found!".format(default)
+            )
 
-    if config.get('directories'):
-        for directory in config['directories'].values():
+    if config.get("directories"):
+        for directory in config["directories"].values():
             try:
                 os.makedirs(directory)
             except OSError as e:
@@ -414,16 +437,16 @@ def initialize_dpkg(config=None, splitted_resource=False):
 
 
 def input_filepath(file, directory=None):
+    """
    """
-   """
-   if not directory:
-       directory = 'archive/'
+    if not directory:
+        directory = "archive/"
 
-   file_path = os.path.join(directory, file)
+    file_path = os.path.join(directory, file)
 
-   if not os.path.exists(file_path):
-       raise FileNotFoundError(
-           """File with name
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(
+            """File with name
 
            {}
 
@@ -431,25 +454,29 @@ def input_filepath(file, directory=None):
            the sources listed and store it in the directory:
 
            {}.
-           """.format(file_path, directory))
+           """.format(
+                file_path, directory
+            )
+        )
 
-   return file_path
+    return file_path
 
 
-def get_config(file='config.json'):
+def get_config(file="config.json"):
     """
     """
     try:
-        with open(file, 'r') as stream:
+        with open(file, "r") as stream:
             config = json.load(stream)
 
             # create absolute paths
-            if config.get('directories'):
-                config['directories'] = {
+            if config.get("directories"):
+                config["directories"] = {
                     k: os.path.join(os.getcwd(), v)
-                    for k,v in config['directories'].items()}
-    except:
-        raise ValueError("Could not load config file.")
+                    for k, v in config["directories"].items()
+                }
+    except Exception as e:
+        raise ValueError("Could not load config file: {}".format(e))
 
     return config
 
@@ -457,28 +484,28 @@ def get_config(file='config.json'):
 def create_headers(config=None):
     """
     """
-    for resource, header in config['headers'].items():
-        elements_path = os.path.join('data', resource, 'header.csv')
+    for resource, header in config["headers"].items():
+        elements_path = os.path.join("data", resource, "header.csv")
 
         if not os.path.exists(elements_path):
-            pd.DataFrame(
-                columns=header).to_csv(
-                    elements_path, sep=';', index=False)
+            pd.DataFrame(columns=header).to_csv(
+                elements_path, sep=";", index=False
+            )
 
 
-def metadata_from_data(directory='', name='datapackage', config=None):
+def metadata_from_data(directory="", name="datapackage", config=None):
     """
     """
 
-    descriptor = infer(os.path.join(directory, '**/*.csv'))
+    descriptor = infer(os.path.join(directory, "**/*.csv"))
 
-    descriptor['name'] = name
+    descriptor["name"] = name
 
     # create Package based on infer above
     p = Package(descriptor)
 
     # save the datapackage
-    p.save('datapackage.json')
+    p.save("datapackage.json")
 
 
 def read_sequences(filename, directory=None):
@@ -486,22 +513,23 @@ def read_sequences(filename, directory=None):
     """
 
     if not directory:
-        directory = 'data/sequences'
+        directory = "data/sequences"
 
     path = os.path.join(directory, filename)
 
     if os.path.exists(path):
-        sequences = pd.read_csv(path, sep=';', index_col=['timeindex'],
-                                parse_dates=True)
+        sequences = pd.read_csv(
+            path, sep=";", index_col=["timeindex"], parse_dates=True
+        )
 
-        #if len(sequences.index.difference(timeindex())) > 0:
+        # if len(sequences.index.difference(timeindex())) > 0:
         #    raise ValueError("""
         #        Timeindex of file:
         #            {}
         #        does not match scenario timeindex!""".format(path))
 
     else:
-        sequences = pd.DataFrame(columns=['timeindex']).set_index('timeindex')
+        sequences = pd.DataFrame(columns=["timeindex"]).set_index("timeindex")
 
     return sequences
 
@@ -509,19 +537,16 @@ def read_sequences(filename, directory=None):
 def read_elements(filename, directory=None):
     """
     """
-    config = get_config()
-
     if not directory:
-        directory = 'data/elements'
+        directory = "data/elements"
 
     path = os.path.join(directory, filename)
 
     if os.path.exists(path):
-        elements = pd.read_csv(path, sep=';')
-        elements.set_index('name', inplace=True)
+        elements = pd.read_csv(path, sep=";")
+        elements.set_index("name", inplace=True)
     else:
-        elements = pd.DataFrame(
-            columns=['name']).set_index('name')
+        elements = pd.DataFrame(columns=["name"]).set_index("name")
 
     return elements
 
@@ -533,24 +558,24 @@ def read_geometries(filename, directory=None):
     pd.Series
     """
     if not directory:
-        directory = 'data/geometries'
+        directory = "data/geometries"
 
     path = os.path.join(directory, filename)
 
-    if os.path.splitext(filename)[1] == '.geojson':
+    if os.path.splitext(filename)[1] == ".geojson":
         if os.path.exists(path):
-            with open(path, 'r') as infile:
-                features = load(infile)['features']
-                names = [f['properties']['name'] for f in features]
-                geometries = [shape(f['geometry']) for f in features]
+            with open(path, "r") as infile:
+                features = load(infile)["features"]
+                names = [f["properties"]["name"] for f in features]
+                geometries = [shape(f["geometry"]) for f in features]
                 geometries = pd.Series(dict(zip(names, geometries)))
 
-    if os.path.splitext(filename)[1] == '.csv':
+    if os.path.splitext(filename)[1] == ".csv":
         if os.path.exists(path):
-            geometries = pd.read_csv(path, sep=';', index_col=['name'])
+            geometries = pd.read_csv(path, sep=";", index_col=["name"])
         else:
-            geometries = pd.Series(name='geometry')
-            geometries.index.name= 'name'
+            geometries = pd.Series(name="geometry")
+            geometries.index.name = "name"
 
     return geometries
 
@@ -563,95 +588,104 @@ def write_geometries(filename, geometries, directory=None):
         Index entries become name fields in GeoJSON properties.
     """
     if not directory:
-        directory = 'data/geometries'
+        directory = "data/geometries"
 
     path = os.path.join(directory, filename)
 
-    if os.path.splitext(filename)[1] == '.geojson':
-        features = FeatureCollection([Feature(
-            geometry=v,
-            properties={'name': k}) for k, v in geometries.iteritems()])
+    if os.path.splitext(filename)[1] == ".geojson":
+        features = FeatureCollection(
+            [
+                Feature(geometry=v, properties={"name": k})
+                for k, v in geometries.iteritems()
+            ]
+        )
 
         if os.path.exists(path):
             with open(path) as infile:
-                existing_features = load(infile)['features']
+                existing_features = load(infile)["features"]
 
-            names = [f['properties']['name'] for f in existing_features]
+            names = [f["properties"]["name"] for f in existing_features]
 
-            assert all(i not in names for i in geometries.index), 'Cannot ' \
-                'create duplicate entries in %s.' % filename
+            assert all(i not in names for i in geometries.index), (
+                "Cannot " "create duplicate entries in %s." % filename
+            )
 
-            features['features'] += existing_features
+            features["features"] += existing_features
 
-        with open(path, 'w') as outfile:
+        with open(path, "w") as outfile:
             dump(features, outfile)
 
-    if os.path.splitext(filename)[1] == '.csv':
+    if os.path.splitext(filename)[1] == ".csv":
         if os.path.exists(path):
             existing_geometries = read_geometries(filename, directory)
             geometries = pd.concat(
-                [existing_geometries, geometries], verify_integrity=True)
+                [existing_geometries, geometries], verify_integrity=True
+            )
 
-        geometries.index.name= 'name'
+        geometries.index.name = "name"
 
-        logging.info('Writing geometries to {}.'.format(path))
+        logging.info("Writing geometries to {}.".format(path))
 
         geometries.to_csv(path, sep=";", header=True)
 
     return path
+
 
 def write_elements(filename, elements, directory=None, replace=False):
     """
     """
 
     if not directory:
-        directory = 'data/elements'
+        directory = "data/elements"
 
     path = os.path.join(directory, filename)
 
-    if elements.index.name != 'name':
-        elements.index.name = 'name'
+    if elements.index.name != "name":
+        elements.index.name = "name"
 
     if not replace:
         existing_elements = read_elements(filename)
         elements = pd.concat(
-            [existing_elements, elements], verify_integrity=True)
-
-
+            [existing_elements, elements], verify_integrity=True
+        )
 
     elements = elements.reindex(sorted(elements.columns), axis=1)
 
     elements.reset_index(inplace=True)
-    logging.info('Writing elements to {}.'.format(path))
-    elements.to_csv(path, sep=';', quotechar="'", index=0)
+    logging.info("Writing elements to {}.".format(path))
+    elements.to_csv(path, sep=";", quotechar="'", index=0)
 
     return path
+
 
 def write_sequences(filename, sequences, directory=None, replace=False):
     """
     """
 
     if not directory:
-        directory = 'data/sequences'
+        directory = "data/sequences"
 
     path = os.path.join(directory, filename)
 
-    if sequences.index.name != 'timeindex':
-        sequences.index.name = 'timeindex'
+    if sequences.index.name != "timeindex":
+        sequences.index.name = "timeindex"
 
-    if replace == True:
+    if replace:
         sequences = sequences
     else:
         existing_sequences = read_sequences(filename, directory=directory)
-        sequences = pd.concat([existing_sequences, sequences], axis=1,
-                              verify_integrity=True)
+        sequences = pd.concat(
+            [existing_sequences, sequences], axis=1, verify_integrity=True
+        )
 
         if len(sequences.index.difference(timeindex())) > 0:
-            raise ValueError("Wrong timeindex for sequence {}.".format(filename))
+            raise ValueError(
+                "Wrong timeindex for sequence {}.".format(filename)
+            )
 
     sequences = sequences.reindex(sorted(sequences.columns), axis=1)
 
-    logging.info('Writing sequences to {}.'.format(path))
-    sequences.to_csv(path, sep=';', date_format='%Y-%m-%dT%H:%M:%SZ')
+    logging.info("Writing sequences to {}.".format(path))
+    sequences.to_csv(path, sep=";", date_format="%Y-%m-%dT%H:%M:%SZ")
 
     return path

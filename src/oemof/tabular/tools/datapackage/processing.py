@@ -3,7 +3,6 @@
 """
 
 import errno
-import logging
 import json
 import os
 import shutil
@@ -11,8 +10,8 @@ import shutil
 from datapackage import Package
 import pandas as pd
 
-from datapackage_utilities.building import (write_elements, write_sequences,
-                                            package_from_resources)
+from .building import package_from_resources, write_elements, write_sequences
+
 
 def copy_datapackage(source, destination, subset=None):
     """
@@ -26,27 +25,37 @@ def copy_datapackage(source, destination, subset=None):
         Name of directory to only copy subset of datapackage (for example
         only the 'data' directory)
    """
-    if source.endswith('.json'):
+    if source.endswith(".json"):
         package_root = os.path.dirname(os.path.realpath(source))
-        sp = Package(os.path.join(package_root, 'datapackage.json')) # source package
+        sp = Package(
+            os.path.join(package_root, "datapackage.json")
+        )  # source package
     else:
-        raise ValueError('Set a path to a *.json meta-data file for copying.')
+        raise ValueError("Set a path to a *.json meta-data file for copying.")
 
     try:
         if subset:
-            shutil.copytree(os.path.join(package_root, subset),
-                            os.path.join(destination, subset))
+            shutil.copytree(
+                os.path.join(package_root, subset),
+                os.path.join(destination, subset),
+            )
             # write new meta data for copied data
             p = Package(base_path=destination)
-            p.infer(os.path.join(destination, '**/*.csv'))
+            p.infer(os.path.join(destination, "**/*.csv"))
             for r in p.resources:
-                r.descriptor['schema']['foreignKeys'] = sp.get_resource(
-                    r.name).descriptor['schema'].get('foreignKeys', [])
+                r.descriptor["schema"]["foreignKeys"] = (
+                    sp.get_resource(r.name)
+                    .descriptor["schema"]
+                    .get("foreignKeys", [])
+                )
                 r.commit()
-                r.save(os.path.join(destination, 'resources', r.name + '.json'))
+                r.save(
+                    os.path.join(destination, "resources", r.name + ".json")
+                )
             package_from_resources(
                 output_path=destination,
-                resource_path=os.path.join(destination, 'resources'))
+                resource_path=os.path.join(destination, "resources"),
+            )
 
         else:
             shutil.copytree(package_root, destination)
@@ -55,13 +64,12 @@ def copy_datapackage(source, destination, subset=None):
         if e.errno == errno.ENOTDIR:
             shutil.copy(package_root, destination)
         else:
-            raise IOError('Directory not copied. Error: %s' % e)
+            raise IOError("Directory not copied. Error: %s" % e)
 
-    return(destination)
+    return destination
 
 
-
-def clean_datapackage(path=None, directories=['data', 'cache', 'resources']):
+def clean_datapackage(path=None, directories=["data", "cache", "resources"]):
     """
     Parameters
     ----------
@@ -78,20 +86,32 @@ def clean_datapackage(path=None, directories=['data', 'cache', 'resources']):
     for d in directories:
         shutil.rmtree(d, ignore_errors=True)
 
+
 def to_dict(value):
     """ Convert value from e.g. csv-reader to valid json / dict
     """
-    if value == '':
+    if value == "":
         return {}
     else:
         return json.loads(value)
 
-def merge_packages(p1, p2, destpath, target_bus=None, inserted_bus=None, name=None,
-                   how=None, refm={'dispatchable-generator': 'capacity',
-                                   'volatile-generator': 'capacity',
-                                   'demand': 'amount',
-                                   'transshipment': None,
-                                   'pumped-storage': ['capacity', 'power']}):
+
+def merge_packages(
+    p1,
+    p2,
+    destpath,
+    target_bus=None,
+    inserted_bus=None,
+    name=None,
+    how=None,
+    refm={
+        "dispatchable-generator": "capacity",
+        "volatile-generator": "capacity",
+        "demand": "amount",
+        "transshipment": None,
+        "pumped-storage": ["capacity", "power"],
+    },
+):
     """
     Parameters
     ----------
@@ -140,14 +160,17 @@ def merge_packages(p1, p2, destpath, target_bus=None, inserted_bus=None, name=No
     package2 = Package(p2)
 
     if name is None:
-        name = (package1.descriptor.get(name, 'unkown1') +
-                '-' +
-                package2.descriptor.get(name, 'unkown2') +
-                '-merged')
+        name = (
+            package1.descriptor.get(name, "unkown1")
+            + "-"
+            + package2.descriptor.get(name, "unkown2")
+            + "-merged"
+        )
 
     destpath = os.path.abspath(destpath)
     directories = set(
-        [os.path.dirname(r.descriptor['path']) for r in package1.resources])
+        [os.path.dirname(r.descriptor["path"]) for r in package1.resources]
+    )
 
     for d in directories:
         os.makedirs(os.path.join(destpath, d))
@@ -158,63 +181,89 @@ def merge_packages(p1, p2, destpath, target_bus=None, inserted_bus=None, name=No
             print("Resource `{}` exists. Merging resources...".format(r.name))
 
             r1_df = pd.DataFrame(
-                package1.get_resource(r.name).read(keyed=True))
+                package1.get_resource(r.name).read(keyed=True)
+            )
             r2_df = pd.DataFrame(
-                package2.get_resource(r.name).read(keyed=True))
+                package2.get_resource(r.name).read(keyed=True)
+            )
 
-            if os.path.dirname(r.descriptor['path']) == 'data/elements':
-                if how == 'techwise':
+            if os.path.dirname(r.descriptor["path"]) == "data/elements":
+                if how == "techwise":
                     if refm.get(r.name) is not None:
-                        for tech in r1_df['tech'].unique():
-                            r2_df.loc[(r2_df['bus'] == target_bus) &
-                                      (r2_df['tech'] == tech), refm[r.name]] =  (
-                                r2_df.loc[(r2_df['bus'] == target_bus) &
-                                          (r2_df['tech'] == tech), refm[r.name]].values -
-                                sum(r1_df.loc[(r1_df['bus'] == inserted_bus) &
-                                          (r1_df['tech'] == tech), refm[r.name]].values))
-                elif how == 'elementwise':
+                        for tech in r1_df["tech"].unique():
+                            r2_df.loc[
+                                (r2_df["bus"] == target_bus)
+                                & (r2_df["tech"] == tech),
+                                refm[r.name],
+                            ] = r2_df.loc[
+                                (r2_df["bus"] == target_bus)
+                                & (r2_df["tech"] == tech),
+                                refm[r.name],
+                            ].values - sum(
+                                r1_df.loc[
+                                    (r1_df["bus"] == inserted_bus)
+                                    & (r1_df["tech"] == tech),
+                                    refm[r.name],
+                                ].values
+                            )
+                elif how == "elementwise":
                     if refm.get(r.name) is not None:
-                        for name in r1_df['name']:
-                            r2_df.loc[(r2_df['bus'] == target_bus) &
-                                      (r2_df['name'] == name), refm[r.name]] =  (
-                                r2_df.loc[(r2_df['bus'] == target_bus) &
-                                          (r2_df['name'] == name), refm[r.name]].values -
-                                r1_df.loc[(r1_df['bus'] == inserted_bus) &
-                                          (r1_df['name'] == name), refm[r.name]].values)
+                        for name in r1_df["name"]:
+                            r2_df.loc[
+                                (r2_df["bus"] == target_bus)
+                                & (r2_df["name"] == name),
+                                refm[r.name],
+                            ] = (
+                                r2_df.loc[
+                                    (r2_df["bus"] == target_bus)
+                                    & (r2_df["name"] == name),
+                                    refm[r.name],
+                                ].values
+                                - r1_df.loc[
+                                    (r1_df["bus"] == inserted_bus)
+                                    & (r1_df["name"] == name),
+                                    refm[r.name],
+                                ].values
+                            )
                 else:
                     pass
 
                 write_elements(
-                    r.name + '.csv',
-                    pd.concat([r1_df, r2_df]).set_index('name'),
-                    directory=os.path.join(destpath, 'data/elements'),
-                    replace=True)
-                #TODO: Update meta data for the newly created resource...
+                    r.name + ".csv",
+                    pd.concat([r1_df, r2_df]).set_index("name"),
+                    directory=os.path.join(destpath, "data/elements"),
+                    replace=True,
+                )
+                # TODO: Update meta data for the newly created resource...
 
             # if sequences, just merge, as no subtraction etc. is necessary
-            elif os.path.dirname(r.descriptor['path']) == 'data/sequences':
-                r1_df.set_index('timeindex', inplace=True)
-                r2_df.set_index('timeindex', inplace=True)
+            elif os.path.dirname(r.descriptor["path"]) == "data/sequences":
+                r1_df.set_index("timeindex", inplace=True)
+                r2_df.set_index("timeindex", inplace=True)
                 write_sequences(
-                    r.name + '.csv',
+                    r.name + ".csv",
                     pd.concat([r1_df, r2_df], axis=1),
-                    directory=os.path.join(destpath, 'data/sequences'),
-                    replace=True)
-                #TODO: Update meta data for the newly created resource...
+                    directory=os.path.join(destpath, "data/sequences"),
+                    replace=True,
+                )
+                # TODO: Update meta data for the newly created resource...
 
             # same for geometries as for sequences ?
-            elif os.path.dirname(r.descriptor['path']) == 'data/geometries':
+            elif os.path.dirname(r.descriptor["path"]) == "data/geometries":
                 # TODO: merge geometries
                 pass
 
         # if resource does not exist as file, just copy this file and add meta
         # data to the datapackage.json file
         else:
-            print(("Resource `{}` does not exist in package `{}`. " +
-                   "Adding resource...").format(
-                        r.name, package2.descriptor.get('name', 'unknown')))
+            print(
+                (
+                    "Resource `{}` does not exist in package `{}`. "
+                    + "Adding resource..."
+                ).format(r.name, package2.descriptor.get("name", "unknown"))
+            )
 
-            rpath = os.path.join(destpath, r.descriptor['path'])
+            rpath = os.path.join(destpath, r.descriptor["path"])
 
             pd.DataFrame(r.read(keyed=True)).to_csv(rpath, index=False)
 
@@ -222,9 +271,9 @@ def merge_packages(p1, p2, destpath, target_bus=None, inserted_bus=None, name=No
             package2.add_resource(r.descriptor)
             package2.commit()
 
-    package2.save(os.path.join(destpath, 'datapackage.json'))
-    print('Merge successfull. Merged-package destination: {}'.format(
-                                                        destpath))
+    package2.save(os.path.join(destpath, "datapackage.json"))
+    print("Merge successfull. Merged-package destination: {}".format(destpath))
+
 
 # merge_packages(p1='/home/simnh/projects/Bordelum/datapackage.json',
 #                p2='/home/simnh/projects/e-highway/datapackage.json',
