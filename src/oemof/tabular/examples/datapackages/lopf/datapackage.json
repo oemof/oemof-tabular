@@ -1,229 +1,229 @@
 {
+    "profile": "tabular-data-package",
     "resources": [
         {
-            "name": "line",
             "format": "csv",
             "profile": "tabular-data-resource",
-            "path": "data/elements/line.csv",
+            "encoding": "utf-8",
             "mediatype": "text/csv",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "name",
-                        "format": "default",
-                        "type": "string"
-                    },
-                    {
-                        "name": "type",
-                        "format": "default",
-                        "type": "string"
-                    },
-                    {
-                        "name": "capacity",
-                        "format": "default",
-                        "type": "integer"
-                    },
-                    {
-                        "name": "capacity_cost",
-                        "format": "default",
-                        "type": "number"
-                    },
-                    {
-                        "name": "reactance",
-                        "format": "default",
-                        "type": "number"
-                    },
-                    {
-                        "name": "from_bus",
-                        "format": "default",
-                        "type": "string"
-                    },
-                    {
-                        "name": "to_bus",
-                        "format": "default",
-                        "type": "string"
-                    }
-                ],
-                "foreignKeys": [
-                      {
-                          "fields": "from_bus",
-                          "reference": {
-                              "fields": "name",
-                              "resource": "bus"
-                          }
-                      },
-                      {
-                          "fields": "to_bus",
-                          "reference": {
-                              "fields": "name",
-                              "resource": "bus"
-                          }
-                      }
-                  ],
-                "missingValues": [
-                    ""
-                ]
-            },
-            "encoding": "utf-8"
-        },
-        {
-            "name": "dispatchable",
-            "format": "csv",
-            "profile": "tabular-data-resource",
             "path": "data/elements/dispatchable.csv",
-            "mediatype": "text/csv",
+            "name": "dispatchable",
             "schema": {
                 "fields": [
                     {
-                        "name": "name",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "name"
                     },
                     {
-                        "name": "type",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "type"
                     },
                     {
-                        "name": "capacity",
                         "format": "default",
-                        "type": "integer"
+                        "type": "integer",
+                        "name": "capacity"
                     },
                     {
-                        "name": "capacity_cost",
                         "format": "default",
-                        "type": "number"
+                        "type": "string",
+                        "name": "capacity_cost"
                     },
                     {
-                        "name": "bus",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "bus"
                     },
                     {
-                        "name": "marginal_cost",
                         "format": "default",
-                        "type": "integer"
+                        "type": "integer",
+                        "name": "marginal_cost"
                     },
                     {
-                        "name": "profile",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "profile"
                     },
                     {
-                        "name": "edge_parameters",
                         "format": "default",
-                        "type": "object"
+                        "type": "object",
+                        "name": "output_parameters"
                     },
                     {
-                        "name": "carrier",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "carrier"
                     }
                 ],
                 "foreignKeys": [
-                      {
-                          "fields": "bus",
-                          "reference": {
-                              "fields": "name",
-                              "resource": "bus"
-                          }
-                      }
+                    {
+                        "fields": "bus",
+                        "reference": {
+                            "fields": "name",
+                            "resource": "bus"
+                        }
+                    }
                 ],
                 "missingValues": [
                     ""
-                ]
-            },
-            "encoding": "utf-8"
+                ],
+                "primaryKey": "name"
+            }
         },
         {
-            "name": "bus",
             "format": "csv",
             "profile": "tabular-data-resource",
+            "encoding": "utf-8",
+            "mediatype": "text/csv",
+            "path": "data/elements/line.csv",
+            "name": "line",
+            "schema": {
+                "fields": [
+                    {
+                        "format": "default",
+                        "type": "string",
+                        "name": "name"
+                    },
+                    {
+                        "format": "default",
+                        "type": "string",
+                        "name": "type"
+                    },
+                    {
+                        "format": "default",
+                        "type": "integer",
+                        "name": "nominal_value"
+                    },
+                    {
+                        "format": "default",
+                        "type": "number",
+                        "name": "reactance"
+                    },
+                    {
+                        "format": "default",
+                        "type": "string",
+                        "name": "from_bus"
+                    },
+                    {
+                        "format": "default",
+                        "type": "string",
+                        "name": "to_bus"
+                    }
+                ],
+                "foreignKeys": [
+                    {
+                        "fields": "from_bus",
+                        "reference": {
+                            "fields": "name",
+                            "resource": "bus"
+                        }
+                    },
+                    {
+                        "fields": "to_bus",
+                        "reference": {
+                            "fields": "name",
+                            "resource": "bus"
+                        }
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ],
+                "primaryKey": "name"
+            }
+        },
+        {
+            "format": "csv",
+            "profile": "tabular-data-resource",
+            "encoding": "utf-8",
+            "mediatype": "text/csv",
             "path": "data/elements/bus.csv",
-            "mediatype": "text/csv",
+            "name": "bus",
             "schema": {
                 "fields": [
                     {
-                        "name": "name",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "name"
                     },
                     {
-                        "name": "type",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "type"
                     },
                     {
-                        "name": "v_max",
                         "format": "default",
-                        "type": "integer"
+                        "type": "integer",
+                        "name": "v_max"
                     },
                     {
-                        "name": "v_min",
                         "format": "default",
-                        "type": "integer"
+                        "type": "integer",
+                        "name": "v_min"
                     },
                     {
-                        "name": "slack",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "slack"
                     }
                 ],
                 "missingValues": [
                     ""
-                ]
-            },
-            "encoding": "utf-8"
+                ],
+                "primaryKey": "name"
+            }
         },
         {
-            "name": "load",
             "format": "csv",
             "profile": "tabular-data-resource",
-            "path": "data/elements/load.csv",
+            "encoding": "utf-8",
             "mediatype": "text/csv",
+            "path": "data/elements/load.csv",
+            "name": "load",
             "schema": {
                 "fields": [
                     {
-                        "name": "name",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "name"
                     },
                     {
-                        "name": "amount",
                         "format": "default",
-                        "type": "integer"
+                        "type": "integer",
+                        "name": "amount"
                     },
                     {
-                        "name": "profile",
                         "format": "default",
-                        "type": "integer"
+                        "type": "integer",
+                        "name": "profile"
                     },
                     {
-                        "name": "type",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "type"
                     },
                     {
-                        "name": "bus",
                         "format": "default",
-                        "type": "string"
+                        "type": "string",
+                        "name": "bus"
                     }
                 ],
                 "foreignKeys": [
-                      {
-                          "fields": "bus",
-                          "reference": {
-                              "fields": "name",
-                              "resource": "bus"
-                          }
-                      }
+                    {
+                        "fields": "bus",
+                        "reference": {
+                            "fields": "name",
+                            "resource": "bus"
+                        }
+                    }
                 ],
                 "missingValues": [
                     ""
-                ]
-            },
-            "encoding": "utf-8"
+                ],
+                "primaryKey": "name"
+            }
         }
     ],
-    "profile": "tabular-data-package"
+    "name": "oemof-tabular-lopf-example"
 }

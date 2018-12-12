@@ -1,3 +1,5 @@
-This is a datapackage example for the oemof datapackage reader.
+# Dispatch example for oemof-tabular
 
-Should adhere to: https://frictionlessdata.io/specs/tabular-data-package/
+Run `scripts/infer.py` from the datapackage root directory to add the
+meta data file `datapackage.json` after updating the resources of the
+datapackage.

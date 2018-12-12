@@ -1,45 +1,13 @@
 {
+    "name": "oemof-tabular-foreignkeys-examples",
     "profile": "tabular-data-package",
-    "name": "renpass-foreignkeys-examples",
     "resources": [
         {
-            "path": "data/elements/bus.csv",
-            "profile": "tabular-data-resource",
-            "name": "bus",
-            "format": "csv",
+            "name": "component",
             "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "name",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "type",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "balanced",
-                        "type": "boolean",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ],
-                "primaryKey": "name"
-            }
-        },
-        {
+            "format": "csv",
             "path": "data/elements/component.csv",
             "profile": "tabular-data-resource",
-            "name": "component",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
             "schema": {
                 "fields": [
                     {
@@ -68,7 +36,12 @@
                         "format": "default"
                     },
                     {
-                        "name": "edge_parameters",
+                        "name": "output_parameters",
+                        "type": "object",
+                        "format": "default"
+                    },
+                    {
+                        "name": "input_parameters",
                         "type": "object",
                         "format": "default"
                     },
@@ -93,40 +66,65 @@
                         "format": "default"
                     }
                 ],
-                "missingValues": [
-                    ""
-                ],
-                "primaryKey": "name",
                 "foreignKeys": [
                     {
-                        "fields": "bus",
                         "reference": {
                             "resource": "bus",
                             "fields": "name"
-                        }
+                        },
+                        "fields": "bus"
                     },
                     {
-                        "fields": "profile",
                         "reference": {
                             "resource": "component_profile"
-                        }
-                    },
-                    {
-                        "fields": "max",
-                        "reference": {
-                            "resource": "max"
-                        }
+                        },
+                        "fields": "profile"
                     }
+                ],
+                "primaryKey": "name",
+                "missingValues": [
+                    ""
                 ]
-            }
+            },
+            "encoding": "utf-8"
         },
         {
+            "name": "bus",
+            "mediatype": "text/csv",
+            "format": "csv",
+            "path": "data/elements/bus.csv",
+            "profile": "tabular-data-resource",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "balanced",
+                        "type": "boolean",
+                        "format": "default"
+                    }
+                ],
+                "primaryKey": "name",
+                "missingValues": [
+                    ""
+                ]
+            },
+            "encoding": "utf-8"
+        },
+        {
+            "name": "max",
+            "mediatype": "text/csv",
+            "format": "csv",
             "path": "data/sequences/max.csv",
             "profile": "tabular-data-resource",
-            "name": "max",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
             "schema": {
                 "fields": [
                     {
@@ -143,15 +141,15 @@
                 "missingValues": [
                     ""
                 ]
-            }
+            },
+            "encoding": "utf-8"
         },
         {
+            "name": "component_profile",
+            "mediatype": "text/csv",
+            "format": "csv",
             "path": "data/sequences/component_profile.csv",
             "profile": "tabular-data-resource",
-            "name": "component_profile",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
             "schema": {
                 "fields": [
                     {
@@ -173,7 +171,8 @@
                 "missingValues": [
                     ""
                 ]
-            }
+            },
+            "encoding": "utf-8"
         }
     ]
 }

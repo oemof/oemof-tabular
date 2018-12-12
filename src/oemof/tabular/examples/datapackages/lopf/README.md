@@ -1,3 +1,8 @@
-This is a datapackage example for the oemof datapackage reader.
+# LOPF example for oemof-tabular
 
-Should adhere to: https://frictionlessdata.io/specs/tabular-data-package/
+Run `scripts/infer.py` from the datapackage root directory to add the
+meta data file `datapackage.json` after updating the resources of the
+datapackage.
+
+**Note**: In this package we do not use facades from oemof tabular but components 
+from `oemof.solph.custom` sub-package.

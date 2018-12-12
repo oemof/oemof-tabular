@@ -59,7 +59,6 @@ class Facade(Node):
                        "attribute `capacity_cost` of component {}!")
                 raise ValueError(msg.format(self.label))
             else:
-                # TODO: calculate ep_costs from specific capex
                 if isinstance(self, GenericStorage):
                     if self.storage_capacity_cost is not None:
                         self.investment = Investment(
@@ -84,6 +83,9 @@ class Facade(Node):
 class Reservoir(GenericStorage, Facade):
     """ A Reservoir storage unit, that is initially half full.
 
+    Note that the investment option is not available for this facade at
+    the current development state.
+
     Parameters
     ----------
     bus: oemof.solph.Bus
@@ -95,9 +97,14 @@ class Reservoir(GenericStorage, Facade):
         reservoir
     efficiency: numeric
         Efficiency of the turbine converting inflow to electricity
-        production
+        production, default: 1
     profile: array-like
         Absolute profile of inflow into the storage
+    input_parameters: dict
+        Dictionary to specifiy parameters on the input edge. You can use
+        all keys that are available for the  oemof.solph.network.Flow class.
+    output_parameters: dict
+        see: input_parameters
     """
 
     def __init__(self, *args, **kwargs):
@@ -111,20 +118,18 @@ class Reservoir(GenericStorage, Facade):
 
         self.efficiency = kwargs.get('efficiency', 1)
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.initial_storage_capacity = kwargs.get(initial_storage_capacity, 0.5)
 
-        self.storage_capacity_cost = kwargs.get('storage_capacity_cost')
+        self.input_parameters = kwargs.get('input_parameters', {})
 
-        self.input_edge_parameters = kwargs.get('input_edge_parameters', {})
-
-        self.output_edge_parameters = kwargs.get('output_edge_parameters', {})
+        self.output_parameters = kwargs.get('output_parameters', {})
 
         self.build_solph_components()
 
     def build_solph_components(self):
         """
         """
-        self.initial_capacity = 0.5
+        self.initial_capacity = self.initial_storage_capacity
 
         self.nominal_capacity = self.storage_capacity
 
@@ -136,24 +141,18 @@ class Reservoir(GenericStorage, Facade):
         if self.investment:
             raise NotImplementedError(
                 "Investment for reservoir class is not implemented.")
-            # if self.capacity_ratio is None:
-            #     raise AttributeError(
-            #         ("You need to set attr `capacity_ratio` for "
-            #          "component {}").format(self.label))
-            # else:
-            #     self.invest_relation_output_capacity = self.capacity_ratio
 
         inflow = Source(
-            label="inflow" + self.label,
+            label=self.label+ "-inflow",
             outputs={
                 self: Flow(nominal_value=1,
                            max=self.profile,
                            fixed=False)})
 
         self.outputs.update({
-            self.bus: Flow(nominal_value=self.capacity,
+            self.output: Flow(nominal_value=self.capacity,
                            investment=investment,
-                           **self.output_edge_parameters)})
+                           **self.output_parameters)})
 
         self.subnodes = (inflow,)
 
@@ -165,10 +164,6 @@ class Dispatchable(Source, Facade):
     ----------
     bus: oemof.solph.Bus
         An oemof bus instance where the unit is connected to with its output
-    tech: string
-        Description of technoglogy
-    carrier: string
-        Carrier of input used for production (for example gas, coal, ...)
     capacity: numeric
         The installed power of the generator (e.g. in MW). If not set the
         capacity will be optimized (s. also `capacity_cost` argument)
@@ -183,8 +178,8 @@ class Dispatchable(Source, Facade):
         Investment costs per unit of capacity (e.g. Euro / MW) .
         If capacity is not set, this value will be used for optimizing the
         generators capacity.
-    edge_paramerters: dict (optional)
-        Parameters to set on the output Edge of the component (see. oemof.solph
+    output_paramerters: dict (optional)
+        Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if capacity is to be optimized
@@ -193,8 +188,6 @@ class Dispatchable(Source, Facade):
     def __init__(self, *args, **kwargs):
         kwargs.update({'_facade_requires_': ['bus', 'carrier', 'tech']})
         super().__init__(*args, **kwargs)
-
-        self.carrier = kwargs.get('carrier')
 
         self.profile = kwargs.get('profile')
 
@@ -206,7 +199,7 @@ class Dispatchable(Source, Facade):
 
         self.capacity_cost = kwargs.get('capacity_cost')
 
-        self.edge_parameters = kwargs.get('edge_parameters', {})
+        self.output_parameters = kwargs.get('output_parameters', {})
 
         self.build_solph_components()
 
@@ -217,7 +210,7 @@ class Dispatchable(Source, Facade):
                  variable_costs=self.marginal_cost,
                  actual_value=self.profile,
                  investment=self._investment(),
-                 **self.edge_parameters)
+                 **self.output_parameters)
 
         self.outputs.update({self.bus: f})
 
@@ -229,10 +222,6 @@ class Volatile(Source, Facade):
     ----------
     bus: oemof.solph.Bus
         An oemof bus instance where the generator is connected to
-    tech: string
-        Description of technoglogy
-    carrier: string
-        Carrier of input used for production (for example solar, wind, ...)
     capacity: numeric
         The installed power of the unit (e.g. in MW).
     profile: array-like
@@ -246,8 +235,8 @@ class Volatile(Source, Facade):
         Investment costs per unit of capacity (e.g. Euro / MW) .
         If capacity is not set, this value will be used for optimizing the
         generators capacity.
-    edge_paramerters: dict (optional)
-        Parameters to set on the output Edge of the component (see. oemof.solph
+    output_paramerters: dict (optional)
+        Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if investment
@@ -256,8 +245,6 @@ class Volatile(Source, Facade):
     def __init__(self, *args, **kwargs):
         kwargs.update({'_facade_requires_': ['bus', 'carrier', 'tech']})
         super().__init__(*args, **kwargs)
-
-        self.carrier = kwargs.get('carrier')
 
         self.profile = kwargs.get('profile')
 
@@ -269,7 +256,7 @@ class Volatile(Source, Facade):
 
         self.capacity_cost = kwargs.get('capacity_cost')
 
-        self.edge_parameters = kwargs.get('edge_parameters', {})
+        self.output_parameters = kwargs.get('output_parameters', {})
 
         self.build_solph_components()
 
@@ -281,7 +268,7 @@ class Volatile(Source, Facade):
                  actual_value=self.profile,
                  investment=self._investment(),
                  fixed=True,
-                 **self.edge_parameters)
+                 **self.output_parameters)
 
         self.outputs.update({self.bus: f})
 
@@ -301,8 +288,6 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     fuel_bus:  oemof.solph.Bus
         An oemof bus instance where the chp unit is connected to with its
         input
-    carrier: string
-        Description of input carrier (for example gas, oil, biomass)
     carrier_cost: numeric
         Cost per unit of used input carrier
     capacity: numeric
@@ -352,7 +337,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
         self.capacity_cost = kwargs.get('capacity_cost')
 
-        self.input_edge_parameters = kwargs.get('input_edge_parameters', {})
+        self.input_parameters = kwargs.get('input_parameters', {})
 
         self.build_solph_components()
 
@@ -366,7 +351,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
         self.inputs.update({
             self.fuel_bus: Flow(variable_cost=self.carrier_cost,
-                                **self.input_edge_parameters)})
+                                **self.input_parameters)})
 
         self.outputs.update({
             self.electricity_bus: Flow(nominal_value=self.capacity,
@@ -393,8 +378,6 @@ class BackpressureTurbine(Transformer, Facade):
     fuel_bus: oemof.solph.Bus
         An oemof bus instance where the chp unit is connected to with its
         input
-    carrier: string
-        Description of the input carrier (for example: gas, coal, etc.)
     carrier_cost: numeric
         Input carrier cost of the backpressure unit, Default: 0
     capacity: numeric
@@ -431,13 +414,11 @@ class BackpressureTurbine(Transformer, Facade):
 
         self.marginal_cost = kwargs.get('marginal_cost', 0)
 
-        self.carrier = kwargs.get('carrier')
-
         self.carrier_cost = kwargs.get('carrier_cost', 0)
 
         self.capacity_cost = kwargs.get('capacity_cost')
 
-        self.input_edge_parameters = kwargs.get('input_edge_parameters', {})
+        self.input_parameters = kwargs.get('input_parameters', {})
 
         self.build_solph_components()
 
@@ -451,7 +432,7 @@ class BackpressureTurbine(Transformer, Facade):
 
         self.inputs.update({
             self.fuel_bus: Flow(variable_costs=self.carrier_cost,
-                                **self.input_edge_parameters)})
+                                **self.input_parameters)})
 
         self.outputs.update({
             self.electricity_bus: Flow(nominal_value=self.capacity,
@@ -480,6 +461,12 @@ class Conversion(Transformer, Facade):
         Investment costs per unit of output capacity.
         If capacity is not set, this value will be used for optimizing the
         conversion output capacity.
+    input_parameters: dict (optional)
+        Set parameters on the input edge of the storage (see oemof.solph for
+        more information on possible parameters)
+    ouput_parameters: dict (optional)
+        Set parameters on the output edge of the storage (see oemof.solph for
+        more information on possible parameters)
     """
 
     def __init__(self, *args, **kwargs):
@@ -494,9 +481,9 @@ class Conversion(Transformer, Facade):
 
         self.capacity_cost = kwargs.get('capacity_cost')
 
-        self.input_edge_parameters = kwargs.get('input_edge_parameters', {})
+        self.input_parameters = kwargs.get('input_parameters', {})
 
-        self.output_edge_parameters = kwargs.get('output_edge_parameters', {})
+        self.output_parameters = kwargs.get('output_parameters', {})
 
         self.build_solph_components()
 
@@ -508,13 +495,13 @@ class Conversion(Transformer, Facade):
             self.to_bus: sequence(self.efficiency)})
 
         self.inputs.update({
-            self.from_bus: Flow(**self.input_edge_parameters)})
+            self.from_bus: Flow(**self.input_parameters)})
 
         self.outputs.update({
             self.to_bus: Flow(nominal_value=self.capacity,
-                              variable_costs=self.marginal_cost,
-                              investment=self._investment(),
-                              **self.output_edge_parameters)})
+                          variable_costs=self.marginal_cost,
+                          investment=self._investment(),
+                          **self.output_parameters)})
 
 
 class Load(Sink, Facade):
@@ -526,12 +513,10 @@ class Load(Sink, Facade):
          An oemof bus instance where the demand is connected to.
     amount: numeric
          The total amount for the timehorzion (e.g. in MWh)
-    carrier: string
-        Description of the carrier (for example heat, electricity)
     profile: array-like
           Load profile with normed values such that `profile[t] * amount`
           yields the load in timestep t (e.g. in MWh)
-    edge_parameters: dirct (optional)
+    input_parameters: dirct (optional)
     """
 
     def __init__(self, *args, **kwargs):
@@ -542,7 +527,7 @@ class Load(Sink, Facade):
 
         self.profile = kwargs.get('profile')
 
-        self.edge_parameters = kwargs.get('edge_parameters', {})
+        self.input_parameters = kwargs.get('input_parameters', {})
 
         self.marginal_utility = kwargs.get('marginal_utility', 0)
 
@@ -552,10 +537,10 @@ class Load(Sink, Facade):
         """
         """
         self.inputs.update({self.bus: Flow(nominal_value=self.amount,
-                                           actual_value=self.profile,
-                                           fixed=True,
-                                           variable_cost=self.marginal_utility,
-                                           **self.edge_parameters)})
+                            actual_value=self.profile,
+                            fixed=True,
+                            variable_cost=self.marginal_utility,
+                            **self.input_parameters)})
 
 
 class Storage(GenericStorage, Facade):
@@ -580,10 +565,10 @@ class Storage(GenericStorage, Facade):
     storage_capacity_initial: numeric
         The state of the storage capacity in the first (and last) time step of
         optimization. Default: 0.5
-    input_edge_parameters: dict (optional)
+    input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
-    ouput_edge_parameters: dict (optional)
+    ouput_parameters: dict (optional)
         Set parameters on the output edge of the storage (see oemof.solph for
         more information on possible parameters)
     """
@@ -612,9 +597,9 @@ class Storage(GenericStorage, Facade):
         self.storage_capacity_initial = kwargs.get(
             'storage_capacity_initial', 0.5)
 
-        self.input_edge_parameters = kwargs.get('input_edge_parameters', {})
+        self.input_parameters = kwargs.get('input_parameters', {})
 
-        self.output_edge_parameters = kwargs.get('output_edge_parameters', {})
+        self.output_parameters = kwargs.get('output_parameters', {})
 
         self.capacity_ratio = kwargs.get('capacity_ratio')
 
@@ -651,11 +636,11 @@ class Storage(GenericStorage, Facade):
             # set capacity costs at one of the flows
             fi = Flow(investment=Investment(ep_costs=self.capacity_cost,
                                             maximum=self.capacity_potential),
-                      **self.input_edge_parameters)
+                      **self.input_parameters)
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(investment=Investment(),
                       variable_costs=self.marginal_cost,
-                      **self.output_edge_parameters)
+                      **self.output_parameters)
             # required for correct grouping in oemof.solph.components
             self._invest_group = True
         else:
@@ -665,10 +650,10 @@ class Storage(GenericStorage, Facade):
             # investment = None
 
             fi = Flow(nominal_value=self.capacity,
-                      **self.input_edge_parameters)
+                      **self.input_parameters)
             fo = Flow(nominal_value=self.capacity,
                       variable_costs=self.marginal_cost,
-                      **self.output_edge_parameters)
+                      **self.output_parameters)
 
         self.inputs.update({self.bus: fi})
 
@@ -779,4 +764,3 @@ TYPEMAP = {
     'storage': Storage,
     'volatile': Volatile,
 }
-
