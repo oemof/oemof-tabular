@@ -627,7 +627,7 @@ def write_geometries(filename, geometries, directory="data/geometries"):
             )
 
         geometries.index.name = "name"
-self.fail('message')
+
         geometries.to_csv(path, sep=";", header=True)
 
     return path
