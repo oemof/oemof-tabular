@@ -6,6 +6,7 @@ from glob import glob
 from os.path import basename, dirname, join, splitext
 import io
 import re
+import sys
 
 from setuptools import find_packages, setup
 
@@ -71,7 +72,9 @@ setup(
         "oemof==0.2.4.dev0",
         "pandas>=0.22",
         "paramiko",
-        "pyproj",
+        "pyproj==1.9.5.1.dev0"
+        if sys.version_info.major >= 3 and sys.version_info.minor >= 7
+        else "pyproj",
         "pyshp",
         "scipy",
         "shapely",
@@ -82,7 +85,18 @@ setup(
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
     },
-    dependency_links=[
+    dependency_links=(
+        [
+            (
+                "git+https://git@github.com/gnn/pyproj.git"
+                "@69a26ce46634749f602518a375849999cb5e41e0"
+                "#egg=pyproj-1.9.5.1.dev0"
+            )
+        ]
+        if sys.version_info.major >= 3 and sys.version_info.minor >= 7
+        else []
+    )
+    + [
         (
             "git+https://git@github.com/oemof/oemof.git"
             "@features/move-datapackage-reader-into-standalone-package"
