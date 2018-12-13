@@ -3,7 +3,6 @@ from ftplib import FTP
 from urllib.parse import urlparse
 import errno
 import json
-import logging
 import os
 import shutil
 import tarfile
@@ -18,7 +17,9 @@ import paramiko
 
 
 def infer_resources(directory="data/elements"):
-    """
+    """ Method looks at all files in `directory` and creates
+    datapackage.Resource object that will be stored
+
     """
     if not os.path.exists("resources"):
         os.makedirs("resources")
@@ -60,20 +61,19 @@ def infer_metadata(
             "dispatchable",
             "storage",
             "load",
+            "reservoir",
             "shortage",
             "excess",
         ],
-        "profile": ["load", "volatile"],
+        "profile": ["load", "volatile", "ror"],
         "from_to_bus": ["connection", "line", "conversion"],
         "chp": ["backpressure", "extraction", "chp"],
     },
-    path=None,
-):
+    path=None):
     """ Add basic meta data for a datapackage
 
     Parameters
     ----------
-
     package_name: string
         Name of the data package
     keep_resource: boolean
@@ -89,7 +89,7 @@ def infer_metadata(
     """
     current_path = os.getcwd()
     if path:
-        logging.info("Setting current work directory to {}".format(path))
+        print("Setting current work directory to {}".format(path))
         os.chdir(path)
 
     p = Package()
@@ -101,10 +101,9 @@ def infer_metadata(
 
     # create meta data resources elements
     if not os.path.exists("data/elements"):
-        logging.warning(
+        print(
             "No data path found in directory {}. Skipping...".format(
-                os.getcwd()
-            )
+                os.getcwd())
         )
     else:
         for f in os.listdir("data/elements"):
@@ -112,7 +111,7 @@ def infer_metadata(
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
-            if r.name in foreign_keys["bus"]:
+            if r.name in foreign_keys.get("bus", []):
                 r.descriptor["schema"]["foreignKeys"] = [
                     {
                         "fields": "bus",
@@ -120,7 +119,7 @@ def infer_metadata(
                     }
                 ]
 
-                if r.name in foreign_keys["profile"]:
+                if r.name in foreign_keys.get("profile", []):
                     r.descriptor["schema"]["foreignKeys"].append(
                         {
                             "fields": "profile",
@@ -128,7 +127,7 @@ def infer_metadata(
                         }
                     )
 
-            elif r.name in foreign_keys["from_to_bus"]:
+            elif r.name in foreign_keys.get("from_to_bus", []):
                 r.descriptor["schema"]["foreignKeys"] = [
                     {
                         "fields": "from_bus",
@@ -140,7 +139,7 @@ def infer_metadata(
                     },
                 ]
 
-            elif r.name in foreign_keys["chp"]:
+            elif r.name in foreign_keys.get("chp", []):
                 r.descriptor["schema"]["foreignKeys"] = [
                     {
                         "fields": "fuel_bus",
@@ -162,10 +161,9 @@ def infer_metadata(
 
     # create meta data resources elements
     if not os.path.exists("data/sequences"):
-        logging.warning(
+        print(
             "No data path found in directory {}. Skipping...".format(
-                os.getcwd()
-            )
+                os.getcwd())
         )
     else:
         for f in os.listdir("data/sequences"):
@@ -181,7 +179,6 @@ def infer_metadata(
     if not keep_resources:
         shutil.rmtree("resources")
 
-    logging.info("Created meta data file in {}".format(path))
     os.chdir(current_path)
 
 
@@ -255,7 +252,7 @@ def _sftp(
     localpath,
     hostname="atlite.openmod.net",
     username="atlite",
-    password="",
+    password=""
 ):
     """ Download data with SFTP
 
@@ -394,7 +391,17 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
 
 
 def timeindex(year=None, periods=None, freq=None):
-    """
+    """ Create pandas datetimeindexself. If no parameters are not specified,
+    config file will be used to set the values.
+
+    Parameters
+    ----------
+    year: string
+        Year of the index
+    periods: string
+        Number of periods
+    freq: string
+        Freq of the datetimeindex
     """
     config = get_config()
 
@@ -412,8 +419,10 @@ def timeindex(year=None, periods=None, freq=None):
     return idx
 
 
-def initialize_dpkg(config=None, splitted_resource=False):
-    """
+def initialize_datapackage(config=None):
+    """ Initialize datapackage by reading config file and creating required
+    directories (data/elements, data/sequences etc.)
+
     """
     if not config:
         try:
@@ -432,29 +441,23 @@ def initialize_dpkg(config=None, splitted_resource=False):
                 if e.errno != errno.EEXIST:
                     raise
 
-    if splitted_resource:
-        create_headers(config)
 
-
-def input_filepath(file, directory=None):
+def input_filepath(file, directory="archive/"):
     """
-   """
-    if not directory:
-        directory = "archive/"
-
+    """
     file_path = os.path.join(directory, file)
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(
             """File with name
 
-           {}
+            {}
 
-           does not exist. Please make sure you download the file from
-           the sources listed and store it in the directory:
+            does not exist. Please make sure you download the file from
+            the sources listed and store it in the directory:
 
-           {}.
-           """.format(
+            {}.
+            """.format(
                 file_path, directory
             )
         )
@@ -463,13 +466,18 @@ def input_filepath(file, directory=None):
 
 
 def get_config(file="config.json"):
-    """
+    """ Read config json file
+
+    Parameters
+    ----------
+    file: string
+        String with name of config file
     """
     try:
         with open(file, "r") as stream:
             config = json.load(stream)
 
-            # create absolute paths
+            # create paths
             if config.get("directories"):
                 config["directories"] = {
                     k: os.path.join(os.getcwd(), v)
@@ -481,39 +489,16 @@ def get_config(file="config.json"):
     return config
 
 
-def create_headers(config=None):
+def read_sequences(filename, directory="data/sequences"):
+    """ Reads sequence resources from the datapackage
+
+    Parameters
+    ----------
+    filename: string
+        Name of the sequences to be read, for example `load_profile.csv`
+    directory: string
+        Directory from where the file should be read. Default: `data/sequences`
     """
-    """
-    for resource, header in config["headers"].items():
-        elements_path = os.path.join("data", resource, "header.csv")
-
-        if not os.path.exists(elements_path):
-            pd.DataFrame(columns=header).to_csv(
-                elements_path, sep=";", index=False
-            )
-
-
-def metadata_from_data(directory="", name="datapackage", config=None):
-    """
-    """
-
-    descriptor = infer(os.path.join(directory, "**/*.csv"))
-
-    descriptor["name"] = name
-
-    # create Package based on infer above
-    p = Package(descriptor)
-
-    # save the datapackage
-    p.save("datapackage.json")
-
-
-def read_sequences(filename, directory=None):
-    """
-    """
-
-    if not directory:
-        directory = "data/sequences"
 
     path = os.path.join(directory, filename)
 
@@ -522,24 +507,27 @@ def read_sequences(filename, directory=None):
             path, sep=";", index_col=["timeindex"], parse_dates=True
         )
 
-        # if len(sequences.index.difference(timeindex())) > 0:
-        #    raise ValueError("""
-        #        Timeindex of file:
-        #            {}
-        #        does not match scenario timeindex!""".format(path))
-
     else:
         sequences = pd.DataFrame(columns=["timeindex"]).set_index("timeindex")
 
     return sequences
 
 
-def read_elements(filename, directory=None):
+def read_elements(filename, directory="data/elements"):
     """
-    """
-    if not directory:
-        directory = "data/elements"
+    Reads element resources from the datapackage
 
+    Parameters
+    ----------
+    filename: string
+        Name of the elements to be read, for example `load.csv`
+    directory: string
+        Directory where the file is located. Default: `data/elements`
+
+    Returns
+    -------
+    pd.DataFrame
+    """
     path = os.path.join(directory, filename)
 
     if os.path.exists(path):
@@ -551,14 +539,22 @@ def read_elements(filename, directory=None):
     return elements
 
 
-def read_geometries(filename, directory=None):
+def read_geometries(filename, directory="data/geometries"):
     """
+    Reads geometry resources from the datapackage. Data may either be stored
+    in geojson format or as WKT representation in CSV-files.
+
+    Parameters
+    ----------
+    filename: string
+        Name of the elements to be read, for example `buses.geojson`
+    directory: string
+        Directory where the file is located. Default: `data/geometries`
+
     Returns
     -------
     pd.Series
     """
-    if not directory:
-        directory = "data/geometries"
 
     path = os.path.join(directory, filename)
 
@@ -580,15 +576,23 @@ def read_geometries(filename, directory=None):
     return geometries
 
 
-def write_geometries(filename, geometries, directory=None):
-    """
+def write_geometries(filename, geometries, directory="data/geometries"):
+    """ Writes geometries to filesystem.
+
     Parameters
     ----------
-    geometries : pd.Series
+    filename: string
+        Name of the geometries stored, for example `buses.geojson`
+    geometries: pd.Series
         Index entries become name fields in GeoJSON properties.
+    directory: string
+        Directory where the file is stored. Default: `data/geometries`
+
+    Returns
+    -------
+    path: string
+        Returns the path where the file has been stored.
     """
-    if not directory:
-        directory = "data/geometries"
 
     path = os.path.join(directory, filename)
 
@@ -623,20 +627,32 @@ def write_geometries(filename, geometries, directory=None):
             )
 
         geometries.index.name = "name"
-
-        logging.info("Writing geometries to {}.".format(path))
-
+self.fail('message')
         geometries.to_csv(path, sep=";", header=True)
 
     return path
 
 
-def write_elements(filename, elements, directory=None, replace=False):
-    """
-    """
+def write_elements(filename, elements, directory="data/elements",
+                   replace=False):
+    """ Writes elements to filesystem.
 
-    if not directory:
-        directory = "data/elements"
+    Parameters
+    ----------
+    filename: string
+        Name of the elements to be read, for example `reservoir.csv`
+    elements: pd.DataFrame
+        Elements to be stored in data frame. Index: `name`
+    directory: string
+        Directory where the file is stored. Default: `data/elements`
+    replace: boolean
+        If set, existing data will be overwritten. Otherwise integrity of
+        data (unique indices) will be checked
+    Returns
+    -------
+    path: string
+        Returns the path where the file has been stored.
+    """
 
     path = os.path.join(directory, filename)
 
@@ -652,18 +668,33 @@ def write_elements(filename, elements, directory=None, replace=False):
     elements = elements.reindex(sorted(elements.columns), axis=1)
 
     elements.reset_index(inplace=True)
-    logging.info("Writing elements to {}.".format(path))
+
     elements.to_csv(path, sep=";", quotechar="'", index=0)
 
     return path
 
 
-def write_sequences(filename, sequences, directory=None, replace=False):
-    """
-    """
+def write_sequences(filename, sequences, directory= "data/sequences",
+                    replace=False):
+    """ Writes sequences to filesystem.
 
-    if not directory:
-        directory = "data/sequences"
+    Parameters
+    ----------
+    filename: string
+        Name of the sequences to be read, for example `load_profile.csv`
+    sequences: pd.DataFrame
+        Sequences to be stored in data frame. Index: `datetimeindex` with
+        format %Y-%m-%dT%H:%M:%SZ
+    directory: string
+        Directory where the file is stored. Default: `data/elements`
+    replace: boolean
+        If set, existing data will be overwritten. Otherwise integrity of
+        data (unique indices) will be checked
+    Returns
+    -------
+    path: string
+        Returns the path where the file has been stored.
+    """
 
     path = os.path.join(directory, filename)
 
@@ -685,7 +716,6 @@ def write_sequences(filename, sequences, directory=None, replace=False):
 
     sequences = sequences.reindex(sorted(sequences.columns), axis=1)
 
-    logging.info("Writing sequences to {}.".format(path))
     sequences.to_csv(path, sep=";", date_format="%Y-%m-%dT%H:%M:%SZ")
 
     return path
