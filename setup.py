@@ -65,7 +65,15 @@ setup(
     ],
     install_requires=[
         'datapackage',
+        'geojson',
         'oemof==0.2.4.dev0',
+        'pandas>=0.22',
+        'paramiko',
+        'pyproj',
+        'pyshp',
+        'scipy',
+        'shapely',
+        'tsam',
     ],
     extras_require={
         # eg:
