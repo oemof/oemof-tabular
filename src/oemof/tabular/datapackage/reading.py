@@ -19,10 +19,9 @@ import re
 import datapackage as dp
 import pandas as pd
 
-from oemof.energy_system import EnergySystem
 from oemof.network import Bus, Component
 
-from .tools import HSN, raisestatement, remap
+from ..tools import HSN, raisestatement, remap
 
 DEFAULT = object()
 FLOW_TYPE = object()
@@ -363,7 +362,3 @@ def deserialize_energy_system(cls, path,
 
     else:
         raise ValueError("Timeindices in resources differ!")
-
-
-EnergySystem.from_datapackage = classmethod(deserialize_energy_system)
-
