@@ -84,7 +84,7 @@ def clean_datapackage(path=None, directories=["data", "cache", "resources"]):
         path = os.getcwd()
 
     for d in directories:
-        shutil.rmtree(d, ignore_errors=True)
+        shutil.rmtree(os.path.join(path, d), ignore_errors=True)
 
 
 def to_dict(value):
