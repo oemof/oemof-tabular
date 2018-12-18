@@ -5,7 +5,7 @@ tabular data sources.
 """
 
 import types
-
+from oemof.tabular.tools.datapackage import building, processing, aggregation
 
 class HSN(types.SimpleNamespace):
     """ A hashable variant of `types.Simplenamespace`.
@@ -69,4 +69,3 @@ def remap(mapping, renamings, selection):
         if c in renamings:
             break
     return {renamings.get(c, {}).get(k, k): v for k, v in mapping.items()}
-
