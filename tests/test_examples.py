@@ -2,8 +2,11 @@ import pkg_resources as pkg
 
 from oemof.energy_system import EnergySystem as ES
 
-from oemof.tabular.datapackage import deserialize_energy_system
 from oemof.tabular.facades import TYPEMAP
+# The import below is only used to monkey patch `EnergySystem`.
+# Hence the `noqa` because otherwise, style checkers would complain about an
+# unused import.
+import oemof.tabular.datapackage  # noqa: F401
 
 
 def test_example_datapackage_readability():
@@ -15,8 +18,7 @@ def test_example_datapackage_readability():
         'oemof.tabular', 'examples/datapackages'):
 
         systems.append(
-            deserialize_energy_system(
-                ES,
+            ES.from_datapackage(
                 pkg.resource_filename(
                     'oemof.tabular',
                     'examples/datapackages/{}/datapackage.json'.format(example)),

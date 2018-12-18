@@ -5,7 +5,6 @@ tabular data sources.
 """
 
 import types
-from oemof.tabular.tools.datapackage import building, processing, aggregation
 
 class HSN(types.SimpleNamespace):
     """ A hashable variant of `types.Simplenamespace`.
