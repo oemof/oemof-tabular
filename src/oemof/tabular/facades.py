@@ -118,7 +118,7 @@ class Reservoir(GenericStorage, Facade):
 
         self.efficiency = kwargs.get('efficiency', 1)
 
-        self.initial_storage_capacity = kwargs.get(initial_storage_capacity, 0.5)
+        self.initial_storage_capacity = kwargs.get('initial_storage_capacity', 0.5)
 
         self.input_parameters = kwargs.get('input_parameters', {})
 
@@ -150,7 +150,7 @@ class Reservoir(GenericStorage, Facade):
                            fixed=False)})
 
         self.outputs.update({
-            self.output: Flow(nominal_value=self.capacity,
+            self.bus: Flow(nominal_value=self.capacity,
                            investment=investment,
                            **self.output_parameters)})
 
