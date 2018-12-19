@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 """
+import json
 import os
 
+import numpy as np
 import pandas as pd
 
-from oemof.network import Bus
+from oemof.network import Bus, Sink
 from oemof.solph.components import GenericStorage
 from oemof.outputlib import views, processing
 from oemof.tabular import facades
@@ -134,3 +136,99 @@ def demand_results(types=["load"], bus=None, results=None, es=None):
     ]
 
     return selection
+
+def write_results(m, output_path, raw=False, summary=True):
+    """
+    """
+    def save(df, name, path=output_path):
+        """ Helper for writing csv files
+        """
+        df.to_csv(os.path.join(path, name + ".csv"))
+
+    buses = [b.label for b in m.es.nodes if isinstance(b, Bus)]
+
+    link_results = component_results(m.es, m.results).get("link")
+    if link_results is not None and raw:
+        save(link_results, "links-oemof")
+
+    imports = pd.DataFrame()
+    for b in buses:
+        supply = supply_results(results=m.results, es=m.es, bus=[b])
+        supply.columns = supply.columns.droplevel([1, 2])
+
+        demand = demand_results(results=m.results, es=m.es, bus=[b])
+        excess = component_results(m.es, m.results, select="sequences")["excess"]
+
+        if link_results is not None and m.es.groups[b] in list(
+            link_results.columns.levels[0]
+        ):
+            ex = link_results.loc[:, (m.es.groups[b], slice(None), "flow")].sum(
+                axis=1
+            )
+            im = link_results.loc[:, (slice(None), m.es.groups[b], "flow")].sum(
+                axis=1
+            )
+
+            net_import = im - ex
+            net_import.name = m.es.groups[b]
+            imports = pd.concat([imports, net_import], axis=1)
+
+            supply["import"] = net_import
+
+        if m.es.groups[b] in demand.columns:
+            _demand = demand.loc[:, (m.es.groups[b], slice(None), "flow")]
+            _demand.columns = _demand.columns.droplevel([0, 2])
+            supply = pd.concat([
+                supply, _demand], axis=1)
+        if m.es.groups[b] in excess.columns:
+            _excess = excess.loc[:, (m.es.groups[b], slice(None), "flow")]
+            _excess.columns = _excess.columns.droplevel([0, 2])
+            supply = pd.concat([supply, _excess], axis=1)
+        save(supply, b)
+        save(imports, "import")
+
+    all = bus_results(m.es, m.results, select="scalars", concat=True)
+    all.name = "value"
+    endogenous = all.reset_index()
+    endogenous["tech"] = [
+        getattr(t, "tech", np.nan) for t in all.index.get_level_values(0)
+    ]
+
+    d = dict()
+    for node in m.es.nodes:
+        if not isinstance(node, (Bus, Sink, facades.Shortage)):
+            if getattr(node, "capacity", None) is not None:
+                if isinstance(node, facades.TYPEMAP["link"]):
+                    pass
+                else:
+                    key = (
+                        node,
+                        [n for n in node.outputs.keys()][0],
+                        "capacity",
+                        node.tech,
+                    )  # for oemof logic
+                    d[key] = {"value": node.capacity}
+    exogenous = pd.DataFrame.from_dict(d, orient="index").dropna()
+    exogenous.index = exogenous.index.set_names(["from", "to", "type", "tech"])
+
+    capacities = (
+        pd.concat([endogenous, exogenous.reset_index()])
+        .groupby(["to", "tech"])
+        .sum()
+        .unstack("to")
+    )
+    capacities.columns = capacities.columns.droplevel(0)
+    save(capacities, "capacities")
+
+    duals = bus_results(m.es, m.results, concat=True).xs(
+        "duals", level=2, axis=1
+    )
+    duals.columns = duals.columns.droplevel(1)
+    duals = (duals.T / m.objective_weighting).T
+    save(duals, "shadow_prices")
+
+    filling_levels = views.node_weight_by_type(
+        m.results, GenericStorage
+    )
+    filling_levels.columns = filling_levels.columns.droplevel(1)
+    save(filling_levels, "filling_levels")
