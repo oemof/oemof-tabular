@@ -102,7 +102,7 @@ def supply_results(
     selection = pd.DataFrame()
 
     for t in types:
-        if isinstance(es.typemap[t], GenericStorage):
+        if issubclass(es.typemap[t], GenericStorage):
             df = views.net_storage_flow(results, node_type=es.typemap[t])
             if df is not None:
                 selection = pd.concat([selection, df], axis=1)
