@@ -137,7 +137,7 @@ def demand_results(types=["load"], bus=None, results=None, es=None):
 
     return selection
 
-def write_results(m, output_path, raw=False, summary=True):
+def write_results(m, output_path, raw=False, summary=True, scalars=True):
     """
     """
     def save(df, name, path=output_path):
@@ -187,12 +187,16 @@ def write_results(m, output_path, raw=False, summary=True):
         save(supply, b)
         save(imports, "import")
 
-    all = bus_results(m.es, m.results, select="scalars", concat=True)
-    all.name = "value"
-    endogenous = all.reset_index()
-    endogenous["tech"] = [
-        getattr(t, "tech", np.nan) for t in all.index.get_level_values(0)
-    ]
+    if scalars:
+        all = bus_results(m.es, m.results, select="scalars", concat=True)
+        all.name = "value"
+        endogenous = all.reset_index()
+        endogenous["tech"] = [
+            getattr(t, "tech", np.nan) for t in all.index.get_level_values(0)
+        ]
+
+    else:
+        endogenous = pd.DataFrame()
 
     d = dict()
     for node in m.es.nodes:
