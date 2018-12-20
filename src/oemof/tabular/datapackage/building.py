@@ -419,11 +419,20 @@ def timeindex(year=None, periods=None, freq=None):
     return idx
 
 
-def initialize_datapackage(config=None):
+def initialize_datapackage(config):
     """ Initialize datapackage by reading config file and creating required
-    directories (data/elements, data/sequences etc.)
+    directories (data/elements, data/sequences etc.) if directories are
+    not specified in the config file, the default directory setup up
+    will be used.
 
     """
+    directories = {
+        "elements": "data/elements",
+        "sequences": "data/sequences",
+        "geometries": "data/geometries",
+        "cache": "cache"
+    }
+
     if not config:
         try:
             default = "config.json"
@@ -434,13 +443,14 @@ def initialize_datapackage(config=None):
             )
 
     if config.get("directories"):
-        for directory in config["directories"].values():
-            try:
-                os.makedirs(directory)
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
+        directories = config["directories"]
 
+    for directory in directories.values():
+        try:
+            os.makedirs(directory)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
 
 def input_filepath(file, directory="archive/"):
     """
