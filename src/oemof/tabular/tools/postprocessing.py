@@ -187,7 +187,7 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True):
         save(supply, b)
         save(imports, "import")
 
-    if scalars:
+    try:
         all = bus_results(m.es, m.results, select="scalars", concat=True)
         all.name = "value"
         endogenous = all.reset_index()
@@ -195,7 +195,7 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True):
             getattr(t, "tech", np.nan) for t in all.index.get_level_values(0)
         ]
 
-    else:
+    except ValueError:
         endogenous = pd.DataFrame()
 
     d = dict()
