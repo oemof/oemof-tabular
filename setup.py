@@ -79,7 +79,8 @@ setup(
         "scipy",
         "shapely",
         "tsam",
-        "click"
+        "click",
+        "toml"
     ],
     extras_require={
         # eg:
