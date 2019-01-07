@@ -12,6 +12,7 @@ import zipfile
 from datapackage import Package, Resource, infer
 from geojson import Feature, FeatureCollection, dump, load
 from shapely.geometry import shape
+import toml
 import pandas as pd
 import paramiko
 
@@ -250,8 +251,8 @@ def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
 def _sftp(
     remotepath,
     localpath,
-    hostname="atlite.openmod.net",
-    username="atlite",
+    hostname="",
+    username="rutherford",
     password=""
 ):
     """ Download data with SFTP
@@ -270,6 +271,7 @@ def _sftp(
 
     client = paramiko.SSHClient()
     client.load_host_keys(os.path.expanduser("~/.ssh/known_hosts"))
+
     client.connect(hostname=hostname, username=username, password=password)
 
     sftp = client.open_sftp()
@@ -390,47 +392,35 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
     return filepath
 
 
-def timeindex(year=None, periods=None, freq=None):
-    """ Create pandas datetimeindexself. If no parameters are not specified,
-    config file will be used to set the values.
+def timeindex(year, periods=8760, freq='H'):
+    """ Create pandas datetimeindex.
 
     Parameters
     ----------
     year: string
         Year of the index
     periods: string
-        Number of periods
+        Number of periods, default: 8760
     freq: string
-        Freq of the datetimeindex
+        Freq of the datetimeindex, default: 'H'
     """
-    config = get_config()
-
-    if not year:
-        year = str(config.get("year", "2050"))
-
-    if not periods:
-        periods = config.get("periods", 8760)
-
-    if not freq:
-        freq = "H"
 
     idx = pd.date_range(start=year, periods=periods, freq=freq)
 
     return idx
 
 
-def initialize_datapackage(config):
+def initialize_datapackage(config, directory='.'):
     """ Initialize datapackage by reading config file and creating required
     directories (data/elements, data/sequences etc.) if directories are
     not specified in the config file, the default directory setup up
     will be used.
 
     """
-    directories = {
-        "elements": "data/elements",
-        "sequences": "data/sequences",
-        "geometries": "data/geometries",
-        "cache": "cache"
+    sub_directories = {
+        "elements": os.path.join(directory, "data/elements"),
+        "sequences": os.path.join(directory, "data/sequences"),
+        "geometries": os.path.join(directory, "data/geometries"),
     }
 
     if not config:
@@ -442,10 +432,10 @@ def initialize_datapackage(config):
                 "Default path `{}` of config file not found!".format(default)
             )
 
-    if config.get("directories"):
-        directories = config["directories"]
+    if config.get("sub-directories"):
+        sub_directories = config["sub-directories"]
 
-    for directory in directories.values():
+    for directory in sub_directories.values():
         try:
             os.makedirs(directory)
         except OSError as e:
@@ -475,8 +465,8 @@ def input_filepath(file, directory="archive/"):
     return file_path
 
 
-def get_config(file="config.json"):
-    """ Read config json file
+def read_build_config(file="build.toml"):
+    """ Read config build file in toml format
 
     Parameters
     ----------
@@ -484,8 +474,7 @@ def get_config(file="config.json"):
         String with name of config file
     """
     try:
-        with open(file, "r") as stream:
-            config = json.load(stream)
+            config = toml.load(file)
 
             # create paths
             if config.get("directories"):
@@ -718,11 +707,11 @@ def write_sequences(filename, sequences, directory= "data/sequences",
         sequences = pd.concat(
             [existing_sequences, sequences], axis=1, verify_integrity=True
         )
-
-        if len(sequences.index.difference(timeindex())) > 0:
-            raise ValueError(
-                "Wrong timeindex for sequence {}.".format(filename)
-            )
+        # TODO: Adapt to new build config file
+        # if len(sequences.index.difference(timeindex())) > 0:
+        #     raise ValueError(
+        #         "Wrong timeindex for sequence {}.".format(filename)
+        #     )
 
     sequences = sequences.reindex(sorted(sequences.columns), axis=1)
 
