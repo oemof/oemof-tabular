@@ -410,7 +410,7 @@ def timeindex(year, periods=8760, freq='H'):
     return idx
 
 
-def initialize_datapackage(config, directory='.'):
+def initialize(config, directory='.'):
     """ Initialize datapackage by reading config file and creating required
     directories (data/elements, data/sequences etc.) if directories are
     not specified in the config file, the default directory setup up

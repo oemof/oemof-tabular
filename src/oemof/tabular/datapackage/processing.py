@@ -71,7 +71,7 @@ def copy_datapackage(source, destination, subset=None):
     return destination
 
 
-def clean_datapackage(path=None, directories=["data", "cache", "resources"]):
+def clean(path=None, directories=["data", "cache", "resources"]):
     """
     Parameters
     ----------
