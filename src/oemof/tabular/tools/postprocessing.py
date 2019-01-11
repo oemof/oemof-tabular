@@ -102,7 +102,8 @@ def supply_results(
     selection = pd.DataFrame()
 
     for t in types:
-        if issubclass(es.typemap[t], GenericStorage):
+        if issubclass(es.typemap[t], GenericStorage) \
+                and es.typemap[t] is not facades.Reservoir:
             df = views.net_storage_flow(results, node_type=es.typemap[t])
             if df is not None:
                 selection = pd.concat([selection, df], axis=1)
