@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 """
-import json
 import os
 
 import numpy as np
@@ -9,7 +8,7 @@ import pandas as pd
 
 from oemof.network import Bus, Sink
 from oemof.solph.components import GenericStorage
-from oemof.outputlib import views, processing
+from oemof.outputlib import views
 from oemof.tabular import facades
 
 
@@ -45,7 +44,7 @@ def component_results(es, results, select="sequences"):
                 ]
 
                 if [x for x in _sca_by_type if x is not None]:
-                    sca_by_type = pd.concat(_sca_by_type)
+                    _sca_by_type = pd.concat(_sca_by_type)
                     c[str(k)] = _sca_by_type
 
     return c

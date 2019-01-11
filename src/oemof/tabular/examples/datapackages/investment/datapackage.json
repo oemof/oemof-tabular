@@ -36,7 +36,7 @@
                     {
                         "format": "default",
                         "name": "capacity",
-                        "type": "string"
+                        "type": "number"
                     },
                     {
                         "format": "default",
@@ -113,7 +113,7 @@
                     {
                         "format": "default",
                         "name": "capacity",
-                        "type": "string"
+                        "type": "number"
                     },
                     {
                         "format": "default",
@@ -223,7 +223,7 @@
                     {
                         "format": "default",
                         "name": "capacity",
-                        "type": "string"
+                        "type": "number"
                     },
                     {
                         "format": "default",
@@ -303,12 +303,12 @@
                     {
                         "format": "default",
                         "name": "storage_capacity",
-                        "type": "string"
+                        "type": "number"
                     },
                     {
                         "format": "default",
                         "name": "capacity",
-                        "type": "string"
+                        "type": "number"
                     },
                     {
                         "format": "default",
@@ -380,7 +380,7 @@
                     {
                         "format": "default",
                         "name": "capacity",
-                        "type": "string"
+                        "type": "number"
                     },
                     {
                         "format": "default",
