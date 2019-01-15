@@ -347,6 +347,42 @@ For writing results you either use the `oemof.outputlib` functionalities or
 / and the oemof tabular specific postprocessing functionalities of this
 package.
 
+Reproducible Workflows
+=======================
+
+To proudce reproducible results we recommend setting up a folder strucutre
+as follows:
+
+		|-- model
+				|-- environment
+					|--requirements.txt
+				|-- raw-data
+				|-- scenarios
+						|--scenario1.toml
+						|--scenatio2.toml
+						|-- ...
+				|-- scripts
+					|--create_input_data.py
+					|--compute.py
+					|-- ...
+				|-- results
+						|--scenario1
+							|--input
+							|--output
+					  |-- scenario2
+							|--input
+							|--ouput
+						...
+
+The `raw-data` directory contains all input data files required to build the
+input datapckages for your modelling. The `scenatios` directory allows you
+to specify different scenarios and describe them in a basic way.  The scripts
+inside the `scripts` directory will build input data for your scenarios from the
+`.toml` files and the raw-data. In addition the script to compute the models
+can be stored there.
+
+Of course the structure may be adapted to your needs. However you should
+provide all this data when publishing results. 
 
 Debugging
 =============
