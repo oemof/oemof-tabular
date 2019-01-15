@@ -15,7 +15,20 @@ from .processing import copy_datapackage
 
 
 def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
-    """
+    """ Creates a new datapackage by aggregating sequences inside the
+    `sequence` folder of the specified datapackage by skipping `n` timesteps
+
+    Parameters
+    ----------
+    datapackage: string
+        String of meta data file datapackage.json
+    n: integer
+        Number of timesteps to skip
+    path: string
+        Path to directory where the aggregated datapackage is stored
+    name: string
+        Name of the new, aggregated datapackage. If not specified a name will
+        be given
     """
     p = Package(datapackage)
 

@@ -20,6 +20,11 @@ def infer_resources(directory="data/elements"):
     """ Method looks at all files in `directory` and creates
     datapackage.Resource object that will be stored
 
+    Parameters
+    ----------
+    directory: string
+        Path to directory from where resources are inferred
+
     """
     if not os.path.exists("resources"):
         os.makedirs("resources")
