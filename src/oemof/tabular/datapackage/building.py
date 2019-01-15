@@ -659,7 +659,7 @@ def write_elements(filename, elements, directory="data/elements",
         elements.index.name = "name"
 
     if not replace:
-        existing_elements = read_elements(filename)
+        existing_elements = read_elements(filename, directory=directory)
         elements = pd.concat(
             [existing_elements, elements], verify_integrity=True
         )

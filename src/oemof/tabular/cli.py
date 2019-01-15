@@ -31,7 +31,8 @@ def _test(ctx, package):
                         for d in diff:
                             print(
                                 ("Foreign key error for {} in "
-                                 " resource {} and {}.".format(d, r.name, profile.name))
+                                 " resource {} and {}.".format(d, r.name,
+                                                               profile.name))
                             )
 
         except:
