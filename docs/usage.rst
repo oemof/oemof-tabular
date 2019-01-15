@@ -46,16 +46,17 @@ the underlying oemof functionality.
 
 Currently we provide the following facades:
 
-* Dispatchable
-* Volatile
-* Link
-* Conversion
-* Storage
-* Reservoir
-* Extraction
-* Backpressure
-* Reservoir
-* Load
+	* Dispatchable
+	* Volatile
+	* Link
+	* Conversion
+	* Storage
+	* Reservoir
+	* Extraction
+	* Backpressure
+	* Reservoir
+	* Load
+
 
 Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
@@ -67,10 +68,12 @@ Datapackage
 To construct a model based on the datapackage the following 2
 steps are required:
 
-1. Add the topology of the energy system based on the components and their
-  **exogenous model variables**.
-2. Create a python script to construct the energy system and the model from
-  that data.
+	1. Add the topology of the energy system based on the components and their
+	**exogenous model variables**.
+
+	2. Create a python script to construct the energy system and the model from
+	that data.
+
 
 We recommend a specific workflow to allow to publish your scenario
 (input data, assumptions, model and results) altogether in one consistent block
@@ -80,18 +83,19 @@ based on the datapackage standard (see: Reproducible Workflows).
 How to create a Datapackage
 -----------------------------
 
-We adhere to the frictionless [(tabular) datapackage standard](https://frictionlessdata.io/specs/tabular-data-package/).
+We adhere to the frictionless `(tabular) datapackage standard  <https://frictionlessdata.io/specs/tabular-data-package/>`_.
 On top of that structure we add our own logic. We require at least two things:
 
-1. A directory named *data* containing at least one sub-folder called *elements*
- (optionally it may contain a directory *sequences* and *geometries*. Of
- course you may add any other directory, data or other information.)
-2. A valid meta-data `.json` file for the datapackage
+	1. A directory named *data* containing at least one sub-folder called *elements*
+	(optionally it may contain a directory *sequences* and *geometries*. Of
+	course you may add any other directory, data or other information.)
+	2. A valid meta-data `.json` file for the datapackage
 
 **NOTE**: You **MUST** provide one file with the buses called `bus.csv`!
 
 The resulting tree of the datapackage could for example look like this:
 
+::
 
       |-- datapackage
           |-- data
@@ -104,7 +108,6 @@ The resulting tree of the datapackage could for example look like this:
           |-- scripts
           |-- datapackage.json
 
-
 Inside the datapackage, data is stored in so called resources. For a
 tabular-datapackage, these resources are CSV files. Columns of such
 resources are referred to as *fields*. In this sense field names of the
@@ -113,7 +116,7 @@ resources are equivalent to parameters of the energy system elements and sequenc
 To distinguish elements and sequences these two are stored in sub-directories of
 the data directory. In addition geometrical information can be stored under
 `data/geometries` in a `.geojson` format. To simplifiy the process of creating
- and processing a datapackage you may
+and processing a datapackage you may
 also use the funtionalities of the `oemof.tabular.datapackage`
 
 You can use functions to read and write resources (pandas.DataFrames in python).
@@ -171,13 +174,17 @@ names specified in the description of the facade classes.
 
 Example for **Load**:
 
-| name      | type   | tech  |amount | profile         | bus             |
-|-----------|--------| ------|-------|-----------------|-----------------|
-| el-demand | load   | load  | 2000  | demand-profile1 | electricity-bus |
-| ...       |  ...   | ....  | ...   |     ...         |     ...         |
+::
+
+	| name      | type   | tech  |amount | profile         | bus             |
+	|-----------|--------| ------|-------|-----------------|-----------------|
+	| el-demand | load   | load  | 2000  | demand-profile1 | electricity-bus |
+	| ...       |  ...   | ....  | ...   |     ...         |     ...         |
 
 
-he corresponding meta data `schema` of the resource would look as follows:
+The corresponding meta data `schema` of the resource would look as follows:
+
+::
 
         "schema": {
             "fields": [
@@ -225,10 +232,12 @@ he corresponding meta data `schema` of the resource would look as follows:
 
 Example for **Dispatchable**:
 
-| name  | type         | capacity | capacity_cost   | bus             | marginal_cost |
-|-------|--------------|----------|-----------------|-----------------|---------------|
-| gen   | dispatchable | null     | 800             | electricity-bus | 75            |
-| ...   |     ...      |    ...   |     ...         |     ...         |  ...          |
+::
+
+	| name  | type         | capacity | capacity_cost   | bus             | marginal_cost |
+	|-------|--------------|----------|-----------------|-----------------|---------------|
+	| gen   | dispatchable | null     | 800             | electricity-bus | 75            |
+	| ...   |     ...      |    ...   |     ...         |     ...         |  ...          |
 
 
 Sequences
@@ -239,14 +248,18 @@ standard format ISO 8601, i.e. `YYYY-MM-DDTHH:MM:SS`.
 
 Example:
 
-| timeindex        |  load-profile1   |  load-profile2   |
-|------------------|------------------|------------------|
-| 2016-01-01T00:00 |     0.1          |      0.05        |
-| 2016-01-01T01:00 |     0.2          |      0.1         |
+::
+
+	| timeindex        |  load-profile1   |  load-profile2   |
+	|------------------|------------------|------------------|
+	| 2016-01-01T00:00 |     0.1          |      0.05        |
+	| 2016-01-01T01:00 |     0.2          |      0.1         |
 
 
 The schema for resource `load_profile` stored under `sequences/load_profile.csv`
 would be described as follows:
+
+::
 
     "schema": {
         "fields": [
@@ -265,7 +278,8 @@ would be described as follows:
         ]
     }
 
-##  Foreign Keys
+Foreign Keys
+=============
 
 Parameter types are specified in the (json) meta-data file corresponding
 to the data. In addition foreign keys can be specified to link elements
@@ -275,6 +289,8 @@ sequences).
 To reference the *name* field of a resource with the bus elements
 (bus.csv, resource name: bus) the following FK should be set in the
 element resource:
+
+::
 
     "foreignKeys": [
       {
@@ -288,6 +304,8 @@ element resource:
 
 This structure can also be used to reference sequences, i.e. for the
 field *profile* of a resource, the reference can be set like this:
+
+::
 
     "foreignKeys": [
       {
@@ -353,26 +371,28 @@ Reproducible Workflows
 To proudce reproducible results we recommend setting up a folder strucutre
 as follows:
 
-		|-- model
-				|-- environment
-					|--requirements.txt
-				|-- raw-data
-				|-- scenarios
-						|--scenario1.toml
-						|--scenatio2.toml
-						|-- ...
-				|-- scripts
-					|--create_input_data.py
-					|--compute.py
-					|-- ...
-				|-- results
-						|--scenario1
-							|--input
-							|--output
-					  |-- scenario2
-							|--input
-							|--ouput
-						...
+::
+
+	|-- model
+		|-- environment
+			|--requirements.txt
+		|-- raw-data
+		|-- scenarios
+			|--scenario1.toml
+			|--scenatio2.toml
+			|-- ...
+		|-- scripts
+			|--create_input_data.py
+			|--compute.py
+			|-- ...
+		|-- results
+			|--scenario1
+				|--input
+				|--output
+			 |-- scenario2
+				|--input
+				|--ouput
+
 
 The `raw-data` directory contains all input data files required to build the
 input datapckages for your modelling. The `scenatios` directory allows you
@@ -382,7 +402,7 @@ inside the `scripts` directory will build input data for your scenarios from the
 can be stored there.
 
 Of course the structure may be adapted to your needs. However you should
-provide all this data when publishing results. 
+provide all this data when publishing results.
 
 Debugging
 =============
@@ -401,13 +421,13 @@ with their types are present.
 * Does the column order match the order of fields in the (tabular) data
 resource?
 * Does the type match the types in of the columns (i.e. for integer, obviously
-  only integer values should be in the respective column)
+only integer values should be in the respective column)
 
 **oemof related errors**
 If you encounter errors from oemof, the objects are not instantiated correctly
 which may happen if something of the following is wrong in your metadata file:
 
-* foreign-keys
+**foreign-keys**
 Errors regarding the non-int type like this one:
 
 .. code-block:: python
