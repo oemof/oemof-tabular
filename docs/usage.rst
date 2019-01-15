@@ -89,6 +89,7 @@ On top of that structure we add our own logic. We require at least two things:
 	1. A directory named *data* containing at least one sub-folder called *elements*
 	(optionally it may contain a directory *sequences* and *geometries*. Of
 	course you may add any other directory, data or other information.)
+
 	2. A valid meta-data `.json` file for the datapackage
 
 **NOTE**: You **MUST** provide one file with the buses called `bus.csv`!
@@ -410,55 +411,63 @@ Debugging
 Debugging can sometimes be tricky, here are some things you might want to
 consider:
 
-**Components do not end up in the model**
-* Does the data resource (i.e. csv-file) for your components exist in the
-`datapackage.json` file.
-* Did you set the `attributemap` and `typemap` arguments of the
-`EnergySystem.from_datapackge()` method correctly? Make sure all classes
-with their types are present.
+Components do not end up in the model
+---------------------------------------
 
-**Cast errors when reading a datapackage**
-* Does the column order match the order of fields in the (tabular) data
-resource?
-* Does the type match the types in of the columns (i.e. for integer, obviously
-only integer values should be in the respective column)
+	* Does the data resource (i.e. csv-file) for your components exist in the
+	  `datapackage.json` file
+	* Did you set the `attributemap` and `typemap` arguments of the
+	  `EnergySystem.from_datapackge()` method correctly? Make sure all classes
+	  with their types are present.
 
-**oemof related errors**
+Cast errors when reading a datapackage
+-----------------------------------------
+
+	* Does the column order match the order of fields in the (tabular) data
+	  resource?
+	* Does the type match the types in of the columns (i.e. for integer, obviously
+	  only integer values should be in the respective column)
+
+
+OEMOF related errors
+--------------------------
+
 If you encounter errors from oemof, the objects are not instantiated correctly
-which may happen if something of the following is wrong in your metadata file:
-
-**foreign-keys**
-Errors regarding the non-int type like this one:
-
-.. code-block:: python
-
-  ...
-  self.flows[o, i].nominal_value)
-  TypeError: can't multiply sequence by non-int of type 'float'
+which may happen if something of the following is wrong in your metadata file.
 
 
-Check your type(s) in the `datapackage.json` file. If meta-data are inferred types
-might be string instead of number or integer which most likely causes such an error.
+* Errors regarding the non-int type like this one:
+
+	.. code-block:: python
+
+	  ...
+	  self.flows[o, i].nominal_value)
+	  TypeError: can't multiply sequence by non-int of type 'float'
+
+
+	Check your type(s) in the `datapackage.json` file. If meta-data are inferred types
+	might be string instead of number or integer which most likely causes such an error.
 
 * Profiles for volatile and load components
 
-.. code-block:: python
+	.. code-block:: python
 
-  ...
-  ValueError: Cannot fix flow value to None.
-  Please set the actual_value attribute of the flow
-
-
-This error is likely to occur if your foreign keys are set correctly but
-the name in the field `profile` of your `volatilel.csv` resource does not match
-any name inside the `volatile_profile.csv` file, i.e. the profile is not found
-where it is looked for.
-
-Another possible source of error might be the missing values in your
-sequences files. Check these files for NaNs.
+	  ...
+	  ValueError: Cannot fix flow value to None.
+	  Please set the actual_value attribute of the flow
 
 
-**pyomo related errors**
+	This error is likely to occur if your foreign keys are set correctly but
+	the name in the field `profile` of your `volatilel.csv` resource does not match
+	any name inside the `volatile_profile.csv` file, i.e. the profile is not found
+	where it is looked for.
+
+	Another possible source of error might be the missing values in your
+	sequences files. Check these files for NaNs.
+
+
+Pyomo related errors
+-------------------------
 
 If you encounter an error for writing a lp-file, you might want to check if
 your foreign-keys are set correctly. In particular for resources with fk's for
