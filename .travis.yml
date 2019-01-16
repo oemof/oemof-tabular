@@ -38,6 +38,8 @@ matrix:
       sudo: required
       env:
         - TOXENV=py37-nocov
+  allow_failures:
+    - python: '3.7'
 before_install:
   - python --version
   - uname -a
