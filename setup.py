@@ -99,7 +99,7 @@ setup(
     + [
         (
             "git+https://git@github.com/oemof/oemof.git"
-            "@features/move-datapackage-reader-into-standalone-package"
+            "@releases/v0_3_0"
             "#egg=oemof-0.2.4.dev0"
         )
     ],
