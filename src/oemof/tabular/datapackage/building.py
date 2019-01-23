@@ -442,6 +442,8 @@ def initialize(config, directory='.'):
             if e.errno != errno.EEXIST:
                 raise
 
+    return sub_directories
+
 def input_filepath(file, directory="archive/"):
     """
     """
