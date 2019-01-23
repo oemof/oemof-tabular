@@ -418,9 +418,9 @@ def initialize(config, directory='.'):
 
     """
     sub_directories = {
-        "elements": os.path.join(directory, "data/elements"),
-        "sequences": os.path.join(directory, "data/sequences"),
-        "geometries": os.path.join(directory, "data/geometries"),
+        "elements":  "data/elements",
+        "sequences": "data/sequences",
+        "geometries": "data/geometries",
     }
 
     if not config:
@@ -431,13 +431,12 @@ def initialize(config, directory='.'):
             raise FileNotFoundError(
                 "Default path `{}` of config file not found!".format(default)
             )
+    
+    sub_directories.update(config.get("sub-directories", {}))
 
-    if config.get("sub-directories"):
-        sub_directories = config["sub-directories"]
-
-    for directory in sub_directories.values():
+    for subdir in sub_directories.values():
         try:
-            os.makedirs(directory)
+            os.makedirs(os.path.join(directory, subdir))
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
