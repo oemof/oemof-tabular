@@ -137,7 +137,7 @@ def demand_results(types=["load"], bus=None, results=None, es=None):
 
     return selection
 
-def write_results(m, output_path, raw=False, summary=True, scalars=True):
+def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwargs):
     """
     """
     def save(df, name, path=output_path):
@@ -153,7 +153,7 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True):
 
     imports = pd.DataFrame()
     for b in buses:
-        supply = supply_results(results=m.results, es=m.es, bus=[b])
+        supply = supply_results(results=m.results, es=m.es, bus=[b], **kwargs)
         supply.columns = supply.columns.droplevel([1, 2])
 
         demand = demand_results(results=m.results, es=m.es, bus=[b])
