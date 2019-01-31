@@ -21,6 +21,8 @@ def copy_datapackage(source, destination, subset=None):
         datapackage.json
     destination: str
         Destination of copied datapackage
+    name (optional): str
+        Name of datapackage
     only_data: str
         Name of directory to only copy subset of datapackage (for example
         only the 'data' directory)
@@ -69,7 +71,7 @@ def copy_datapackage(source, destination, subset=None):
     return destination
 
 
-def clean_datapackage(path=None, directories=["data", "cache", "resources"]):
+def clean(path=None, directories=["data", "cache", "resources"]):
     """
     Parameters
     ----------

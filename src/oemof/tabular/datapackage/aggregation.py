@@ -41,7 +41,7 @@ def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
     else:
         copied_package_name = name
 
-    copy_path = os.path.join(path, p.descriptor["name"])
+    copy_path = os.path.join(path, copied_package_name)
 
     copied_root = copy_datapackage(
         datapackage, os.path.abspath(copy_path), subset="data"

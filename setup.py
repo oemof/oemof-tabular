@@ -76,13 +76,31 @@ setup(
         "scipy",
         "shapely",
         "tsam",
+        "click",
+        "toml"
     ],
     extras_require={
         # eg:
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
     },
-    dependency_links=[
+    entry_points={
+        'console_scripts': [
+            'ota = oemof.tabular.cli:main',
+        ]
+    },
+    dependency_links=(
+        [
+            (
+                "git+https://git@github.com/gnn/pyproj.git"
+                "@69a26ce46634749f602518a375849999cb5e41e0"
+                "#egg=pyproj-1.9.5.1.dev0"
+            )
+        ]
+        if sys.version_info.major >= 3 and sys.version_info.minor >= 7
+        else []
+    )
+    + [
         (
             "git+https://git@github.com/oemof/oemof.git"
             "@releases/v0_3_0"
