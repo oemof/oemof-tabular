@@ -31,7 +31,7 @@ setup(
         ),
         re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst")),
     ),
-    author="Stephan Günther, Simon Hilpert, Martin Söthe, Cord Kaldemeyer",
+    author="Stephan Günther, Simon Hilpert, Martin Söthe",
     author_email="gnn.code@gmail.com",
     url="https://github.com/oemof/oemof-tabular",
     packages=["oemof"] + ["oemof." + p for p in find_packages("src/oemof")],
