@@ -639,7 +639,7 @@ def write_geometries(filename, geometries, directory="data/geometries"):
 
 
 def write_elements(filename, elements, directory="data/elements",
-                   replace=False):
+                   replace=False, create_dir=True):
     """ Writes elements to filesystem.
 
     Parameters
@@ -653,6 +653,8 @@ def write_elements(filename, elements, directory="data/elements",
     replace: boolean
         If set, existing data will be overwritten. Otherwise integrity of
         data (unique indices) will be checked
+    create_dir: boolean
+        Create the directory if not exists
     Returns
     -------
     path: string
@@ -660,6 +662,11 @@ def write_elements(filename, elements, directory="data/elements",
     """
 
     path = os.path.join(directory, filename)
+
+    if create_dir:
+        if not os.path.exists(directory):
+            print("Path {} does not exist. Creating...".format(directory))
+            os.makedirs(directory)
 
     if elements.index.name != "name":
         elements.index.name = "name"
@@ -680,7 +687,7 @@ def write_elements(filename, elements, directory="data/elements",
 
 
 def write_sequences(filename, sequences, directory= "data/sequences",
-                    replace=False):
+                    replace=False, create_dir=True):
     """ Writes sequences to filesystem.
 
     Parameters
@@ -695,6 +702,8 @@ def write_sequences(filename, sequences, directory= "data/sequences",
     replace: boolean
         If set, existing data will be overwritten. Otherwise integrity of
         data (unique indices) will be checked
+    create_dir: boolean
+        Create the directory if not exists
     Returns
     -------
     path: string
@@ -702,6 +711,11 @@ def write_sequences(filename, sequences, directory= "data/sequences",
     """
 
     path = os.path.join(directory, filename)
+
+    if create_dir:
+        if not os.path.exists(directory):
+            print("Path {} does not exist. Creating...".format(directory))
+            os.makedirs(directory)
 
     if sequences.index.name != "timeindex":
         sequences.index.name = "timeindex"
