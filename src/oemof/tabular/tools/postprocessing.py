@@ -157,7 +157,8 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
         supply.columns = supply.columns.droplevel([1, 2])
 
         demand = demand_results(results=m.results, es=m.es, bus=[b])
-        excess = component_results(m.es, m.results, select="sequences")["excess"]
+
+        excess = component_results(m.es, m.results, select="sequences").get("excess")
 
         if link_results is not None and m.es.groups[b] in list(
             link_results.columns.levels[0]
@@ -180,10 +181,11 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
             _demand.columns = _demand.columns.droplevel([0, 2])
             supply = pd.concat([
                 supply, _demand], axis=1)
-        if m.es.groups[b] in excess.columns:
-            _excess = excess.loc[:, (m.es.groups[b], slice(None), "flow")]
-            _excess.columns = _excess.columns.droplevel([0, 2])
-            supply = pd.concat([supply, _excess], axis=1)
+        if excess:
+            if m.es.groups[b] in excess.columns:
+                _excess = excess.loc[:, (m.es.groups[b], slice(None), "flow")]
+                _excess.columns = _excess.columns.droplevel([0, 2])
+                supply = pd.concat([supply, _excess], axis=1)
         save(supply, b)
         save(imports, "import")
 
@@ -224,12 +226,12 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
     capacities.columns = capacities.columns.droplevel(0)
     save(capacities, "capacities")
 
-    duals = bus_results(m.es, m.results, concat=True).xs(
-        "duals", level=2, axis=1
-    )
-    duals.columns = duals.columns.droplevel(1)
-    duals = (duals.T / m.objective_weighting).T
-    save(duals, "shadow_prices")
+    bresults = bus_results(m.es, m.results, concat=True)
+    if 'duals' in bresults.columns.levels[2]:
+        duals = bresults.xs("duals", level=2, axis=1)
+        duals.columns = duals.columns.droplevel(1)
+        duals = (duals.T / m.objective_weighting).T
+        save(duals, "shadow_prices")
 
     filling_levels = views.node_weight_by_type(
         m.results, GenericStorage
