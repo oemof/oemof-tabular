@@ -181,7 +181,7 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
             _demand.columns = _demand.columns.droplevel([0, 2])
             supply = pd.concat([
                 supply, _demand], axis=1)
-        if excess:
+        if excess is not None:
             if m.es.groups[b] in excess.columns:
                 _excess = excess.loc[:, (m.es.groups[b], slice(None), "flow")]
                 _excess.columns = _excess.columns.droplevel([0, 2])
