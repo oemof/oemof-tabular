@@ -2,14 +2,13 @@
 from ftplib import FTP
 from urllib.parse import urlparse
 import errno
-import json
 import os
 import shutil
 import tarfile
 import urllib.request
 import zipfile
 
-from datapackage import Package, Resource, infer
+from datapackage import Package, Resource
 from geojson import Feature, FeatureCollection, dump, load
 from shapely.geometry import shape
 import toml
@@ -674,7 +673,7 @@ def write_elements(filename, elements, directory="data/elements",
     if not replace:
         existing_elements = read_elements(filename, directory=directory)
         elements = pd.concat(
-            [existing_elements, elements], verify_integrity=True
+            [existing_elements, elements], verify_integrity=True, sort=False
         )
 
     elements = elements.reindex(sorted(elements.columns), axis=1)
