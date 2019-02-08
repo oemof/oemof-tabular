@@ -369,7 +369,7 @@ package.
 Reproducible Workflows
 =======================
 
-To proudce reproducible results we recommend setting up a folder strucutre
+To produce reproducible results we recommend setting up a folder strucutre
 as follows:
 
 ::
