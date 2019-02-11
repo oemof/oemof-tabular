@@ -196,9 +196,10 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
         endogenous["tech"] = [
             getattr(t, "tech", np.nan) for t in all.index.get_level_values(0)
         ]
-
+        endogenous.set_index(['from', 'to', 'type', 'tech'], inplace=True)
     except ValueError:
         endogenous = pd.DataFrame()
+
 
     d = dict()
     for node in m.es.nodes:
@@ -218,12 +219,9 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
     exogenous.index = exogenous.index.set_names(["from", "to", "type", "tech"])
 
     capacities = (
-        pd.concat([endogenous, exogenous.reset_index()])
-        .groupby(["to", "tech"])
-        .sum()
-        .unstack("to")
+        pd.concat([endogenous, exogenous])
     )
-    capacities.columns = capacities.columns.droplevel(0)
+
     save(capacities, "capacities")
 
     bresults = bus_results(m.es, m.results, concat=True)
