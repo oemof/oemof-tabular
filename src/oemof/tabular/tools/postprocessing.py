@@ -196,7 +196,11 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
         endogenous["tech"] = [
             getattr(t, "tech", np.nan) for t in all.index.get_level_values(0)
         ]
-        endogenous.set_index(['from', 'to', 'type', 'tech'], inplace=True)
+        endogenous["carrier"] = [
+            getattr(t, "carrier", np.nan) for t in all.index.get_level_values(0)
+        ]
+        endogenous.set_index(
+            ['from', 'to', 'type', 'tech', "carrier"], inplace=True)
     except ValueError:
         endogenous = pd.DataFrame()
 
@@ -212,11 +216,13 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
                         node,
                         [n for n in node.outputs.keys()][0],
                         "capacity",
-                        node.tech,
+                        node.tech,  # tech & carrier are oemof-tabular specific
+                        node.carrier
                     )  # for oemof logic
                     d[key] = {"value": node.capacity}
     exogenous = pd.DataFrame.from_dict(d, orient="index").dropna()
-    exogenous.index = exogenous.index.set_names(["from", "to", "type", "tech"])
+    exogenous.index = exogenous.index.set_names(
+        ["from", "to", "type", "tech", "carrier"])
 
     capacities = (
         pd.concat([endogenous, exogenous])
