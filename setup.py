@@ -69,7 +69,10 @@ setup(
     install_requires=[
         "datapackage",
         "geojson",
-        "oemof==0.2.4.dev0",
+        "oemof @ "
+        "git+https://git@github.com/oemof/oemof.git"
+        "@releases/v0_3_0"
+        "#egg=oemof-0.2.4.dev0",
         "pandas>=0.22",
         "paramiko",
         "pyproj",
@@ -83,11 +86,4 @@ setup(
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
     },
-    dependency_links=[
-        (
-            "git+https://git@github.com/oemof/oemof.git"
-            "@releases/v0_3_0"
-            "#egg=oemof-0.2.4.dev0"
-        )
-    ],
 )
