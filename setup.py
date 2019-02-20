@@ -68,7 +68,10 @@ setup(
     install_requires=[
         "datapackage",
         "geojson",
-        "oemof==0.2.4.dev0",
+        "oemof @ "
+        "git+https://git@github.com/oemof/oemof.git"
+        "@releases/v0_3_0"
+        "#egg=oemof-0.2.4.dev0",
         "pandas>=0.22",
         "paramiko",
         "pyproj",
@@ -89,22 +92,4 @@ setup(
             'ota = oemof.tabular.cli:main',
         ]
     },
-    dependency_links=(
-        [
-            (
-                "git+https://git@github.com/gnn/pyproj.git"
-                "@69a26ce46634749f602518a375849999cb5e41e0"
-                "#egg=pyproj-1.9.5.1.dev0"
-            )
-        ]
-        if sys.version_info.major >= 3 and sys.version_info.minor >= 7
-        else []
-    )
-    + [
-        (
-            "git+https://git@github.com/oemof/oemof.git"
-            "@releases/v0_3_0"
-            "#egg=oemof-0.2.4.dev0"
-        )
-    ],
 )
