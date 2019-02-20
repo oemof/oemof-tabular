@@ -79,7 +79,7 @@ Installation
 We are currently using features which haven't made it to a proper
 `oemof` release yet. This means that you have to install `oemof.tabular`
 from source, since `pip` `doesn't allow`_ packages on `PyPI` to have
-dependencies which are not hosted on PyPI:
+dependencies which are not hosted on `PyPI`:
 
 ::
 
