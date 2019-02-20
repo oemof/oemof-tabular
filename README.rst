@@ -29,14 +29,14 @@ Overview
 
 .. |coveralls| image:: https://coveralls.io/repos/oemof/oemof-tabular/badge.svg?branch=master&service=github
     :alt: Coverage Status
-    :target: https://coveralls.io/r/oemof/oemof-tabular
+    :target: https://coveralls.io/github/oemof/oemof-tabular
 
 .. |codecov| image:: https://codecov.io/github/oemof/oemof-tabular/coverage.svg?branch=master
     :alt: Coverage Status
     :target: https://codecov.io/github/oemof/oemof-tabular
 
 .. |codacy| image:: https://img.shields.io/codacy/grade/14dbd9b9c5e34f8b80e73887b5aa6e6c.svg
-    :target: https://www.codacy.com/app/gnn/oemof-tabular
+    :target: https://app.codacy.com/project/gnn/oemof-tabular/dashboard
     :alt: Codacy Code Quality Status
 
 .. |codeclimate| image:: https://codeclimate.com/github/oemof/oemof-tabular/badges/gpa.svg
@@ -45,7 +45,7 @@ Overview
 
 .. |version| image:: https://img.shields.io/pypi/v/oemof.tabular.svg
     :alt: PyPI Package latest release
-    :target: https://pypi.python.org/pypi/oemof.tabular
+    :target: https://pypi.org/project/oemof.tabular
 
 .. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-tabular%2Fcompare%2Fv0.0.1...master&query=%24.total_commits&colorB=blue
     :alt: Commits since latest release
@@ -53,11 +53,11 @@ Overview
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/oemof.tabular.svg
     :alt: PyPI Wheel
-    :target: https://pypi.python.org/pypi/oemof.tabular
+    :target: https://pypi.org/project/oemof.tabular
 
 .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/oemof.tabular.svg
     :alt: Supported versions
-    :target: https://pypi.python.org/pypi/oemof.tabular
+    :target: https://pypi.org/project/oemof.tabular
 
 .. |scrutinizer| image:: https://img.shields.io/scrutinizer/g/oemof/oemof-tabular/master.svg
     :alt: Scrutinizer Status
