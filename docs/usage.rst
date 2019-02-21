@@ -62,6 +62,29 @@ Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
 by using the datapackage structure described below.
 
+Datamodel and Naming Conventions
+----------------------------------
+
+Facades require specific attributes. For all facades the attribute `carrier`
+and 'tech' need to be set. The attribute type is string, therefore you can
+choose string for these. However, if you want to leverage full postprocessing
+functionality we recommend using one of the types listed below
+
+Carrier types
+
+* solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste,
+electricity, heat, other
+
+Tech types
+
+* st, ocgt, ccgt, ce, pv, onshore, offshore, ror, rsv, phs, ext, bp, battery
+
+We recommend use the following naming convention for your facade names:
+
+	bus-carrier-tech-number
+
+For example: `DE-gas-ocgt-1`.
+
 
 Datapackage
 ============
