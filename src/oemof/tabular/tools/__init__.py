@@ -6,12 +6,14 @@ tabular data sources.
 
 import types
 
+
 class HSN(types.SimpleNamespace):
     """ A hashable variant of `types.Simplenamespace`.
 
     By making it hashable, we can use the instances as dictionary keys, which
     is necessary, as this is the default type for flows.
     """
+
     def __hash__(self):
         return id(self)
 

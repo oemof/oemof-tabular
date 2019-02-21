@@ -74,7 +74,8 @@ def infer_metadata(
         "from_to_bus": ["connection", "line", "conversion"],
         "chp": ["backpressure", "extraction", "chp"],
     },
-    path=None):
+    path=None,
+):
     """ Add basic meta data for a datapackage
 
     Parameters
@@ -108,7 +109,8 @@ def infer_metadata(
     if not os.path.exists("data/elements"):
         print(
             "No data path found in directory {}. Skipping...".format(
-                os.getcwd())
+                os.getcwd()
+            )
         )
     else:
         for f in os.listdir("data/elements"):
@@ -168,7 +170,8 @@ def infer_metadata(
     if not os.path.exists("data/sequences"):
         print(
             "No data path found in directory {}. Skipping...".format(
-                os.getcwd())
+                os.getcwd()
+            )
         )
     else:
         for f in os.listdir("data/sequences"):
@@ -253,11 +256,7 @@ def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
 
 
 def _sftp(
-    remotepath,
-    localpath,
-    hostname="",
-    username="rutherford",
-    password=""
+    remotepath, localpath, hostname="", username="rutherford", password=""
 ):
     """ Download data with SFTP
 
@@ -301,7 +300,8 @@ def _http(url, path):
     user_agent = (
         "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) "
         "Gecko/2009021910 "
-        "Firefox/3.0.7")
+        "Firefox/3.0.7"
+    )
     headers = {"User-Agent": user_agent}
     request = urllib.request.Request(url, None, headers)
 
@@ -422,7 +422,7 @@ def initialize(config, directory='.'):
 
     """
     sub_directories = {
-        "elements":  "data/elements",
+        "elements": "data/elements",
         "sequences": "data/sequences",
         "geometries": "data/geometries",
     }
@@ -446,6 +446,7 @@ def initialize(config, directory='.'):
                 raise
 
     return sub_directories
+
 
 def input_filepath(file, directory="archive/"):
     """
@@ -479,14 +480,14 @@ def read_build_config(file="build.toml"):
         String with name of config file
     """
     try:
-            config = toml.load(file)
+        config = toml.load(file)
 
-            # create paths
-            if config.get("directories"):
-                config["directories"] = {
-                    k: os.path.join(os.getcwd(), v)
-                    for k, v in config["directories"].items()
-                }
+        # create paths
+        if config.get("directories"):
+            config["directories"] = {
+                k: os.path.join(os.getcwd(), v)
+                for k, v in config["directories"].items()
+            }
     except Exception as e:
         raise ValueError("Could not load config file: {}".format(e))
 
@@ -637,8 +638,13 @@ def write_geometries(filename, geometries, directory="data/geometries"):
     return path
 
 
-def write_elements(filename, elements, directory="data/elements",
-                   replace=False, create_dir=True):
+def write_elements(
+    filename,
+    elements,
+    directory="data/elements",
+    replace=False,
+    create_dir=True,
+):
     """ Writes elements to filesystem.
 
     Parameters
@@ -685,8 +691,13 @@ def write_elements(filename, elements, directory="data/elements",
     return path
 
 
-def write_sequences(filename, sequences, directory= "data/sequences",
-                    replace=False, create_dir=True):
+def write_sequences(
+    filename,
+    sequences,
+    directory="data/sequences",
+    replace=False,
+    create_dir=True,
+):
     """ Writes sequences to filesystem.
 
     Parameters

@@ -6,28 +6,27 @@ import oemof.tabular.tools.postprocessing as pp
 from oemof.tabular.facades import TYPEMAP
 
 examples = [
-    #'dispatch',
-    #'investment',
+    # 'dispatch',
+    # 'investment',
     "foreignkeys",
-    #'lopf'
-    ]
+    # 'lopf'
+]
 
 for example in examples:
     print("Running example {}".format(example))
     es = EnergySystem.from_datapackage(
         pkg.resource_filename(
             'oemof.tabular',
-            'examples/datapackages/{}/datapackage.json'.format(example)),
+            'examples/datapackages/{}/datapackage.json'.format(example),
+        ),
         attributemap={},
-        typemap=TYPEMAP)
-
+        typemap=TYPEMAP,
+    )
 
     es.timeindex = es.timeindex[0:5]
     m = Model(es)
 
     m.solve(solver='cbc')
-
-
 
     # get bus results
     br = pp.bus_results(es, m.results(), select='scalars')
@@ -45,8 +44,9 @@ for example in examples:
 
     pp.component_results(results=m.results(), es=es, select="scalars")
 
-    views.node_input_by_type(m.results(), node_type=TYPEMAP['storage'],
-                             droplevel=[2])
+    views.node_input_by_type(
+        m.results(), node_type=TYPEMAP['storage'], droplevel=[2]
+    )
 
 
 # views.node_output_by_type(m.results(), node_type=TYPEMAP['storage'],
@@ -56,6 +56,8 @@ for example in examples:
 #
 # views.net_storage_flow(results=m.results(), node_type=TYPEMAP['storage'])
 #
-# views.node(processing.parameter_as_dict(es), es.nodes[0], multiindex=True)['scalars']
+# views.node(processing.parameter_as_dict(es), es.nodes[0], multiindex=True)[
+#     'scalars'
+# ]
 
 # pp.bus_results(es, m.results(), select='scalars', concat=True)

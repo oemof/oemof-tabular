@@ -3,7 +3,6 @@
 import os
 import pkg_resources as pkg
 
-import oemof.tabular.datapackage
 from oemof.solph import EnergySystem, Model
 import oemof.tabular.tools.postprocessing as pp
 from oemof.tabular.facades import TYPEMAP
