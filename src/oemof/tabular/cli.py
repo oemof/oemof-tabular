@@ -35,7 +35,7 @@ def _test(ctx, package):
                                                                profile.name))
                             )
 
-        except:
+        except Exception:
             raise exceptions.DataPackageException(
                 (
                     "Could not read resource {} from datpackage "
