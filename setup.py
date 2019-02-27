@@ -81,6 +81,8 @@ setup(
         "tsam",
         "click",
         "toml",
+        "plotly",
+        "matplotlib"
     ],
     extras_require={
         # eg:
