@@ -37,7 +37,8 @@ timeseries.index.freq = "1H"
 
 costs = pd.read_excel(
     datapath,
-    sheet_name="costs")
+    sheet_name="costs",
+    index_col=[0])
 
 es = EnergySystem(timeindex=timeseries.index)
 setattr(es, 'typemap', fc.TYPEMAP)
