@@ -102,7 +102,19 @@ def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
 
 
 def temporal_clustering(datapackage, n, path="/tmp", how="daily"):
-    """
+    """ Creates a new datapackage by aggregating sequences inside the
+    `sequence` folder of the specified datapackage by clustering `n` timesteps
+
+    Parameters
+    ----------
+    datapackage: string
+        String of meta data file datapackage.json
+    n: integer
+        Number of clusters
+    path: string
+        Path to directory where the aggregated datapackage is stored
+    how: string
+        How to cluster 'daily' or 'hourly'
     """
     if how == "weekly":
         raise NotImplementedError("Weekly clustering is not implemented!")
@@ -211,7 +223,3 @@ def temporal_clustering(datapackage, n, path="/tmp", how="daily"):
     os.chdir(cwd)
 
     return copied_root
-
-
-def loop_temporal(f, d, narray, *args):
-    return [f(d, n, *args) for n in narray]

@@ -18,6 +18,9 @@ def component_results(es, results, select="sequences"):
 
     c = {}
 
+    if not hasattr(es, 'typemap'):
+        setattr(es, 'typemap', facades.TYPEMAP)
+
     for k, v in es.typemap.items():
         if type(k) == str:
             if select == "sequences":
@@ -98,6 +101,9 @@ def supply_results(
 ):
     """
     """
+    if not hasattr(es, 'typemap'):
+        setattr(es, 'typemap', facades.TYPEMAP)
+
     selection = pd.DataFrame()
 
     for t in types:
@@ -120,6 +126,8 @@ def supply_results(
 def demand_results(types=["load"], bus=None, results=None, es=None):
     """
     """
+    if not hasattr(es, 'typemap'):
+        setattr(es, 'typemap', facades.TYPEMAP)
     selection = pd.DataFrame()
 
     for t in types:
@@ -220,9 +228,11 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
                         node.carrier
                     )  # for oemof logic
                     d[key] = {"value": node.capacity}
-    exogenous = pd.DataFrame.from_dict(d, orient="index").dropna()
-    exogenous.index = exogenous.index.set_names(
-        ["from", "to", "type", "tech", "carrier"])
+    exogenous = pd.DataFrame.from_dict(d).T #.dropna()
+
+    if not exogenous.empty:
+        exogenous.index = exogenous.index.set_names(
+            ["from", "to", "type", "tech", "carrier"])
 
     capacities = (
         pd.concat([endogenous, exogenous])
