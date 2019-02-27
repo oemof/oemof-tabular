@@ -129,9 +129,9 @@ class Reservoir(GenericStorage, Facade):
     def build_solph_components(self):
         """
         """
-        self.initial_capacity = self.initial_storage_capacity
+        self.initial_storage_level = self.initial_storage_capacity
 
-        self.nominal_capacity = self.storage_capacity
+        self.nominal_storage_capacity = self.storage_capacity
 
         self.outflow_conversion_factor = sequence(
             self.efficiency)
@@ -608,11 +608,11 @@ class Storage(GenericStorage, Facade):
     def build_solph_components(self):
         """
         """
-        self.nominal_capacity = self.storage_capacity
+        self.nominal_storage_capacity = self.storage_capacity
 
-        self.initial_capacity = self.storage_capacity_initial
+        self.initial_storage_level = self.storage_capacity_initial
 
-        self.capacity_loss = self.loss
+        self.loss_rate = self.loss
 
         self.inflow_conversion_factor = sequence(
             self.efficiency)
@@ -659,9 +659,7 @@ class Storage(GenericStorage, Facade):
 
         self.outputs.update({self.bus: fo})
 
-        # annoying oemof stuff, that requires _set_flows() to provide a
-        # drepreciated warning
-        self._set_flows('Ignore this warning...')
+        self._set_flows()
 
 
 class Link(Link, Facade):
