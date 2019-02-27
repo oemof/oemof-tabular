@@ -79,6 +79,7 @@ setup(
         "scipy",
         "shapely",
         "tsam",
+        "ipython",
         "click",
         "toml",
         "plotly",
