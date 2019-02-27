@@ -31,6 +31,7 @@ timeseries = pd.read_excel(
     sheet_name="timeseries",
     index_col=[0],
     parse_dates=True)
+timeseries.index.freq = "1H"
 
 es = EnergySystem(timeindex=timeseries.index)
 # setattr(es, 'typemap', fc.TYPEMAP)

@@ -33,6 +33,7 @@ timeseries = pd.read_excel(
     sheet_name="timeseries",
     index_col=[0],
     parse_dates=True)
+timeseries.index.freq = "1H"
 
 costs = pd.read_excel(
     datapath,
