@@ -78,8 +78,9 @@ def hourly_plot(
             )
         ),
        yaxis2= dict(
+            title='Energy in MWh',
             overlaying='y',
-            range=[0, filling_levels.max()],
+            range=[0, filling_levels.max()*1.05],
             rangemode="tozero",
             autorange=True,
             side='right',
