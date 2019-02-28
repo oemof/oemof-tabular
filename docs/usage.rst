@@ -11,24 +11,19 @@ Background
 =============
 
 Energy systems modelling requires versatile tools to model systems with
-different levels of accuracy and detail. For example, for some countries the
-lack of data may force  energy system analysts to apply simplistic approaches.
-In other cases comprehensive interlinked models may be applied to analyse energy
-systems and future pathways.
-
-A major part of energy system modelling is the data handling including
-input collection, processing and result analysis. There is yet no standardized
-or custom broadly used model-agnostic data container in the scientific field
-of energy system modelling to hold energy system related data. To enable
-transparency and reproducibility as well as reusability of existing data the
-following data model description has been developed to store energy
-system related data in the datapackage format. The underlying concept is closely
-linked to the graph based description
-of energy as developed for the Open Energy Modelling Framework.
+different levels of accuracy and detail. In this regard a major part of
+is the data handling including input collection, processing and result analysis.
+There is yet no standardized or custom broadly used model-agnostic data container
+in the scientific field of energy system modelling to hold energy system
+related data. To enable transparency and reproducibility as well as reusability
+of existing data the following data model description has been developed to
+store energy system related data in the datapackage format. The underlying
+concept is closely linked to the graph based description of energy systems as
+developed for the Open Energy Modelling Framework.
 
 The Open Energy Modelling Framework is based on a graph structure at its core.
 In addition it provides an optimization model generator to construct individual
-and suitable models. The internal logic, used terminology and software
+dispatch and investment models. The internal logic, used terminology and software
 architecture is abstract and rather designed for model developers and
 experienced modellers.
 
@@ -41,41 +36,31 @@ of freedom:
 
 However, in some cases complexity of this internal logic and full functionality
 is neither necessary nor suitable for model users. Therefore we provide
-so called facade classes that provide an energy specific and reduced access to
-the underlying oemof functionality.
-
-Currently we provide the following facades:
-
-	* Dispatchable
-	* Volatile
-	* Link
-	* Conversion
-	* Storage
-	* Reservoir
-	* Extraction
-	* Backpressure
-	* Reservoir
-	* Load
+so called **facade classes** that provide an energy specific and reduced
+access to the underlying oemof.solph functionality.
+To see the implemented facades check out the :py:mod:`~oemof.tabular.facades`
+module
 
 
 Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
 by using the datapackage structure described below.
 
+
 Datamodel and Naming Conventions
 ----------------------------------
 
-Facades require specific attributes. For all facades the attribute `carrier`
-and 'tech' need to be set. The attribute type is string, therefore you can
-choose string for these. However, if you want to leverage full postprocessing
-functionality we recommend using one of the types listed below
+Facades require specific attributes. For all facades the attribute `carrier`,
+'tech' and 'type' need to be set. The type of the attribute is string,
+therefore you can choose string for these. However, if you want to leverage
+full postprocessing functionality we recommend using one of the types listed below
 
-Carrier types
+**Carrier types**
 
 * solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste,
 electricity, heat, other
 
-Tech types
+**Tech types**
 
 * st, ocgt, ccgt, ce, pv, onshore, offshore, ror, rsv, phs, ext, bp, battery
 
@@ -92,7 +77,7 @@ To construct a model based on the datapackage the following 2
 steps are required:
 
 	1. Add the topology of the energy system based on the components and their
-	**exogenous model variables**.
+	**exogenous model variables** to csv-files in the datapackage format.
 
 	2. Create a python script to construct the energy system and the model from
 	that data.
@@ -121,27 +106,28 @@ The resulting tree of the datapackage could for example look like this:
 
 ::
 
-      |-- datapackage
-          |-- data
-              |-- elements
-                  |-- demand.csv
-                  |-- generator.csv
-                  |-- storage.csv
-                  |-- bus.csv
-              |-- sequences
-          |-- scripts
-          |-- datapackage.json
+    |-- datapackage
+        |-- data
+            |-- elements
+                |-- demand.csv
+                |-- generator.csv
+                |-- storage.csv
+                |-- bus.csv
+            |-- sequences
+        |-- scripts
+        |-- datapackage.json
 
 Inside the datapackage, data is stored in so called resources. For a
 tabular-datapackage, these resources are CSV files. Columns of such
 resources are referred to as *fields*. In this sense field names of the
-resources are equivalent to parameters of the energy system elements and sequences.
+resources are equivalent to parameters of the energy system elements and
+sequences.
 
 To distinguish elements and sequences these two are stored in sub-directories of
 the data directory. In addition geometrical information can be stored under
 `data/geometries` in a `.geojson` format. To simplifiy the process of creating
 and processing a datapackage you may
-also use the funtionalities of the `oemof.tabular.datapackage`
+also use the funtionalities of the :py:mod:`~oemof.tabular.datapackage`
 
 You can use functions to read and write resources (pandas.DataFrames in python).
 This can also be done for sequences and geometries.
@@ -169,17 +155,17 @@ To create meta-data `json` file you can use the following code:
 					package_name="my-datapackage",
 					foreign_keys={
 							"bus": [
-									"volatile",
-									"dispatchable",
-									"storage",
-									"heat_storage",
-									"load",
-									"ror",
-									"reservoir",
-									"phs",
-									"excess",
-									"boiler",
-									"commodity",
+								"volatile",
+								"dispatchable",
+								"storage",
+								"heat_storage",
+								"load",
+								"ror",
+								"reservoir",
+								"phs",
+								"excess",
+								"boiler",
+								"commodity",
 							],
 							"profile": ["load", "volatile", "heat_load", "ror", "reservoir"],
 							"from_to_bus": ["link", "conversion", "line"],
