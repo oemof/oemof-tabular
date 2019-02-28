@@ -432,10 +432,12 @@ def initialize(config, directory='.'):
         try:
             default = "config.json"
             config = get_config(default)
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             message = (
-                "Default path `{}` of config file not found!".format(default)
-            )
+                "{}\n"
+                "Cause:\n"
+                "Default path `{}` of config file could not be found!"
+            ).format(e, default)
             raise FileNotFoundError(message).with_traceback(
                 sys.exc_info()[2]
             ) from None
