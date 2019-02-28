@@ -86,10 +86,10 @@ def hourly_plot(
                 go.Scatter(
                     x = x,
                     y = df[c].clip(upper=0),
-                    name=c+'-charge',
+                    name=c,
                     stackgroup='negative',
                     line=dict(width=0, color=color_dict.get(c, 'black')),
-                    showlegend= False
+                    showlegend=False
                 )
             )
 
