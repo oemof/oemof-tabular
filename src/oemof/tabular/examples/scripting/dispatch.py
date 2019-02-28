@@ -87,7 +87,7 @@ pp.write_results(m, results_path)
 
 
 if False:
-    from plots import hourly_plot, stacked_plot
+    from oemof.tabular.tools.plots import hourly_plot, stacked_plot
     # plot results with plotly
     offline.plot(
         hourly_plot(
