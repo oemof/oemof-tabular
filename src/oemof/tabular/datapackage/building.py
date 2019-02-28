@@ -489,7 +489,10 @@ def read_build_config(file="build.toml"):
                 for k, v in config["directories"].items()
             }
     except Exception as e:
-        raise ValueError("Could not load config file: {}".format(e))
+        message = (
+            "{}\n" "Cause:\n" "Build config file '{}' could not be read."
+        ).format(e, file)
+        raise ValueError(message)
 
     return config
 
