@@ -433,9 +433,12 @@ def initialize(config, directory='.'):
             default = "config.json"
             config = get_config(default)
         except FileNotFoundError:
-            raise FileNotFoundError(
+            message = (
                 "Default path `{}` of config file not found!".format(default)
             )
+            raise FileNotFoundError(message).with_traceback(
+                sys.exc_info()[2]
+            ) from None
 
     sub_directories.update(config.get("sub-directories", {}))
 
