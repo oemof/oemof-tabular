@@ -7,8 +7,6 @@ from oemof.solph import EnergySystem, Model, Bus
 import oemof.tabular.tools.postprocessing as pp
 import oemof.tabular.facades as fc
 
-from plots import hourly_plot, stacked_plot
-
 
 # datapath for input data from the oemof tabular pacakge
 datapath = pkg.resource_filename(
@@ -33,7 +31,6 @@ timeseries = pd.read_excel(
 timeseries.index.freq = "1H"
 
 es = EnergySystem(timeindex=timeseries.index)
-# setattr(es, 'typemap', fc.TYPEMAP)
 
 bus = Bus(label='DE')
 
@@ -88,24 +85,27 @@ m.results = m.results()
 # writing results with the standard oemof-tabular output formatt
 pp.write_results(m, results_path)
 
-# plot results with plotly
-offline.plot(
-    hourly_plot(
-        'dispatch',
-        'DE',
-        os.path.join(
-            os.path.expanduser('~'),
-            "oemof-results")
-        ),
-    filename=os.path.join(results_path, 'hourly-plot.html'))
+
+if False:
+    from plots import hourly_plot, stacked_plot
+    # plot results with plotly
+    offline.plot(
+        hourly_plot(
+            'dispatch',
+            'DE',
+            os.path.join(
+                os.path.expanduser('~'),
+                "oemof-results")
+            ),
+        filename=os.path.join(results_path, 'hourly-plot.html'))
 
 
-# plot results with plotly
-offline.plot(
-    stacked_plot(
-        'dispatch',
-        os.path.join(
-            os.path.expanduser('~'),
-            "oemof-results")
-        ),
-    filename=os.path.join(results_path, 'stacked-plot.html'))
+    # plot results with plotly
+    offline.plot(
+        stacked_plot(
+            'dispatch',
+            os.path.join(
+                os.path.expanduser('~'),
+                "oemof-results")
+            ),
+        filename=os.path.join(results_path, 'stacked-plot.html'))

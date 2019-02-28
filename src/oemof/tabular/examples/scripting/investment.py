@@ -10,8 +10,6 @@ from oemof.tools.economics import annuity
 import oemof.tabular.facades as fc
 from oemof.solph.constraints import emission_limit
 
-from plots import hourly_plot
-
 
 # datapath for input data from the oemof tabular pacakge
 datapath = pkg.resource_filename(
@@ -118,12 +116,15 @@ m.results = m.results()
 pp.write_results(m, results_path)
 
 # plot results with plotly
-offline.plot(
-    hourly_plot(
-        'investment',
-        'DE',
-        os.path.join(
-            os.path.expanduser('~'),
-            "oemof-results")
-        ),
-    filename=os.path.join(results_path, 'hourly-plot.html'))
+if True:
+    from oemof.tabular.examples.plots import hourly_plot
+
+    offline.plot(
+        hourly_plot(
+            'investment',
+            'DE',
+            os.path.join(
+                os.path.expanduser('~'),
+                "oemof-results")
+            ),
+        filename=os.path.join(results_path, 'hourly-plot.html'))

@@ -695,7 +695,7 @@ class Link(Link, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=['from_bus', 'to_bus', 'carrier', 'tech'],
+        super().__init__(_facade_requires_=['from_bus', 'to_bus'],
                          *args, **kwargs)
 
         self.capacity = kwargs.get('capacity')

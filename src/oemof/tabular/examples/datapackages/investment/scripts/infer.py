@@ -1,4 +1,4 @@
-from datapackage_utilities import building
+from oemof.tabular.datapackage import building
 
 building.infer_metadata(package_name='renpass-invest-example',
                         foreign_keys={

@@ -6,14 +6,12 @@ import oemof.tabular.tools.postprocessing as pp
 from oemof.tabular.facades import TYPEMAP
 
 examples = [
-    #'dispatch',
-    #'investment',
-    "foreignkeys",
-    #'lopf'
+    'dispatch',
+    'investment',
     ]
 
 for example in examples:
-    print("Running example {}".format(example))
+    print("Runnig postprocessing example with datapackage {}".format(example))
     es = EnergySystem.from_datapackage(
         pkg.resource_filename(
             'oemof.tabular',
@@ -23,11 +21,10 @@ for example in examples:
 
 
     es.timeindex = es.timeindex[0:5]
+
     m = Model(es)
 
     m.solve(solver='cbc')
-
-
 
     # get bus results
     br = pp.bus_results(es, m.results(), select='scalars')

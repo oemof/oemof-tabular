@@ -33,6 +33,16 @@
                         "format": "default"
                     },
                     {
+                        "type": "string",
+                        "name": "carrier",
+                        "format": "default"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tech",
+                        "format": "default"
+                    },
+                    {
                         "type": "integer",
                         "name": "capacity",
                         "format": "default"
@@ -111,6 +121,16 @@
                     {
                         "type": "string",
                         "name": "type",
+                        "format": "default"
+                    },
+                    {
+                        "type": "string",
+                        "name": "carrier",
+                        "format": "default"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tech",
                         "format": "default"
                     },
                     {
@@ -202,6 +222,16 @@
                     {
                         "type": "string",
                         "name": "name",
+                        "format": "default"
+                    },
+                    {
+                        "type": "string",
+                        "name": "carrier",
+                        "format": "default"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tech",
                         "format": "default"
                     },
                     {
