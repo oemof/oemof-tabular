@@ -572,7 +572,7 @@ class Storage(GenericStorage, Facade):
         Investment costs for the storage unit e.g in €/MW-capacity
     loss: numeric
         Standing loss per timestep in % of capacity. Default: 0
-    storage_capacity_initial: numeric
+    initial_storage_capacity: numeric
         The state of the storage capacity in the first (and last) time step of
         optimization. Default: 0.5
     input_parameters: dict (optional)
@@ -604,8 +604,8 @@ class Storage(GenericStorage, Facade):
 
         self.loss = sequence(kwargs.get('loss', 0))
 
-        self.storage_capacity_initial = kwargs.get(
-            'storage_capacity_initial', 0.5)
+        self.initial_storage_capacity = kwargs.get(
+            'initial_storage_capacity', 0.5)
 
         self.input_parameters = kwargs.get('input_parameters', {})
 
@@ -620,7 +620,7 @@ class Storage(GenericStorage, Facade):
         """
         self.nominal_storage_capacity = self.storage_capacity
 
-        self.initial_storage_level = self.storage_capacity_initial
+        self.initial_storage_level = self.initial_storage_capacity
 
         self.loss_rate = self.loss
 

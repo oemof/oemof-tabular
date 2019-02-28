@@ -246,9 +246,11 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
         duals.columns = duals.columns.droplevel(1)
         duals = (duals.T / m.objective_weighting).T
         save(duals, "shadow_prices")
-
-    filling_levels = views.node_weight_by_type(
-        m.results, GenericStorage
-    )
-    filling_levels.columns = filling_levels.columns.droplevel(1)
-    save(filling_levels, "filling_levels")
+        
+    # check if storages exist in energy system nodes
+    if [n for n in m.es.nodes if isinstance(n, GenericStorage)]:
+        filling_levels = views.node_weight_by_type(
+            m.results, GenericStorage
+        )
+        filling_levels.columns = filling_levels.columns.droplevel(1)
+        save(filling_levels, "filling_levels")

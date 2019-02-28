@@ -32,48 +32,60 @@ timeseries.index.freq = "1H"
 es = EnergySystem(timeindex=timeseries.index)
 
 bus = Bus(label='DE')
+es.add(bus)
 
-wind = fc.Volatile(
-    label='wind',
-    carrier="wind",
-    tech="onshore",
-    capacity=150,
-    bus=bus,
-    profile=timeseries['onshore'])
+es.add(
+    fc.Volatile(
+        label='wind',
+        carrier="wind",
+        tech="onshore",
+        capacity=150,
+        bus=bus,
+        profile=timeseries['onshore'])
+)
 
-ccgt = fc.Dispatchable(
-    label='ccgt',
-    bus=bus,
-    carrier="gas",
-    tech="ccgt",
-    capacity=100,
-    marginal_cost=25)
+es.add(
+    fc.Dispatchable(
+        label='ccgt',
+        bus=bus,
+        carrier="gas",
+        tech="ccgt",
+        capacity=100,
+        marginal_cost=25)
+)
 
-sto = fc.Storage(
-    label='storage',
-    bus=bus,
-    carrier="lithium",
-    tech="battery",
-    capacity=20,
-    storage_capacity=100,
-    capacity_ratio=1/6
-    )
+es.add(
+    fc.Storage(
+        label='storage',
+        bus=bus,
+        carrier="lithium",
+        tech="battery",
+        capacity=20,
+        balanced=False,
+        initial_storage_capacity=1,
+        storage_capacity=100)
+)
 
-load = fc.Load(
-    label='load',
-    bus=bus,
-    amount=500e3,
-    profile=timeseries['load'])
+es.add(
+    fc.Load(
+        label='load',
+        bus=bus,
+        amount=500e3,
+        profile=timeseries['load'])
+)
 
-curtailment = fc.Excess(
-    label="excess",
-    bus=bus)
-
-# add the components to the energy system object
-es.add(wind, load, sto, ccgt, bus, curtailment)
+es.add(
+    fc.Excess(
+        label="excess",
+        bus=bus)
+)
 
 # create model based on energy system and its components
 m = Model(es)
+
+# write lp file
+m.write(os.path.join(results_path, 'dispatch.lp'),
+        io_options={'symbolic_solver_labels': True})
 
 #  solve the model using cbc solver
 m.solve('cbc')

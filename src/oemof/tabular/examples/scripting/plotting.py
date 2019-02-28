@@ -26,11 +26,11 @@ offline.plot(
 
 
 # plot results with plotly
-offline.plot(
-    stacked_plot(
-        name,
-        os.path.join(
-            os.path.expanduser('~'),
-            "oemof-results")
-        ),
-    filename=os.path.join(results_path, 'stacked-plot.html'))
+# offline.plot(
+#     stacked_plot(
+#         name,
+#         os.path.join(
+#             os.path.expanduser('~'),
+#             "oemof-results")
+#         ),
+#     filename=os.path.join(results_path, 'stacked-plot.html'))
