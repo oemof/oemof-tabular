@@ -117,7 +117,7 @@ pp.write_results(m, results_path)
 
 # plot results with plotly
 if True:
-    from oemof.tabular.examples.plots import hourly_plot
+    from oemof.tabular.tools.plots import hourly_plot
 
     offline.plot(
         hourly_plot(

@@ -772,3 +772,38 @@ TYPEMAP = {
     'storage': Storage,
     'volatile': Volatile,
 }
+
+TECH_COLOR_MAP = {
+    'acaes': 'brown',
+    'ocgt': 'gray',
+    'st': "darkgray",
+    'ccgt': 'lightgray',
+    'pv': 'gold',
+    'onshore': 'skyblue',
+    'offshore': 'darkblue',
+    'ce': 'olivedrab',
+    'battery': 'lightsalmon',
+    'ror': 'aqua',
+    'phs': 'darkblue',
+    'reservoir': 'slateblue',
+    'biomass': 'olivedrab',
+    "storage": "lightsalmon",
+    "battery": "lightsalmon",
+    "import": 'crimson'
+}
+
+CARRIER_COLER_MAP  = {
+    'biomass': 'olivedrab',
+    'lithium': 'lightsalmon',
+    'electricity': 'darkred',
+    'hydro': 'aqua',
+    'hydrogen': 'magenta',
+    'uranium': 'yellow',
+    'wind': 'skyblue',
+    'solar': 'gold',
+    'gas': 'lightgray',
+    'lignite': "chocolate",
+    'coal': "darkgray",
+    'waste': 'yellowgreen',
+    'oil': 'black',
+}

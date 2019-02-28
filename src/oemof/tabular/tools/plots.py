@@ -2,49 +2,27 @@ import os
 import pandas as pd
 
 import plotly.graph_objs as go
-import plotly.offline as offline
+# import plotly.offline as offline
 from matplotlib import colors
 
-offline.init_notebook_mode()
+#offline.init_notebook_mode()
+from oemof.tabular.facades import TECH_COLOR_MAP, CARRIER_COLER_MAP
 
-color = {
-    'acaes': 'brown',
-    'gas-ocgt': 'gray',
-    'gas-ccgt': 'lightgray',
-    'solar-pv': 'gold',
-    'wind-onshore': 'skyblue',
-    'wind-offshore': 'darkblue',
-    'biomass-ce': 'olivedrab',
-    'lithium-battery': 'lightsalmon',
-    'battery': 'lightsalmon',
-    'electricity': 'lightsalmon',
-    'hydro-ror': 'aqua',
-    'hydro-phs': 'darkred',
-    'hydro-reservoir': 'magenta',
-    'biomass': 'olivedrab',
-    'uranium': 'yellow',
-    'hydro': 'aqua',
-    'wind': 'skyblue',
-    'solar': 'gold',
-    "pv": "gold",
-    "storage": "lightsalmon",
-    "ccgt": "lightgray",
-    'gas': 'lightgray',
-    'lignite': "chocolate",
-    'coal': "darkgray",
-    'waste': 'yellowgreen',
-    'oil': 'black',
-    'import': 'pink',
-}
+color = dict(TECH_COLOR_MAP, **CARRIER_COLER_MAP)
+
+for t in TECH_COLOR_MAP:
+    for c in CARRIER_COLER_MAP:
+        color['-'.join([c, t])] = TECH_COLOR_MAP[t]
 
 color_dict = {
     name: colors.to_hex(color) for name, color in color.items()}
+
 
 def hourly_plot(
     scenario,
     bus,
     datapath='results',
-    flexibility = ['import', 'acaes', 'phs', 'lithium_battery', 'battery',
+    flexibility = ['import', 'acaes', 'phs', 'lithium-battery', 'battery',
                    'storage'],
     aggregate=['coal', 'lignite', 'oil', 'gas', 'waste', 'uranium'],
     daily=False):
