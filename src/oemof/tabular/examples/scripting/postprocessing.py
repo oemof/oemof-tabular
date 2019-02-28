@@ -5,9 +5,13 @@ from oemof.solph import EnergySystem, Model
 import oemof.tabular.tools.postprocessing as pp
 from oemof.tabular.facades import TYPEMAP
 
+# needed for .from_datapackage to work
+import oemof.tabular.datapackage
+
 examples = [
     'dispatch',
     'investment',
+    'foreignkeys'
     ]
 
 for example in examples:
@@ -26,33 +30,22 @@ for example in examples:
 
     m.solve(solver='cbc')
 
-    # get bus results
-    br = pp.bus_results(es, m.results(), select='scalars')
+    # skip foreignkeys example as not all buses are present
+    if example != 'foreignkeys':
+        br = pp.bus_results(es, m.results(), select='scalars')
 
-    # select on bus and reduce multiindex
-    # br['bus0'].xs([es.groups['bus0'], 'invest'], level=[1, 2])
+        if example == 'investment':
+            br['bus0'].xs([es.groups['bus0'], 'invest'], level=[1, 2])
 
-    pp.supply_results(results=m.results(), es=es, bus=['heat-bus'])
+        pp.supply_results(results=m.results(), es=es, bus=['heat-bus'])
 
-    pp.supply_results(results=m.results(), es=es, bus=['bus0', 'bus1'])
+        pp.supply_results(results=m.results(), es=es, bus=['bus0', 'bus1'])
 
-    pp.demand_results(results=m.results(), es=es, bus=['bus0', 'bus1'])
+        pp.demand_results(results=m.results(), es=es, bus=['bus0', 'bus1'])
 
-    pp.component_results(results=m.results(), es=es, select="sequences")
+        pp.component_results(results=m.results(), es=es, select="sequences")
 
-    pp.component_results(results=m.results(), es=es, select="scalars")
+        pp.component_results(results=m.results(), es=es, select="scalars")
 
-    views.node_input_by_type(m.results(), node_type=TYPEMAP['storage'],
-                             droplevel=[2])
-
-
-# views.node_output_by_type(m.results(), node_type=TYPEMAP['storage'],
-#                          droplevel=[2])
-#
-# views.node_weight_by_type(m.results(), node_type=TYPEMAP['storage'])
-#
-# views.net_storage_flow(results=m.results(), node_type=TYPEMAP['storage'])
-#
-# views.node(processing.parameter_as_dict(es), es.nodes[0], multiindex=True)['scalars']
-
-# pp.bus_results(es, m.results(), select='scalars', concat=True)
+        views.node_input_by_type(m.results(), node_type=TYPEMAP['storage'],
+                                 droplevel=[2])
