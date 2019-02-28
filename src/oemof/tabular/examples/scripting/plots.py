@@ -15,6 +15,7 @@ color = {
     'wind-onshore': 'skyblue',
     'wind-offshore': 'darkblue',
     'biomass-ce': 'olivedrab',
+    'lithium-battery': 'lightsalmon',
     'battery': 'lightsalmon',
     'electricity': 'lightsalmon',
     'hydro-ror': 'aqua',
@@ -140,9 +141,11 @@ def hourly_plot(
 
     return {'data': data, 'layout': layout}
 
-def stacked_plot(scenario, datapath='results'):
+
+def stacked_plot(scenario, datapath=None):
     """
     """
+
     df = pd.read_csv(
         os.path.join(datapath, scenario, 'output', 'capacities.csv'),
         index_col=0)

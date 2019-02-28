@@ -48,6 +48,8 @@ bus = Bus(label='DE')
 wind = fc.Volatile(
     label='wind',
     bus=bus,
+    carrier="wind",
+    tech="onshore",
     capacity_cost=annuity(
         costs.at['capex', 'onshore'],
         costs.at['lifetime', 'onshore'],
@@ -57,6 +59,8 @@ wind = fc.Volatile(
 pv = fc.Volatile(
     label='pv',
     bus=bus,
+    carrier="solar",
+    tech="pv",
     capacity_cost=annuity(
         costs.at['capex', 'pv'],
         costs.at['lifetime', 'pv'],
@@ -66,6 +70,8 @@ pv = fc.Volatile(
 ccgt = fc.Dispatchable(
     label='ccgt',
     bus=bus,
+    carrier="gas",
+    tech="ccgt",
     capacity_cost=annuity(
         costs.at['capex', 'ccgt'],
         costs.at['lifetime', 'ccgt'],
@@ -77,6 +83,8 @@ ccgt = fc.Dispatchable(
 sto = fc.Storage(
     label='storage',
     bus=bus,
+    carrier="electricity",
+    tech="battery",
     capacity_cost=annuity(
         costs.at['capex', 'storage'],
         costs.at['lifetime', 'storage'],

@@ -34,13 +34,10 @@ class Facade(Node):
 
         self.mapped_type = type(self)
 
-        self.tech = kwargs.get('tech')
-
-        self.carrier = kwargs.get('carrier')
-
         self.type = kwargs.get('type')
 
         required = kwargs.pop("_facade_requires_", [])
+
         super().__init__(*args, **kwargs)
         self.subnodes = []
         for r in required:
@@ -109,7 +106,8 @@ class Reservoir(GenericStorage, Facade):
 
     def __init__(self, *args, **kwargs):
 
-        kwargs.update({'_facade_requires_': ['bus', 'profile', 'efficiency']})
+        kwargs.update({'_facade_requires_': [
+            'carrier', 'tech', 'bus', 'profile', 'efficiency']})
         super().__init__(*args, **kwargs)
 
         self.storage_capacity = kwargs.get('storage_capacity')
@@ -183,6 +181,16 @@ class Dispatchable(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if capacity is to be optimized
+
+    Constraints
+    -----------
+
+    .. math::
+        0 \\leq g_{g, t} \leq \\overline{capacity}_{t} \\forall t
+
+
+    For constraints set through `output_parameters` see oemof.solph.Flow class.
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -313,7 +321,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     def __init__(self, *args, **kwargs):
         kwargs.update({
             '_facade_requires_': [
-                'fuel_bus', 'carrier', 'electricity_bus', 'heat_bus',
+                'fuel_bus', 'carrier', 'tech', 'electricity_bus', 'heat_bus',
                 'thermal_efficiency', 'electric_efficiency',
                 'condensing_efficiency']})
         super().__init__(conversion_factor_full_condensation={}, *args,
@@ -398,7 +406,8 @@ class BackpressureTurbine(Transformer, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=['carrier', 'electricity_bus',
+        super().__init__(_facade_requires_=['carrier', 'tech',
+                                            'electricity_bus',
                                             'heat_bus', 'fuel_bus',
                                             'thermal_efficiency',
                                             'electric_efficiency'],
@@ -470,7 +479,8 @@ class Conversion(Transformer, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=['from_bus', 'to_bus'],
+        super().__init__(_facade_requires_=[
+            'from_bus', 'to_bus', 'carrier', 'tech'],
                          *args, **kwargs)
 
         self.capacity = kwargs.get('capacity')
@@ -575,7 +585,7 @@ class Storage(GenericStorage, Facade):
 
     def __init__(self, *args, **kwargs):
 
-        super().__init__(_facade_requires_=['bus'], *args, **kwargs)
+        super().__init__(_facade_requires_=['bus', 'carrier', 'tech'], *args, **kwargs)
 
         self.storage_capacity = kwargs.get('storage_capacity')
 
@@ -685,7 +695,7 @@ class Link(Link, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=['from_bus', 'to_bus'],
+        super().__init__(_facade_requires_=['from_bus', 'to_bus', 'carrier', 'tech'],
                          *args, **kwargs)
 
         self.capacity = kwargs.get('capacity')
