@@ -25,7 +25,8 @@ def hourly_plot(
     flexibility = ['import', 'acaes', 'phs', 'lithium-battery', 'battery',
                    'storage'],
     aggregate=['coal', 'lignite', 'oil', 'gas', 'waste', 'uranium'],
-    daily=False):
+    daily=False,
+    plot_filling_levels=True):
     """
     """
     df = pd.read_csv(
@@ -35,6 +36,15 @@ def hourly_plot(
             'output',
             bus + '.csv'),
         index_col=[0], parse_dates=True)
+
+    filling_levels = pd.read_csv(
+        os.path.join(
+            datapath,
+            scenario,
+            'output',
+            'filling_levels.csv'),
+        index_col=[0], parse_dates=True
+    )
 
 
     for i in aggregate:
@@ -66,8 +76,16 @@ def hourly_plot(
                 size=14,
                 color='rgb(107, 107, 107)'
             )
-        )
+        ),
+       yaxis2= dict(
+            overlaying='y',
+            range=[0, filling_levels.max()],
+            rangemode="tozero",
+            autorange=True,
+            side='right',
+            showgrid=False)
     )
+
 
     data = []
 
@@ -116,6 +134,19 @@ def hourly_plot(
                     line=dict(width=0, color=color_dict.get(c, 'black'))
                 )
             )
+
+
+    if plot_filling_levels:
+        for f in filling_levels:
+             data.append(
+                go.Scatter(
+                    x=x,
+                    y=filling_levels[f].values,
+                    name= f + '-level',
+                    yaxis='y2',
+                    marker=dict(color='#d3560e')
+            )
+        )
 
     return {'data': data, 'layout': layout}
 

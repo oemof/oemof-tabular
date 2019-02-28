@@ -20,8 +20,8 @@ offline.plot(
         'DE',
         os.path.join(
             os.path.expanduser('~'),
-            "oemof-results")
-        ),
+            "oemof-results"),
+        plot_filling_levels=False),
     filename=os.path.join(results_path, 'hourly-plot.html'))
 
 

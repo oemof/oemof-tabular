@@ -61,7 +61,8 @@ es.add(
         carrier="lithium",
         tech="battery",
         capacity=20,
-        balanced=False,
+        marginal_cost=5,
+        balanced=True,
         initial_storage_capacity=1,
         storage_capacity=100)
 )
