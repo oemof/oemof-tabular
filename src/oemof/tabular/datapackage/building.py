@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import errno
 import os
 import shutil
+import sys
 import tarfile
 import urllib.request
 import zipfile
@@ -492,7 +493,7 @@ def read_build_config(file="build.toml"):
         message = (
             "{}\n" "Cause:\n" "Build config file '{}' could not be read."
         ).format(e, file)
-        raise ValueError(message)
+        raise type(e)(message).with_traceback(sys.exc_info()[2]) from None
 
     return config
 
