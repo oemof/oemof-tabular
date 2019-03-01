@@ -67,7 +67,7 @@ def hourly_plot(
         barmode='stack',
         title='Hourly supply and demand in {} for scenario {}'.format(bus, scenario),
         yaxis=dict(
-            title='Energy in MWh',
+            title='Energy in GWh',
             titlefont=dict(
                 size=16,
                 color='rgb(107, 107, 107)'
