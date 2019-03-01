@@ -431,7 +431,7 @@ def initialize(config, directory='.'):
     if not config:
         try:
             default = "config.json"
-            config = get_config(default)
+            config = read_build_config(default)
         except FileNotFoundError as e:
             message = (
                 "{}\n"
