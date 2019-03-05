@@ -1,6 +1,11 @@
 oemof.tabular.datapackage package
 =================================
 
+.. automodule:: oemof.tabular.datapackage
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -37,10 +42,3 @@ oemof.tabular.datapackage.reading module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: oemof.tabular.datapackage
-    :members:
-    :undoc-members:
-    :show-inheritance:
