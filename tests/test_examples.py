@@ -3,6 +3,7 @@ import pkg_resources as pkg
 from oemof.energy_system import EnergySystem as ES
 
 from oemof.tabular.facades import TYPEMAP
+
 # The import below is only used to monkey patch `EnergySystem`.
 # Hence the `noqa` because otherwise, style checkers would complain about an
 # unused import.
@@ -15,7 +16,8 @@ def test_example_datapackage_readability():
 
     systems = []
     for example in pkg.resource_listdir(
-        'oemof.tabular', 'examples/datapackages'):
+        'oemof.tabular', 'examples/datapackages'
+    ):
 
         if example != 'lopf':
             print("Runnig reading datapackage example {} ...".format(example))
@@ -28,7 +30,7 @@ def test_example_datapackage_readability():
                 )
 
     for system in systems:
-        assert (type(system) is ES)
+        assert type(system) is ES
 
 def test_scripting_examples():
     """

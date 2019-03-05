@@ -6,7 +6,6 @@ from glob import glob
 from os.path import basename, dirname, join, splitext
 import io
 import re
-import sys
 
 from setuptools import find_packages, setup
 

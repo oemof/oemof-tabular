@@ -7,8 +7,9 @@ import numpy as np
 import pandas as pd
 
 from oemof.network import Bus, Sink
-from oemof.solph.components import GenericStorage
 from oemof.outputlib import views
+from oemof.solph.components import GenericStorage
+
 from oemof.tabular import facades
 
 
@@ -107,8 +108,10 @@ def supply_results(
     selection = pd.DataFrame()
 
     for t in types:
-        if issubclass(es.typemap[t], GenericStorage) \
-                and es.typemap[t] is not facades.Reservoir:
+        if (
+            issubclass(es.typemap[t], GenericStorage)
+            and es.typemap[t] is not facades.Reservoir
+        ):
             df = views.net_storage_flow(results, node_type=es.typemap[t])
             if df is not None:
                 selection = pd.concat([selection, df], axis=1)
@@ -145,9 +148,13 @@ def demand_results(types=["load"], bus=None, results=None, es=None):
 
     return selection
 
-def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwargs):
+
+def write_results(
+    m, output_path, raw=False, summary=True, scalars=True, **kwargs
+):
     """
     """
+
     def save(df, name, path=output_path):
         """ Helper for writing csv files
         """
@@ -166,17 +173,19 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
 
         demand = demand_results(results=m.results, es=m.es, bus=[b])
 
-        excess = component_results(m.es, m.results, select="sequences").get("excess")
+        excess = component_results(m.es, m.results, select="sequences").get(
+            "excess"
+        )
 
         if link_results is not None and m.es.groups[b] in list(
             link_results.columns.levels[0]
         ):
-            ex = link_results.loc[:, (m.es.groups[b], slice(None), "flow")].sum(
-                axis=1
-            )
-            im = link_results.loc[:, (slice(None), m.es.groups[b], "flow")].sum(
-                axis=1
-            )
+            ex = link_results.loc[
+                :, (m.es.groups[b], slice(None), "flow")
+            ].sum(axis=1)
+            im = link_results.loc[
+                :, (slice(None), m.es.groups[b], "flow")
+            ].sum(axis=1)
 
             net_import = im - ex
             net_import.name = m.es.groups[b]
@@ -187,8 +196,7 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
         if m.es.groups[b] in demand.columns:
             _demand = demand.loc[:, (m.es.groups[b], slice(None), "flow")]
             _demand.columns = _demand.columns.droplevel([0, 2])
-            supply = pd.concat([
-                supply, _demand], axis=1)
+            supply = pd.concat([supply, _demand], axis=1)
         if excess is not None:
             if m.es.groups[b] in excess.columns:
                 _excess = excess.loc[:, (m.es.groups[b], slice(None), "flow")]
@@ -205,13 +213,14 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
             getattr(t, "tech", np.nan) for t in all.index.get_level_values(0)
         ]
         endogenous["carrier"] = [
-            getattr(t, "carrier", np.nan) for t in all.index.get_level_values(0)
+            getattr(t, "carrier", np.nan)
+            for t in all.index.get_level_values(0)
         ]
         endogenous.set_index(
-            ['from', 'to', 'type', 'tech', "carrier"], inplace=True)
+            ['from', 'to', 'type', 'tech', "carrier"], inplace=True
+        )
     except ValueError:
         endogenous = pd.DataFrame()
-
 
     d = dict()
     for node in m.es.nodes:
@@ -225,7 +234,7 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
                         [n for n in node.outputs.keys()][0],
                         "capacity",
                         node.tech,  # tech & carrier are oemof-tabular specific
-                        node.carrier
+                        node.carrier,
                     )  # for oemof logic
                     d[key] = {"value": node.capacity}
     exogenous = pd.DataFrame.from_dict(d).T #.dropna()
@@ -238,6 +247,8 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
         pd.concat([endogenous, exogenous])
     )
 
+    capacities = pd.concat([endogenous, exogenous])
+
     save(capacities, "capacities")
 
     bresults = bus_results(m.es, m.results, concat=True)
@@ -246,7 +257,7 @@ def write_results(m, output_path, raw=False, summary=True, scalars=True, **kwarg
         duals.columns = duals.columns.droplevel(1)
         duals = (duals.T / m.objective_weighting).T
         save(duals, "shadow_prices")
-        
+
     # check if storages exist in energy system nodes
     if [n for n in m.es.nodes if isinstance(n, GenericStorage)]:
         filling_levels = views.node_weight_by_type(

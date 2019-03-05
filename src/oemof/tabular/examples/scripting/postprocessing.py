@@ -2,19 +2,19 @@ import pkg_resources as pkg
 
 from oemof.outputlib import views
 from oemof.solph import EnergySystem, Model
-import oemof.tabular.tools.postprocessing as pp
-from oemof.tabular.facades import TYPEMAP
 
-# needed for .from_datapackage to work
+from oemof.tabular.facades import TYPEMAP
 import oemof.tabular.datapackage
+import oemof.tabular.tools.postprocessing as pp
+
 
 examples = ["dispatch", "investment", "foreignkeys"]
-
 for example in examples:
     print("Runnig postprocessing example with datapackage {}".format(example))
     es = EnergySystem.from_datapackage(
         pkg.resource_filename(
-            "oemof.tabular", "examples/datapackages/{}/datapackage.json".format(example)
+            'oemof.tabular',
+            'examples/datapackages/{}/datapackage.json'.format(example),
         ),
         attributemap={},
         typemap=TYPEMAP,

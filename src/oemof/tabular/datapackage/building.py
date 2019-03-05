@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import errno
 import os
 import shutil
+import sys
 import tarfile
 import urllib.request
 import zipfile
@@ -11,9 +12,9 @@ import zipfile
 from datapackage import Package, Resource
 from geojson import Feature, FeatureCollection, dump, load
 from shapely.geometry import shape
-import toml
 import pandas as pd
 import paramiko
+import toml
 
 
 def infer_resources(directory="data/elements"):
@@ -74,7 +75,8 @@ def infer_metadata(
         "from_to_bus": ["connection", "line", "conversion"],
         "chp": ["backpressure", "extraction", "chp"],
     },
-    path=None):
+    path=None,
+):
     """ Add basic meta data for a datapackage
 
     Parameters
@@ -108,7 +110,8 @@ def infer_metadata(
     if not os.path.exists("data/elements"):
         print(
             "No data path found in directory {}. Skipping...".format(
-                os.getcwd())
+                os.getcwd()
+            )
         )
     else:
         for f in os.listdir("data/elements"):
@@ -168,7 +171,8 @@ def infer_metadata(
     if not os.path.exists("data/sequences"):
         print(
             "No data path found in directory {}. Skipping...".format(
-                os.getcwd())
+                os.getcwd()
+            )
         )
     else:
         for f in os.listdir("data/sequences"):
@@ -253,11 +257,7 @@ def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
 
 
 def _sftp(
-    remotepath,
-    localpath,
-    hostname="",
-    username="rutherford",
-    password=""
+    remotepath, localpath, hostname="", username="rutherford", password=""
 ):
     """ Download data with SFTP
 
@@ -301,7 +301,8 @@ def _http(url, path):
     user_agent = (
         "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) "
         "Gecko/2009021910 "
-        "Firefox/3.0.7")
+        "Firefox/3.0.7"
+    )
     headers = {"User-Agent": user_agent}
     request = urllib.request.Request(url, None, headers)
 
@@ -422,7 +423,7 @@ def initialize(config, directory='.'):
 
     """
     sub_directories = {
-        "elements":  "data/elements",
+        "elements": "data/elements",
         "sequences": "data/sequences",
         "geometries": "data/geometries",
     }
@@ -430,11 +431,16 @@ def initialize(config, directory='.'):
     if not config:
         try:
             default = "config.json"
-            config = get_config(default)
-        except FileNotFoundError:
-            raise FileNotFoundError(
-                "Default path `{}` of config file not found!".format(default)
-            )
+            config = read_build_config(default)
+        except FileNotFoundError as e:
+            message = (
+                "{}\n"
+                "Cause:\n"
+                "Default path `{}` of config file could not be found!"
+            ).format(e, default)
+            raise FileNotFoundError(message).with_traceback(
+                sys.exc_info()[2]
+            ) from None
 
     sub_directories.update(config.get("sub-directories", {}))
 
@@ -446,6 +452,7 @@ def initialize(config, directory='.'):
                 raise
 
     return sub_directories
+
 
 def input_filepath(file, directory="archive/"):
     """
@@ -479,16 +486,19 @@ def read_build_config(file="build.toml"):
         String with name of config file
     """
     try:
-            config = toml.load(file)
+        config = toml.load(file)
 
-            # create paths
-            if config.get("directories"):
-                config["directories"] = {
-                    k: os.path.join(os.getcwd(), v)
-                    for k, v in config["directories"].items()
-                }
+        # create paths
+        if config.get("directories"):
+            config["directories"] = {
+                k: os.path.join(os.getcwd(), v)
+                for k, v in config["directories"].items()
+            }
     except Exception as e:
-        raise ValueError("Could not load config file: {}".format(e))
+        message = (
+            "{}\n" "Cause:\n" "Build config file '{}' could not be read."
+        ).format(e, file)
+        raise type(e)(message).with_traceback(sys.exc_info()[2]) from None
 
     return config
 
@@ -637,8 +647,13 @@ def write_geometries(filename, geometries, directory="data/geometries"):
     return path
 
 
-def write_elements(filename, elements, directory="data/elements",
-                   replace=False, create_dir=True):
+def write_elements(
+    filename,
+    elements,
+    directory="data/elements",
+    replace=False,
+    create_dir=True,
+):
     """ Writes elements to filesystem.
 
     Parameters
@@ -685,8 +700,13 @@ def write_elements(filename, elements, directory="data/elements",
     return path
 
 
-def write_sequences(filename, sequences, directory= "data/sequences",
-                    replace=False, create_dir=True):
+def write_sequences(
+    filename,
+    sequences,
+    directory="data/sequences",
+    replace=False,
+    create_dir=True,
+):
     """ Writes sequences to filesystem.
 
     Parameters

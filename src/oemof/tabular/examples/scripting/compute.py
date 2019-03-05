@@ -4,8 +4,8 @@ import os
 import pkg_resources as pkg
 
 from oemof.solph import EnergySystem, Model
-import oemof.tabular.tools.postprocessing as pp
 from oemof.tabular.facades import TYPEMAP
+import oemof.tabular.tools.postprocessing as pp
 
 name = "investment"
 
