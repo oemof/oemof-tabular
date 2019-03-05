@@ -35,7 +35,7 @@ class Facade(Node):
 
         self.mapped_type = type(self)
 
-        self.type = kwargs.get('type')
+        self.type = kwargs.get("type")
 
         required = kwargs.pop("_facade_requires_", [])
 
@@ -71,9 +71,7 @@ class Facade(Node):
                 else:
                     self.investment = Investment(
                         ep_costs=self.capacity_cost,
-                        maximum=getattr(
-                            self, 'capacity_potential', float('+inf')
-                        ),
+                        maximum=getattr(self, "capacity_potential", float("+inf")),
                     )
         else:
             self.investment = None
@@ -121,14 +119,13 @@ class Reservoir(GenericStorage, Facade):
 
     >>> from oemof import solph
     >>> from oemof.tabular import facades
-
     >>> my_bus = solph.Bus('my_bus')
-
     >>> my_reservoir = Reservoir(
     ...     label='storage',
+    ...     bus='my_bus',
     ...     storage_capacity=1000,
     ...     capacity=50,
-    ...     profile=[1, 2, 0.3],
+    ...     profile=[1, 2, 6],
     ...     loss_rate=0.01,
     ...     initial_storage_level=0,
     ...     max_storage_level = 0.9,
@@ -138,19 +135,20 @@ class Reservoir(GenericStorage, Facade):
 
     def __init__(self, *args, **kwargs):
 
-        kwargs.update({'_facade_requires_': [
-            'carrier', 'tech', 'bus', 'profile', 'efficiency']})
+        kwargs.update(
+            {"_facade_requires_": ["carrier", "tech", "bus", "profile", "efficiency"]}
+        )
         super().__init__(*args, **kwargs)
 
-        self.storage_capacity = kwargs.get('storage_capacity')
+        self.storage_capacity = kwargs.get("storage_capacity")
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
-        self.efficiency = kwargs.get('efficiency', 1)
+        self.efficiency = kwargs.get("efficiency", 1)
 
-        self.input_parameters = kwargs.get('input_parameters', {})
+        self.input_parameters = kwargs.get("input_parameters", {})
 
-        self.output_parameters = kwargs.get('output_parameters', {})
+        self.output_parameters = kwargs.get("output_parameters", {})
 
         self.build_solph_components()
 
@@ -169,10 +167,8 @@ class Reservoir(GenericStorage, Facade):
             )
 
         inflow = Source(
-            label=self.label +  "-inflow",
-            outputs={
-                self: Flow(nominal_value=1, max=self.profile, fixed=False)
-            },
+            label=self.label + "-inflow",
+            outputs={self: Flow(nominal_value=1, max=self.profile, fixed=False)},
         )
 
         self.outputs.update(
@@ -227,20 +223,20 @@ class Dispatchable(Source, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({'_facade_requires_': ['bus', 'carrier', 'tech']})
+        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
         super().__init__(*args, **kwargs)
 
-        self.profile = kwargs.get('profile')
+        self.profile = kwargs.get("profile")
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get('capacity_potential')
+        self.capacity_potential = kwargs.get("capacity_potential")
 
-        self.marginal_cost = kwargs.get('marginal_cost', 0)
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.output_parameters = kwargs.get('output_parameters', {})
+        self.output_parameters = kwargs.get("output_parameters", {})
 
         self.build_solph_components()
 
@@ -286,20 +282,20 @@ class Volatile(Source, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({'_facade_requires_': ['bus', 'carrier', 'tech']})
+        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
         super().__init__(*args, **kwargs)
 
-        self.profile = kwargs.get('profile')
+        self.profile = kwargs.get("profile")
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get('capacity_potential')
+        self.capacity_potential = kwargs.get("capacity_potential")
 
-        self.marginal_cost = kwargs.get('marginal_cost', 0)
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.output_parameters = kwargs.get('output_parameters', {})
+        self.output_parameters = kwargs.get("output_parameters", {})
 
         self.build_solph_components()
 
@@ -356,33 +352,41 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({
-            '_facade_requires_': [
-                'fuel_bus', 'carrier', 'tech', 'electricity_bus', 'heat_bus',
-                'thermal_efficiency', 'electric_efficiency',
-                'condensing_efficiency']})
-        super().__init__(conversion_factor_full_condensation={}, *args,
-                         **kwargs)
+        kwargs.update(
+            {
+                "_facade_requires_": [
+                    "fuel_bus",
+                    "carrier",
+                    "tech",
+                    "electricity_bus",
+                    "heat_bus",
+                    "thermal_efficiency",
+                    "electric_efficiency",
+                    "condensing_efficiency",
+                ]
+            }
+        )
+        super().__init__(conversion_factor_full_condensation={}, *args, **kwargs)
 
-        self.fuel_bus = kwargs.get('fuel_bus')
+        self.fuel_bus = kwargs.get("fuel_bus")
 
-        self.electricity_bus = kwargs.get('electricity_bus')
+        self.electricity_bus = kwargs.get("electricity_bus")
 
-        self.heat_bus = kwargs.get('heat_bus')
+        self.heat_bus = kwargs.get("heat_bus")
 
-        self.carrier = kwargs.get('carrier')
+        self.carrier = kwargs.get("carrier")
 
-        self.carrier_cost = kwargs.get('carrier_cost', 0)
+        self.carrier_cost = kwargs.get("carrier_cost", 0)
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
         self.condensing_efficiency = sequence(self.condensing_efficiency)
 
-        self.marginal_cost = kwargs.get('marginal_cost', 0)
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.input_parameters = kwargs.get('input_parameters', {})
+        self.input_parameters = kwargs.get("input_parameters", {})
 
         self.build_solph_components()
 
@@ -456,28 +460,35 @@ class BackpressureTurbine(Transformer, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=['carrier', 'tech',
-                                            'electricity_bus',
-                                            'heat_bus', 'fuel_bus',
-                                            'thermal_efficiency',
-                                            'electric_efficiency'],
-                         *args, **kwargs)
+        super().__init__(
+            _facade_requires_=[
+                "carrier",
+                "tech",
+                "electricity_bus",
+                "heat_bus",
+                "fuel_bus",
+                "thermal_efficiency",
+                "electric_efficiency",
+            ],
+            *args,
+            **kwargs
+        )
 
-        self.electricity_bus = kwargs.get('electricity_bus')
+        self.electricity_bus = kwargs.get("electricity_bus")
 
-        self.heat_bus = kwargs.get('heat_bus')
+        self.heat_bus = kwargs.get("heat_bus")
 
-        self.fuel_bus = kwargs.get('fuel_bus')
+        self.fuel_bus = kwargs.get("fuel_bus")
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
-        self.marginal_cost = kwargs.get('marginal_cost', 0)
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.carrier_cost = kwargs.get('carrier_cost', 0)
+        self.carrier_cost = kwargs.get("carrier_cost", 0)
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.input_parameters = kwargs.get('input_parameters', {})
+        self.input_parameters = kwargs.get("input_parameters", {})
 
         self.build_solph_components()
 
@@ -540,21 +551,21 @@ class Conversion(Transformer, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=[
-            'from_bus', 'to_bus', 'carrier', 'tech'],
-                         *args, **kwargs)
+        super().__init__(
+            _facade_requires_=["from_bus", "to_bus", "carrier", "tech"], *args, **kwargs
+        )
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
-        self.efficiency = kwargs.get('efficiency', 1)
+        self.efficiency = kwargs.get("efficiency", 1)
 
-        self.marginal_cost = kwargs.get('marginal_cost', 0)
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.input_parameters = kwargs.get('input_parameters', {})
+        self.input_parameters = kwargs.get("input_parameters", {})
 
-        self.output_parameters = kwargs.get('output_parameters', {})
+        self.output_parameters = kwargs.get("output_parameters", {})
 
         self.build_solph_components()
 
@@ -562,10 +573,7 @@ class Conversion(Transformer, Facade):
         """
         """
         self.conversion_factors.update(
-            {
-                self.from_bus: sequence(1),
-                self.to_bus: sequence(self.efficiency),
-            }
+            {self.from_bus: sequence(1), self.to_bus: sequence(self.efficiency)}
         )
 
         self.inputs.update({self.from_bus: Flow(**self.input_parameters)})
@@ -599,16 +607,16 @@ class Load(Sink, Facade):
 
     def __init__(self, *args, **kwargs):
         super().__init__(
-            _facade_requires_=['bus', 'amount', 'profile'], *args, **kwargs
+            _facade_requires_=["bus", "amount", "profile"], *args, **kwargs
         )
 
-        self.amount = kwargs.get('amount')
+        self.amount = kwargs.get("amount")
 
-        self.profile = kwargs.get('profile')
+        self.profile = kwargs.get("profile")
 
-        self.input_parameters = kwargs.get('input_parameters', {})
+        self.input_parameters = kwargs.get("input_parameters", {})
 
-        self.marginal_utility = kwargs.get('marginal_utility', 0)
+        self.marginal_utility = kwargs.get("marginal_utility", 0)
 
         self.build_solph_components()
 
@@ -653,27 +661,25 @@ class Storage(GenericStorage, Facade):
 
     def __init__(self, *args, **kwargs):
 
-        super().__init__(_facade_requires_=['bus', 'carrier', 'tech'], *args, **kwargs)
+        super().__init__(_facade_requires_=["bus", "carrier", "tech"], *args, **kwargs)
 
-        self.storage_capacity = kwargs.get('storage_capacity')
+        self.storage_capacity = kwargs.get("storage_capacity")
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.storage_capacity_cost = kwargs.get('storage_capacity_cost')
+        self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
 
-        self.capacity_potential = kwargs.get(
-            'capacity_potential', float('+inf')
-        )
+        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
 
-        self.marginal_cost = kwargs.get('marginal_cost', 0)
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.efficiency = kwargs.get('efficiency', 1)
+        self.efficiency = kwargs.get("efficiency", 1)
 
-        self.input_parameters = kwargs.get('input_parameters', {})
+        self.input_parameters = kwargs.get("input_parameters", {})
 
-        self.output_parameters = kwargs.get('output_parameters', {})
+        self.output_parameters = kwargs.get("output_parameters", {})
 
         self.build_solph_components()
 
@@ -682,8 +688,7 @@ class Storage(GenericStorage, Facade):
         """
         self.nominal_storage_capacity = self.storage_capacity
 
-        self.inflow_conversion_factor = sequence(
-            self.efficiency)
+        self.inflow_conversion_factor = sequence(self.efficiency)
 
         self.outflow_conversion_factor = sequence(self.efficiency)
 
@@ -691,18 +696,21 @@ class Storage(GenericStorage, Facade):
         self.investment = self._investment()
 
         if self.investment:
-            for attr in ["invest_relation_output_capacity", "invest_relation_input_output"]:
+            for attr in [
+                "invest_relation_output_capacity",
+                "invest_relation_input_output",
+            ]:
                 if getattr(self, attr) is None:
                     raise AttributeError(
-                        ("You need to set attr "
-                        "`{}` "
-                        "for component {}").format(attr, self.label))
+                        ("You need to set attr " "`{}` " "for component {}").format(
+                            attr, self.label
+                        )
+                    )
 
             # set capacity costs at one of the flows
             fi = Flow(
                 investment=Investment(
-                    ep_costs=self.capacity_cost,
-                    maximum=self.capacity_potential,
+                    ep_costs=self.capacity_cost, maximum=self.capacity_potential
                 ),
                 **self.input_parameters
             )
@@ -715,11 +723,12 @@ class Storage(GenericStorage, Facade):
             # required for correct grouping in oemof.solph.components
             self._invest_group = True
         else:
-            fi = Flow(nominal_value=self.capacity,
-                      **self.input_parameters)
-            fo = Flow(nominal_value=self.capacity,
-                      variable_costs=self.marginal_cost,
-                      **self.output_parameters)
+            fi = Flow(nominal_value=self.capacity, **self.input_parameters)
+            fo = Flow(
+                nominal_value=self.capacity,
+                variable_costs=self.marginal_cost,
+                **self.output_parameters
+            )
 
         self.inputs.update({self.bus: fi})
 
@@ -751,15 +760,13 @@ class Link(Link, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=['from_bus', 'to_bus'], *args, **kwargs
-        )
+        super().__init__(_facade_requires_=["from_bus", "to_bus"], *args, **kwargs)
 
-        self.capacity = kwargs.get('capacity')
+        self.capacity = kwargs.get("capacity")
 
-        self.loss = kwargs.get('loss', 0)
+        self.loss = kwargs.get("loss", 0)
 
-        self.capacity_cost = kwargs.get('capacity_cost')
+        self.capacity_cost = kwargs.get("capacity_cost")
 
         self.build_solph_components()
 
@@ -777,9 +784,7 @@ class Link(Link, Facade):
                     nominal_value=self.capacity,
                     investment=investment,
                 ),
-                self.to_bus: Flow(
-                    nominal_value=self.capacity, investment=investment
-                ),
+                self.to_bus: Flow(nominal_value=self.capacity, investment=investment),
             }
         )
 
@@ -796,11 +801,11 @@ class Excess(Sink, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=['bus'], *args, **kwargs)
+        super().__init__(_facade_requires_=["bus"], *args, **kwargs)
 
-        self.bus = kwargs.get('bus')
+        self.bus = kwargs.get("bus")
 
-        self.marginal_cost = kwargs.get('marginal_cost')
+        self.marginal_cost = kwargs.get("marginal_cost")
 
         self.inputs.update({self.bus: Flow(variable_costs=self.marginal_cost)})
 
@@ -822,54 +827,54 @@ class Generator(Dispatchable):
 
 
 TYPEMAP = {
-    'backpressure': BackpressureTurbine,
-    'bus': Bus,
-    'conversion': Conversion,
-    'dispatchable': Dispatchable,
-    'electrical bus': ElectricalBus,
-    'electrical line': ElectricalLine,
-    'excess': Excess,
-    'extraction': ExtractionTurbine,
-    'generator': Generator,
-    'link': Link,
-    'load': Load,
-    'reservoir': Reservoir,
-    'shortage': Shortage,
-    'storage': Storage,
-    'volatile': Volatile,
+    "backpressure": BackpressureTurbine,
+    "bus": Bus,
+    "conversion": Conversion,
+    "dispatchable": Dispatchable,
+    "electrical bus": ElectricalBus,
+    "electrical line": ElectricalLine,
+    "excess": Excess,
+    "extraction": ExtractionTurbine,
+    "generator": Generator,
+    "link": Link,
+    "load": Load,
+    "reservoir": Reservoir,
+    "shortage": Shortage,
+    "storage": Storage,
+    "volatile": Volatile,
 }
 
 TECH_COLOR_MAP = {
-    'acaes': 'brown',
-    'ocgt': 'gray',
-    'st': "darkgray",
-    'ccgt': 'lightgray',
-    'pv': 'gold',
-    'onshore': 'skyblue',
-    'offshore': 'darkblue',
-    'ce': 'olivedrab',
-    'battery': 'lightsalmon',
-    'ror': 'aqua',
-    'phs': 'darkblue',
-    'reservoir': 'slateblue',
-    'biomass': 'olivedrab',
+    "acaes": "brown",
+    "ocgt": "gray",
+    "st": "darkgray",
+    "ccgt": "lightgray",
+    "pv": "gold",
+    "onshore": "skyblue",
+    "offshore": "darkblue",
+    "ce": "olivedrab",
+    "battery": "lightsalmon",
+    "ror": "aqua",
+    "phs": "darkblue",
+    "reservoir": "slateblue",
+    "biomass": "olivedrab",
     "storage": "lightsalmon",
     "battery": "lightsalmon",
-    "import": 'crimson'
+    "import": "crimson",
 }
 
-CARRIER_COLER_MAP  = {
-    'biomass': 'olivedrab',
-    'lithium': 'lightsalmon',
-    'electricity': 'darkred',
-    'hydro': 'aqua',
-    'hydrogen': 'magenta',
-    'uranium': 'yellow',
-    'wind': 'skyblue',
-    'solar': 'gold',
-    'gas': 'lightgray',
-    'lignite': "chocolate",
-    'coal': "darkgray",
-    'waste': 'yellowgreen',
-    'oil': 'black',
+CARRIER_COLER_MAP = {
+    "biomass": "olivedrab",
+    "lithium": "lightsalmon",
+    "electricity": "darkred",
+    "hydro": "aqua",
+    "hydrogen": "magenta",
+    "uranium": "yellow",
+    "wind": "skyblue",
+    "solar": "gold",
+    "gas": "lightgray",
+    "lignite": "chocolate",
+    "coal": "darkgray",
+    "waste": "yellowgreen",
+    "oil": "black",
 }
