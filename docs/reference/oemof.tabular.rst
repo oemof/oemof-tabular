@@ -1,6 +1,11 @@
 oemof.tabular package
 =====================
 
+.. automodule:: oemof.tabular
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -21,10 +26,3 @@ oemof.tabular.facades module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: oemof.tabular
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,6 +1,11 @@
 oemof.tabular.tools package
 ===========================
 
+.. automodule:: oemof.tabular.tools
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -13,10 +18,3 @@ oemof.tabular.tools.geometry module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: oemof.tabular.tools
-    :members:
-    :undoc-members:
-    :show-inheritance:
