@@ -36,7 +36,6 @@ es.add(
         capacity=10,
         bus=bus,
         profile=timeseries["pv"],
-        fixed=False,
     )
 )
 
@@ -51,15 +50,24 @@ es.add(
     )
 )
 
-# the connection to the grid is modelled by a shortage component
 es.add(
     fc.Shortage(
-        label="grid",
+        label="grid_buy",
         bus=bus,
         carrier="electricity",
         tech="grid",
         capacity=100,
         marginal_cost=0.3,
+    )
+)
+
+es.add(
+    fc.Excess(
+        label="grid_sell",
+        bus=bus,
+        carrier="electricity",
+        tech="grid",
+        marginal_cost=-0.1,
     )
 )
 
@@ -71,4 +79,11 @@ m = Model(es)
 # solve model using cbc solver
 m.solve("cbc")
 
-pp.supply_results(bus=["household"], es=es, results=m.results())
+# write back results
+m.results = m.results()
+
+supply = pp.supply_results(bus=["household"], es=es, results=m.results)
+demand = pp.demand_results(bus=["household"], es=es, results=m.results)
+# pd.concat([supply, demand], axis=1).to_csv('results.csv')
+
+pp.write_results(m, results_path)
