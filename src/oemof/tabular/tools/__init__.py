@@ -36,8 +36,8 @@ def remap(mapping, renamings, selection):
     If key doesn't have a renaming, it's returned as is. If `selection` doesn't
     appear as a key in `renamings`, `mapping` is returned unchanged.
 
-    Example:
-    --------
+    Example
+    -------
     >>> renamings = {'R1': {'zero': 'nada'}, 'R2': {'foo': 'bar'}}
     >>> mapping = {'zero': 0, 'foo': 'foobar'}
     >>> remap(mapping, renamings, 'R1') == {'nada': 0, 'foo': 'foobar'}
