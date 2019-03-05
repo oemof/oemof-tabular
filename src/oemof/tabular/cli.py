@@ -2,8 +2,8 @@
 Module that contains the command line app.
 
 """
-import click
 from datapackage import Package, exceptions
+import click
 import pandas as pd
 
 

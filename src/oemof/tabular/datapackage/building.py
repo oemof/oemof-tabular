@@ -12,9 +12,9 @@ import zipfile
 from datapackage import Package, Resource
 from geojson import Feature, FeatureCollection, dump, load
 from shapely.geometry import shape
-import toml
 import pandas as pd
 import paramiko
+import toml
 
 
 def infer_resources(directory="data/elements"):
