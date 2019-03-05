@@ -370,9 +370,14 @@
                         "format": "default"
                     },
                     {
-                        "name": "capacity_ratio",
+                        "name": "invest_relation_output_capacity",
                         "type": "number",
                         "format": "default"
+                    },
+                    {
+                          "name": "invest_relation_input_output",
+                          "type": "number",
+                          "format": "default"
                     },
                     {
                         "name": "type",

@@ -108,6 +108,32 @@ class Reservoir(GenericStorage, Facade):
         all keys that are available for the  oemof.solph.network.Flow class.
     output_parameters: dict
         see: input_parameters
+
+    Note
+    ----
+    As the Reservoir is a sub-class of `oemof.solph.GenericStorage` you also
+    pass all arguments of this class.
+
+    Examples
+    --------
+    Basic usage examples of the GenericStorage with a random selection of
+    attributes. See the Flow class for all Flow attributes.
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+
+    >>> my_bus = solph.Bus('my_bus')
+
+    >>> my_reservoir = Reservoir(
+    ...     label='storage',
+    ...     storage_capacity=1000,
+    ...     capacity=50,
+    ...     profile=[1, 2, 0.3],
+    ...     loss_rate=0.01,
+    ...     initial_storage_level=0,
+    ...     max_storage_level = 0.9,
+    ...     efficiency=0.93)
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -122,10 +148,6 @@ class Reservoir(GenericStorage, Facade):
 
         self.efficiency = kwargs.get('efficiency', 1)
 
-        self.initial_storage_capacity = kwargs.get(
-            'initial_storage_capacity', 0.5
-        )
-
         self.input_parameters = kwargs.get('input_parameters', {})
 
         self.output_parameters = kwargs.get('output_parameters', {})
@@ -135,8 +157,6 @@ class Reservoir(GenericStorage, Facade):
     def build_solph_components(self):
         """
         """
-        self.initial_storage_level = self.initial_storage_capacity
-
         self.nominal_storage_capacity = self.storage_capacity
 
         self.outflow_conversion_factor = sequence(self.efficiency)
@@ -149,7 +169,7 @@ class Reservoir(GenericStorage, Facade):
             )
 
         inflow = Source(
-            label=self.label + "-inflow",
+            label=self.label +  "-inflow",
             outputs={
                 self: Flow(nominal_value=1, max=self.profile, fixed=False)
             },
@@ -619,17 +639,10 @@ class Storage(GenericStorage, Facade):
         The total capacity of the storage (e.g. in MWh)
     capacity: numeric
         Maximum production capacity (e.g. in MW)
-    capacity_ratio: numeric
-        Ratio between `storage_capacity` and `capacity`
     efficiency: numeric
         Efficiency of charging and discharging process: Default: 1
     capacity_cost: numeric
         Investment costs for the storage unit e.g in €/MW-capacity
-    loss: numeric
-        Standing loss per timestep in % of capacity. Default: 0
-    initial_storage_capacity: numeric
-        The state of the storage capacity in the first (and last) time step of
-        optimization. Default: 0.5
     input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
@@ -658,16 +671,9 @@ class Storage(GenericStorage, Facade):
 
         self.efficiency = kwargs.get('efficiency', 1)
 
-        self.loss = sequence(kwargs.get('loss', 0))
-
-        self.initial_storage_capacity = kwargs.get(
-            'initial_storage_capacity', 0.5)
-
         self.input_parameters = kwargs.get('input_parameters', {})
 
         self.output_parameters = kwargs.get('output_parameters', {})
-
-        self.capacity_ratio = kwargs.get('capacity_ratio')
 
         self.build_solph_components()
 
@@ -676,11 +682,8 @@ class Storage(GenericStorage, Facade):
         """
         self.nominal_storage_capacity = self.storage_capacity
 
-        self.initial_storage_level = self.initial_storage_capacity
-
-        self.loss_rate = self.loss
-
-        self.inflow_conversion_factor = sequence(self.efficiency)
+        self.inflow_conversion_factor = sequence(
+            self.efficiency)
 
         self.outflow_conversion_factor = sequence(self.efficiency)
 
@@ -688,17 +691,12 @@ class Storage(GenericStorage, Facade):
         self.investment = self._investment()
 
         if self.investment:
-            if self.capacity_ratio is None:
-                raise AttributeError(
-                    (
-                        "You need to set attr `capacity_ratio` for "
-                        "component {}"
-                    ).format(self.label)
-                )
-            else:
-                self.invest_relation_input_capacity = self.capacity_ratio
-                self.invest_relation_output_capacity = self.capacity_ratio
-                self.invest_relation_input_output = 1
+            for attr in ["invest_relation_output_capacity", "invest_relation_input_output"]:
+                if getattr(self, attr) is None:
+                    raise AttributeError(
+                        ("You need to set attr "
+                        "`{}` "
+                        "for component {}").format(attr, self.label))
 
             # set capacity costs at one of the flows
             fi = Flow(
@@ -717,17 +715,11 @@ class Storage(GenericStorage, Facade):
             # required for correct grouping in oemof.solph.components
             self._invest_group = True
         else:
-            # TODO: Ask Simon what this was all about.
-            #       The linter complains that the variable is assigned, but
-            #       never used. Which is correct.
-            # investment = None
-
-            fi = Flow(nominal_value=self.capacity, **self.input_parameters)
-            fo = Flow(
-                nominal_value=self.capacity,
-                variable_costs=self.marginal_cost,
-                **self.output_parameters
-            )
+            fi = Flow(nominal_value=self.capacity,
+                      **self.input_parameters)
+            fo = Flow(nominal_value=self.capacity,
+                      variable_costs=self.marginal_cost,
+                      **self.output_parameters)
 
         self.inputs.update({self.bus: fi})
 
