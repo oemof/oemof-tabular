@@ -285,6 +285,9 @@ class Volatile(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if investment
+    fixed: boolean
+        If False, the output may be curtailed when optimizing dispatch.
+        Default: True
     """
 
     def __init__(self, *args, **kwargs):
@@ -303,6 +306,8 @@ class Volatile(Source, Facade):
 
         self.output_parameters = kwargs.get("output_parameters", {})
 
+        self.fixed = kwargs.get('fixed', True)
+
         self.build_solph_components()
 
     def build_solph_components(self):
@@ -313,7 +318,7 @@ class Volatile(Source, Facade):
             variable_costs=self.marginal_cost,
             actual_value=self.profile,
             investment=self._investment(),
-            fixed=True,
+            fixed=self.fixed,
             **self.output_parameters
         )
 
