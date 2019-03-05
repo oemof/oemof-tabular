@@ -16,31 +16,38 @@ def test_example_datapackage_readability():
 
     systems = []
     for example in pkg.resource_listdir(
-        'oemof.tabular', 'examples/datapackages'
+        "oemof.tabular", "examples/datapackages"
     ):
 
-        if example != 'lopf':
+        if example != "lopf":
             print("Runnig reading datapackage example {} ...".format(example))
             systems.append(
                 ES.from_datapackage(
                     pkg.resource_filename(
-                        'oemof.tabular',
-                        'examples/datapackages/{}/datapackage.json'.format(example)),
-                    typemap=TYPEMAP)
+                        "oemof.tabular",
+                        "examples/datapackages/{}/datapackage.json".format(
+                            example
+                        ),
+                    ),
+                    typemap=TYPEMAP,
                 )
+            )
 
     for system in systems:
         assert type(system) is ES
 
+
 def test_scripting_examples():
     """
     """
-    for example in pkg.resource_listdir(
-        'oemof.tabular', 'examples/scripting'):
+    for example in pkg.resource_listdir("oemof.tabular", "examples/scripting"):
         print("Runnig scripting example {} ...".format(example))
-        exec(
-            open(
-                pkg.resource_filename(
-                    'oemof.tabular',
-                    'examples/scripting/{}'.format(example))
-                ).read())
+        if example.endswith(".ipynb"):
+            exec(
+                open(
+                    pkg.resource_filename(
+                        "oemof.tabular",
+                        "examples/scripting/{}".format(example),
+                    )
+                ).read()
+            )
