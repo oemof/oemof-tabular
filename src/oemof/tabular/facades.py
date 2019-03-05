@@ -71,7 +71,9 @@ class Facade(Node):
                 else:
                     self.investment = Investment(
                         ep_costs=self.capacity_cost,
-                        maximum=getattr(self, "capacity_potential", float("+inf")),
+                        maximum=getattr(
+                            self, "capacity_potential", float("+inf")
+                        ),
                     )
         else:
             self.investment = None
@@ -136,7 +138,15 @@ class Reservoir(GenericStorage, Facade):
     def __init__(self, *args, **kwargs):
 
         kwargs.update(
-            {"_facade_requires_": ["carrier", "tech", "bus", "profile", "efficiency"]}
+            {
+                "_facade_requires_": [
+                    "carrier",
+                    "tech",
+                    "bus",
+                    "profile",
+                    "efficiency",
+                ]
+            }
         )
         super().__init__(*args, **kwargs)
 
@@ -168,7 +178,9 @@ class Reservoir(GenericStorage, Facade):
 
         inflow = Source(
             label=self.label + "-inflow",
-            outputs={self: Flow(nominal_value=1, max=self.profile, fixed=False)},
+            outputs={
+                self: Flow(nominal_value=1, max=self.profile, fixed=False)
+            },
         )
 
         self.outputs.update(
@@ -210,12 +222,6 @@ class Dispatchable(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if capacity is to be optimized
-
-    Constraints
-    -----------
-
-    .. math::
-        0 \\leq g_{g, t} \leq \\overline{capacity}_{t} \\forall t
 
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
@@ -366,7 +372,9 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
                 ]
             }
         )
-        super().__init__(conversion_factor_full_condensation={}, *args, **kwargs)
+        super().__init__(
+            conversion_factor_full_condensation={}, *args, **kwargs
+        )
 
         self.fuel_bus = kwargs.get("fuel_bus")
 
@@ -552,7 +560,9 @@ class Conversion(Transformer, Facade):
 
     def __init__(self, *args, **kwargs):
         super().__init__(
-            _facade_requires_=["from_bus", "to_bus", "carrier", "tech"], *args, **kwargs
+            _facade_requires_=["from_bus", "to_bus", "carrier", "tech"],
+            *args,
+            **kwargs
         )
 
         self.capacity = kwargs.get("capacity")
@@ -573,7 +583,10 @@ class Conversion(Transformer, Facade):
         """
         """
         self.conversion_factors.update(
-            {self.from_bus: sequence(1), self.to_bus: sequence(self.efficiency)}
+            {
+                self.from_bus: sequence(1),
+                self.to_bus: sequence(self.efficiency),
+            }
         )
 
         self.inputs.update({self.from_bus: Flow(**self.input_parameters)})
@@ -661,7 +674,9 @@ class Storage(GenericStorage, Facade):
 
     def __init__(self, *args, **kwargs):
 
-        super().__init__(_facade_requires_=["bus", "carrier", "tech"], *args, **kwargs)
+        super().__init__(
+            _facade_requires_=["bus", "carrier", "tech"], *args, **kwargs
+        )
 
         self.storage_capacity = kwargs.get("storage_capacity")
 
@@ -671,7 +686,9 @@ class Storage(GenericStorage, Facade):
 
         self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
 
-        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
+        self.capacity_potential = kwargs.get(
+            "capacity_potential", float("+inf")
+        )
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
@@ -702,15 +719,16 @@ class Storage(GenericStorage, Facade):
             ]:
                 if getattr(self, attr) is None:
                     raise AttributeError(
-                        ("You need to set attr " "`{}` " "for component {}").format(
-                            attr, self.label
-                        )
+                        (
+                            "You need to set attr " "`{}` " "for component {}"
+                        ).format(attr, self.label)
                     )
 
             # set capacity costs at one of the flows
             fi = Flow(
                 investment=Investment(
-                    ep_costs=self.capacity_cost, maximum=self.capacity_potential
+                    ep_costs=self.capacity_cost,
+                    maximum=self.capacity_potential,
                 ),
                 **self.input_parameters
             )
@@ -760,7 +778,9 @@ class Link(Link, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=["from_bus", "to_bus"], *args, **kwargs)
+        super().__init__(
+            _facade_requires_=["from_bus", "to_bus"], *args, **kwargs
+        )
 
         self.capacity = kwargs.get("capacity")
 
@@ -784,7 +804,9 @@ class Link(Link, Facade):
                     nominal_value=self.capacity,
                     investment=investment,
                 ),
-                self.to_bus: Flow(nominal_value=self.capacity, investment=investment),
+                self.to_bus: Flow(
+                    nominal_value=self.capacity, investment=investment
+                ),
             }
         )
 

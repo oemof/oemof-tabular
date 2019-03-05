@@ -21,7 +21,9 @@ if not os.path.exists(results_path):
 
 # create energy system object
 es = EnergySystem.from_datapackage(
-    os.path.join(datapackage_dir, "datapackage.json"), attributemap={}, typemap=TYPEMAP
+    os.path.join(datapackage_dir, "datapackage.json"),
+    attributemap={},
+    typemap=TYPEMAP,
 )
 
 # create model from energy system (this is just oemof.solph)

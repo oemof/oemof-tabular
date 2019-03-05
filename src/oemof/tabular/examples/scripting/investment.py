@@ -53,7 +53,9 @@ pv = fc.Volatile(
     carrier="solar",
     tech="pv",
     capacity_cost=annuity(
-        costs.at["capex", "pv"], costs.at["lifetime", "pv"], costs.at["wacc", "pv"]
+        costs.at["capex", "pv"],
+        costs.at["lifetime", "pv"],
+        costs.at["wacc", "pv"],
     ),
     profile=timeseries["pv"],
 )
@@ -110,7 +112,9 @@ if True:
 
     offline.plot(
         hourly_plot(
-            "investment", "DE", os.path.join(os.path.expanduser("~"), "oemof-results")
+            "investment",
+            "DE",
+            os.path.join(os.path.expanduser("~"), "oemof-results"),
         ),
         filename=os.path.join(results_path, "hourly-plot.html"),
     )

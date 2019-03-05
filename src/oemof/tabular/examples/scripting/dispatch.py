@@ -64,7 +64,9 @@ es.add(
     )
 )
 
-es.add(fc.Load(label="load", bus=bus, amount=500e3, profile=timeseries["load"]))
+es.add(
+    fc.Load(label="load", bus=bus, amount=500e3, profile=timeseries["load"])
+)
 
 es.add(fc.Excess(label="excess", bus=bus))
 

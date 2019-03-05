@@ -19,8 +19,8 @@ def component_results(es, results, select="sequences"):
 
     c = {}
 
-    if not hasattr(es, 'typemap'):
-        setattr(es, 'typemap', facades.TYPEMAP)
+    if not hasattr(es, "typemap"):
+        setattr(es, "typemap", facades.TYPEMAP)
 
     for k, v in es.typemap.items():
         if type(k) == str:
@@ -102,8 +102,8 @@ def supply_results(
 ):
     """
     """
-    if not hasattr(es, 'typemap'):
-        setattr(es, 'typemap', facades.TYPEMAP)
+    if not hasattr(es, "typemap"):
+        setattr(es, "typemap", facades.TYPEMAP)
 
     selection = pd.DataFrame()
 
@@ -129,8 +129,8 @@ def supply_results(
 def demand_results(types=["load"], bus=None, results=None, es=None):
     """
     """
-    if not hasattr(es, 'typemap'):
-        setattr(es, 'typemap', facades.TYPEMAP)
+    if not hasattr(es, "typemap"):
+        setattr(es, "typemap", facades.TYPEMAP)
     selection = pd.DataFrame()
 
     for t in types:
@@ -217,7 +217,7 @@ def write_results(
             for t in all.index.get_level_values(0)
         ]
         endogenous.set_index(
-            ['from', 'to', 'type', 'tech', "carrier"], inplace=True
+            ["from", "to", "type", "tech", "carrier"], inplace=True
         )
     except ValueError:
         endogenous = pd.DataFrame()
@@ -237,22 +237,21 @@ def write_results(
                         node.carrier,
                     )  # for oemof logic
                     d[key] = {"value": node.capacity}
-    exogenous = pd.DataFrame.from_dict(d).T #.dropna()
+    exogenous = pd.DataFrame.from_dict(d).T  # .dropna()
 
     if not exogenous.empty:
         exogenous.index = exogenous.index.set_names(
-            ["from", "to", "type", "tech", "carrier"])
+            ["from", "to", "type", "tech", "carrier"]
+        )
 
-    capacities = (
-        pd.concat([endogenous, exogenous])
-    )
+    capacities = pd.concat([endogenous, exogenous])
 
     capacities = pd.concat([endogenous, exogenous])
 
     save(capacities, "capacities")
 
     bresults = bus_results(m.es, m.results, concat=True)
-    if 'duals' in bresults.columns.levels[2]:
+    if "duals" in bresults.columns.levels[2]:
         duals = bresults.xs("duals", level=2, axis=1)
         duals.columns = duals.columns.droplevel(1)
         duals = (duals.T / m.objective_weighting).T
@@ -260,8 +259,6 @@ def write_results(
 
     # check if storages exist in energy system nodes
     if [n for n in m.es.nodes if isinstance(n, GenericStorage)]:
-        filling_levels = views.node_weight_by_type(
-            m.results, GenericStorage
-        )
+        filling_levels = views.node_weight_by_type(m.results, GenericStorage)
         filling_levels.columns = filling_levels.columns.droplevel(1)
         save(filling_levels, "filling_levels")

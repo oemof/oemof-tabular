@@ -13,8 +13,8 @@ for example in examples:
     print("Runnig postprocessing example with datapackage {}".format(example))
     es = EnergySystem.from_datapackage(
         pkg.resource_filename(
-            'oemof.tabular',
-            'examples/datapackages/{}/datapackage.json'.format(example),
+            "oemof.tabular",
+            "examples/datapackages/{}/datapackage.json".format(example),
         ),
         attributemap={},
         typemap=TYPEMAP,
