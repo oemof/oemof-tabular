@@ -109,10 +109,12 @@ class Reservoir(GenericStorage, Facade):
     output_parameters: dict
         see: input_parameters
 
+
     Note
     ----
     As the Reservoir is a sub-class of `oemof.solph.GenericStorage` you also
     pass all arguments of this class.
+
 
     Examples
     --------
@@ -226,6 +228,28 @@ class Dispatchable(Source, Facade):
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
 
+    When the `capacity` attribute is set, the following equation will be added
+    to the model:
+
+    .. math::
+        x_{flow}^{bus}(t) \\leq c^{capacity} \\cdot c^{profile}(t)
+        \\qquad \\forall t \\in T
+
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_bus = solph.Bus('my_bus')
+    >>> my_dispatchable = Dispatchable(
+    ...     label='ccgt',
+    ...     bus='my_bus',
+    ...     capacity=1000,
+    ...     marginal_cost=10,
+    ...     output_parameters={
+    ...         'max': 0.9})
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -288,6 +312,19 @@ class Volatile(Source, Facade):
     fixed: boolean
         If False, the output may be curtailed when optimizing dispatch.
         Default: True
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_bus = solph.Bus('my_bus')
+    >>> my_volatile = Volatile(
+    ...     label='wind',
+    ...     bus='my_bus',
+    ...     capacity_cost=150,
+    ...     profile=[0.25, 0.1, 0.3])
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -360,6 +397,26 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         Investment costs per unit of electrical capacity (e.g. Euro / MW) .
         If capacity is not set, this value will be used for optimizing the
         chp capacity.
+
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_bus = solph.Bus('my_bus')
+    >>> my_extraction = ExtractionTurbine(
+    ...     label='extraction',
+    ...     carrier='gas',
+    ...     tech='ext',
+    ...     fuel_bus=my_fuel_bus,
+    ...     heat_bus=my_heat_bus,
+    ...     electricity_bus=my_elec_bus,
+    ...     capacity=1000,
+    ...     condensing_efficiency=[0.5, 0.51, 0.55],
+    ...     electric_efficiency=0.4,
+    ...     thermal_efficiency=0.35)
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -470,6 +527,28 @@ class BackpressureTurbine(Transformer, Facade):
         Investment costs per unit of electrical capacity (e.g. Euro / MW) .
         If capacity is not set, this value will be used for optimizing the
         chp capacity.
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_elec_bus = solph.Bus('my_elec_bus')
+    >>> my_fuel_bus = solph.Bus('my_fuel_bus')
+    >>> my_heat_bus = solph.Bus('my_heat_bus')
+    >>> my_backpressure = BackpressureTurbine(
+    ...     label='backpressure',
+    ...     carrier='gas',
+    ...     tech='bp',
+    ...     fuel_bus=my_fuel_bus,
+    ...     heat_bus=my_heat_bus,
+    ...     electricity_bus=my_elec_bus,
+    ...     capacity_cost=50,
+    ...     carrier_cost=0.6,
+    ...     electric_efficiency=0.4,
+    ...     thermal_efficiency=0.35)
+
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -561,6 +640,23 @@ class Conversion(Transformer, Facade):
     ouput_parameters: dict (optional)
         Set parameters on the output edge of the storage (see oemof.solph for
         more information on possible parameters)
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_biomass_bus = solph.Bus('my_biomass_bus')
+    >>> my_elec_bus = solph.Bus('my_elec_bus')
+    >>> my_conversion = Conversion(
+    ...     label='biomass_plant',
+    ...     carrier='biomass',
+    ...     tech='st',
+    ...     from_bus=my_fuel_bus,
+    ...     to_bus=my_heat_bus,
+    ...     capacity=100,
+    ...     efficiency=0.4)
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -614,13 +710,31 @@ class Load(Sink, Facade):
     Parameters
     ----------
     bus: oemof.solph.Bus
-         An oemof bus instance where the demand is connected to.
+        An oemof bus instance where the demand is connected to.
     amount: numeric
-         The total amount for the timehorzion (e.g. in MWh)
+        The total amount for the timehorzion (e.g. in MWh)
     profile: array-like
-          Load profile with normed values such that `profile[t] * amount`
-          yields the load in timestep t (e.g. in MWh)
-    input_parameters: dirct (optional)
+        Load profile with normed values such that `profile[t] * amount`
+        yields the load in timestep t (e.g. in MWh)
+    marginal_utility: numeric
+        Marginal utility in for example Euro / MWh
+    fixed: boolean
+        True, if demand should be inelastic (Default: True)
+    input_parameters: dict (optional)
+
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_bus = solph.Bus('my_bus')
+    >>> my_load = Load(
+    ...     label='load',
+    ...     carrier='electricity',
+    ...     bus=my_bus,
+    ...     amount=100,
+    ...     profile=[0.3, 0.2, 0.5])
     """
 
     def __init__(self, *args, **kwargs):
@@ -636,6 +750,8 @@ class Load(Sink, Facade):
 
         self.marginal_utility = kwargs.get("marginal_utility", 0)
 
+        self.fixed = kwargs.get("fixed", True)
+
         self.build_solph_components()
 
     def build_solph_components(self):
@@ -646,7 +762,7 @@ class Load(Sink, Facade):
                 self.bus: Flow(
                     nominal_value=self.amount,
                     actual_value=self.profile,
-                    fixed=True,
+                    fixed=self.fixed,
                     variable_cost=self.marginal_utility,
                     **self.input_parameters
                 )
@@ -675,6 +791,30 @@ class Storage(GenericStorage, Facade):
     ouput_parameters: dict (optional)
         Set parameters on the output edge of the storage (see oemof.solph for
         more information on possible parameters)
+
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_bus = solph.Bus('my_bus')
+    >>> es = EnergySystem(timeindex=pd.date_range('2019', perdios=3, freq='H'))
+    >>> es.add(my_bus)
+    >>> es.add(
+    ...    fc.Storage(
+    ...        label="storage",
+    ...        bus=my_bus,
+    ...        carrier="lithium",
+    ...        tech="battery",
+    ...        capacity_cost=10,
+    ...        invest_relation_input_output=0.5, # oemof.solph
+    ...        invest_relation_output_capacity=1/6, # oemof.solph
+    ...        marginal_cost=5,
+    ...        balanced=True, # oemof.solph argument
+    ...        initial_storage_level=1, # oemof.solph argument
+    ...        max_storage_level=[0.9, 0.95, 0.8])) # oemof.solph argument
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -780,6 +920,21 @@ class Link(Link, Facade):
         Investment costs per unit of output capacity.
         If capacity is not set, this value will be used for optimizing the
         chp capacity.
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> my_elec_bus_1 = solph.Bus('my_elec_bus_1')
+    >>> my_elec_bus_2 = solph.Bus('my_elec_bus_2')
+    >>> my_loadink = Link(
+    ...     label='link',
+    ...     carrier='electricity',
+    ...     from_bus=my_elec_bus_1,
+    ...     to_bus=my_elec_bus_2,
+    ...     capacity=100,
+    ...     loss=0.04)
     """
 
     def __init__(self, *args, **kwargs):
