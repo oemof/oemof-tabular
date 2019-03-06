@@ -40,9 +40,10 @@ def test_example_datapackage_readability():
 def test_scripting_examples():
     """
     """
+    exclude = ["plotting.py"]
     for example in pkg.resource_listdir("oemof.tabular", "examples/scripting"):
-        print("Runnig scripting example {} ...".format(example))
-        if example.endswith(".ipynb"):
+        if not example.endswith(".ipynb") and example not in exclude:
+            print("Runnig scripting example {} ...".format(example))
             exec(
                 open(
                     pkg.resource_filename(
