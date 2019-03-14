@@ -64,8 +64,16 @@ class Facade(Node):
                 if isinstance(self, GenericStorage):
                     if self.storage_capacity_cost is not None:
                         self.investment = Investment(
-                            ep_costs=self.storage_capacity_cost
-                        )
+                            ep_costs=self.storage_capacity_cost,
+                            maximum=getattr(
+                                self, "storage_capacity_potential", 0),
+                            minimum=getattr(
+                                self, "minimum_storage_capacity", 0),
+                            existing=getattr(
+                                self,
+                                "existing_storage_capacity",
+                                float("+inf"))
+                            )
                     else:
                         self.investment = Investment()
                 else:
@@ -74,6 +82,7 @@ class Facade(Node):
                         maximum=getattr(
                             self, "capacity_potential", float("+inf")
                         ),
+                        existing=getattr(self, "existing_capacity", 0)
                     )
         else:
             self.investment = None
@@ -219,6 +228,8 @@ class Dispatchable(Source, Facade):
         Investment costs per unit of capacity (e.g. Euro / MW) .
         If capacity is not set, this value will be used for optimizing the
         generators capacity.
+    existing_capacity: numeric
+        Existing capacity of the unit
     output_paramerters: dict (optional)
         Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
@@ -256,7 +267,7 @@ class Dispatchable(Source, Facade):
         kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
         super().__init__(*args, **kwargs)
 
-        self.profile = kwargs.get("profile")
+        self.profile = kwargs.get("profile", sequence(0))
 
         self.capacity = kwargs.get("capacity")
 
@@ -265,6 +276,8 @@ class Dispatchable(Source, Facade):
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
         self.capacity_cost = kwargs.get("capacity_cost")
+
+        self.existing_capacity = kwargs.get("existing_capacity", 0)
 
         self.output_parameters = kwargs.get("output_parameters", {})
 
@@ -309,6 +322,8 @@ class Volatile(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if investment
+    existing_capacity: numeric
+        Existing capacity of the unit
     fixed: boolean
         If False, the output may be curtailed when optimizing dispatch.
         Default: True
@@ -328,7 +343,8 @@ class Volatile(Source, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
+        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech",
+                                             "profile"]})
         super().__init__(*args, **kwargs)
 
         self.profile = kwargs.get("profile")
@@ -336,6 +352,9 @@ class Volatile(Source, Facade):
         self.capacity = kwargs.get("capacity")
 
         self.capacity_potential = kwargs.get("capacity_potential")
+
+        self.existing_capacity = kwargs.get("existing_capacity", 0)
+
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
@@ -783,8 +802,10 @@ class Storage(GenericStorage, Facade):
         Maximum production capacity (e.g. in MW)
     efficiency: numeric
         Efficiency of charging and discharging process: Default: 1
-    capacity_cost: numeric
-        Investment costs for the storage unit e.g in €/MW-capacity
+    storage_capacity_cost: numeric
+        Investment costs for the storage unit e.g in €/MWh-capacity
+    storage_capacity_potential: numeric
+        Potential of the investment for storage capacity in MWh
     input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
@@ -807,8 +828,7 @@ class Storage(GenericStorage, Facade):
     ...        bus=my_bus,
     ...        carrier="lithium",
     ...        tech="battery",
-    ...        capacity_cost=10,
-    ...        invest_relation_input_output=0.5, # oemof.solph
+    ...        storage_capacity_cost=10,
     ...        invest_relation_output_capacity=1/6, # oemof.solph
     ...        marginal_cost=5,
     ...        balanced=True, # oemof.solph argument
@@ -831,9 +851,18 @@ class Storage(GenericStorage, Facade):
 
         self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
 
+        self.storage_capacity_potential = kwargs.get(
+            "storage_capacity_potential", float("+inf"))
+
+        self.existing_storage_capacity = kwargs.get(
+            "existing_storage_capacity", 0)
+
+        self.capacity_cost = kwargs.get("capacity_cost")
+
         self.capacity_potential = kwargs.get(
-            "capacity_potential", float("+inf")
-        )
+            "capacity_potential", float("+inf"))
+        self.existing_storage_capacity = kwargs.get(
+            "existing_capacity", 0)
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
@@ -853,6 +882,8 @@ class Storage(GenericStorage, Facade):
         self.inflow_conversion_factor = sequence(self.efficiency)
 
         self.outflow_conversion_factor = sequence(self.efficiency)
+
+        self.invest_relation_input_output = 1
 
         # make it investment but don't set costs (set below for flow (power))
         self.investment = self._investment()
