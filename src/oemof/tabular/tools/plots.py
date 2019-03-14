@@ -71,7 +71,7 @@ def hourly_plot(
             bus, scenario
         ),
         yaxis=dict(
-            title="Energy in GWh",
+            title="Energy in MWh",
             titlefont=dict(size=16, color="rgb(107, 107, 107)"),
             tickfont=dict(size=14, color="rgb(107, 107, 107)"),
         ),
