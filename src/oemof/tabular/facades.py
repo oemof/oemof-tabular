@@ -890,7 +890,6 @@ class Storage(GenericStorage, Facade):
 
         if self.investment:
             for attr in [
-                "invest_relation_output_capacity",
                 "invest_relation_input_output",
             ]:
                 if getattr(self, attr) is None:
