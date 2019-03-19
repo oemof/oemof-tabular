@@ -27,9 +27,9 @@ def hourly_plot(
         "phs",
         "lithium-battery",
         "battery",
-        "storage",
+        "storage"
     ],
-    aggregate=["coal", "lignite", "oil", "gas", "waste", "uranium", "wind"],
+    aggregate=["coal", "lignite", "oil", "gas", "waste", "uranium", "wind", "solar"],
     daily=False,
     plot_filling_levels=True,
 ):
