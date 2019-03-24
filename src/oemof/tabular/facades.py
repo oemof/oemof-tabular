@@ -869,9 +869,9 @@ class Storage(GenericStorage, Facade):
             _facade_requires_=["bus", "carrier", "tech"], *args, **kwargs
         )
 
-        self.storage_capacity = kwargs.get("storage_capacity")
+        self.storage_capacity = kwargs.get("storage_capacity", 0)
 
-        self.capacity = kwargs.get("capacity")
+        self.capacity = kwargs.get("capacity", 0)
 
         self.capacity_cost = kwargs.get("capacity_cost")
 
