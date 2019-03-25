@@ -1,4 +1,0 @@
-name;type;nominal_value;reactance;from_bus;to_bus
-line0;electrical line;60;0.0001;bus0;bus1
-line1;electrical line;60;0.0001;bus1;bus2
-line2;electrical line;60;0.0001;bus2;bus0
