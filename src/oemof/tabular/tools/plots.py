@@ -17,7 +17,6 @@ for t in TECH_COLOR_MAP:
 
 color_dict = {name: colors.to_hex(color) for name, color in color.items()}
 
-
 def hourly_plot(
     scenario,
     bus,
@@ -28,9 +27,9 @@ def hourly_plot(
         "phs",
         "lithium-battery",
         "battery",
-        "storage",
+        "storage"
     ],
-    aggregate=["coal", "lignite", "oil", "gas", "waste", "uranium"],
+    aggregate=["coal", "lignite", "oil", "gas", "waste", "uranium", "wind", "solar"],
     daily=False,
     plot_filling_levels=True,
 ):
@@ -42,11 +41,12 @@ def hourly_plot(
         parse_dates=True,
     )
 
-    filling_levels = pd.read_csv(
-        os.path.join(datapath, scenario, "output", "filling_levels.csv"),
-        index_col=[0],
-        parse_dates=True,
-    )
+    if plot_filling_levels:
+        filling_levels = pd.read_csv(
+            os.path.join(datapath, scenario, "output", "filling_levels.csv"),
+            index_col=[0],
+            parse_dates=True,
+        )
 
     for i in aggregate:
         group = [c for c in df.columns if i in c]
@@ -62,22 +62,22 @@ def hourly_plot(
     x = df.index
     # kind of a hack to get only the technologies
     df.columns = [c.replace(bus + "-", "") for c in df.columns]
-
+    # strip also if only country code is part of supply name like ("DE-coal")
+    df.columns = [c.replace(bus[0:3], "") for c in df.columns]
     # create plot
     layout = go.Layout(
         barmode="stack",
-        title="Hourly supply and demand in {} for scenario {}".format(
+        title="Hourly supply and demand in {} for model/scenario {}".format(
             bus, scenario
         ),
         yaxis=dict(
-            title="Energy in GWh",
+            title="Energy in MWh",
             titlefont=dict(size=16, color="rgb(107, 107, 107)"),
             tickfont=dict(size=14, color="rgb(107, 107, 107)"),
         ),
         yaxis2=dict(
             title="Energy in MWh",
             overlaying="y",
-            range=[0, filling_levels.max() * 1.05],
             rangemode="tozero",
             autorange=True,
             side="right",

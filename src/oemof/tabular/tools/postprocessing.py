@@ -93,7 +93,6 @@ def supply_results(
         "backpressure",
         "extraction",
         "storage",
-        "generator",
         "reservoir",
     ],
     bus=None,
