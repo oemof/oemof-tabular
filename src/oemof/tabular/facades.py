@@ -120,8 +120,8 @@ class Reservoir(GenericStorage, Facade):
     efficiency: numeric
         Efficiency of the turbine converting inflow to electricity
         production, default: 1
-    inflow: array-like
-        Absolute inflow of inflow into the storage
+    profile: array-like
+        Absolute inflow profile of inflow into the storage
     input_parameters: dict
         Dictionary to specifiy parameters on the input edge. You can use
         all keys that are available for the  oemof.solph.network.Flow class.
@@ -164,7 +164,7 @@ class Reservoir(GenericStorage, Facade):
                     "carrier",
                     "tech",
                     "bus",
-                    "inflow",
+                    "profile",
                     "efficiency",
                 ]
             }
@@ -177,7 +177,7 @@ class Reservoir(GenericStorage, Facade):
 
         self.efficiency = kwargs.get("efficiency", 1)
 
-        self.inflow = kwargs.get("inflow")
+        self.profile = kwargs.get("profile")
 
         self.input_parameters = kwargs.get("input_parameters", {})
 
@@ -202,7 +202,7 @@ class Reservoir(GenericStorage, Facade):
         inflow = Source(
             label=self.label + "-inflow",
             outputs={
-                self: Flow(nominal_value=1, max=self.inflow, fixed=False)
+                self: Flow(nominal_value=1, max=self.profile, fixed=False)
             },
         )
 
