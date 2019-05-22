@@ -144,11 +144,13 @@ class Reservoir(GenericStorage, Facade):
     >>> from oemof.tabular import facades
     >>> my_bus = solph.Bus('my_bus')
     >>> my_reservoir = Reservoir(
-    ...     label='storage',
-    ...     bus='my_bus',
+    ...     label='my_reservoir',
+    ...     bus=my_bus,
+    ...     carrier='water',
+    ...     tech='reservoir',
     ...     storage_capacity=1000,
     ...     capacity=50,
-    ...     inflow=[1, 2, 6],
+    ...     profile=[1, 2, 6],
     ...     loss_rate=0.01,
     ...     initial_storage_level=0,
     ...     max_storage_level = 0.9,
@@ -161,9 +163,9 @@ class Reservoir(GenericStorage, Facade):
         kwargs.update(
             {
                 "_facade_requires_": [
+                    "bus",
                     "carrier",
                     "tech",
-                    "bus",
                     "profile",
                     "efficiency",
                 ]
@@ -259,7 +261,9 @@ class Dispatchable(Source, Facade):
     >>> my_bus = solph.Bus('my_bus')
     >>> my_dispatchable = Dispatchable(
     ...     label='ccgt',
-    ...     bus='my_bus',
+    ...     bus=my_bus,
+    ...     carrier='gas',
+    ...     tech='ccgt',
     ...     capacity=1000,
     ...     marginal_cost=10,
     ...     output_parameters={
@@ -342,7 +346,9 @@ class Volatile(Source, Facade):
     >>> my_bus = solph.Bus('my_bus')
     >>> my_volatile = Volatile(
     ...     label='wind',
-    ...     bus='my_bus',
+    ...     bus=my_bus,
+    ...     carrier='wind',
+    ...     tech='onshore',
     ...     capacity_cost=150,
     ...     profile=[0.25, 0.1, 0.3])
 
@@ -430,14 +436,16 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     >>> from oemof import solph
     >>> from oemof.tabular import facades
-    >>> my_bus = solph.Bus('my_bus')
+    >>> my_elec_bus = solph.Bus('my_elec_bus')
+    >>> my_fuel_bus = solph.Bus('my_fuel_bus')
+    >>> my_heat_bus = solph.Bus('my_heat_bus')
     >>> my_extraction = ExtractionTurbine(
     ...     label='extraction',
     ...     carrier='gas',
     ...     tech='ext',
-    ...     fuel_bus=my_fuel_bus,
-    ...     heat_bus=my_heat_bus,
     ...     electricity_bus=my_elec_bus,
+    ...     heat_bus=my_heat_bus,
+    ...     fuel_bus=my_fuel_bus,
     ...     capacity=1000,
     ...     condensing_efficiency=[0.5, 0.51, 0.55],
     ...     electric_efficiency=0.4,
@@ -684,12 +692,12 @@ class Conversion(Transformer, Facade):
     >>> from oemof import solph
     >>> from oemof.tabular import facades
     >>> my_biomass_bus = solph.Bus('my_biomass_bus')
-    >>> my_elec_bus = solph.Bus('my_elec_bus')
+    >>> my_heat_bus = solph.Bus('my_heat_bus')
     >>> my_conversion = Conversion(
     ...     label='biomass_plant',
     ...     carrier='biomass',
     ...     tech='st',
-    ...     from_bus=my_fuel_bus,
+    ...     from_bus=my_biomass_bus,
     ...     to_bus=my_heat_bus,
     ...     capacity=100,
     ...     efficiency=0.4)
@@ -843,10 +851,12 @@ class Storage(GenericStorage, Facade):
     Examples
     ---------
 
+    >>> import pandas as pd
     >>> from oemof import solph
-    >>> from oemof.tabular import facades
+    >>> from oemof.tabular import facades as fc
     >>> my_bus = solph.Bus('my_bus')
-    >>> es = EnergySystem(timeindex=pd.date_range('2019', perdios=3, freq='H'))
+    >>> es = solph.EnergySystem(
+    ...    timeindex=pd.date_range('2019', periods=3, freq='H'))
     >>> es.add(my_bus)
     >>> es.add(
     ...    fc.Storage(
@@ -1073,7 +1083,8 @@ class Commodity(Source, Facade):
     >>> my_bus = solph.Bus('my_bus')
     >>> my_commodity = Commodity(
     ...     label='biomass-commodity',
-    ...     bus='my_bus',
+    ...     bus=my_bus,
+    ...     carrier='biomass',
     ...     amount=1000,
     ...     marginal_cost=10,
     ...     output_parameters={
