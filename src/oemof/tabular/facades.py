@@ -1093,8 +1093,7 @@ class Commodity(Source, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech",
-                         "amount"]})
+        kwargs.update({"_facade_requires_": ["bus", "carrier", "amount"]})
         super().__init__(*args, **kwargs)
 
         self.amount = kwargs.get("amount")
