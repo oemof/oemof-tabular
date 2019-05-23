@@ -1,13 +1,12 @@
 import os
-import pandas as pd
-
-import plotly.graph_objs as go
 
 # import plotly.offline as offline
 from matplotlib import colors
+import pandas as pd
+import plotly.graph_objs as go
 
 # offline.init_notebook_mode()
-from oemof.tabular.facades import TECH_COLOR_MAP, CARRIER_COLER_MAP
+from oemof.tabular.facades import CARRIER_COLER_MAP, TECH_COLOR_MAP
 
 color = dict(TECH_COLOR_MAP, **CARRIER_COLER_MAP)
 
@@ -16,6 +15,7 @@ for t in TECH_COLOR_MAP:
         color["-".join([c, t])] = TECH_COLOR_MAP[t]
 
 color_dict = {name: colors.to_hex(color) for name, color in color.items()}
+
 
 def hourly_plot(
     scenario,
@@ -29,7 +29,8 @@ def hourly_plot(
         "battery",
         "storage"
     ],
-    aggregate=["coal", "lignite", "oil", "gas", "waste", "uranium", "wind", "solar"],
+    aggregate=[
+        "coal", "lignite", "oil", "gas", "waste", "uranium", "wind", "solar"],
     daily=False,
     plot_filling_levels=True,
 ):
