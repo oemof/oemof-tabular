@@ -78,7 +78,7 @@ Installation
 
 We are currently using features which haven't made it to a proper
 `oemof` release yet. This means that you have to install `oemof.tabular`
-from source, since `pip` `doesn't allow`_ packages on `PyPI` to have
+from source, since `pip` doesn't allow packages on `PyPI` to have
 dependencies which are not hosted on `PyPI`:
 
 ::
@@ -86,8 +86,6 @@ dependencies which are not hosted on `PyPI`:
     pip install 'git+https://git@github.com/oemof/oemof-tabular.git'
 
 You also need at least `pip` version `18.1` for this to work.
-
-.. _doesn't allow: https://pip.pypa.io/en/stable/news/#id58
 
 Documentation
 =============

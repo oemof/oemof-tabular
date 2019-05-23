@@ -58,7 +58,7 @@ full postprocessing functionality we recommend using one of the types listed bel
 **Carrier types**
 
 * solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste,
-electricity, heat, other
+  electricity, heat, other
 
 **Tech types**
 
