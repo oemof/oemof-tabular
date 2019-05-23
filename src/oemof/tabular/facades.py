@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" `Facade`s are classes providing a simplified view on more complex classes.
+""" Facade's are classes providing a simplified view on more complex classes.
 
 More specifically, the `Facade`s in this module act as simplified, energy
 specific  wrappers around `oemof`'s and `oemof.solph`'s more abstract and
@@ -51,6 +51,7 @@ class Facade(Node):
                         "object with name/label `{!r}`."
                     ).format(r, type(self).__name__, self.label)
                 )
+
     def _nominal_value(self):
         """ Returns None if self.expandable ist True otherwise it returns
         the capacity
@@ -82,7 +83,7 @@ class Facade(Node):
                                 "minimum_storage_capacity",
                                 0),
                             existing=getattr(self, "storage_capacity", 0)
-                            )
+                        )
                     else:
                         self.investment = Investment()
                 else:
@@ -294,7 +295,6 @@ class Dispatchable(Source, Facade):
     def build_solph_components(self):
         """
         """
-
 
         f = Flow(
             nominal_value=self._nominal_value(),
@@ -719,7 +719,7 @@ class Conversion(Transformer, Facade):
 
         self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.expandable =  bool(kwargs.get("expandable", False))
+        self.expandable = bool(kwargs.get("expandable", False))
 
         self.capacity_potential = kwargs.get("capacity_potential")
 
@@ -1055,6 +1055,7 @@ class Link(Link, Facade):
             }
         )
 
+
 class Commodity(Source, Facade):
     """ Commodity element with one output for example a biomass commodity
 
@@ -1107,7 +1108,6 @@ class Commodity(Source, Facade):
     def build_solph_components(self):
         """
         """
-
 
         f = Flow(
             nominal_value=self.amount,
