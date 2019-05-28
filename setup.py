@@ -72,6 +72,7 @@ setup(
         "@releases/v0_3_0"
         "#egg=oemof-0.2.4.dev0",
         "pandas>=0.22",
+        "seaborn",
         "paramiko",
         "pyproj",
         "pyshp",
