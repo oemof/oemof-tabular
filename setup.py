@@ -67,11 +67,9 @@ setup(
     install_requires=[
         "datapackage",
         "geojson",
-        "oemof @ "
-        "git+https://git@github.com/oemof/oemof.git"
-        "@releases/v0_3_0"
-        "#egg=oemof-0.2.4.dev0",
+        "oemof==0.3.1",
         "pandas>=0.22",
+        "seaborn",
         "paramiko",
         "pyproj",
         "pyshp",

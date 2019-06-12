@@ -14,7 +14,16 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax',
+    'nbsphinx'
 ]
+
+
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
+
+nbsphinx_allow_errors = True
+
+
 if os.getenv('SPELLCHECK'):
     extensions += 'sphinxcontrib.spelling',
     spelling_show_suggestions = True

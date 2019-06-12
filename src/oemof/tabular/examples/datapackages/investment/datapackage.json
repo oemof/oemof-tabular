@@ -375,9 +375,14 @@
                         "format": "default"
                     },
                     {
-                          "name": "invest_relation_input_output",
-                          "type": "number",
-                          "format": "default"
+                        "name": "invest_relation_input_output",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "expandable",
+                        "type": "boolean",
+                        "format": "default"
                     },
                     {
                         "name": "type",

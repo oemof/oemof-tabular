@@ -6,7 +6,7 @@ from oemof.tabular.tools.plots import hourly_plot
 
 # plot results with plotly
 
-name = "dispatch"
+name = "investment"
 
 # results path for output
 results_path = os.path.join(
@@ -16,7 +16,7 @@ results_path = os.path.join(
 offline.plot(
     hourly_plot(
         name,
-        "DE",
+        "bus0",
         os.path.join(os.path.expanduser("~"), "oemof-results"),
         plot_filling_levels=False,
     ),

@@ -126,12 +126,12 @@ def nuts(filepath=None, nuts=0, subset=None, tolerance=0.03, minarea=1.0):
 
 
 def reproject(
-    geom, fr=pyproj.Proj(proj="longlat"), to=pyproj.Proj(proj="aea")
+    geom, fr=pyproj.Proj(init="EPSG:4326"), to=pyproj.Proj(init="EPSG:25832")
 ):
     """
     Notes
     -----
-    Copied from: https://github.com/FRESNA/vresutils,
+    Copied and adapted from: https://github.com/FRESNA/vresutils,
     Copyright 2015-2017 Frankfurt Institute for Advanced Studies
     """
     reproject_pts = partial(pyproj.transform, fr, to)
