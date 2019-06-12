@@ -58,15 +58,14 @@ full postprocessing functionality we recommend using one of the types listed bel
 **Carrier types**
 
 * solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste,
-  electricity, heat, other
+	electricity, heat, other
 
 **Tech types**
 
 * st, ocgt, ccgt, ce, pv, onshore, offshore, ror, rsv, phs, ext, bp, battery
 
-We recommend use the following naming convention for your facade names:
-
-	bus-carrier-tech-number
+We recommend use the following naming convention for your facade names
+`bus-carrier-tech-number`
 
 For example: `DE-gas-ocgt-1`.
 
