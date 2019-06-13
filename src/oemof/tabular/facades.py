@@ -276,7 +276,7 @@ class Dispatchable(Source, Facade):
 
     ..  math::
 
-            x_{volatile}^{dispatchable} \leq c_{dispatchable}^{capacity\_potential}
+            x_{dispatchable}^{capacity} \leq c_{dispatchable}^{capacity\_potential}
 
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
