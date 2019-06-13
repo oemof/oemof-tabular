@@ -308,7 +308,9 @@ class Dispatchable(Source, Facade):
 
 
 class Volatile(Source, Facade):
-    """ Volatile element with one output, for example a wind turbine
+    """Volatile element with one output. This class can be used to model
+    PV oder Wind power plants.
+
 
     Parameters
     ----------
@@ -337,6 +339,35 @@ class Volatile(Source, Facade):
     fixed: boolean
         If False, the output may be curtailed when optimizing dispatch.
         Default: True
+
+
+    The mathematical representations for this components are dependent on the
+    user defined attributes. If the capacity is fixed before (**dispatch mode**)
+    the following equation holds:
+
+    .. math::
+
+        x_{volatile}^{flow}(t) = c_{volatile}^{capacity} \cdot c_{volatile}^{profile}(t) \
+         \\qquad \\forall t \in T
+
+    Where :math:`x_{volatile}^{flow}` denotes the production (endogenous variable)
+    of the volatile object to the bus.
+
+    If `expandable` is set to `True` (**investment mode**), the equation
+    changes slightly:
+
+    .. math::
+
+        x_{volatile}^{flow}(t) = (x_{volatile}^{capacity} + c_{volatile}^{capacity}) \
+         \cdot c_{volatile}^{profile}(t)  \\qquad \\forall t \in T
+
+    Where the bounded endogenous variable of the volatile component is added:
+
+    ..  math::
+
+            x_{volatile}^{capacity} \leq c_{volatile}^{capacity\_potential}
+
+
 
     Examples
     ---------
@@ -565,6 +596,8 @@ class BackpressureTurbine(Transformer, Facade):
         Investment costs per unit of electrical capacity (e.g. Euro / MW) .
         If capacity is not set, this value will be used for optimizing the
         chp capacity.
+
+
 
     Examples
     ---------
@@ -846,6 +879,7 @@ class Storage(GenericStorage, Facade):
     ouput_parameters: dict (optional)
         Set parameters on the output edge of the storage (see oemof.solph for
         more information on possible parameters)
+
 
 
     Examples
