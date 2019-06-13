@@ -915,6 +915,16 @@ class Storage(GenericStorage, Facade):
         more information on possible parameters)
 
 
+    Intertemporal energy balance of the storage:
+
+    .. math::
+
+        x_{storage}^{level}(t) = \
+        x_{storage}^{level}(t-1) \cdot (1-r_{storage}^{loss\:rate}) \
+        + \eta x_{(storage, in)}^{flow}(t) \
+        - \eta x_{(storage, out)}^{flow}(t)
+         \\qquad \\forall t \in T
+
 
     Examples
     ---------
