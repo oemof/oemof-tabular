@@ -232,8 +232,8 @@ class Dispatchable(Source, Facade):
         The installed power of the generator (e.g. in MW). If not set the
         capacity will be optimized (s. also `capacity_cost` argument)
     profile: array-like (optional)
-        Profile of the output such that profile[t] * installed yields output
-        for timestep t
+        Profile of the output such that profile[t] * installed capacity
+        yields the upper bound for timestep t
     marginal_cost: numeric
         Marginal cost for one unit of produced output, i.e. for a powerplant:
         mc = fuel_cost + co2_cost + ... (in Euro / MWh) if timestep length is
@@ -249,6 +249,34 @@ class Dispatchable(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if capacity is to be expanded
+
+
+    The mathematical representations for this components are dependent on the
+    user defined attributes. If the capacity is fixed before (**dispatch mode**)
+    the following equation holds:
+
+    .. math::
+
+        x_{dispatchable}^{flow}(t) \leq c_{dispatchable}^{capacity} \cdot \
+         c_{dispatchable}^{profile}  \\qquad \\forall t \in T
+
+    Where :math:`x_{dispatchable}^{flow}` denotes the production (endogenous variable)
+    of the dispatchable object to the bus.
+
+    If `expandable` is set to `True` (**investment mode**), the equation
+    changes slightly:
+
+    .. math::
+
+        x_{dispatchable}^{flow}(t) \leq (x_{dispatchable}^{capacity} + \
+        c_{dispatchable}^{capacity})  \cdot c_{dispatchable}^{profile}(t)\
+        \\qquad \\forall t \in T
+
+    Where the bounded endogenous variable of the volatile component is added:
+
+    ..  math::
+
+            x_{volatile}^{dispatchable} \leq c_{dispatchable}^{capacity\_potential}
 
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
@@ -276,7 +304,7 @@ class Dispatchable(Source, Facade):
         kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
         super().__init__(*args, **kwargs)
 
-        self.profile = kwargs.get("profile", sequence(0))
+        self.profile = kwargs.get("profile", sequence(1))
 
         self.capacity = kwargs.get("capacity")
 
@@ -299,7 +327,7 @@ class Dispatchable(Source, Facade):
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
-            actual_value=self.profile,
+            max=self.profile,
             investment=self._investment(),
             **self.output_parameters
         )
