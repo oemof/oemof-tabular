@@ -496,6 +496,28 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         True, if capacity can be expanded within optimization. Default: False.
 
 
+    The mathematical description is derived from the oemof base class
+    `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/stable/oemof_solph.html#extractionturbinechp-component>`_ :
+
+        .. math::
+            x_{echp}^{flow, carrier} = \
+            \\frac{x_{echp}^{flow, electricity} + x_{echp}^{flow, heat} \cdot \\beta} \
+                 {\eta_{echp}^{condensing\thermal_efficiency}} \\
+
+
+            x_{echp}^{flow, electricity}  \geq  x_{echp}_{flow, thermal} \cdot \
+            \\frac{\eta_{echp}^{electrical\_efficiency}} \
+                 {\eta_{echp}^{thermal\_efficiency}}
+
+    where :math:`\\beta` is defined as:
+
+         .. math::
+            \\beta = \\frac{\eta_{echp}^{condensing\_efficiency} - \
+            \eta_{echp}^{electrical_efficiency}{\eta_{echp}{thermal\_efficiency}}
+
+
+
+
     Examples
     ---------
 
