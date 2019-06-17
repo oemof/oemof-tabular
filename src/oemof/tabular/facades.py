@@ -309,7 +309,7 @@ class Dispatchable(Source, Facade):
 
     .. math::
 
-        \sum_t x^{opex} = x^{flow}(t) \cdot c^{marginal\_cost}(t)
+        x^{opex} = \sum_t x^{flow}(t) \cdot c^{marginal\_cost}(t)
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
 
@@ -430,7 +430,7 @@ class Volatile(Source, Facade):
 
     .. math::
 
-        \sum_t x^{opex} = x^{flow}(t) \cdot c^{marginal\_cost}(t)
+        x^{opex} = \sum_t (x^{flow}(t) \cdot c^{marginal\_cost}(t))
 
     Examples
     ---------
@@ -550,9 +550,8 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
         .. math::
 
-            \sum_t \
-            x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
-            + x^{flow, carrier} \cdot c^{carrier\_cost}(t)
+            x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
 
 
     Examples
@@ -711,9 +710,8 @@ class BackpressureTurbine(Transformer, Facade):
 
         .. math::
 
-            \sum_t \
-            x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
-            + x^{flow, carrier} \cdot c^{carrier\_cost}(t)
+            x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
 
     Examples
     ---------
@@ -847,9 +845,8 @@ class Conversion(Transformer, Facade):
 
         .. math::
 
-            \sum_t \
-            x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
-            + x^{flow, carrier} \cdot c^{carrier\_cost}(t)
+            x^{opex} =  \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
 
 
     Examples
@@ -1040,7 +1037,7 @@ class Storage(GenericStorage, Facade):
 
     .. math::
 
-        \sum_t x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
+        x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t))
 
 
     Examples
