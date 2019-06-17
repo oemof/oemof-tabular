@@ -305,6 +305,11 @@ class Dispatchable(Source, Facade):
 
             x^{capacity} \leq c^{capacity\_potential}
 
+    **Ojective expression** for operation:
+
+    .. math::
+
+        \sum_t x^{opex} = x^{flow}(t) \cdot c^{marginal\_cost}(t)
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
 
@@ -421,7 +426,11 @@ class Volatile(Source, Facade):
 
             x_{volatile}^{capacity} \leq c_{volatile}^{capacity\_potential}
 
+    **Ojective expression** for operation:
 
+    .. math::
+
+        \sum_t x^{opex} = x^{flow}(t) \cdot c^{marginal\_cost}(t)
 
     Examples
     ---------
@@ -536,6 +545,14 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         c^{electrical\_efficiency(t)}}{c^{thermal\_efficiency}(t)} \
         \\qquad \\forall t \\in T
 
+    **Ojective expression** for operation includes marginal cost and/or
+    carrier costs:
+
+        .. math::
+
+            \sum_t \
+            x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            + x^{flow, carrier} \cdot c^{carrier\_cost}(t)
 
 
     Examples
@@ -689,6 +706,15 @@ class BackpressureTurbine(Transformer, Facade):
         \\frac{c^{electrical\:efficiency}(t)}{c^{thermal\:efficiency}(t)} \
         \\qquad \\forall t \\in T
 
+    **Ojective expression** for operation includes marginal cost and/or
+    carrier costs:
+
+        .. math::
+
+            \sum_t \
+            x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            + x^{flow, carrier} \cdot c^{carrier\_cost}(t)
+
     Examples
     ---------
 
@@ -794,6 +820,8 @@ class Conversion(Transformer, Facade):
         Efficiency of the conversion unit (0 <= efficiency <= 1). Default: 1
     marginal_cost: numeric
         Marginal cost for one unit of produced output. Default: 0
+    carrier_cost: numeric
+        Carrier cost for one unit of used input. Default: 0
     capacity_cost: numeric
         Investment costs per unit of output capacity.
         If capacity is not set, this value will be used for optimizing the
@@ -813,6 +841,16 @@ class Conversion(Transformer, Facade):
     .. math::
         x^{flow, from}(t) \cdot c^{efficiency}(t) = x^{flow, to}(t) \
         \\qquad \\forall t \\in T
+
+    **Ojective expression** for operation includes marginal cost and/or
+    carrier costs:
+
+        .. math::
+
+            \sum_t \
+            x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            + x^{flow, carrier} \cdot c^{carrier\_cost}(t)
+
 
     Examples
     ---------
@@ -845,6 +883,8 @@ class Conversion(Transformer, Facade):
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
+        self.carrier_cost = kwargs.get("carrier_cost", 0)
+
         self.capacity_cost = kwargs.get("capacity_cost")
 
         self.expandable = bool(kwargs.get("expandable", False))
@@ -867,7 +907,8 @@ class Conversion(Transformer, Facade):
             }
         )
 
-        self.inputs.update({self.from_bus: Flow(**self.input_parameters)})
+        self.inputs.update({self.from_bus: Flow(
+            variable_costs=self.carrier_cost, **self.input_parameters)})
 
         self.outputs.update(
             {
@@ -993,6 +1034,13 @@ class Storage(GenericStorage, Facade):
 
     .. math::
         x^{level}(0) = 0.5 \cdot c^{capacity}
+
+    The **expression** added to the cost minimizing objective funtion
+    for the operation is given as:
+
+    .. math::
+
+        \sum_t x^{opex} = x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
 
 
     Examples
