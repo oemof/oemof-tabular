@@ -288,7 +288,7 @@ class Dispatchable(Source, Facade):
 
         x^{flow}(t) \leq c^{capacity} \cdot c^{profile}(t) \\qquad \\forall t \in T
 
-    Where :math:`x_{dispatchable}^{flow}` denotes the production (endogenous variable)
+    Where :math:`x^{flow}` denotes the production (endogenous variable)
     of the dispatchable object to the bus.
 
     If `expandable` is set to `True` (**investment mode**), the equation
@@ -534,7 +534,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         \\qquad \\forall t \\in T
 
     .. math::
-        x^{flow, electricity}(t)  \geq  x_{flow, thermal}(t) \cdot \
+        x^{flow, electricity}(t)  \geq  x^{flow, thermal}(t) \cdot \
         \\frac{c^{electrical\_efficiency}(t)}{c^{thermal\_efficiency}(t)} \
         \\qquad \\forall t \\in T
 
