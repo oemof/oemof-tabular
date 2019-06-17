@@ -136,6 +136,29 @@ class Reservoir(GenericStorage, Facade):
         see: input_parameters
 
 
+    The reservoir is modelled as a storage with a constant inflow:
+
+    .. math::
+
+        x^{level}(t) = \
+        x^{level}(t-1) \cdot (1 - c^{loss\_rate}(t)) \
+        + x^{profile}(t) - \\frac{x^{flow, out}(t)}{c^{efficiency}(t)} \
+        \\qquad \\forall t \in T
+
+    .. math::
+        x^{level}(0) = 0.5 \cdot c^{capacity}
+
+    The inflow is bounded by the exogenous inflow profile. Thus if the inflow
+    exceeds the maximum capacity of the storage, spillage is possible by setting
+    :math:`x^{profile}(t)` to lower values.
+
+    .. math::
+        0 \leq x^{profile}(t) \leq c^{profile}(t) \\qquad \\forall t \\in T
+
+
+    The spillage of the reservoir is therefore defined by:
+    :math:`c^{profile}(t) - x^{profile}(t)`.
+
     Note
     ----
     As the Reservoir is a sub-class of `oemof.solph.GenericStorage` you also
@@ -263,8 +286,7 @@ class Dispatchable(Source, Facade):
 
     .. math::
 
-        x_{dispatchable}^{flow}(t) \leq c_{dispatchable}^{capacity} \cdot \
-         c_{dispatchable}^{profile}  \\qquad \\forall t \in T
+        x^{flow}(t) \leq c^{capacity} \cdot c^{profile}(t) \\qquad \\forall t \in T
 
     Where :math:`x_{dispatchable}^{flow}` denotes the production (endogenous variable)
     of the dispatchable object to the bus.
@@ -274,15 +296,14 @@ class Dispatchable(Source, Facade):
 
     .. math::
 
-        x_{dispatchable}^{flow}(t) \leq (x_{dispatchable}^{capacity} + \
-        c_{dispatchable}^{capacity})  \cdot c_{dispatchable}^{profile}(t)\
-        \\qquad \\forall t \in T
+        x^{flow}(t) \leq (x^{capacity} + \
+        c^{capacity})  \cdot c^{profile}(t) \\qquad \\forall t \in T
 
     Where the bounded endogenous variable of the volatile component is added:
 
     ..  math::
 
-            x_{dispatchable}^{capacity} \leq c_{dispatchable}^{capacity\_potential}
+            x^{capacity} \leq c^{capacity\_potential}
 
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
@@ -381,8 +402,7 @@ class Volatile(Source, Facade):
 
     .. math::
 
-        x_{volatile}^{flow}(t) = c_{volatile}^{capacity} \cdot c_{volatile}^{profile}(t) \
-         \\qquad \\forall t \in T
+        x^{flow}(t) = c^{capacity} \cdot c^{profile}(t) \\qquad \\forall t \in T
 
     Where :math:`x_{volatile}^{flow}` denotes the production (endogenous variable)
     of the volatile object to the bus.
@@ -392,8 +412,8 @@ class Volatile(Source, Facade):
 
     .. math::
 
-        x_{volatile}^{flow}(t) = (x_{volatile}^{capacity} + c_{volatile}^{capacity}) \
-         \cdot c_{volatile}^{profile}(t)  \\qquad \\forall t \in T
+        x^{flow}(t) = (x^{capacity} + c^{capacity}) \
+         \cdot c^{profile}(t)  \\qquad \\forall t \in T
 
     Where the bounded endogenous variable of the volatile component is added:
 
@@ -499,22 +519,22 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     The mathematical description is derived from the oemof base class
     `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/stable/oemof_solph.html#extractionturbinechp-component>`_ :
 
-        .. math::
-            x_{echp}^{flow, carrier} = \
-            \\frac{x_{echp}^{flow, electricity} + x_{echp}^{flow, heat} \cdot \\beta} \
-                 {\eta_{echp}^{condensing\thermal_efficiency}} \\
+    .. math::
+        x^{flow, carrier} = \
+        \\frac{x^{flow, electricity}(t) + x^{flow, heat}(t) \cdot c^{beta}(t)}{c^{condensing\_efficiency}(t)} \
+        \\qquad \\forall t \\in T
 
+    .. math::
+        x^{flow, electricity}(t)  \geq  x_{flow, thermal}(t) \cdot \
+        \\frac{c^{electrical\_efficiency}(t)}{c^{thermal\_efficiency}(t)} \
+        \\qquad \\forall t \\in T
 
-            x_{echp}^{flow, electricity}  \geq  x_{echp}_{flow, thermal} \cdot \
-            \\frac{\eta_{echp}^{electrical\_efficiency}} \
-                 {\eta_{echp}^{thermal\_efficiency}}
+    where :math:`c^{beta}` is defined as:
 
-    where :math:`\\beta` is defined as:
-
-         .. math::
-            \\beta = \\frac{\eta_{echp}^{condensing\_efficiency} - \
-            \eta_{echp}^{electrical_efficiency}{\eta_{echp}{thermal\_efficiency}}
-
+     .. math::
+        c^{beta}(t) = \\frac{c^{condensing\_efficiency}(t) - \
+        c^{electrical\_efficiency(t)}}{c^{thermal\_efficiency}(t)} \
+        \\qquad \\forall t \\in T
 
 
 
@@ -654,6 +674,20 @@ class BackpressureTurbine(Transformer, Facade):
         chp capacity.
 
 
+    Backpressure turbine power plants are modelled with a constant relation
+    between heat and electrical output (power to heat coefficient).
+
+    .. math::
+
+        x^{flow, carrier}(t) = \
+        \\frac{x^{flow, electricity}(t) + x^{flow, heat}(t)}{c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)} \
+        \\qquad \\forall t \\in T
+
+    .. math::
+
+        \\frac{x^{flow, electricity}(t)}{x_{flow, thermal}(t)} = \
+        \\frac{c^{electrical\:efficiency}(t)}{c^{thermal\:efficiency}(t)} \
+        \\qquad \\forall t \\in T
 
     Examples
     ---------
@@ -769,11 +803,16 @@ class Conversion(Transformer, Facade):
     capacity_potential: numeric
         Maximum invest capacity in unit of output capacity.
     input_parameters: dict (optional)
-        Set parameters on the input edge of the storage (see oemof.solph for
-        more information on possible parameters)
+        Set parameters on the input edge of the conversion unit
+        (see oemof.solph for more information on possible parameters)
     ouput_parameters: dict (optional)
-        Set parameters on the output edge of the storage (see oemof.solph for
-        more information on possible parameters)
+        Set parameters on the output edge of the conversion unit
+         (see oemof.solph for more information on possible parameters)
+
+
+    .. math::
+        x^{flow, from}(t) \cdot c^{efficiency}(t) = x^{flow, to}(t) \
+        \\qquad \\forall t \\in T
 
     Examples
     ---------
@@ -861,6 +900,11 @@ class Load(Sink, Facade):
     input_parameters: dict (optional)
 
 
+
+    .. math::
+        x^{flow}(t) = c^{amount}(t)  \cdot x^{flow}(t) \qquad \\forall t \\in T
+
+
     Examples
     ---------
 
@@ -941,11 +985,14 @@ class Storage(GenericStorage, Facade):
 
     .. math::
 
-        x_{storage}^{level}(t) = \
-        x_{storage}^{level}(t-1) \cdot (1-r_{storage}^{loss\:rate}) \
-        + \eta x_{(storage, in)}^{flow}(t) \
-        - \eta x_{(storage, out)}^{flow}(t)
-         \\qquad \\forall t \in T
+        x^{level}(t) = \
+        x^{level}(t-1) \cdot (1 - c^{loss\_rate}) \
+        + \\sqrt{c^{efficiency}(t)}  x^{flow, in}(t) \
+        - \\frac{x^{flow, out}(t)}{\\sqrt{c^{efficiency}(t)}} \
+        \\qquad \\forall t \in T
+
+    .. math::
+        x^{level}(0) = 0.5 \cdot c^{capacity}
 
 
     Examples
@@ -1089,6 +1136,7 @@ class Link(Link, Facade):
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
 
+
     Note
     -----
     Assigning a small value like 0.00001 to `marginal_cost`  may force unique
@@ -1172,6 +1220,8 @@ class Commodity(Source, Facade):
         Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
 
+    .. math::
+        \sum_{t} x^{flow}(t) \leq c^{amount}
 
     For constraints set through `output_parameters` see oemof.solph.Flow class.
 
