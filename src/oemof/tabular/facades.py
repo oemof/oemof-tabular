@@ -1265,6 +1265,7 @@ class Commodity(Source, Facade):
         Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
 
+
     .. math::
         \sum_{t} x^{flow}(t) \leq c^{amount}
 
