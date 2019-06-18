@@ -19,19 +19,19 @@ def test_example_datapackage_readability():
         "oemof.tabular", "examples/datapackages"
     ):
 
-        if example != "lopf":
-            print("Runnig reading datapackage example {} ...".format(example))
-            systems.append(
-                ES.from_datapackage(
-                    pkg.resource_filename(
-                        "oemof.tabular",
-                        "examples/datapackages/{}/datapackage.json".format(
-                            example
-                        ),
+
+        print("Runnig reading datapackage example {} ...".format(example))
+        systems.append(
+            ES.from_datapackage(
+                pkg.resource_filename(
+                    "oemof.tabular",
+                    "examples/datapackages/{}/datapackage.json".format(
+                        example
                     ),
-                    typemap=TYPEMAP,
-                )
+                ),
+                typemap=TYPEMAP,
             )
+        )
 
     for system in systems:
         assert type(system) is ES
