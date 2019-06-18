@@ -111,7 +111,7 @@ class Facade(Node):
 
 
 class Reservoir(GenericStorage, Facade):
-    """ A Reservoir storage unit, that is initially half full.
+    r""" A Reservoir storage unit, that is initially half full.
 
     Note that the investment option is not available for this facade at
     the current development state.
@@ -141,10 +141,10 @@ class Reservoir(GenericStorage, Facade):
 
     .. math::
 
-        x^{level}(t) = \
-        x^{level}(t-1) \cdot (1 - c^{loss\_rate}(t)) \
-        + x^{profile}(t) - \\frac{x^{flow, out}(t)}{c^{efficiency}(t)} \
-        \\qquad \\forall t \in T
+        x^{level}(t) =
+        x^{level}(t-1) \cdot (1 - c^{loss\_rate}(t))
+        + x^{profile}(t) - \frac{x^{flow, out}(t)}{c^{efficiency}(t)}
+        \qquad \forall t \in T
 
     .. math::
         x^{level}(0) = 0.5 \cdot c^{capacity}
@@ -154,7 +154,7 @@ class Reservoir(GenericStorage, Facade):
     :math:`x^{profile}(t)` to lower values.
 
     .. math::
-        0 \leq x^{profile}(t) \leq c^{profile}(t) \\qquad \\forall t \\in T
+        0 \leq x^{profile}(t) \leq c^{profile}(t) \qquad \forall t \in T
 
 
     The spillage of the reservoir is therefore defined by:
@@ -252,7 +252,7 @@ class Reservoir(GenericStorage, Facade):
 
 
 class Dispatchable(Source, Facade):
-    """ Dispatchable element with one output for example a gas-turbine
+    r""" Dispatchable element with one output for example a gas-turbine
 
     Parameters
     ----------
@@ -287,7 +287,7 @@ class Dispatchable(Source, Facade):
 
     .. math::
 
-        x^{flow}(t) \leq c^{capacity} \cdot c^{profile}(t) \\qquad \\forall t \in T
+        x^{flow}(t) \leq c^{capacity} \cdot c^{profile}(t) \qquad \forall t \in T
 
     Where :math:`x^{flow}` denotes the production (endogenous variable)
     of the dispatchable object to the bus.
@@ -297,8 +297,8 @@ class Dispatchable(Source, Facade):
 
     .. math::
 
-        x^{flow}(t) \leq (x^{capacity} + \
-        c^{capacity})  \cdot c^{profile}(t) \\qquad \\forall t \in T
+        x^{flow}(t) \leq (x^{capacity} +
+        c^{capacity})  \cdot c^{profile}(t) \qquad \forall t \in T
 
     Where the bounded endogenous variable of the volatile component is added:
 
@@ -372,7 +372,7 @@ class Dispatchable(Source, Facade):
 
 
 class Volatile(Source, Facade):
-    """Volatile element with one output. This class can be used to model
+    r"""Volatile element with one output. This class can be used to model
     PV oder Wind power plants.
 
 
@@ -411,7 +411,7 @@ class Volatile(Source, Facade):
 
     .. math::
 
-        x^{flow}(t) = c^{capacity} \cdot c^{profile}(t) \\qquad \\forall t \in T
+        x^{flow}(t) = c^{capacity} \cdot c^{profile}(t) \qquad \forall t \in T
 
     Where :math:`x_{volatile}^{flow}` denotes the production (endogenous variable)
     of the volatile object to the bus.
@@ -422,7 +422,7 @@ class Volatile(Source, Facade):
     .. math::
 
         x^{flow}(t) = (x^{capacity} + c^{capacity}) \
-         \cdot c^{profile}(t)  \\qquad \\forall t \in T
+         \cdot c^{profile}(t)  \qquad \forall t \in T
 
     Where the bounded endogenous variable of the volatile component is added:
 
@@ -491,7 +491,7 @@ class Volatile(Source, Facade):
 
 
 class ExtractionTurbine(ExtractionTurbineCHP, Facade):
-    """ Combined Heat and Power (extraction) unit with one input and
+    r""" Combined Heat and Power (extraction) unit with one input and
     two outputs.
 
     Parameters
@@ -533,28 +533,28 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/stable/oemof_solph.html#extractionturbinechp-component>`_ :
 
     .. math::
-        x^{flow, carrier} = \
-        \\frac{x^{flow, electricity}(t) + x^{flow, heat}(t) \cdot c^{beta}(t)}{c^{condensing\_efficiency}(t)} \
-        \\qquad \\forall t \\in T
+        x^{flow, carrier} =
+        \frac{x^{flow, electricity}(t) + x^{flow, heat}(t) \cdot c^{beta}(t)}{c^{condensing\_efficiency}(t)}
+        \qquad \forall t \in T
 
     .. math::
-        x^{flow, electricity}(t)  \geq  x^{flow, thermal}(t) \cdot \
-        \\frac{c^{electrical\_efficiency}(t)}{c^{thermal\_efficiency}(t)} \
-        \\qquad \\forall t \\in T
+        x^{flow, electricity}(t)  \geq  x^{flow, thermal}(t) \cdot
+        \frac{c^{electrical\_efficiency}(t)}{c^{thermal\_efficiency}(t)}
+        \qquad \forall t \in T
 
     where :math:`c^{beta}` is defined as:
 
      .. math::
-        c^{beta}(t) = \\frac{c^{condensing\_efficiency}(t) - \
-        c^{electrical\_efficiency(t)}}{c^{thermal\_efficiency}(t)} \
-        \\qquad \\forall t \\in T
+        c^{beta}(t) = \frac{c^{condensing\_efficiency}(t) -
+        c^{electrical\_efficiency(t)}}{c^{thermal\_efficiency}(t)}
+        \qquad \forall t \in T
 
     **Ojective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
 
-            x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
             + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
 
 
@@ -659,7 +659,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
 
 class BackpressureTurbine(Transformer, Facade):
-    """ Combined Heat and Power (backpressure) unit with one input and
+    r""" Combined Heat and Power (backpressure) unit with one input and
     two outputs.
 
     Parameters
@@ -699,22 +699,22 @@ class BackpressureTurbine(Transformer, Facade):
 
     .. math::
 
-        x^{flow, carrier}(t) = \
-        \\frac{x^{flow, electricity}(t) + x^{flow, heat}(t)}{c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)} \
-        \\qquad \\forall t \\in T
+        x^{flow, carrier}(t) =
+        \frac{x^{flow, electricity}(t) + x^{flow, heat}(t)}{c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)}
+        \qquad \forall t \in T
 
     .. math::
 
-        \\frac{x^{flow, electricity}(t)}{x_{flow, thermal}(t)} = \
-        \\frac{c^{electrical\:efficiency}(t)}{c^{thermal\:efficiency}(t)} \
-        \\qquad \\forall t \\in T
+        \frac{x^{flow, electricity}(t)}{x_{flow, thermal}(t)} =
+        \frac{c^{electrical\:efficiency}(t)}{c^{thermal\:efficiency}(t)}
+        \qquad \forall t \in T
 
     **Ojective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
 
-            x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
             + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
 
     Examples
@@ -806,7 +806,7 @@ class BackpressureTurbine(Transformer, Facade):
 
 
 class Conversion(Transformer, Facade):
-    """ Conversion unit with one input and one output.
+    r""" Conversion unit with one input and one output.
 
     Parameters
     ----------
@@ -841,15 +841,15 @@ class Conversion(Transformer, Facade):
 
 
     .. math::
-        x^{flow, from}(t) \cdot c^{efficiency}(t) = x^{flow, to}(t) \
-        \\qquad \\forall t \\in T
+        x^{flow, from}(t) \cdot c^{efficiency}(t) = x^{flow, to}(t)
+        \qquad \forall t \in T
 
     **Ojective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
 
-            x^{opex} =  \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t) \
+            x^{opex} =  \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
             + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
 
 
@@ -924,7 +924,7 @@ class Conversion(Transformer, Facade):
 
 
 class Load(Sink, Facade):
-    """ Load object with one input
+    r""" Load object with one input
 
     Parameters
     ----------
@@ -944,7 +944,7 @@ class Load(Sink, Facade):
 
 
     .. math::
-        x^{flow}(t) = c^{amount}(t)  \cdot x^{flow}(t) \qquad \\forall t \\in T
+        x^{flow}(t) = c^{amount}(t)  \cdot x^{flow}(t) \qquad \forall t \in T
 
 
     Examples
@@ -995,7 +995,7 @@ class Load(Sink, Facade):
 
 
 class Storage(GenericStorage, Facade):
-    """ Storage unit
+    r""" Storage unit
 
     Parameters
     ----------
@@ -1027,11 +1027,11 @@ class Storage(GenericStorage, Facade):
 
     .. math::
 
-        x^{level}(t) = \
-        x^{level}(t-1) \cdot (1 - c^{loss\_rate}) \
-        + \\sqrt{c^{efficiency}(t)}  x^{flow, in}(t) \
-        - \\frac{x^{flow, out}(t)}{\\sqrt{c^{efficiency}(t)}} \
-        \\qquad \\forall t \in T
+        x^{level}(t) =
+        x^{level}(t-1) \cdot (1 - c^{loss\_rate})
+        + \sqrt{c^{efficiency}(t)}  x^{flow, in}(t)
+        - \frac{x^{flow, out}(t)}{\sqrt{c^{efficiency}(t)}}
+        \qquad \forall t \in T
 
     .. math::
         x^{level}(0) = 0.5 \cdot c^{capacity}
@@ -1254,7 +1254,7 @@ class Link(Link, Facade):
 
 
 class Commodity(Source, Facade):
-    """ Commodity element with one output for example a biomass commodity
+    r""" Commodity element with one output for example a biomass commodity
 
     Parameters
     ----------
