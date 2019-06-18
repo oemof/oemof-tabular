@@ -357,6 +357,9 @@ class Dispatchable(Source, Facade):
         """
         """
 
+        if self.profile is None:
+            self.profile = 1
+            
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
