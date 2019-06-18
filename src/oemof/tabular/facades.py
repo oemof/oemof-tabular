@@ -329,7 +329,7 @@ class Dispatchable(Source, Facade):
     ...     capacity=1000,
     ...     marginal_cost=10,
     ...     output_parameters={
-    ...         'max': 0.9})
+    ...         'min': 0.2})
 
     """
 
