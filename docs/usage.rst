@@ -470,14 +470,31 @@ which may happen if something of the following is wrong in your metadata file.
 	any name inside the `volatile_profile.csv` file, i.e. the profile is not found
 	where it is looked for.
 
+
 	Another possible source of error might be the missing values in your
 	sequences files. Check these files for NaNs.
 
 
-Pyomo related errors
+
+Solver and pyomo related errors
 -------------------------
 
 If you encounter an error for writing a lp-file, you might want to check if
 your foreign-keys are set correctly. In particular for resources with fk's for
 sequences. If this is missing, you will get unsupported operation string and
 numeric. This will unfortunately only happen on the pyomo level currently.
+
+Also the following error might occure:
+
+	.. code-block:: python
+
+		...
+		File "/home/admin/projects/oemof-tabular/venv/lib/python3.6/site-packages/pyomo/repn/plugins/cpxlp.py", line 849, in _print_model_LP
+	 	% (_no_negative_zero(vardata_ub)))
+		TypeError: must be real number, not str
+
+This message may indicate that fields in your datapackage that should be numeric
+are actually of type string. While pyomo seems sometimes still to be fine with
+this, solvers are not. Here also check your meta data types and the data. Most
+likely this happens if meta data is inferred from the data and fields with numeric
+values are left empty which will yield a string type for this field.
