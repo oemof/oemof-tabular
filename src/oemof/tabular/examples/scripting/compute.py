@@ -7,7 +7,10 @@ from oemof.solph import EnergySystem, Model
 from oemof.tabular.facades import TYPEMAP
 import oemof.tabular.tools.postprocessing as pp
 
-name = "investment"
+# DONT REMOVE THIS LINE!
+from oemof.tabular import datapackage
+
+name = "dispatch"
 
 # path to directory with datapackage to load
 datapackage_dir = pkg.resource_filename(

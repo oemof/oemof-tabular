@@ -62,13 +62,14 @@ class Facade(Node):
         """ Returns None if self.expandable ist True otherwise it returns
         the capacity
         """
-        if self.expandable:
+        if self.expandable == True:
             return None
+
         else:
             return self.capacity
 
     def _investment(self):
-        if self.expandable:
+        if self.expandable == True:
             if self.capacity_cost is None:
                 msg = (
                     "If you set `expandable`to True you need to set "
@@ -336,7 +337,7 @@ class Dispatchable(Source, Facade):
         kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
         super().__init__(*args, **kwargs)
 
-        self.profile = kwargs.get("profile", sequence(1))
+        self.profile = kwargs.get("profile", 1)
 
         self.capacity = kwargs.get("capacity")
 
