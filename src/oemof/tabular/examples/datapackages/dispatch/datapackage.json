@@ -194,11 +194,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "capacity_cost",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
                         "name": "bus",
                         "type": "string",
                         "format": "default"
@@ -216,11 +211,6 @@
                     {
                         "name": "output_parameters",
                         "type": "object",
-                        "format": "default"
-                    },
-                    {
-                        "name": "expandable",
-                        "type": "boolean",
                         "format": "default"
                     }
                 ],
