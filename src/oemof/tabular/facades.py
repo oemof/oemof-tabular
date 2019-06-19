@@ -359,7 +359,7 @@ class Dispatchable(Source, Facade):
 
         if self.profile is None:
             self.profile = 1
-            
+
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
@@ -533,7 +533,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/stable/oemof_solph.html#extractionturbinechp-component>`_ :
 
     .. math::
-        x^{flow, carrier} =
+        x^{flow, carrier}(t) =
         \frac{x^{flow, electricity}(t) + x^{flow, heat}(t) \cdot c^{beta}(t)}{c^{condensing\_efficiency}(t)}
         \qquad \forall t \in T
 
@@ -555,7 +555,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         .. math::
 
             x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
-            + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
+            + x^{flow, carrier}(t) \cdot c^{carrier\_cost}(t))
 
 
     Examples
@@ -715,7 +715,7 @@ class BackpressureTurbine(Transformer, Facade):
         .. math::
 
             x^{opex} = \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
-            + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
+            + x^{flow, carrier}(t) \cdot c^{carrier\_cost}(t))
 
     Examples
     ---------
@@ -850,7 +850,7 @@ class Conversion(Transformer, Facade):
         .. math::
 
             x^{opex} =  \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
-            + x^{flow, carrier} \cdot c^{carrier\_cost}(t))
+            + x^{flow, carrier}(t) \cdot c^{carrier\_cost}(t))
 
 
     Examples
