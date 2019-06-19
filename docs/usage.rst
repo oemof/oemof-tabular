@@ -10,18 +10,10 @@ To use oemof.tabular in a project::
 Background
 =============
 
-Energy systems modelling requires versatile tools to model systems with
-different levels of accuracy and detail. In this regard a major part of
-is the data handling including input collection, processing and result analysis.
-There is yet no standardized or custom broadly used model-agnostic data container
-in the scientific field of energy system modelling to hold energy system
-related data. To enable transparency and reproducibility as well as reusability
-of existing data the following data model description has been developed to
-store energy system related data in the datapackage format. The underlying
-concept is closely linked to the graph based description of energy systems as
-developed for the Open Energy Modelling Framework.
-
-The Open Energy Modelling Framework is based on a graph structure at its core.
+The underlying concept of **oemof-tabular** is the
+`oemof solph  <https://oemof.readthedocs.io/en/stable/oemof_solph.html>`_
+package.
+The Open Energy Modelling Framework (oemof) 	is based on a graph structure at its core.
 In addition it provides an optimization model generator to construct individual
 dispatch and investment models. The internal logic, used terminology and software
 architecture is abstract and rather designed for model developers and
@@ -37,10 +29,11 @@ of freedom:
 However, in some cases complexity of this internal logic and full functionality
 is neither necessary nor suitable for model users. Therefore we provide
 so called **facade classes** that provide an energy specific and reduced
-access to the underlying oemof.solph functionality.
-To see the implemented facades check out the :py:mod:`~oemof.tabular.facades`
-module
+access to the underlying oemof.solph functionality. More importantly theses
+classes provide an interface to tabular data sources from that models can be
+created easily.
 
+.. note:: To see the implemented facades check out the :py:mod:`~oemof.tabular.facades module.
 
 Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
