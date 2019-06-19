@@ -33,7 +33,8 @@ access to the underlying oemof.solph functionality. More importantly theses
 classes provide an interface to tabular data sources from that models can be
 created easily.
 
-.. note:: To see the implemented facades check out the :py:mod:`~oemof.tabular.facades module.
+.. note:: To see the implemented facades check out the :py:mod:`~oemof.tabular.facades module`.
+
 
 Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
@@ -60,7 +61,15 @@ full postprocessing functionality we recommend using one of the types listed bel
 We recommend use the following naming convention for your facade names
 `bus-carrier-tech-number`
 
-For example: `DE-gas-ocgt-1`.
+For example: `DE-gas-ocgt-1`. This allows you to also take advantage of
+the color map from :py:mod:`~oemof.tabular.facades module`.
+
+.. code-block::python
+
+		from oemof.facades import TECH_COLOR_MAP, CARRIER_COLER_MAP
+
+		biomass_color = CARRIER_COLER_MAP["biomass"]
+		pv_color = TECH_COLOR_MAP["pv"]
 
 
 Datapackage
@@ -141,30 +150,30 @@ To create meta-data `json` file you can use the following code:
 
 .. code-block:: python
 
-		from datapackage_utilities import building
+	from datapackage_utilities import building
 
-		building.infer_metadata(
-					package_name="my-datapackage",
-					foreign_keys={
-							"bus": [
-								"volatile",
-								"dispatchable",
-								"storage",
-								"heat_storage",
-								"load",
-								"ror",
-								"reservoir",
-								"phs",
-								"excess",
-								"boiler",
-								"commodity",
-							],
-							"profile": ["load", "volatile", "heat_load", "ror", "reservoir"],
-							"from_to_bus": ["link", "conversion", "line"],
-							"chp": ["backpressure", "extraction"],
-					},
-					path="/home/user/datpackages/my-datapackage"
-			)
+	building.infer_metadata(
+		package_name="my-datapackage",
+		foreign_keys={
+				"bus": [
+					"volatile",
+					"dispatchable",
+					"storage",
+					"heat_storage",
+					"load",
+					"ror",
+					"reservoir",
+					"phs",
+					"excess",
+					"boiler",
+					"commodity",
+				],
+				"profile": ["load", "volatile", "heat_load", "ror", "reservoir"],
+				"from_to_bus": ["link", "conversion", "line"],
+				"chp": ["backpressure", "extraction"],
+		},
+		path="/home/user/datpackages/my-datapackage"
+	)
 
 
 Elements
@@ -186,51 +195,51 @@ Example for **Load**:
 
 The corresponding meta data `schema` of the resource would look as follows:
 
-::
+.. code-block:: json
 
-        "schema": {
-            "fields": [
-                {
-                    "name": "name",
-                    "type": "string",
-                },
-                {
-                    "name": "type",
-                    "type": "string",
-                },
-                {
-                    "name": "tech",
-                    "type": "string",
-                },
-                {
-                    "name": "amount",
-                    "type": "number",
-                },
-                {
-                    "name": "profile",
-                    "type": "string",
-                },
-                {
-                    "name": "bus",
-                    "type": "string",
+  "schema": {
+      "fields": [
+          {
+              "name": "name",
+              "type": "string",
+          },
+          {
+              "name": "type",
+              "type": "string",
+          },
+          {
+              "name": "tech",
+              "type": "string",
+          },
+          {
+              "name": "amount",
+              "type": "number",
+          },
+          {
+              "name": "profile",
+              "type": "string",
+          },
+          {
+              "name": "bus",
+              "type": "string",
+          }
+      ],
+      "foreignKeys": [
+            {
+                "fields": "bus",
+                "reference": {
+                    "fields": "name",
+                    "resource": "bus"
                 }
-            ],
-            "foreignKeys": [
-                  {
-                      "fields": "bus",
-                      "reference": {
-                          "fields": "name",
-                          "resource": "bus"
-                      }
-                  },
-                  {
-                      "fields": "profile",
-                      "reference": {
-                          "resource": "load_profile"
-                      }
-                  }
-            ],
-        }
+            },
+            {
+                "fields": "profile",
+                "reference": {
+                    "resource": "load_profile"
+                }
+            }
+      ],
+  }
 
 Example for **Dispatchable**:
 
@@ -261,7 +270,7 @@ Example:
 The schema for resource `load_profile` stored under `sequences/load_profile.csv`
 would be described as follows:
 
-::
+.. code-block:: json
 
     "schema": {
         "fields": [
@@ -292,7 +301,7 @@ To reference the *name* field of a resource with the bus elements
 (bus.csv, resource name: bus) the following FK should be set in the
 element resource:
 
-::
+.. code-block:: json
 
     "foreignKeys": [
       {
@@ -307,7 +316,7 @@ element resource:
 This structure can also be used to reference sequences, i.e. for the
 field *profile* of a resource, the reference can be set like this:
 
-::
+.. code-block:: json
 
     "foreignKeys": [
       {
