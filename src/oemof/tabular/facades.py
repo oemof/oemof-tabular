@@ -13,7 +13,8 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 
 * Optimization variables (endogenous variables) are denoted by :math:`x`
 * Optimization parameters (exogenous variables) are denoted by :math:`c`
-* The set of timesteps :math:`T` describes all timesteps of the optimization problem
+* The set of timesteps :math:`T` describes all timesteps of the optimization
+  problem
 
 SPDX-License-Identifier: BSD-3-Clause
 """
@@ -62,14 +63,14 @@ class Facade(Node):
         """ Returns None if self.expandable ist True otherwise it returns
         the capacity
         """
-        if self.expandable == True:
+        if self.expandable is True:
             return None
 
         else:
             return self.capacity
 
     def _investment(self):
-        if self.expandable == True:
+        if self.expandable is True:
             if self.capacity_cost is None:
                 msg = (
                     "If you set `expandable`to True you need to set "
@@ -150,8 +151,8 @@ class Reservoir(GenericStorage, Facade):
         x^{level}(0) = 0.5 \cdot c^{capacity}
 
     The inflow is bounded by the exogenous inflow profile. Thus if the inflow
-    exceeds the maximum capacity of the storage, spillage is possible by setting
-    :math:`x^{profile}(t)` to lower values.
+    exceeds the maximum capacity of the storage, spillage is possible by
+    setting :math:`x^{profile}(t)` to lower values.
 
     .. math::
         0 \leq x^{profile}(t) \leq c^{profile}(t) \qquad \forall t \in T
@@ -282,12 +283,13 @@ class Dispatchable(Source, Facade):
 
 
     The mathematical representations for this components are dependent on the
-    user defined attributes. If the capacity is fixed before (**dispatch mode**)
-    the following equation holds:
+    user defined attributes. If the capacity is fixed before
+    (**dispatch mode**) the following equation holds:
 
     .. math::
 
-        x^{flow}(t) \leq c^{capacity} \cdot c^{profile}(t) \qquad \forall t \in T
+        x^{flow}(t) \leq c^{capacity} \cdot c^{profile}(t) \
+        \qquad \forall t \in T
 
     Where :math:`x^{flow}` denotes the production (endogenous variable)
     of the dispatchable object to the bus.
@@ -406,15 +408,15 @@ class Volatile(Source, Facade):
 
 
     The mathematical representations for this components are dependent on the
-    user defined attributes. If the capacity is fixed before (**dispatch mode**)
-    the following equation holds:
+    user defined attributes. If the capacity is fixed before
+    (**dispatch mode**) the following equation holds:
 
     .. math::
 
         x^{flow}(t) = c^{capacity} \cdot c^{profile}(t) \qquad \forall t \in T
 
-    Where :math:`x_{volatile}^{flow}` denotes the production (endogenous variable)
-    of the volatile object to the bus.
+    Where :math:`x_{volatile}^{flow}` denotes the production
+    (endogenous variable) of the volatile object to the bus.
 
     If `expandable` is set to `True` (**investment mode**), the equation
     changes slightly:
@@ -530,11 +532,13 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
 
     The mathematical description is derived from the oemof base class
-    `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/stable/oemof_solph.html#extractionturbinechp-component>`_ :
+    `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/\
+    stable/oemof_solph.html#extractionturbinechp-component>`_ :
 
     .. math::
         x^{flow, carrier}(t) =
-        \frac{x^{flow, electricity}(t) + x^{flow, heat}(t) \cdot c^{beta}(t)}{c^{condensing\_efficiency}(t)}
+        \frac{x^{flow, electricity}(t) + x^{flow, heat}(t) \
+        \cdot c^{beta}(t)}{c^{condensing\_efficiency}(t)}
         \qquad \forall t \in T
 
     .. math::
@@ -700,7 +704,8 @@ class BackpressureTurbine(Transformer, Facade):
     .. math::
 
         x^{flow, carrier}(t) =
-        \frac{x^{flow, electricity}(t) + x^{flow, heat}(t)}{c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)}
+        \frac{x^{flow, electricity}(t) + x^{flow, heat}(t)}\
+        {c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)}
         \qquad \forall t \in T
 
     .. math::
