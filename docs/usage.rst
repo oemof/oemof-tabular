@@ -33,13 +33,34 @@ access to the underlying oemof.solph functionality. More importantly theses
 classes provide an interface to tabular data sources from that models can be
 created easily.
 
-.. note:: To see the implemented facades check out the :py:mod:`~oemof.tabular.facades module`.
+.. note:: To see the implemented facades check out the :py:mod:`~oemof.tabular.facades` module.
 
+
+Facades
+---------------------------------
 
 Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
 by using the datapackage structure described below.
+The documentation for the facades can be found :py:mod:`~oemof.tabular.facades`.
+In addition you can check out the jupyter notebook from the tutorials
+and the examples directory.
 
+Currently we provide the following facades:
+
+* :py:class:`~oemof.tabular.facades.Dispatchable`
+* :py:class:`~oemof.tabular.facades.Volatile`
+* :py:class:`~oemof.tabular.facades.Storage`
+* :py:class:`~oemof.tabular.facades.Reservoir`
+* :py:class:`~oemof.tabular.facades.BackpressureTurbine`
+* :py:class:`~oemof.tabular.facades.ExtractionTurbine`
+* :py:class:`~oemof.tabular.facades.Commodity`
+* :py:class:`~oemof.tabular.facades.Conversion`
+* :py:class:`~oemof.tabular.facades.Load`.
+* :py:class:`~oemof.tabular.facades.Link`
+* :py:class:`~oemof.tabular.facades.Excess`
+
+These can be mixed with all oemof solph classes if your are scripting. 
 
 Datamodel and Naming Conventions
 ----------------------------------
@@ -49,22 +70,19 @@ Facades require specific attributes. For all facades the attribute `carrier`,
 therefore you can choose string for these. However, if you want to leverage
 full postprocessing functionality we recommend using one of the types listed below
 
-**Carrier types**
+**Carriers**
 
-* solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste,
-	electricity, heat, other
+* solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste, electricity, heat, other
 
 **Tech types**
 
 * st, ocgt, ccgt, ce, pv, onshore, offshore, ror, rsv, phs, ext, bp, battery
 
 We recommend use the following naming convention for your facade names
-`bus-carrier-tech-number`
+`bus-carrier-tech-number`. For example: *DE-gas-ocgt-1*. This allows you to also
+take advantage of the color map from :py:mod:`~oemof.tabular.facades` module.
 
-For example: `DE-gas-ocgt-1`. This allows you to also take advantage of
-the color map from :py:mod:`~oemof.tabular.facades module`.
-
-.. code-block::python
+.. code-block:: python
 
 		from oemof.facades import TECH_COLOR_MAP, CARRIER_COLER_MAP
 
@@ -101,7 +119,7 @@ On top of that structure we add our own logic. We require at least two things:
 
 	2. A valid meta-data `.json` file for the datapackage
 
-**NOTE**: You **MUST** provide one file with the buses called `bus.csv`!
+.. note:: You **MUST** provide one file with the buses called `bus.csv`!
 
 The resulting tree of the datapackage could for example look like this:
 
