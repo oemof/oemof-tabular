@@ -41,6 +41,7 @@ matrix:
   allow_failures:
     - python: '3.7'
 before_install:
+  - sudo apt-get install coinor-cbc
   - python --version
   - uname -a
   - lsb_release -a
