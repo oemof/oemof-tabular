@@ -22,6 +22,7 @@ extensions = [
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 nbsphinx_allow_errors = True
+nbsphinx_timeout = 60
 
 
 if os.getenv('SPELLCHECK'):
