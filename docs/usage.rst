@@ -60,7 +60,7 @@ Currently we provide the following facades:
 * :py:class:`~oemof.tabular.facades.Link`
 * :py:class:`~oemof.tabular.facades.Excess`
 
-These can be mixed with all oemof solph classes if your are scripting. 
+These can be mixed with all oemof solph classes if your are scripting.
 
 Datamodel and Naming Conventions
 ----------------------------------
@@ -349,8 +349,10 @@ In contrast to the above example, where the foreign keys points to a
 special field, in this case references are resolved by looking at the
 field names in the generators-profile resource.
 
-**NOTE: This usage breaks with the datapackage standard and creates
-non-valid resources.**
+	.. note::
+
+		This usage breaks with the datapackage standard and creates
+		non-valid resources.**
 
 
 Scripting
@@ -382,10 +384,12 @@ the results.
     m.solve()
 
 
-**Note**: You may use the `attributemap` to map your your field names to facade
-class attributes. In addition you may also use different names for types in your
-datapackage and map those to the facade classes (use `typemap` attribute for
-this)
+	.. note::
+
+		You may use the `attributemap` to map your your field names to facade
+		class attributes. In addition you may also use different names for types in your
+		datapackage and map those to the facade classes (use `typemap` attribute for
+		this)
 
 Write results
 --------------
@@ -397,7 +401,7 @@ package.
 Reproducible Workflows
 =======================
 
-To produce reproducible results we recommend setting up a folder strucutre
+To get reproducible results we recommend setting up a folder strucutre
 as follows:
 
 ::
@@ -424,11 +428,16 @@ as follows:
 
 
 The `raw-data` directory contains all input data files required to build the
-input datapckages for your modelling. The `scenatios` directory allows you
-to specify different scenarios and describe them in a basic way.  The scripts
-inside the `scripts` directory will build input data for your scenarios from the
-`.toml` files and the raw-data. In addition the script to compute the models
-can be stored there.
+input datapckages for your modelling. This data can also be downloaded
+from an additional repository which adheres to FAIR principles, like zenodo.
+If you provide raw data, make sure the license is compatiple with other data
+in your repository. The `scenarios` directory allows you
+to specify different scenarios and describe them in a basic way via config files.
+The `toml` standard is used by oemof-tabular, howerver you may also use `yaml`, `json`, etc..
+The scripts inside the `scripts` directory will build input data for your
+scenarios from the`.toml` files and the raw-data. This data will be in the format
+that oemof-tabular datapackage reader can understand. In addition the script
+to compute the models and postprocess results are stored there.
 
 Of course the structure may be adapted to your needs. However you should
 provide all this data when publishing results.
@@ -448,13 +457,31 @@ Components do not end up in the model
 	  `EnergySystem.from_datapackge()` method correctly? Make sure all classes
 	  with their types are present.
 
-Cast errors when reading a datapackage
+Errors when reading a datapackage
 -----------------------------------------
 
 	* Does the column order match the order of fields in the (tabular) data
 	  resource?
 	* Does the type match the types in of the columns (i.e. for integer, obviously
 	  only integer values should be in the respective column)
+
+
+If you encounter this error message when reading a datapackage, you most likely
+provided `output_parameters` that are of type object for a tabular resource.
+However, there will be emtpy entries in the field of your `output_parameters`.
+
+
+	.. code-block:: python
+
+		...
+		TypeError: type object argument after ** must be a mapping, not NoneType
+
+
+	.. note::
+
+		If your column / field in a tabular resource is of a specific type, make
+		sure every entry in thies column has this type! For example numeric and
+		empty entries in combination will yield string as a type and not numeric!
 
 
 OEMOF related errors
