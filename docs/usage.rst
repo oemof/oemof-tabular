@@ -384,7 +384,7 @@ the results.
     m.solve()
 
 
-	.. note::
+.. note::
 
 		You may use the `attributemap` to map your your field names to facade
 		class attributes. In addition you may also use different names for types in your
@@ -433,9 +433,11 @@ from an additional repository which adheres to FAIR principles, like zenodo.
 If you provide raw data, make sure the license is compatiple with other data
 in your repository. The `scenarios` directory allows you
 to specify different scenarios and describe them in a basic way via config files.
-The `toml` standard is used by oemof-tabular, howerver you may also use `yaml`, `json`, etc..
+The `toml` standard is used by oemof-tabular, howerver you may also use `yaml`,
+`json`, etc..
 The scripts inside the `scripts` directory will build input data for your
-scenarios from the`.toml` files and the raw-data. This data will be in the format
+scenarios from the `.toml` files and the raw-data. This data will be in the
+format
 that oemof-tabular datapackage reader can understand. In addition the script
 to compute the models and postprocess results are stored there.
 
