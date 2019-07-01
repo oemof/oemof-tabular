@@ -532,7 +532,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
 
     The mathematical description is derived from the oemof base class
-    `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/\
+    `ExtractionTurbineCHP <https://oemof.readthedocs.io/en/
     stable/oemof_solph.html#extractionturbinechp-component>`_ :
 
     .. math::
