@@ -4,7 +4,7 @@ from oemof.outputlib import views
 from oemof.solph import EnergySystem, Model
 
 from oemof.tabular.facades import TYPEMAP
-import oemof.tabular.datapackage
+import oemof.tabular.datapackage  # noqa
 import oemof.tabular.tools.postprocessing as pp
 
 

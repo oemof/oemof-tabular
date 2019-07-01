@@ -8,7 +8,7 @@ from oemof.tabular.facades import TYPEMAP
 import oemof.tabular.tools.postprocessing as pp
 
 # DONT REMOVE THIS LINE!
-from oemof.tabular import datapackage
+from oemof.tabular import datapackage  # noqa
 
 name = "dispatch"
 
