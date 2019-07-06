@@ -51,6 +51,7 @@ class Facade(Node):
                         "object with name/label `{!r}`."
                     ).format(r, type(self).__name__, self.label)
                 )
+
     def _nominal_value(self):
         """ Returns None if self.expandable ist True otherwise it returns
         the capacity
@@ -76,13 +77,13 @@ class Facade(Node):
                             maximum=getattr(
                                 self,
                                 "storage_capacity_potential",
-                                float("+inf")),
+                                float("+inf"),
+                            ),
                             minimum=getattr(
-                                self,
-                                "minimum_storage_capacity",
-                                0),
-                            existing=getattr(self, "storage_capacity", 0)
-                            )
+                                self, "minimum_storage_capacity", 0
+                            ),
+                            existing=getattr(self, "storage_capacity", 0),
+                        )
                     else:
                         self.investment = Investment()
                 else:
@@ -91,7 +92,7 @@ class Facade(Node):
                         maximum=getattr(
                             self, "capacity_potential", float("+inf")
                         ),
-                        existing=getattr(self, "capacity", 0)
+                        existing=getattr(self, "capacity", 0),
                     )
         else:
             self.investment = None
@@ -209,8 +210,7 @@ class Reservoir(GenericStorage, Facade):
         self.outputs.update(
             {
                 self.bus: Flow(
-                    nominal_value=self.capacity,
-                    **self.output_parameters
+                    nominal_value=self.capacity, **self.output_parameters
                 )
             }
         )
@@ -291,7 +291,6 @@ class Dispatchable(Source, Facade):
         """
         """
 
-
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
@@ -349,8 +348,9 @@ class Volatile(Source, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech",
-                                             "profile"]})
+        kwargs.update(
+            {"_facade_requires_": ["bus", "carrier", "tech", "profile"]}
+        )
         super().__init__(*args, **kwargs)
 
         self.profile = kwargs.get("profile")
@@ -639,7 +639,7 @@ class BackpressureTurbine(Transformer, Facade):
             {
                 self.electricity_bus: Flow(
                     nominal_value=self._nominal_value(),
-                    investment=self._investment()
+                    investment=self._investment(),
                 ),
                 self.heat_bus: Flow(),
             }
@@ -711,7 +711,7 @@ class Conversion(Transformer, Facade):
 
         self.capacity_cost = kwargs.get("capacity_cost")
 
-        self.expandable =  bool(kwargs.get("expandable", False))
+        self.expandable = bool(kwargs.get("expandable", False))
 
         self.capacity_potential = kwargs.get("capacity_potential")
 
@@ -878,10 +878,12 @@ class Storage(GenericStorage, Facade):
         self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
 
         self.storage_capacity_potential = kwargs.get(
-            "storage_capacity_potential", float("+inf"))
+            "storage_capacity_potential", float("+inf")
+        )
 
         self.capacity_potential = kwargs.get(
-            "capacity_potential", float("+inf"))
+            "capacity_potential", float("+inf")
+        )
 
         self.expandable = bool(kwargs.get("expandable", False))
 
@@ -910,9 +912,7 @@ class Storage(GenericStorage, Facade):
         if self.investment:
             self.invest_relation_input_output = 1
 
-            for attr in [
-                "invest_relation_input_output",
-            ]:
+            for attr in ["invest_relation_input_output"]:
                 if getattr(self, attr) is None:
                     raise AttributeError(
                         (
@@ -925,7 +925,7 @@ class Storage(GenericStorage, Facade):
                 investment=Investment(
                     ep_costs=self.capacity_cost,
                     maximum=self.capacity_potential,
-                    existing=self.capacity
+                    existing=self.capacity,
                 ),
                 **self.input_parameters
             )
@@ -939,8 +939,8 @@ class Storage(GenericStorage, Facade):
             self._invest_group = True
         else:
             fi = Flow(
-                nominal_value=self._nominal_value(),
-                **self.input_parameters)
+                nominal_value=self._nominal_value(), **self.input_parameters
+            )
             fo = Flow(
                 nominal_value=self._nominal_value(),
                 variable_costs=self.marginal_cost,
@@ -1032,8 +1032,7 @@ class Link(Link, Facade):
                     investment=investment,
                 ),
                 self.to_bus: Flow(
-                    nominal_value=self._nominal_value(),
-                    investment=investment
+                    nominal_value=self._nominal_value(), investment=investment
                 ),
             }
         )
@@ -1044,6 +1043,7 @@ class Link(Link, Facade):
                 (self.to_bus, self.from_bus): sequence((1 - self.loss)),
             }
         )
+
 
 class Commodity(Source, Facade):
     """ Commodity element with one output for example a biomass commodity
@@ -1082,8 +1082,9 @@ class Commodity(Source, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech",
-                         "amount"]})
+        kwargs.update(
+            {"_facade_requires_": ["bus", "carrier", "tech", "amount"]}
+        )
         super().__init__(*args, **kwargs)
 
         self.amount = kwargs.get("amount")
@@ -1097,7 +1098,6 @@ class Commodity(Source, Facade):
     def build_solph_components(self):
         """
         """
-
 
         f = Flow(
             nominal_value=self.amount,
