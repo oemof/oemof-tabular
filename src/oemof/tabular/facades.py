@@ -11,6 +11,9 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 
 SPDX-License-Identifier: BSD-3-Clause
 """
+from collections import deque
+
+from oemof.energy_system import EnergySystem
 from oemof.network import Node
 from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
 from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
@@ -40,7 +43,15 @@ class Facade(Node):
         required = kwargs.pop("_facade_requires_", [])
 
         super().__init__(*args, **kwargs)
+
         self.subnodes = []
+        EnergySystem.signals[EnergySystem.add].connect(
+            lambda n, **kwargs: deque(
+                (kwargs["EnergySystem"].add(sn) for sn in n.subnodes), maxlen=0
+            ),
+            sender=self,
+        )
+
         for r in required:
             if r in kwargs:
                 setattr(self, r, kwargs[r])
