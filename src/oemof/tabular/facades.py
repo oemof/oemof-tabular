@@ -21,6 +21,9 @@ from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
 
 
+def add_subnodes(n, **kwargs):
+    deque((kwargs["EnergySystem"].add(sn) for sn in n.subnodes), maxlen=0)
+
 class Facade(Node):
     """
     Parameters
@@ -46,10 +49,7 @@ class Facade(Node):
 
         self.subnodes = []
         EnergySystem.signals[EnergySystem.add].connect(
-            lambda n, **kwargs: deque(
-                (kwargs["EnergySystem"].add(sn) for sn in n.subnodes), maxlen=0
-            ),
-            sender=self,
+            add_subnodes, sender=self
         )
 
         for r in required:
