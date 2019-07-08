@@ -18,11 +18,18 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 
 SPDX-License-Identifier: BSD-3-Clause
 """
+from collections import deque
+
+from oemof.energy_system import EnergySystem
 from oemof.network import Node
 from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
 from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
 from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
+
+
+def add_subnodes(n, **kwargs):
+    deque((kwargs["EnergySystem"].add(sn) for sn in n.subnodes), maxlen=0)
 
 
 class Facade(Node):
@@ -47,7 +54,12 @@ class Facade(Node):
         required = kwargs.pop("_facade_requires_", [])
 
         super().__init__(*args, **kwargs)
+
         self.subnodes = []
+        EnergySystem.signals[EnergySystem.add].connect(
+            add_subnodes, sender=self
+        )
+
         for r in required:
             if r in kwargs:
                 setattr(self, r, kwargs[r])
@@ -85,7 +97,8 @@ class Facade(Node):
                             maximum=getattr(
                                 self,
                                 "storage_capacity_potential",
-                                float("+inf")),
+                                float("+inf"),
+                            ),
                             minimum=getattr(
                                 self, "minimum_storage_capacity", 0
                             ),
@@ -99,7 +112,7 @@ class Facade(Node):
                         maximum=getattr(
                             self, "capacity_potential", float("+inf")
                         ),
-                        existing=getattr(self, "capacity", 0)
+                        existing=getattr(self, "capacity", 0),
                     )
         else:
             self.investment = None
@@ -242,8 +255,7 @@ class Reservoir(GenericStorage, Facade):
         self.outputs.update(
             {
                 self.bus: Flow(
-                    nominal_value=self.capacity,
-                    **self.output_parameters
+                    nominal_value=self.capacity, **self.output_parameters
                 )
             }
         )
@@ -454,8 +466,9 @@ class Volatile(Source, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech",
-                                             "profile"]})
+        kwargs.update(
+            {"_facade_requires_": ["bus", "carrier", "tech", "profile"]}
+        )
         super().__init__(*args, **kwargs)
 
         self.profile = kwargs.get("profile")
@@ -472,7 +485,7 @@ class Volatile(Source, Facade):
 
         self.output_parameters = kwargs.get("output_parameters", {})
 
-        self.fixed = bool(kwargs.get('fixed', True))
+        self.fixed = bool(kwargs.get("fixed", True))
 
         self.build_solph_components()
 
@@ -802,7 +815,7 @@ class BackpressureTurbine(Transformer, Facade):
             {
                 self.electricity_bus: Flow(
                     nominal_value=self._nominal_value(),
-                    investment=self._investment()
+                    investment=self._investment(),
                 ),
                 self.heat_bus: Flow(),
             }
@@ -1088,10 +1101,12 @@ class Storage(GenericStorage, Facade):
         self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
 
         self.storage_capacity_potential = kwargs.get(
-            "storage_capacity_potential", float("+inf"))
+            "storage_capacity_potential", float("+inf")
+        )
 
         self.capacity_potential = kwargs.get(
-            "capacity_potential", float("+inf"))
+            "capacity_potential", float("+inf")
+        )
 
         self.expandable = bool(kwargs.get("expandable", False))
 
@@ -1120,9 +1135,7 @@ class Storage(GenericStorage, Facade):
         if self.investment:
             self.invest_relation_input_output = 1
 
-            for attr in [
-                "invest_relation_input_output",
-            ]:
+            for attr in ["invest_relation_input_output"]:
                 if getattr(self, attr) is None:
                     raise AttributeError(
                         (
@@ -1135,7 +1148,7 @@ class Storage(GenericStorage, Facade):
                 investment=Investment(
                     ep_costs=self.capacity_cost,
                     maximum=self.capacity_potential,
-                    existing=self.capacity
+                    existing=self.capacity,
                 ),
                 **self.input_parameters
             )
@@ -1149,8 +1162,8 @@ class Storage(GenericStorage, Facade):
             self._invest_group = True
         else:
             fi = Flow(
-                nominal_value=self._nominal_value(),
-                **self.input_parameters)
+                nominal_value=self._nominal_value(), **self.input_parameters
+            )
             fo = Flow(
                 nominal_value=self._nominal_value(),
                 variable_costs=self.marginal_cost,
@@ -1243,8 +1256,7 @@ class Link(Link, Facade):
                     investment=investment,
                 ),
                 self.to_bus: Flow(
-                    nominal_value=self._nominal_value(),
-                    investment=investment
+                    nominal_value=self._nominal_value(), investment=investment
                 ),
             }
         )
