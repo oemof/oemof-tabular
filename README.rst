@@ -76,16 +76,12 @@ Load oemof energy systems from tabular data sources.
 Installation
 ============
 
-We are currently using features which haven't made it to a proper
-`oemof` release yet. This means that you have to install `oemof.tabular`
-from source, since `pip` doesn't allow packages on `PyPI` to have
-dependencies which are not hosted on `PyPI`:
+Simpy run:
 
 ::
 
-    pip install 'git+https://git@github.com/oemof/oemof-tabular.git'
+    pip install oemof.tabular
 
-You also need at least `pip` version `18.1` for this to work.
 
 Documentation
 =============
