@@ -16,7 +16,7 @@ def test_version_specification():
 def test_project_name():
     """ `oemof.tabular`'s project name is importable and correct.
     """
-    assert (oemof.tabular.__project__ == 'oemof.tabular')
+    assert oemof.tabular.__project__ == "oemof.tabular"
 
 
 def test_adding_subnodes():
