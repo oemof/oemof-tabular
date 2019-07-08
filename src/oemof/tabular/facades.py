@@ -87,10 +87,9 @@ class Facade(Node):
                                 "storage_capacity_potential",
                                 float("+inf")),
                             minimum=getattr(
-                                self,
-                                "minimum_storage_capacity",
-                                0),
-                            existing=getattr(self, "storage_capacity", 0)
+                                self, "minimum_storage_capacity", 0
+                            ),
+                            existing=getattr(self, "storage_capacity", 0),
                         )
                     else:
                         self.investment = Investment()
