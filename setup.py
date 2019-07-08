@@ -67,7 +67,7 @@ setup(
     install_requires=[
         "datapackage",
         "geojson",
-        "oemof==0.3.1",
+        "oemof>=0.3.1",
         "pandas>=0.22",
         "seaborn",
         "paramiko",
