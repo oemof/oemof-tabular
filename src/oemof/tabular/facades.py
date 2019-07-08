@@ -24,6 +24,7 @@ from oemof.solph.plumbing import sequence
 def add_subnodes(n, **kwargs):
     deque((kwargs["EnergySystem"].add(sn) for sn in n.subnodes), maxlen=0)
 
+
 class Facade(Node):
     """
     Parameters
@@ -378,7 +379,7 @@ class Volatile(Source, Facade):
 
         self.output_parameters = kwargs.get("output_parameters", {})
 
-        self.fixed = bool(kwargs.get('fixed', True))
+        self.fixed = bool(kwargs.get("fixed", True))
 
         self.build_solph_components()
 
