@@ -2,6 +2,9 @@
 Changelog
 =========
 
+0.0.2 (2019-07-08)
+------------------
+
 0.0.1 (2018-12-12)
 ------------------
 * Moved the datapackage reader from core `oemof` into this package.
