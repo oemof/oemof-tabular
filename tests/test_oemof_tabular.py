@@ -1,5 +1,5 @@
-from oemof.network import Bus
 from oemof.energy_system import EnergySystem
+from oemof.network import Bus
 import oemof
 
 from oemof.tabular.facades import Reservoir
