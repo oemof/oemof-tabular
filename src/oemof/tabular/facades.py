@@ -119,6 +119,7 @@ class Facade(Node):
 
         return self.investment
 
+
     def update(self):
         self.build_solph_components()
 
@@ -487,7 +488,11 @@ class Volatile(Source, Facade):
 
         self.fixed = bool(kwargs.get("fixed", True))
 
-        self.build_solph_components()
+        try:
+            self.build_solph_components()
+        except:
+            raise Exception(
+                "Error in instantiating Facade {}.".format(self.label))
 
     def build_solph_components(self):
         """
