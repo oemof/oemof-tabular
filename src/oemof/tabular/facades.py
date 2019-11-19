@@ -721,6 +721,8 @@ class Conversion(Transformer, Facade):
 
         self.expandable = bool(kwargs.get("expandable", False))
 
+        self.carrier_cost = kwargs.get("carrier_cost", 0)
+
         self.capacity_potential = kwargs.get("capacity_potential")
 
         self.input_parameters = kwargs.get("input_parameters", {})
