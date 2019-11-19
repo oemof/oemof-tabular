@@ -739,7 +739,13 @@ class Conversion(Transformer, Facade):
             }
         )
 
-        self.inputs.update({self.from_bus: Flow(**self.input_parameters)})
+        self.inputs.update(
+            {
+                self.from_bus: Flow(
+                    variable_costs=self.carrier_cost, **self.input_parameters
+                )
+            }
+        )
 
         self.outputs.update(
             {
@@ -748,6 +754,151 @@ class Conversion(Transformer, Facade):
                     variable_costs=self.marginal_cost,
                     investment=self._investment(),
                     **self.output_parameters
+                )
+            }
+        )
+
+
+class HeatPump(Transformer, Facade):
+    r""" HeatPump unit with two inputs and one output.
+
+    Parameters
+    ----------
+    low_temperature_bus: oemof.solph.Bus
+        An oemof bus instance where unit is connected to with
+        its low temperature input.
+    high_temperature_bus: oemof.solph.Bus
+        An oemof bus instance where the unit is connected to with
+        its high temperature input.
+    capacity: numeric
+        The thermal capacity (high temperature output side) of the unit.
+    cop: numeric
+        Coefficienct of performance
+    carrier_cost: numeric
+        Carrier cost for one unit of used input. Default: 0
+    capacity_cost: numeric
+        Investment costs per unit of output capacity.
+        If capacity is not set, this value will be used for optimizing the
+        conversion output capacity.
+    expandable: boolean or numeric (binary)
+        True, if capacity can be expanded within optimization. Default: False.
+    capacity_potential: numeric
+        Maximum invest capacity in unit of output capacity.
+    low_temperature_parameters: dict (optional)
+        Set parameters on the input edge of the heat pump unit
+        (see oemof.solph for more information on possible parameters)
+    high_temperature_parameters: dict (optional)
+        Set parameters on the output edge of the heat pump unit
+        (see oemof.solph for more information on possible parameters)
+    input_parameters: dict (optional)
+        Set parameters on the input edge of the conversion unit
+         (see oemof.solph for more information on possible parameters)
+
+
+    .. math::
+        x_{electricity\_bus, hp}^{flow} = \frac{1}{c^{COP}} \cdot
+        x_{hp, high\_temperature\_bus}^{flow}
+
+    .. math::
+        x_{low\_temperature\_source, low\_temperature\_bus}^{flow} =
+        x_{hp, high\_temperature\_bus}^{flow} \frac{c^{COP} -1}{c^{COP}}
+
+    **Ojective expression** for operation includes marginal cost and/or
+    carrier costs:
+
+        .. math::
+
+            x^{opex} =  \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
+            + x^{flow, carrier}(t) \cdot c^{carrier\_cost}(t))
+
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> electricity_bus = solph.Bus("elec-bus")
+    >>> heat_bus= solph.Bus('heat_bus')
+    >>> heat_bus_low = solph.Bus('heat_bus_low')
+    >>> fc.HeatPump(
+    ...     label="hp-storage",
+    ...     carrier="electricity",
+    ...     tech="hp",
+    ...     cop=3,
+    ...     carrier_cost=15,
+    ...     electricity_bus=elec_bus,
+    ...     high_temperature_bus=heat_bus,
+    ...     low_temperature_bus=heat_bus_low)
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            _facade_requires_=[
+                "low_temperature_bus",
+                "high_temperature_bus",
+                "electricity_bus",
+                "cop",
+                "carrier",
+                "tech",
+            ],
+            *args,
+            **kwargs
+        )
+
+        self.capacity = kwargs.get("capacity")
+
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
+
+        self.carrier_cost = kwargs.get("carrier_cost", 0)
+
+        self.capacity_cost = kwargs.get("capacity_cost")
+
+        self.expandable = bool(kwargs.get("expandable", False))
+
+        self.capacity_potential = kwargs.get("capacity_potential")
+
+        self.low_temperature_parameters = kwargs.get(
+            "low_temperature_parameters", {}
+        )
+
+        self.high_temperature_parameters = kwargs.get(
+            "high_temperature_parameters", {}
+        )
+
+        self.input_parameters = kwargs.get("input_parameters", {})
+
+        self.build_solph_components()
+
+    def build_solph_components(self):
+        """
+        """
+        self.conversion_factors.update(
+            {
+                self.electricity_bus: sequence(1 / self.cop),
+                self.low_temperature_bus: sequence((self.cop - 1) / self.cop),
+                self.high_temperature_bus: sequence(1)
+            }
+        )
+
+        self.inputs.update(
+            {
+                self.electricity_bus: Flow(
+                    variable_costs=self.carrier_cost, **self.input_parameters
+                ),
+                self.low_temperature_bus: Flow(
+                    **self.low_temperature_parameters
+                ),
+            }
+        )
+
+        self.outputs.update(
+            {
+                self.high_temperature_bus: Flow(
+                    nominal_value=self._nominal_value(),
+                    variable_costs=self.marginal_cost,
+                    investment=self._investment(),
+                    **self.high_temperature_parameters
                 )
             }
         )
@@ -1152,6 +1303,7 @@ class Generator(Dispatchable):
 TYPEMAP = {
     "backpressure": BackpressureTurbine,
     "bus": Bus,
+    "heatpump": HeatPump,
     "commodity": Commodity,
     "conversion": Conversion,
     "dispatchable": Dispatchable,
@@ -1173,10 +1325,16 @@ TECH_COLOR_MAP = {
     "ocgt": "gray",
     "st": "darkgray",
     "ccgt": "lightgray",
+    "heat-storage": "lightsalmon",
+    "extraction-turbine": "orange",
+    "heat-pump": "skyblue",
+    "motoric-chp": "gray",
+    "electro-boiler": "darkblue",
     "pv": "gold",
     "onshore": "skyblue",
     "offshore": "darkblue",
     "ce": "olivedrab",
+    "hp": "lightsalmon",
     "battery": "lightsalmon",
     "ror": "aqua",
     "phs": "darkblue",

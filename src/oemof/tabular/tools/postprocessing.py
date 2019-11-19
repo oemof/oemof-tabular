@@ -91,6 +91,7 @@ def supply_results(
         "volatile",
         "conversion",
         "backpressure",
+        "heatpump",
         "extraction",
         "storage",
         "reservoir",
