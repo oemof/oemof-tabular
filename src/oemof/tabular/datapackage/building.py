@@ -373,6 +373,8 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
                 zipped.extractall(
                     filepath, members=list(filter(member, zipped.namelist()))
                 )
+            elif unzip_file == "":
+                zipped.extractall(directory)
             else:
                 zipped.extract(unzip_file, directory)
 
