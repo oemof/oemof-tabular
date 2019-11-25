@@ -4,10 +4,13 @@ import os
 import pkg_resources as pkg
 
 from oemof.solph import EnergySystem, Model
+
+# DONT REMOVE THIS LINE!
+from oemof.tabular import datapackage  # noqa
 from oemof.tabular.facades import TYPEMAP
 import oemof.tabular.tools.postprocessing as pp
 
-name = "investment"
+name = "dispatch"
 
 # path to directory with datapackage to load
 datapackage_dir = pkg.resource_filename(

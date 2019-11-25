@@ -1,6 +1,6 @@
-name;type;carrier;tech;capacity;capacity_cost;bus;marginal_cost;profile;output_parameters;carrier
-gas-gt;dispatchable;gas;gt;;100;bus1;40;;{"summed_max": 2000};gas
-coal-st;dispatchable;coal;st;;100;bus0;40;;{};coal
-lignite-st;dispatchable;lignite;st;;50;bus0;20;;{};lignite
-wind;volatile;wind;onshore;;50;bus0;0;wind-profile;{};wind
-pv;volatile;solar;pv;;20;bus1;0;pv-profile;{};solar
+name;type;carrier;tech;capacity;capacity_cost;bus;marginal_cost;profile;output_parameters;expandable
+gas-gt;dispatchable;gas;gt;0;100;bus1;40;;{"summed_max": 2000};True
+coal-st;dispatchable;coal;st;0;100;bus0;40;;{};True
+lignite-st;dispatchable;lignite;st;0;50;bus0;20;;{};True
+wind;volatile;wind;onshore;0;50;bus0;0;wind-profile;{};True
+pv;volatile;solar;pv;0;20;bus1;0;pv-profile;{};True

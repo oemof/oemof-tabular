@@ -10,18 +10,10 @@ To use oemof.tabular in a project::
 Background
 =============
 
-Energy systems modelling requires versatile tools to model systems with
-different levels of accuracy and detail. In this regard a major part of
-is the data handling including input collection, processing and result analysis.
-There is yet no standardized or custom broadly used model-agnostic data container
-in the scientific field of energy system modelling to hold energy system
-related data. To enable transparency and reproducibility as well as reusability
-of existing data the following data model description has been developed to
-store energy system related data in the datapackage format. The underlying
-concept is closely linked to the graph based description of energy systems as
-developed for the Open Energy Modelling Framework.
-
-The Open Energy Modelling Framework is based on a graph structure at its core.
+The underlying concept of **oemof-tabular** is the
+`oemof solph  <https://oemof.readthedocs.io/en/stable/oemof_solph.html>`_
+package.
+The Open Energy Modelling Framework (oemof) 	is based on a graph structure at its core.
 In addition it provides an optimization model generator to construct individual
 dispatch and investment models. The internal logic, used terminology and software
 architecture is abstract and rather designed for model developers and
@@ -37,15 +29,38 @@ of freedom:
 However, in some cases complexity of this internal logic and full functionality
 is neither necessary nor suitable for model users. Therefore we provide
 so called **facade classes** that provide an energy specific and reduced
-access to the underlying oemof.solph functionality.
-To see the implemented facades check out the :py:mod:`~oemof.tabular.facades`
-module
+access to the underlying oemof.solph functionality. More importantly theses
+classes provide an interface to tabular data sources from that models can be
+created easily.
 
+.. note:: To see the implemented facades check out the :py:mod:`~oemof.tabular.facades` module.
+
+
+Facades
+---------------------------------
 
 Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
 by using the datapackage structure described below.
+The documentation for the facades can be found :py:mod:`~oemof.tabular.facades`.
+In addition you can check out the jupyter notebook from the tutorials
+and the examples directory.
 
+Currently we provide the following facades:
+
+* :py:class:`~oemof.tabular.facades.Dispatchable`
+* :py:class:`~oemof.tabular.facades.Volatile`
+* :py:class:`~oemof.tabular.facades.Storage`
+* :py:class:`~oemof.tabular.facades.Reservoir`
+* :py:class:`~oemof.tabular.facades.BackpressureTurbine`
+* :py:class:`~oemof.tabular.facades.ExtractionTurbine`
+* :py:class:`~oemof.tabular.facades.Commodity`
+* :py:class:`~oemof.tabular.facades.Conversion`
+* :py:class:`~oemof.tabular.facades.Load`.
+* :py:class:`~oemof.tabular.facades.Link`
+* :py:class:`~oemof.tabular.facades.Excess`
+
+These can be mixed with all oemof solph classes if your are scripting.
 
 Datamodel and Naming Conventions
 ----------------------------------
@@ -55,20 +70,24 @@ Facades require specific attributes. For all facades the attribute `carrier`,
 therefore you can choose string for these. However, if you want to leverage
 full postprocessing functionality we recommend using one of the types listed below
 
-**Carrier types**
+**Carriers**
 
-* solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste,
-  electricity, heat, other
+* solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste, electricity, heat, other
 
 **Tech types**
 
 * st, ocgt, ccgt, ce, pv, onshore, offshore, ror, rsv, phs, ext, bp, battery
 
-We recommend use the following naming convention for your facade names:
+We recommend use the following naming convention for your facade names
+`bus-carrier-tech-number`. For example: *DE-gas-ocgt-1*. This allows you to also
+take advantage of the color map from :py:mod:`~oemof.tabular.facades` module.
 
-	bus-carrier-tech-number
+.. code-block:: python
 
-For example: `DE-gas-ocgt-1`.
+		from oemof.facades import TECH_COLOR_MAP, CARRIER_COLER_MAP
+
+		biomass_color = CARRIER_COLER_MAP["biomass"]
+		pv_color = TECH_COLOR_MAP["pv"]
 
 
 Datapackage
@@ -100,7 +119,7 @@ On top of that structure we add our own logic. We require at least two things:
 
 	2. A valid meta-data `.json` file for the datapackage
 
-**NOTE**: You **MUST** provide one file with the buses called `bus.csv`!
+.. note:: You **MUST** provide one file with the buses called `bus.csv`!
 
 The resulting tree of the datapackage could for example look like this:
 
@@ -149,30 +168,30 @@ To create meta-data `json` file you can use the following code:
 
 .. code-block:: python
 
-		from datapackage_utilities import building
+	from datapackage_utilities import building
 
-		building.infer_metadata(
-					package_name="my-datapackage",
-					foreign_keys={
-							"bus": [
-								"volatile",
-								"dispatchable",
-								"storage",
-								"heat_storage",
-								"load",
-								"ror",
-								"reservoir",
-								"phs",
-								"excess",
-								"boiler",
-								"commodity",
-							],
-							"profile": ["load", "volatile", "heat_load", "ror", "reservoir"],
-							"from_to_bus": ["link", "conversion", "line"],
-							"chp": ["backpressure", "extraction"],
-					},
-					path="/home/user/datpackages/my-datapackage"
-			)
+	building.infer_metadata(
+		package_name="my-datapackage",
+		foreign_keys={
+				"bus": [
+					"volatile",
+					"dispatchable",
+					"storage",
+					"heat_storage",
+					"load",
+					"ror",
+					"reservoir",
+					"phs",
+					"excess",
+					"boiler",
+					"commodity",
+				],
+				"profile": ["load", "volatile", "heat_load", "ror", "reservoir"],
+				"from_to_bus": ["link", "conversion", "line"],
+				"chp": ["backpressure", "extraction"],
+		},
+		path="/home/user/datpackages/my-datapackage"
+	)
 
 
 Elements
@@ -194,51 +213,51 @@ Example for **Load**:
 
 The corresponding meta data `schema` of the resource would look as follows:
 
-::
+.. code-block:: json
 
-        "schema": {
-            "fields": [
-                {
-                    "name": "name",
-                    "type": "string",
-                },
-                {
-                    "name": "type",
-                    "type": "string",
-                },
-                {
-                    "name": "tech",
-                    "type": "string",
-                },
-                {
-                    "name": "amount",
-                    "type": "number",
-                },
-                {
-                    "name": "profile",
-                    "type": "string",
-                },
-                {
-                    "name": "bus",
-                    "type": "string",
+  "schema": {
+      "fields": [
+          {
+              "name": "name",
+              "type": "string",
+          },
+          {
+              "name": "type",
+              "type": "string",
+          },
+          {
+              "name": "tech",
+              "type": "string",
+          },
+          {
+              "name": "amount",
+              "type": "number",
+          },
+          {
+              "name": "profile",
+              "type": "string",
+          },
+          {
+              "name": "bus",
+              "type": "string",
+          }
+      ],
+      "foreignKeys": [
+            {
+                "fields": "bus",
+                "reference": {
+                    "fields": "name",
+                    "resource": "bus"
                 }
-            ],
-            "foreignKeys": [
-                  {
-                      "fields": "bus",
-                      "reference": {
-                          "fields": "name",
-                          "resource": "bus"
-                      }
-                  },
-                  {
-                      "fields": "profile",
-                      "reference": {
-                          "resource": "load_profile"
-                      }
-                  }
-            ],
-        }
+            },
+            {
+                "fields": "profile",
+                "reference": {
+                    "resource": "load_profile"
+                }
+            }
+      ],
+  }
 
 Example for **Dispatchable**:
 
@@ -269,7 +288,7 @@ Example:
 The schema for resource `load_profile` stored under `sequences/load_profile.csv`
 would be described as follows:
 
-::
+.. code-block:: json
 
     "schema": {
         "fields": [
@@ -300,7 +319,7 @@ To reference the *name* field of a resource with the bus elements
 (bus.csv, resource name: bus) the following FK should be set in the
 element resource:
 
-::
+.. code-block:: json
 
     "foreignKeys": [
       {
@@ -315,7 +334,7 @@ element resource:
 This structure can also be used to reference sequences, i.e. for the
 field *profile* of a resource, the reference can be set like this:
 
-::
+.. code-block:: json
 
     "foreignKeys": [
       {
@@ -330,8 +349,10 @@ In contrast to the above example, where the foreign keys points to a
 special field, in this case references are resolved by looking at the
 field names in the generators-profile resource.
 
-**NOTE: This usage breaks with the datapackage standard and creates
-non-valid resources.**
+	.. note::
+
+		This usage breaks with the datapackage standard and creates
+		non-valid resources.**
 
 
 Scripting
@@ -363,10 +384,12 @@ the results.
     m.solve()
 
 
-**Note**: You may use the `attributemap` to map your your field names to facade
-class attributes. In addition you may also use different names for types in your
-datapackage and map those to the facade classes (use `typemap` attribute for
-this)
+.. note::
+
+		You may use the `attributemap` to map your your field names to facade
+		class attributes. In addition you may also use different names for types in your
+		datapackage and map those to the facade classes (use `typemap` attribute for
+		this)
 
 Write results
 --------------
@@ -378,7 +401,7 @@ package.
 Reproducible Workflows
 =======================
 
-To produce reproducible results we recommend setting up a folder strucutre
+To get reproducible results we recommend setting up a folder strucutre
 as follows:
 
 ::
@@ -405,11 +428,18 @@ as follows:
 
 
 The `raw-data` directory contains all input data files required to build the
-input datapckages for your modelling. The `scenatios` directory allows you
-to specify different scenarios and describe them in a basic way.  The scripts
-inside the `scripts` directory will build input data for your scenarios from the
-`.toml` files and the raw-data. In addition the script to compute the models
-can be stored there.
+input datapckages for your modelling. This data can also be downloaded
+from an additional repository which adheres to FAIR principles, like zenodo.
+If you provide raw data, make sure the license is compatiple with other data
+in your repository. The `scenarios` directory allows you
+to specify different scenarios and describe them in a basic way via config files.
+The `toml` standard is used by oemof-tabular, howerver you may also use `yaml`,
+`json`, etc..
+The scripts inside the `scripts` directory will build input data for your
+scenarios from the `.toml` files and the raw-data. This data will be in the
+format
+that oemof-tabular datapackage reader can understand. In addition the script
+to compute the models and postprocess results are stored there.
 
 Of course the structure may be adapted to your needs. However you should
 provide all this data when publishing results.
@@ -429,13 +459,31 @@ Components do not end up in the model
 	  `EnergySystem.from_datapackge()` method correctly? Make sure all classes
 	  with their types are present.
 
-Cast errors when reading a datapackage
+Errors when reading a datapackage
 -----------------------------------------
 
 	* Does the column order match the order of fields in the (tabular) data
 	  resource?
 	* Does the type match the types in of the columns (i.e. for integer, obviously
 	  only integer values should be in the respective column)
+
+
+If you encounter this error message when reading a datapackage, you most likely
+provided `output_parameters` that are of type object for a tabular resource.
+However, there will be emtpy entries in the field of your `output_parameters`.
+
+
+	.. code-block:: python
+
+		...
+		TypeError: type object argument after ** must be a mapping, not NoneType
+
+
+	.. note::
+
+		If your column / field in a tabular resource is of a specific type, make
+		sure every entry in thies column has this type! For example numeric and
+		empty entries in combination will yield string as a type and not numeric!
 
 
 OEMOF related errors
@@ -471,14 +519,31 @@ which may happen if something of the following is wrong in your metadata file.
 	any name inside the `volatile_profile.csv` file, i.e. the profile is not found
 	where it is looked for.
 
+
 	Another possible source of error might be the missing values in your
 	sequences files. Check these files for NaNs.
 
 
-Pyomo related errors
--------------------------
+
+Solver and pyomo related errors
+-------------------------------
 
 If you encounter an error for writing a lp-file, you might want to check if
 your foreign-keys are set correctly. In particular for resources with fk's for
 sequences. If this is missing, you will get unsupported operation string and
 numeric. This will unfortunately only happen on the pyomo level currently.
+
+Also the following error might occure:
+
+	.. code-block:: python
+
+		...
+		File "/home/admin/projects/oemof-tabular/venv/lib/python3.6/site-packages/pyomo/repn/plugins/cpxlp.py", line 849, in _print_model_LP
+	 	% (_no_negative_zero(vardata_ub)))
+		TypeError: must be real number, not str
+
+This message may indicate that fields in your datapackage that should be numeric
+are actually of type string. While pyomo seems sometimes still to be fine with
+this, solvers are not. Here also check your meta data types and the data. Most
+likely this happens if meta data is inferred from the data and fields with numeric
+values are left empty which will yield a string type for this field.

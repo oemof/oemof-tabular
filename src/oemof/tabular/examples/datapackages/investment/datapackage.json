@@ -33,12 +33,12 @@
                     },
                     {
                         "name": "capacity",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
@@ -62,8 +62,8 @@
                         "format": "default"
                     },
                     {
-                        "name": "carrier",
-                        "type": "string",
+                        "name": "expandable",
+                        "type": "boolean",
                         "format": "default"
                     }
                 ],
@@ -175,12 +175,12 @@
                     },
                     {
                         "name": "capacity",
-                        "type": "number",
+                        "type": "string",
                         "format": "default"
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
@@ -257,17 +257,17 @@
                     },
                     {
                         "name": "capacity",
-                        "type": "number",
+                        "type": "string",
                         "format": "default"
                     },
                     {
                         "name": "marginal_cost",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
@@ -356,17 +356,17 @@
                     },
                     {
                         "name": "storage_capacity",
-                        "type": "number",
+                        "type": "string",
                         "format": "default"
                     },
                     {
                         "name": "capacity",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
@@ -376,7 +376,7 @@
                     },
                     {
                         "name": "invest_relation_input_output",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
@@ -467,12 +467,12 @@
                     },
                     {
                         "name": "capacity",
-                        "type": "number",
+                        "type": "string",
                         "format": "default"
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "number",
+                        "type": "integer",
                         "format": "default"
                     },
                     {

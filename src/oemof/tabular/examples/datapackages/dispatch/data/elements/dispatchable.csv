@@ -1,4 +1,4 @@
-name;type;carrier;tech;capacity;capacity_cost;bus;marginal_cost;profile;output_parameters;carrier;tech
-gas;dispatchable;gas;octg;100;;bus1;40;;{"summed_max": 2000};gas;gt
-coal;dispatchable;coal;st;100;;bus0;40;;{};coal;st
-lignite;dispatchable;lignite;st;50;;bus0;20;;{};lignite;st
+name;type;carrier;tech;capacity;bus;marginal_cost;profile;output_parameters
+gas;dispatchable;gas;gt;100;bus1;40;1;{"summed_max": 2000}
+coal;dispatchable;coal;st;100;bus0;40;1;{}
+lignite;dispatchable;lignite;st;50;bus0;20;1;{}

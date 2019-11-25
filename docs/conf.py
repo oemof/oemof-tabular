@@ -14,7 +14,17 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax',
+    'nbsphinx'
 ]
+
+
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
+
+nbsphinx_allow_errors = True
+nbsphinx_timeout = 360
+
+
 if os.getenv('SPELLCHECK'):
     extensions += 'sphinxcontrib.spelling',
     spelling_show_suggestions = True
@@ -26,7 +36,7 @@ project = 'oemof.tabular'
 year = '2018'
 author = 'Stephan Günther'
 copyright = '{0}, {1}'.format(year, author)
-version = release = '0.0.1dev'
+version = release = '0.0.2dev'
 
 pygments_style = 'trac'
 templates_path = ['.']
