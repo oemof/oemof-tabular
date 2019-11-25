@@ -65,7 +65,8 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     install_requires=[
-        "datapackage",
+        "datapackage==1.5.1",
+        "tableschema==1.3.0",
         "geojson",
         "oemof>=0.3.1",
         "pandas>=0.22",
