@@ -654,6 +654,7 @@ def write_elements(
     elements,
     directory="data/elements",
     replace=False,
+    overwrite=False,
     create_dir=True,
 ):
     """ Writes elements to filesystem.
@@ -669,6 +670,8 @@ def write_elements(
     replace: boolean
         If set, existing data will be overwritten. Otherwise integrity of
         data (unique indices) will be checked
+    overwrite: boolean
+        If set, existing elements will be overwritten
     create_dir: boolean
         Create the directory if not exists
     Returns
@@ -689,6 +692,9 @@ def write_elements(
 
     if not replace:
         existing_elements = read_elements(filename, directory=directory)
+        if overwrite:
+            overlapp = list(set(elements.index) &  set(existing_elements.index))
+            existing_elements.drop(overlapp, inplace=True)
         elements = pd.concat(
             [existing_elements, elements], verify_integrity=True, sort=False
         )
