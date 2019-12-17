@@ -79,7 +79,12 @@ class Facade(Node):
             return None
 
         else:
-            return self.capacity
+            if isinstance(self, Link):
+                return {
+                    "from_to": self.from_to_capacity,
+                    "to_from": self.to_from_capacity}
+            else:
+                return self.capacity
 
     def _investment(self):
         if self.expandable is True:
@@ -1340,8 +1345,11 @@ class Link(Link, Facade):
     to_bus: oemof.solph.Bus
         An oemof bus instance where the link unit is connected to with
         its output.
-    capacity: numeric
-        The maximal capacity (output side each) of the unit. If not set, attr
+    from_to_capacity: numeric
+        The maximal capacity (output side to bus) of the unit. If not set, attr
+        `capacity_cost` needs to be set.
+    to_from_capacity: numeric
+        The maximal capacity (output side from bus) of the unit. If not set, attr
         `capacity_cost` needs to be set.
     loss:
         Relative loss through the link (default: 0)
@@ -1372,7 +1380,8 @@ class Link(Link, Facade):
     ...     carrier='electricity',
     ...     from_bus=my_elec_bus_1,
     ...     to_bus=my_elec_bus_2,
-    ...     capacity=100,
+    ...     from_to_capacity=100,
+    ...     to_from_capacity=80,
     ...     loss=0.04)
     """
 
@@ -1381,7 +1390,9 @@ class Link(Link, Facade):
             _facade_requires_=["from_bus", "to_bus"], *args, **kwargs
         )
 
-        self.capacity = kwargs.get("capacity")
+        self.from_to_capacity = kwargs.get("from_to_capacity")
+
+        self.to_from_capacity = kwargs.get("to_from_capacity")
 
         self.loss = kwargs.get("loss", 0)
 
@@ -1404,11 +1415,12 @@ class Link(Link, Facade):
             {
                 self.from_bus: Flow(
                     variable_costs=self.marginal_cost,
-                    nominal_value=self._nominal_value(),
+                    nominal_value=self._nominal_value()["to_from"],
                     investment=investment,
                 ),
                 self.to_bus: Flow(
-                    nominal_value=self._nominal_value(), investment=investment
+                    nominal_value=self._nominal_value()["from_to"],
+                    investment=investment
                 ),
             }
         )
