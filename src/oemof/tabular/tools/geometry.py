@@ -52,7 +52,7 @@ def _shape2poly(sh, tolerance=0.03, minarea=0.03, projection=None):
         while rings:
             exterior = rings.pop(0)
             interiors = list(takewhile(attrgetter("is_ccw"), rings))
-            rings = rings[len(interiors):]
+            rings = rings[len(interiors) :]
             yield Polygon(
                 exterior, [x for x in interiors if x.length > minlength]
             )

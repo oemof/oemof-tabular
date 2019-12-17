@@ -399,7 +399,7 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
     return filepath
 
 
-def timeindex(year, periods=8760, freq='H'):
+def timeindex(year, periods=8760, freq="H"):
     """ Create pandas datetimeindex.
 
     Parameters
@@ -417,7 +417,7 @@ def timeindex(year, periods=8760, freq='H'):
     return idx
 
 
-def initialize(config, directory='.'):
+def initialize(config, directory="."):
     """ Initialize datapackage by reading config file and creating required
     directories (data/elements, data/sequences etc.) if directories are
     not specified in the config file, the default directory setup up
@@ -693,7 +693,7 @@ def write_elements(
     if not replace:
         existing_elements = read_elements(filename, directory=directory)
         if overwrite:
-            overlapp = list(set(elements.index) &  set(existing_elements.index))
+            overlapp = list(set(elements.index) & set(existing_elements.index))
             existing_elements.drop(overlapp, inplace=True)
         elements = pd.concat(
             [existing_elements, elements], verify_integrity=True, sort=False

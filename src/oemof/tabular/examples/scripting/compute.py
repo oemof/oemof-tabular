@@ -19,7 +19,8 @@ datapackage_dir = pkg.resource_filename(
 
 # create  path for results (we use the datapackage_dir to store results)
 results_path = os.path.join(
-    os.path.expanduser("~"), "oemof-results", name, "output")
+    os.path.expanduser("~"), "oemof-results", name, "output"
+)
 if not os.path.exists(results_path):
     os.makedirs(results_path)
 

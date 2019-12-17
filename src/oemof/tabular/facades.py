@@ -927,8 +927,13 @@ class Conversion(Transformer, Facade):
             }
         )
 
-        self.inputs.update({self.from_bus: Flow(
-            variable_costs=self.carrier_cost, **self.input_parameters)})
+        self.inputs.update(
+            {
+                self.from_bus: Flow(
+                    variable_costs=self.carrier_cost, **self.input_parameters
+                )
+            }
+        )
 
         self.outputs.update(
             {
@@ -1060,7 +1065,7 @@ class HeatPump(Transformer, Facade):
             {
                 self.electricity_bus: sequence(1 / self.cop),
                 self.low_temperature_bus: sequence((self.cop - 1) / self.cop),
-                self.high_temperature_bus: sequence(1)
+                self.high_temperature_bus: sequence(1),
             }
         )
 

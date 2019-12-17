@@ -126,8 +126,9 @@ def supply_results(
     return selection
 
 
-def demand_results(types=["load", "conversion", "heatpump"],
-                   bus=None, results=None, es=None):
+def demand_results(
+    types=["load", "conversion", "heatpump"], bus=None, results=None, es=None
+):
     """
     """
     if not hasattr(es, "typemap"):

@@ -28,17 +28,25 @@ def hourly_plot(
         "lithium-battery",
         "battery",
         "storage",
-        "heat-storage"
+        "heat-storage",
     ],
     aggregate=[
-        "coal", "lignite", "oil", "gas", "waste", "uranium", "wind", "solar"],
+        "coal",
+        "lignite",
+        "oil",
+        "gas",
+        "waste",
+        "uranium",
+        "wind",
+        "solar",
+    ],
     daily=False,
     plot_filling_levels=True,
 ):
     """
     """
     if scenario.endswith(".csv"):
-            df = pd.read_csv(scenario, index_col=[0], parse_dates=True)
+        df = pd.read_csv(scenario, index_col=[0], parse_dates=True)
     else:
         df = pd.read_csv(
             os.path.join(datapath, scenario, "output", bus + ".csv"),

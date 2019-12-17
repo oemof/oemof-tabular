@@ -14,19 +14,19 @@ def _test(ctx, package):
     for r in p.resources:
         try:
             r.read(keyed=True)
-            fks = r.descriptor['schema'].get('foreignKeys', [])
+            fks = r.descriptor["schema"].get("foreignKeys", [])
             for fk in fks:
-                if fk.get('fields') == 'profile':
-                    profile = p.get_resource(fk['reference']['resource'])
+                if fk.get("fields") == "profile":
+                    profile = p.get_resource(fk["reference"]["resource"])
                     field_names = set(
                         [
-                            field['name']
-                            for field in profile.descriptor['schema']['fields']
+                            field["name"]
+                            for field in profile.descriptor["schema"]["fields"]
                         ]
                     )
-                    field_names.remove('timeindex')
+                    field_names.remove("timeindex")
                     profile_names = set(
-                        pd.DataFrame(r.read(keyed=True))['profile']
+                        pd.DataFrame(r.read(keyed=True))["profile"]
                     )
 
                     diff = field_names.symmetric_difference(profile_names)
@@ -71,10 +71,10 @@ def _test(ctx, package):
             raise exceptions.DataPackageException(
                 (
                     "Could not read resource {} from datpackage "
-                    "with name {}".format(r.name, p.descriptor['name'])
+                    "with name {}".format(r.name, p.descriptor["name"])
                 )
             )
-    print("Successfully tested datapackage {}.".format(p.descriptor['name']))
+    print("Successfully tested datapackage {}.".format(p.descriptor["name"]))
 
 
 @click.group(chain=True)
