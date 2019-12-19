@@ -167,7 +167,7 @@ def infer_metadata(
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
 
-    # create meta data resources elements
+    # create meta data resources sequences
     if not os.path.exists("data/sequences"):
         print(
             "No data path found in directory {}. Skipping...".format(
@@ -177,6 +177,21 @@ def infer_metadata(
     else:
         for f in os.listdir("data/sequences"):
             r = Resource({"path": os.path.join("data/sequences", f)})
+            r.infer()
+            r.commit()
+            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            p.add_resource(r.descriptor)
+
+
+    if not os.path.exists("data/geometries"):
+        print(
+            "No geometries path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in os.listdir("data/geometries"):
+            r = Resource({"path": os.path.join("data/geometries", f)})
             r.infer()
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
