@@ -205,6 +205,7 @@ def write_results(
                 _excess.columns = _excess.columns.droplevel([0, 2])
                 supply = pd.concat([supply, _excess], axis=1)
         save(supply, b)
+        save(excess, "excess")
         save(imports, "import")
 
     try:

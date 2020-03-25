@@ -163,6 +163,17 @@ def infer_metadata(
                     },
                 ]
 
+            for key in foreign_keys:
+                if key not in ["chp", "bus", "profile", "from_to_bus"]:
+                    if r.name in foreign_keys[key]:
+                        r.descriptor["schema"]["foreignKeys"].append(
+                            {
+                                "fields": key,
+                                "reference": {"resource": key + "_profile"},
+                            }
+                        )
+
+
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)

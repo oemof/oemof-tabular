@@ -1183,6 +1183,8 @@ class Storage(GenericStorage, Facade):
         Efficiency of charging and discharging process: Default: 1
     storage_capacity_cost: numeric
         Investment costs for the storage unit e.g in €/MWh-capacity
+    capacity_cost: numeric
+        Investment costs for the storage unit e.g in €/MW-capacity
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
     storage_capacity_potential: numeric
@@ -1253,7 +1255,7 @@ class Storage(GenericStorage, Facade):
 
         self.capacity = kwargs.get("capacity", 0)
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+        self.capacity_cost = kwargs.get("capacity_cost", 0)
 
         self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
 
