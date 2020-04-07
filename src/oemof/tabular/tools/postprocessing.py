@@ -6,8 +6,8 @@ import os
 import numpy as np
 import pandas as pd
 
-from oemof.network import Bus, Sink
-from oemof.outputlib import views
+from oemof.network.network import Bus, Sink
+from oemof.solph import views
 from oemof.solph.components import GenericStorage
 
 from oemof.tabular import facades
