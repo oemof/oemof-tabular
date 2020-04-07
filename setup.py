@@ -68,7 +68,7 @@ setup(
         "datapackage==1.5.1",
         "tableschema==1.3.0",
         "geojson",
-        "oemof>=0.3.1",
+        "oemof.solph>=0.4.0",
         "pandas>=0.22",
         "seaborn",
         "paramiko",
