@@ -1,6 +1,6 @@
 import pkg_resources as pkg
 
-from oemof.energy_system import EnergySystem as ES
+from oemof.network.energy_system import EnergySystem as ES
 
 from oemof.tabular.facades import TYPEMAP
 

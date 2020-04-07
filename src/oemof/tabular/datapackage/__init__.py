@@ -1,4 +1,4 @@
-from oemof.energy_system import EnergySystem
+from oemof.network.energy_system import EnergySystem
 
 from .reading import deserialize_energy_system
 

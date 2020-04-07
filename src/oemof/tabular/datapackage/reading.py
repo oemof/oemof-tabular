@@ -19,7 +19,7 @@ import re
 import datapackage as dp
 import pandas as pd
 
-from oemof.network import Bus, Component
+from oemof.network.network import Bus, Component
 
 from ..tools import HSN, raisestatement, remap
 
