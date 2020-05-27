@@ -658,7 +658,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         self.inputs.update(
             {
                 self.fuel_bus: Flow(
-                    variable_cost=self.carrier_cost, **self.input_parameters
+                    variable_costs=self.carrier_cost, **self.input_parameters
                 )
             }
         )
@@ -1161,7 +1161,7 @@ class Load(Sink, Facade):
                     nominal_value=self.amount,
                     actual_value=self.profile,
                     fixed=self.fixed,
-                    variable_cost=self.marginal_utility,
+                    variable_costs=self.marginal_utility,
                     **self.input_parameters
                 )
             }
