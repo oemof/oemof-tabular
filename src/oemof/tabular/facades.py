@@ -253,7 +253,7 @@ class Reservoir(GenericStorage, Facade):
         inflow = Source(
             label=self.label + "-inflow",
             outputs={
-                self: Flow(nominal_value=1, max=self.profile, fixed=False)
+                self: Flow(nominal_value=1, max=self.profile)
             },
         )
 
@@ -418,9 +418,6 @@ class Volatile(Source, Facade):
         Max install capacity if investment
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
-    fixed: boolean
-        If False, the output may be curtailed when optimizing dispatch.
-        Default: True
 
 
     The mathematical representations for this components are dependent on the
@@ -490,8 +487,6 @@ class Volatile(Source, Facade):
 
         self.output_parameters = kwargs.get("output_parameters", {})
 
-        self.fixed = bool(kwargs.get("fixed", True))
-
         self.build_solph_components()
 
     def build_solph_components(self):
@@ -500,9 +495,8 @@ class Volatile(Source, Facade):
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
-            actual_value=self.profile,
+            fix=self.profile,
             investment=self._investment(),
-            fixed=self.fixed,
             **self.output_parameters
         )
 
@@ -1111,8 +1105,6 @@ class Load(Sink, Facade):
         yields the load in timestep t (e.g. in MWh)
     marginal_utility: numeric
         Marginal utility in for example Euro / MWh
-    fixed: boolean
-        True, if demand should be inelastic (Default: True)
     input_parameters: dict (optional)
 
 
@@ -1148,8 +1140,6 @@ class Load(Sink, Facade):
 
         self.marginal_utility = kwargs.get("marginal_utility", 0)
 
-        self.fixed = kwargs.get("fixed", True)
-
         self.build_solph_components()
 
     def build_solph_components(self):
@@ -1159,8 +1149,7 @@ class Load(Sink, Facade):
             {
                 self.bus: Flow(
                     nominal_value=self.amount,
-                    actual_value=self.profile,
-                    fixed=self.fixed,
+                    fix=self.profile,
                     variable_cost=self.marginal_utility,
                     **self.input_parameters
                 )
