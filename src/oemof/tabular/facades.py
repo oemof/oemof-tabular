@@ -1421,6 +1421,7 @@ class Link(Link, Facade):
                     investment=investment,
                 ),
                 self.to_bus: Flow(
+                    variable_costs=self.marginal_cost,
                     nominal_value=self._nominal_value()["from_to"],
                     investment=investment
                 ),
