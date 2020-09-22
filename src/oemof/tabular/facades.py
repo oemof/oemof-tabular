@@ -117,6 +117,9 @@ class Facade(Node):
                         maximum=getattr(
                             self, "capacity_potential", float("+inf")
                         ),
+                        minimum=getattr(
+                            self, "capacity_minimum", 0
+                        ),
                         existing=getattr(self, "capacity", 0),
                     )
         else:
@@ -296,7 +299,8 @@ class Dispatchable(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if capacity is to be expanded
-
+    capacity_minimum: numeric
+        Minimum install capacity if capacity is to be expanded
 
     The mathematical representations for this components are dependent on the
     user defined attributes. If the capacity is fixed before
@@ -365,6 +369,8 @@ class Dispatchable(Source, Facade):
 
         self.capacity_cost = kwargs.get("capacity_cost")
 
+        self.capacity_minimum = kwargs.get("capacity_minimum")
+
         self.expandable = bool(kwargs.get("expandable", False))
 
         self.output_parameters = kwargs.get("output_parameters", {})
@@ -416,6 +422,8 @@ class Volatile(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if investment
+    capacity_minimum: numeric
+        Minimum install capacity if investment
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
 
@@ -478,6 +486,8 @@ class Volatile(Source, Facade):
         self.capacity = kwargs.get("capacity")
 
         self.capacity_potential = kwargs.get("capacity_potential")
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
 
         self.expandable = bool(kwargs.get("expandable", False))
 
@@ -848,6 +858,8 @@ class Conversion(Transformer, Facade):
         True, if capacity can be expanded within optimization. Default: False.
     capacity_potential: numeric
         Maximum invest capacity in unit of output capacity.
+    capacity_minimum: numeric
+        Minimum invest capacity in unit of output capacity.
     input_parameters: dict (optional)
         Set parameters on the input edge of the conversion unit
         (see oemof.solph for more information on possible parameters)
@@ -909,6 +921,8 @@ class Conversion(Transformer, Facade):
         self.carrier_cost = kwargs.get("carrier_cost", 0)
 
         self.capacity_potential = kwargs.get("capacity_potential")
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
 
         self.input_parameters = kwargs.get("input_parameters", {})
 
