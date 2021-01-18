@@ -662,7 +662,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         self.inputs.update(
             {
                 self.fuel_bus: Flow(
-                    variable_cost=self.carrier_cost, **self.input_parameters
+                    variable_costs=self.carrier_cost, **self.input_parameters
                 )
             }
         )
@@ -1424,6 +1424,7 @@ class Link(Link, Facade):
                     investment=investment,
                 ),
                 self.to_bus: Flow(
+                    variable_costs=self.marginal_cost,
                     nominal_value=self._nominal_value()["from_to"],
                     investment=investment
                 ),
