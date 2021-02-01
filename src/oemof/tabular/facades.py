@@ -19,6 +19,7 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
+import warnings
 
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Node
@@ -26,6 +27,11 @@ from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
 from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
 from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
+from oemof.tools.debugging import SuspiciousUsageWarning
+
+
+# Switch off SuspiciousUsageWarning
+warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
 
 
 def add_subnodes(n, **kwargs):
