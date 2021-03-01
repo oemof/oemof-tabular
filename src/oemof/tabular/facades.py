@@ -1346,7 +1346,7 @@ class Storage(GenericStorage, Facade):
 
 
 class Link(Link, Facade):
-    """ Bi-direction link for two buses (e.g. to model transshipment)
+    """Bidirectional link for two buses, e.g. to model transshipment.
 
     Parameters
     ----------
@@ -1357,21 +1357,22 @@ class Link(Link, Facade):
         An oemof bus instance where the link unit is connected to with
         its output.
     from_to_capacity: numeric
-        The maximal capacity (output side to bus) of the unit. If not set, attr
-        `capacity_cost` needs to be set.
+        The maximal capacity (output side to bus) of the unit. If not
+        set, attr `capacity_cost` needs to be set.
     to_from_capacity: numeric
-        The maximal capacity (output side from bus) of the unit. If not set, attr
-        `capacity_cost` needs to be set.
+        The maximal capacity (output side from bus) of the unit. If not
+        set, attr `capacity_cost` needs to be set.
     loss:
         Relative loss through the link (default: 0)
     capacity_cost: numeric
         Investment costs per unit of output capacity.
-        If capacity is not set, this value will be used for optimizing the
-        chp capacity.
+        If capacity is not set, this value will be used for optimizing
+        the chp capacity.
     marginal_cost: numeric
         Cost per unit Transport in each timestep. Default: 0
     expandable: boolean
-        True, if capacity can be expanded within optimization. Default: False.
+        True, if capacity can be expanded within optimization. Default:
+        False.
 
 
     Note
