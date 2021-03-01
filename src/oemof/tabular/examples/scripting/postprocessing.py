@@ -7,7 +7,6 @@ from oemof.tabular.facades import TYPEMAP
 import oemof.tabular.datapackage  # noqa
 import oemof.tabular.tools.postprocessing as pp
 
-
 examples = ["dispatch", "investment", "foreignkeys"]
 for example in examples:
     print("Runnig postprocessing example with datapackage {}".format(example))

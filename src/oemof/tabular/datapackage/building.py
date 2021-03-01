@@ -173,7 +173,6 @@ def infer_metadata(
                             }
                         )
 
-
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
@@ -192,7 +191,6 @@ def infer_metadata(
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
-
 
     if not os.path.exists("data/geometries"):
         print(
