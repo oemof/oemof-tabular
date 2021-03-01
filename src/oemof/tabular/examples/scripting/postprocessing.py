@@ -1,6 +1,6 @@
 import pkg_resources as pkg
 
-from oemof.outputlib import views
+from oemof.solph import views
 from oemof.solph import EnergySystem, Model
 
 from oemof.tabular.facades import TYPEMAP
