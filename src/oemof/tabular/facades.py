@@ -76,7 +76,12 @@ class Facade(Node):
         the capacity
         """
         if self.expandable is True:
-            return None
+            if isinstance(self, Link):
+                return {
+                    "from_to": None,
+                    "to_from": None}
+            else:
+                return None
 
         else:
             if isinstance(self, Link):
