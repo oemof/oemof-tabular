@@ -17,7 +17,7 @@ import paramiko
 import toml
 
 
-def infer_resources(directory="data/elements"):
+def infer_resources(directory=os.path.join("data", "elements")):
     """ Method looks at all files in `directory` and creates
     datapackage.Resource object that will be stored
 
@@ -107,15 +107,15 @@ def infer_metadata(
         os.makedirs("resources")
 
     # create meta data resources elements
-    if not os.path.exists("data/elements"):
+    if not os.path.exists(os.path.join("data", "elements")):
         print(
             "No data path found in directory {}. Skipping...".format(
                 os.getcwd()
             )
         )
     else:
-        for f in os.listdir("data/elements"):
-            r = Resource({"path": os.path.join("data/elements", f)})
+        for f in os.listdir(os.path.join("data", "elements")):
+            r = Resource({"path": os.path.join("data", "elements", f)})
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
@@ -179,30 +179,30 @@ def infer_metadata(
             p.add_resource(r.descriptor)
 
     # create meta data resources sequences
-    if not os.path.exists("data/sequences"):
+    if not os.path.exists(os.path.join("data", "sequences")):
         print(
             "No data path found in directory {}. Skipping...".format(
                 os.getcwd()
             )
         )
     else:
-        for f in os.listdir("data/sequences"):
-            r = Resource({"path": os.path.join("data/sequences", f)})
+        for f in os.listdir(os.path.join("data", "sequences")):
+            r = Resource({"path": os.path.join("data", "sequences", f)})
             r.infer()
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
 
 
-    if not os.path.exists("data/geometries"):
+    if not os.path.exists(os.path.join("data", "geometries")):
         print(
             "No geometries path found in directory {}. Skipping...".format(
                 os.getcwd()
             )
         )
     else:
-        for f in os.listdir("data/geometries"):
-            r = Resource({"path": os.path.join("data/geometries", f)})
+        for f in os.listdir(os.path.join("data", "geometries")):
+            r = Resource({"path": os.path.join("data", "geometries", f)})
             r.infer()
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
@@ -451,9 +451,9 @@ def initialize(config, directory="."):
 
     """
     sub_directories = {
-        "elements": "data/elements",
-        "sequences": "data/sequences",
-        "geometries": "data/geometries",
+        "elements": os.path.join("data", "elements"),
+        "sequences": os.path.join("data", "sequences"),
+        "geometries": os.path.join("data", "geometries"),
     }
 
     if not config:
@@ -531,7 +531,7 @@ def read_build_config(file="build.toml"):
     return config
 
 
-def read_sequences(filename, directory="data/sequences"):
+def read_sequences(filename, directory=os.path.join("data", "sequences")):
     """ Reads sequence resources from the datapackage
 
     Parameters
@@ -555,7 +555,7 @@ def read_sequences(filename, directory="data/sequences"):
     return sequences
 
 
-def read_elements(filename, directory="data/elements"):
+def read_elements(filename, directory=os.path.join("data", "elements")):
     """
     Reads element resources from the datapackage
 
@@ -581,7 +581,7 @@ def read_elements(filename, directory="data/elements"):
     return elements
 
 
-def read_geometries(filename, directory="data/geometries"):
+def read_geometries(filename, directory=os.path.join("data", "geometries")):
     """
     Reads geometry resources from the datapackage. Data may either be stored
     in geojson format or as WKT representation in CSV-files.
@@ -618,7 +618,7 @@ def read_geometries(filename, directory="data/geometries"):
     return geometries
 
 
-def write_geometries(filename, geometries, directory="data/geometries"):
+def write_geometries(filename, geometries, directory=os.path.join("data", "geometries")):
     """ Writes geometries to filesystem.
 
     Parameters
@@ -678,7 +678,7 @@ def write_geometries(filename, geometries, directory="data/geometries"):
 def write_elements(
     filename,
     elements,
-    directory="data/elements",
+    directory=os.path.join("data", "elements"),
     replace=False,
     overwrite=False,
     create_dir=True,
@@ -737,7 +737,7 @@ def write_elements(
 def write_sequences(
     filename,
     sequences,
-    directory="data/sequences",
+    directory=os.path.join("data", "sequences"),
     replace=False,
     create_dir=True,
 ):
