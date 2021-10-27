@@ -19,6 +19,7 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
+import functools
 
 from oemof.energy_system import EnergySystem
 from oemof.network import Node
@@ -26,6 +27,21 @@ from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
 from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
 from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
+
+
+def try_build(func):
+    """
+    A decorator for _build_solph_components that eases debugging.
+    """
+    @functools.wraps(func)
+    def wrapper_try_build(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+        except:
+            raise Exception(
+                "Error in instantiating Facade {}.".format(args[0].label))
+        return result
+    return wrapper_try_build
 
 
 def add_subnodes(n, **kwargs):
@@ -238,6 +254,7 @@ class Reservoir(GenericStorage, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -371,6 +388,7 @@ class Dispatchable(Source, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -494,6 +512,7 @@ class Volatile(Source, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -644,6 +663,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -797,6 +817,7 @@ class BackpressureTurbine(Transformer, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -922,6 +943,7 @@ class Conversion(Transformer, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -1063,6 +1085,7 @@ class HeatPump(Transformer, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -1152,6 +1175,7 @@ class Load(Sink, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -1279,6 +1303,7 @@ class Storage(GenericStorage, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -1406,6 +1431,7 @@ class Link(Link, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
@@ -1488,6 +1514,7 @@ class Commodity(Source, Facade):
 
         self.build_solph_components()
 
+    @try_build
     def build_solph_components(self):
         """
         """
