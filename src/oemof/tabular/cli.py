@@ -3,7 +3,12 @@ Module that contains the command line app.
 
 """
 from datapackage import Package, exceptions
-import click
+
+try:
+    import click
+except ImportError:
+    raise ImportError("Need to install click to use cli!")
+
 import pandas as pd
 
 

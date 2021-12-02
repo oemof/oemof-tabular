@@ -16,12 +16,24 @@ from functools import partial
 from itertools import product, takewhile
 from operator import attrgetter, itemgetter
 
-from shapely.geometry import LinearRing, MultiPolygon, Polygon
-from shapely.ops import transform
-from shapely.prepared import prep
+try:
+    from shapely.geometry import LinearRing, MultiPolygon, Polygon
+    from shapely.ops import transform
+    from shapely.prepared import prep
+except ImportError:
+    raise ImportError("Need to install shapely to use geometry module!")
+
+try:
+    import pyproj
+except ImportError:
+    raise ImportError("Need to install shapely to use geometry module!")
+
+try:
+    import scipy.sparse as sparse
+except ImportError:
+    raise ImportError("Need to install shapely to use geometry module!")
+
 import numpy as np
-import pyproj
-import scipy.sparse as sparse
 import shapefile
 
 

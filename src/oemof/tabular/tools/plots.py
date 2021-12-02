@@ -1,9 +1,18 @@
 import os
 
 # import plotly.offline as offline
-from matplotlib import colors
+try:
+    from matplotlib import colors
+except ImportError:
+    raise ImportError("Need to install matplotlib to use plots!")
+
+try:
+    import plotly.graph_objs as go
+except ImportError:
+    raise ImportError("Need to install plotly to use plots!")
+
 import pandas as pd
-import plotly.graph_objs as go
+
 
 # offline.init_notebook_mode()
 from oemof.tabular.facades import CARRIER_COLER_MAP, TECH_COLOR_MAP
