@@ -20,6 +20,7 @@ try:
     from shapely.geometry import LinearRing, MultiPolygon, Polygon
     from shapely.ops import transform
     from shapely.prepared import prep
+    from shapely.geometry import shape
 except ImportError:
     raise ImportError("Need to install shapely to use geometry module!")
 
@@ -29,12 +30,111 @@ except ImportError:
     raise ImportError("Need to install shapely to use geometry module!")
 
 try:
+    from geojson import Feature, FeatureCollection, dump, load
+except ImportError:
+    raise ImportError("Need to install geojson to use geometry module!")
+
+try:
     import scipy.sparse as sparse
 except ImportError:
     raise ImportError("Need to install shapely to use geometry module!")
 
 import numpy as np
 import shapefile
+
+
+def read_geometries(filename, directory="data/geometries"):
+    """
+    Reads geometry resources from the datapackage. Data may either be stored
+    in geojson format or as WKT representation in CSV-files.
+
+    Parameters
+    ----------
+    filename: string
+        Name of the elements to be read, for example `buses.geojson`
+    directory: string
+        Directory where the file is located. Default: `data/geometries`
+
+    Returns
+    -------
+    pd.Series
+    """
+
+    path = os.path.join(directory, filename)
+
+    if os.path.splitext(filename)[1] == ".geojson":
+        if os.path.exists(path):
+            with open(path, "r") as infile:
+                features = load(infile)["features"]
+                names = [f["properties"]["name"] for f in features]
+                geometries = [shape(f["geometry"]) for f in features]
+                geometries = pd.Series(dict(zip(names, geometries)))
+
+    if os.path.splitext(filename)[1] == ".csv":
+        if os.path.exists(path):
+            geometries = pd.read_csv(path, sep=";", index_col=["name"])
+        else:
+            geometries = pd.Series(name="geometry")
+            geometries.index.name = "name"
+
+    return geometries
+
+
+def write_geometries(filename, geometries, directory="data/geometries"):
+    """ Writes geometries to filesystem.
+
+    Parameters
+    ----------
+    filename: string
+        Name of the geometries stored, for example `buses.geojson`
+    geometries: pd.Series
+        Index entries become name fields in GeoJSON properties.
+    directory: string
+        Directory where the file is stored. Default: `data/geometries`
+
+    Returns
+    -------
+    path: string
+        Returns the path where the file has been stored.
+    """
+
+    path = os.path.join(directory, filename)
+
+    if os.path.splitext(filename)[1] == ".geojson":
+        features = FeatureCollection(
+            [
+                Feature(geometry=v, properties={"name": k})
+                for k, v in geometries.iteritems()
+            ]
+        )
+
+        if os.path.exists(path):
+            with open(path) as infile:
+                existing_features = load(infile)["features"]
+
+            names = [f["properties"]["name"] for f in existing_features]
+
+            assert all(i not in names for i in geometries.index), (
+                "Cannot " "create duplicate entries in %s." % filename
+            )
+
+            features["features"] += existing_features
+
+        with open(path, "w") as outfile:
+            dump(features, outfile)
+
+    if os.path.splitext(filename)[1] == ".csv":
+        if os.path.exists(path):
+            existing_geometries = read_geometries(filename, directory)
+            geometries = pd.concat(
+                [existing_geometries, geometries], verify_integrity=True
+            )
+
+        geometries.index.name = "name"
+
+        geometries.to_csv(path, sep=";", header=True)
+
+    return path
 
 
 def _shape2poly(sh, tolerance=0.03, minarea=0.03, projection=None):
