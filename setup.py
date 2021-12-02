@@ -66,13 +66,9 @@ setup(
     ],
     install_requires=[
         "datapackage==1.5.1",
-        "tableschema==1.3.0",
         "oemof>=0.3.1",
         "pandas>=0.22",
-        "seaborn",
         "paramiko",
-        "pyshp",
-        "ipython",
         "toml",
     ],
     extras_require={
