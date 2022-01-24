@@ -1318,7 +1318,7 @@ class Storage(GenericStorage, Facade):
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
-                investment=Investment(),
+                investment=Investment(existing=self.capacity),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters
             )
