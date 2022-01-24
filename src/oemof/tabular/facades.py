@@ -144,7 +144,8 @@ class Facade(Node):
 
         if maximum_storage < 0:
             raise ValueError(
-                f"Existing storage capacity {storage_capacity} is larger than storage capacity potential {storage_capacity_potential}.")
+                f"Existing storage capacity {storage_capacity} is larger"
+                f" than storage capacity potential {storage_capacity_potential}.")
 
         return maximum_storage
 
@@ -168,7 +169,8 @@ class Facade(Node):
 
         if maximum < 0:
             raise ValueError(
-                f"Existing capacity {capacity} is larger than capacity potential {capacity_potential}.")
+                f"Existing capacity {capacity} is larger than"
+                f" capacity potential {capacity_potential}.")
 
 
         return maximum
