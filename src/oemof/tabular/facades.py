@@ -104,11 +104,7 @@ class Facade(Node):
                     if self.storage_capacity_cost is not None:
                         self.investment = Investment(
                             ep_costs=self.storage_capacity_cost,
-                            maximum=getattr(
-                                self,
-                                "storage_capacity_potential",
-                                float("+inf"),
-                            ),
+                            maximum=self._get_maximum_storage(),
                             minimum=getattr(
                                 self, "minimum_storage_capacity", 0
                             ),
@@ -119,15 +115,63 @@ class Facade(Node):
                 else:
                     self.investment = Investment(
                         ep_costs=self.capacity_cost,
-                        maximum=getattr(
-                            self, "capacity_potential", float("+inf")
-                        ),
+                        maximum=self._get_maximum(),
                         existing=getattr(self, "capacity", 0),
                     )
         else:
             self.investment = None
 
         return self.investment
+
+    def _get_maximum_storage(self):
+        r"""
+        Calculates maximum additional storage capacity investment by
+        substracting existing storage capacity from storage capacity potential.
+        Throws an error if existing storage capacity is larger than potential.
+        """
+        storage_capacity_potential = getattr(
+            self,
+            "storage_capacity_potential",
+            float("+inf"),
+        )
+        storage_capacity = getattr(
+            self,
+            "storage_capacity",
+            0,
+        )
+
+        maximum_storage = storage_capacity_potential - storage_capacity
+
+        if maximum_storage < 0:
+            raise ValueError(
+                f"Existing storage capacity {storage_capacity} is larger than storage capacity potential {storage_capacity_potential}.")
+
+        return maximum_storage
+
+    def _get_maximum(self):
+        r"""
+        Calculates maximum additional capacity investment by
+        substracting existing capacity from capacity potential.
+        Throws an error if existing capacity is larger than potential.
+        """
+        capacity_potential = getattr(
+            self, "capacity_potential", float("+inf")
+        )
+
+        capacity = getattr(
+            self,
+            "capacity",
+            0,
+        )
+
+        maximum = capacity_potential - capacity
+
+        if maximum < 0:
+            raise ValueError(
+                f"Existing capacity {capacity} is larger than capacity potential {capacity_potential}.")
+
+
+        return maximum
 
     def update(self):
         self.build_solph_components()
@@ -1311,7 +1355,7 @@ class Storage(GenericStorage, Facade):
             fi = Flow(
                 investment=Investment(
                     ep_costs=self.capacity_cost,
-                    maximum=self.capacity_potential,
+                    maximum=self._get_maximum(),
                     existing=self.capacity,
                 ),
                 **self.input_parameters
