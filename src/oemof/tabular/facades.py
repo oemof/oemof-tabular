@@ -325,7 +325,7 @@ class Dispatchable(Source, Facade):
         Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
-        Max install capacity if capacity is to be expanded
+        Max install capacity if capacity is to be expanded. Default: +inf.
 
 
     The mathematical representations for this components are dependent on the
@@ -389,7 +389,7 @@ class Dispatchable(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
@@ -445,7 +445,7 @@ class Volatile(Source, Facade):
         Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
-        Max install capacity if investment
+        Max install capacity if investment. Default: +inf.
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
     fixed: boolean
@@ -510,7 +510,7 @@ class Volatile(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
 
         self.expandable = bool(kwargs.get("expandable", False))
 
@@ -883,7 +883,7 @@ class Conversion(Transformer, Facade):
     expandable: boolean or numeric (binary)
         True, if capacity can be expanded within optimization. Default: False.
     capacity_potential: numeric
-        Maximum invest capacity in unit of output capacity.
+        Maximum invest capacity in unit of output capacity. Default: +inf.
     input_parameters: dict (optional)
         Set parameters on the input edge of the conversion unit
         (see oemof.solph for more information on possible parameters)
@@ -944,7 +944,7 @@ class Conversion(Transformer, Facade):
 
         self.carrier_cost = kwargs.get("carrier_cost", 0)
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
 
         self.input_parameters = kwargs.get("input_parameters", {})
 
@@ -1006,7 +1006,7 @@ class HeatPump(Transformer, Facade):
     expandable: boolean or numeric (binary)
         True, if capacity can be expanded within optimization. Default: False.
     capacity_potential: numeric
-        Maximum invest capacity in unit of output capacity.
+        Maximum invest capacity in unit of output capacity. Default: +inf.
     low_temperature_parameters: dict (optional)
         Set parameters on the input edge of the heat pump unit
         (see oemof.solph for more information on possible parameters)
@@ -1079,7 +1079,7 @@ class HeatPump(Transformer, Facade):
 
         self.expandable = bool(kwargs.get("expandable", False))
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
 
         self.low_temperature_parameters = kwargs.get(
             "low_temperature_parameters", {}
@@ -1218,9 +1218,9 @@ class Storage(GenericStorage, Facade):
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
     storage_capacity_potential: numeric
-        Potential of the investment for storage capacity in MWh
+        Potential of the investment for storage capacity in MWh. Default: +inf.
     capacity_potential: numeric
-        Potential of the investment for capacity in MW
+        Potential of the investment for capacity in MW. Default: +inf.
     input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
