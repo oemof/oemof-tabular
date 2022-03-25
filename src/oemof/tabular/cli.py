@@ -7,7 +7,7 @@ import copy
 from datapackage import Package, exceptions
 import click
 import pandas as pd
-from .datapackage import building   
+from .datapackage import building
 import collections
 
 
@@ -19,7 +19,10 @@ def update(d, u):
             d[k] = v
     return d
 
+
 scenarios = {}
+
+
 # TODO: This definitely needs docstrings.
 class Scenario(dict):
     @classmethod
@@ -31,6 +34,7 @@ class Scenario(dict):
             name = scenarios[path]["name"]
             scenarios[name] = scenarios[path]
         return scenarios[path]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if "parents" in self:
@@ -41,9 +45,11 @@ class Scenario(dict):
                     scenario = copy.deepcopy(type(self).from_path(parent))
 
                 # hackish, but necessary to get self (the child) right
-                # with all key/values of the parent and it's own key/value pairs
+                # with all key/values of the parent and
+                # it's own key/value pairs
                 update(scenario, self)
                 update(self, scenario)
+
 
 def _test(ctx, package):
     """
