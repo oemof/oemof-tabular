@@ -68,7 +68,7 @@ setup(
         "datapackage==1.5.1",
         "tableschema==1.3.0",
         "geojson",
-        "oemof>=0.3.1",
+        "oemof.solph @ git+https://git@github.com/oemof/oemof-solph@fix/link_inputs#egg=oemof.solph",
         "pandas>=0.22",
         "seaborn",
         "paramiko",
