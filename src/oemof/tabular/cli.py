@@ -2,13 +2,14 @@
 Module that contains the command line app.
 
 """
+import collections
 import copy
 
 from datapackage import Package, exceptions
 import click
 import pandas as pd
+
 from .datapackage import building
-import collections
 
 
 def update(d, u):
