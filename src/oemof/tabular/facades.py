@@ -1419,6 +1419,8 @@ class Link(Link, Facade):
 
         self.expandable = bool(kwargs.get("expandable", False))
 
+        self.limit_direction = bool(kwargs.get("limit_direction", False))
+
         self.build_solph_components()
 
     def build_solph_components(self):

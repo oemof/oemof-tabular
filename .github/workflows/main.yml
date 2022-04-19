@@ -31,6 +31,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Install cbc
+        run: sudo apt install coinor-cbc
+
       # Set up python envs
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
