@@ -16,7 +16,7 @@ import pandas as pd
 import paramiko
 import toml
 
-from oemof.tabular.config.config import FOREIGN_KEYS, FOREIGN_KEY_DESCRIPTORS
+from oemof.tabular.config import config
 
 
 def infer_resources(directory="data/elements"):
@@ -83,7 +83,7 @@ def infer_metadata(
     path: string
         Absolute path to root-folder of the datapackage
     """
-    foreign_keys = foreign_keys or FOREIGN_KEYS
+    foreign_keys = foreign_keys or config.FOREIGN_KEYS
 
     current_path = os.getcwd()
     if path:
@@ -113,7 +113,7 @@ def infer_metadata(
             r.descriptor["schema"]["foreignKeys"] = []
 
             # Define foreign keys from dictionary 'foreign_key_descriptors'
-            for label, descriptor in FOREIGN_KEY_DESCRIPTORS.items():
+            for label, descriptor in config.FOREIGN_KEY_DESCRIPTORS.items():
                 if r.name in foreign_keys.get(label, []):
                     r.descriptor["schema"]["foreignKeys"].extend(descriptor)
 
@@ -128,7 +128,7 @@ def infer_metadata(
 
             # Define all undefined foreign keys for as <var name>_profile
             for key in foreign_keys:
-                if key not in ["profile"] + list(FOREIGN_KEY_DESCRIPTORS):
+                if key not in ["profile"] + list(config.FOREIGN_KEY_DESCRIPTORS):
                     if r.name in foreign_keys[key]:
                         r.descriptor["schema"]["foreignKeys"].append(
                             {
