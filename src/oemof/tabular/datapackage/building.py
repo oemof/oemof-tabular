@@ -65,7 +65,7 @@ def infer_metadata(
     keep_resources=False,
     foreign_keys=None,
     path=None,
-):  # sourcery skip: merge-nested-ifs, use-fstring-for-concatenation
+):
     """ Add basic meta data for a datapackage
 
     Parameters
@@ -74,14 +74,14 @@ def infer_metadata(
         Name of the data package
     keep_resources: boolean
         Flag indicating of the resources meta data json-files should be kept
-        after main datapackage.json is created. The reource meta data will
+        after main datapackage.json is created. The resource meta data will
         be stored in the `resources` directory.
     foreign_keys: dict
         Dictionary with foreign key specification. Keys for dictionary are:
         'bus', 'profile', 'from_to_bus'. Values are list with
         strings with the name of the resources
     path: string
-        Absoltue path to root-folder of the datapackage
+        Absolute path to root-folder of the datapackage
     """
     foreign_keys = foreign_keys or FOREIGN_KEYS
 
