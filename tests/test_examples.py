@@ -1,5 +1,4 @@
 import pkg_resources as pkg
-import pytest
 
 from oemof.network.energy_system import EnergySystem as ES
 
