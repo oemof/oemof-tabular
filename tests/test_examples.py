@@ -73,6 +73,9 @@ def test_custom_foreign_keys(monkeypatch):
     import importlib
     importlib.reload(oemof.tabular.config.config)
     oemof.tabular.datapackage.building.infer_metadata(
-        path=str(ROOT_DIR / "src" / "oemof" / "tabular" / "examples" / "datapackages" / "foreignkeys"),
+        path=str(
+            ROOT_DIR / "src" / "oemof" / "tabular" / "examples" /
+            "datapackages" / "foreignkeys"
+        ),
         package_name="oemof-tabular-foreignkeys-examples",
     )

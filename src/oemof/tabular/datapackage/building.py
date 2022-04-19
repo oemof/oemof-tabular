@@ -128,7 +128,9 @@ def infer_metadata(
 
             # Define all undefined foreign keys for as <var name>_profile
             for key in foreign_keys:
-                if key not in ["profile"] + list(config.FOREIGN_KEY_DESCRIPTORS):
+                if key not in (
+                    ["profile"] + list(config.FOREIGN_KEY_DESCRIPTORS)
+                ):
                     if r.name in foreign_keys[key]:
                         r.descriptor["schema"]["foreignKeys"].append(
                             {
