@@ -1,6 +1,4 @@
-import os
 import pathlib
-from unittest import mock
 
 import pkg_resources as pkg
 
@@ -64,8 +62,14 @@ def test_custom_foreign_keys(monkeypatch):
     """
     Set custom foreign keys
     """
-    monkeypatch.setenv("OEMOF_TABULAR_FOREIGN_KEY_DESCRIPTORS_FILE", "custom_foreign_key_descriptors.json")
-    monkeypatch.setenv("OEMOF_TABULAR_FOREIGN_KEYS_FILE", "custom_foreign_keys.json")
+    monkeypatch.setenv(
+        "OEMOF_TABULAR_FOREIGN_KEY_DESCRIPTORS_FILE",
+        ROOT_DIR / "tests" / "custom_foreign_key_descriptors.json"
+    )
+    monkeypatch.setenv(
+        "OEMOF_TABULAR_FOREIGN_KEYS_FILE",
+        ROOT_DIR / "tests" / "custom_foreign_keys.json"
+    )
     import importlib
     importlib.reload(oemof.tabular.config.config)
     oemof.tabular.datapackage.building.infer_metadata(
