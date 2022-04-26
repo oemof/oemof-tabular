@@ -19,13 +19,19 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
+import warnings
 
-from oemof.energy_system import EnergySystem
-from oemof.network import Node
+from oemof.network.energy_system import EnergySystem
+from oemof.network.network import Node
 from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
 from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
 from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
+from oemof.tools.debugging import SuspiciousUsageWarning
+
+
+# Switch off SuspiciousUsageWarning
+warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
 
 
 def add_subnodes(n, **kwargs):
@@ -76,7 +82,12 @@ class Facade(Node):
         the capacity
         """
         if self.expandable is True:
-            return None
+            if isinstance(self, Link):
+                return {
+                    "from_to": None,
+                    "to_from": None}
+            else:
+                return None
 
         else:
             if isinstance(self, Link):
@@ -116,6 +127,9 @@ class Facade(Node):
                         ep_costs=self.capacity_cost,
                         maximum=getattr(
                             self, "capacity_potential", float("+inf")
+                        ),
+                        minimum=getattr(
+                            self, "capacity_minimum", 0
                         ),
                         existing=getattr(self, "capacity", 0),
                     )
@@ -253,7 +267,7 @@ class Reservoir(GenericStorage, Facade):
         inflow = Source(
             label=self.label + "-inflow",
             outputs={
-                self: Flow(nominal_value=1, max=self.profile, fixed=False)
+                self: Flow(nominal_value=1, max=self.profile)
             },
         )
 
@@ -296,7 +310,8 @@ class Dispatchable(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if capacity is to be expanded
-
+    capacity_minimum: numeric
+        Minimum install capacity if capacity is to be expanded
 
     The mathematical representations for this components are dependent on the
     user defined attributes. If the capacity is fixed before
@@ -365,6 +380,8 @@ class Dispatchable(Source, Facade):
 
         self.capacity_cost = kwargs.get("capacity_cost")
 
+        self.capacity_minimum = kwargs.get("capacity_minimum")
+
         self.expandable = bool(kwargs.get("expandable", False))
 
         self.output_parameters = kwargs.get("output_parameters", {})
@@ -416,11 +433,10 @@ class Volatile(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if investment
+    capacity_minimum: numeric
+        Minimum install capacity if investment
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
-    fixed: boolean
-        If False, the output may be curtailed when optimizing dispatch.
-        Default: True
 
 
     The mathematical representations for this components are dependent on the
@@ -482,6 +498,8 @@ class Volatile(Source, Facade):
 
         self.capacity_potential = kwargs.get("capacity_potential")
 
+        self.capacity_minimum = kwargs.get("capacity_minimum")
+
         self.expandable = bool(kwargs.get("expandable", False))
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
@@ -489,8 +507,6 @@ class Volatile(Source, Facade):
         self.capacity_cost = kwargs.get("capacity_cost")
 
         self.output_parameters = kwargs.get("output_parameters", {})
-
-        self.fixed = bool(kwargs.get("fixed", True))
 
         self.build_solph_components()
 
@@ -500,9 +516,8 @@ class Volatile(Source, Facade):
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
-            actual_value=self.profile,
+            fix=self.profile,
             investment=self._investment(),
-            fixed=self.fixed,
             **self.output_parameters
         )
 
@@ -854,6 +869,8 @@ class Conversion(Transformer, Facade):
         True, if capacity can be expanded within optimization. Default: False.
     capacity_potential: numeric
         Maximum invest capacity in unit of output capacity.
+    capacity_minimum: numeric
+        Minimum invest capacity in unit of output capacity.
     input_parameters: dict (optional)
         Set parameters on the input edge of the conversion unit
         (see oemof.solph for more information on possible parameters)
@@ -915,6 +932,8 @@ class Conversion(Transformer, Facade):
         self.carrier_cost = kwargs.get("carrier_cost", 0)
 
         self.capacity_potential = kwargs.get("capacity_potential")
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
 
         self.input_parameters = kwargs.get("input_parameters", {})
 
@@ -1111,8 +1130,6 @@ class Load(Sink, Facade):
         yields the load in timestep t (e.g. in MWh)
     marginal_utility: numeric
         Marginal utility in for example Euro / MWh
-    fixed: boolean
-        True, if demand should be inelastic (Default: True)
     input_parameters: dict (optional)
 
 
@@ -1148,8 +1165,6 @@ class Load(Sink, Facade):
 
         self.marginal_utility = kwargs.get("marginal_utility", 0)
 
-        self.fixed = kwargs.get("fixed", True)
-
         self.build_solph_components()
 
     def build_solph_components(self):
@@ -1159,9 +1174,8 @@ class Load(Sink, Facade):
             {
                 self.bus: Flow(
                     nominal_value=self.amount,
-                    actual_value=self.profile,
-                    fixed=self.fixed,
-                    variable_costs=self.marginal_utility,
+                    fix=self.profile,
+                    variable_cost=self.marginal_utility,
                     **self.input_parameters
                 )
             }
@@ -1337,7 +1351,7 @@ class Storage(GenericStorage, Facade):
 
 
 class Link(Link, Facade):
-    """ Bi-direction link for two buses (e.g. to model transshipment)
+    """Bidirectional link for two buses, e.g. to model transshipment.
 
     Parameters
     ----------
@@ -1348,21 +1362,22 @@ class Link(Link, Facade):
         An oemof bus instance where the link unit is connected to with
         its output.
     from_to_capacity: numeric
-        The maximal capacity (output side to bus) of the unit. If not set, attr
-        `capacity_cost` needs to be set.
+        The maximal capacity (output side to bus) of the unit. If not
+        set, attr `capacity_cost` needs to be set.
     to_from_capacity: numeric
-        The maximal capacity (output side from bus) of the unit. If not set, attr
-        `capacity_cost` needs to be set.
+        The maximal capacity (output side from bus) of the unit. If not
+        set, attr `capacity_cost` needs to be set.
     loss:
         Relative loss through the link (default: 0)
     capacity_cost: numeric
         Investment costs per unit of output capacity.
-        If capacity is not set, this value will be used for optimizing the
-        chp capacity.
+        If capacity is not set, this value will be used for optimizing
+        the chp capacity.
     marginal_cost: numeric
         Cost per unit Transport in each timestep. Default: 0
     expandable: boolean
-        True, if capacity can be expanded within optimization. Default: False.
+        True, if capacity can be expanded within optimization. Default:
+        False.
 
 
     Note
@@ -1403,6 +1418,8 @@ class Link(Link, Facade):
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
         self.expandable = bool(kwargs.get("expandable", False))
+
+        self.limit_direction = bool(kwargs.get("limit_direction", False))
 
         self.build_solph_components()
 
