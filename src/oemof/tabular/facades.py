@@ -108,20 +108,19 @@ class Facade(Node):
             )
             raise ValueError(msg.format(self.label))
         if isinstance(self, GenericStorage):
-            self.investment = Investment(
-                ep_costs=(
-                    self.storage_capacity_cost
-                    if self.storage_capacity_cost is not None
-                    else 0
-                ),
-                maximum=self._get_maximum_additional_invest(
-                    "storage_capacity_potential", "storage_capacity"
-                ),
-                minimum=getattr(
-                    self, "minimum_storage_capacity", 0
-                ),
-                existing=getattr(self, "storage_capacity", 0),
-            )
+            if self.storage_capacity_cost is not None:
+                self.investment = Investment(
+                    ep_costs=self.storage_capacity_cost,
+                    maximum=self._get_maximum_additional_invest(
+                        "storage_capacity_potential", "storage_capacity"
+                    ),
+                    minimum=getattr(
+                        self, "minimum_storage_capacity", 0
+                    ),
+                    existing=getattr(self, "storage_capacity", 0),
+                )
+            else:
+                self.investment = Investment()
         else:
             self.investment = Investment(
                 ep_costs=self.capacity_cost,
