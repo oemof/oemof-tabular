@@ -98,50 +98,37 @@ class Facade(Node):
                 return self.capacity
 
     def _investment(self):
-        if self.expandable is True:
-            if self.capacity_cost is None:
-                msg = (
-                    "If you set `expandable`to True you need to set "
-                    "attribute `capacity_cost` of component {}!"
-                )
-                raise ValueError(msg.format(self.label))
-            else:
-                if isinstance(self, GenericStorage):
-                    if self.storage_capacity_cost is not None:
-                        self.investment = Investment(
-                            ep_costs=self.storage_capacity_cost,
-                            maximum=self._get_maximum_additional_invest(
-                                "storage_capacity_potential", "storage_capacity"
-                            ),
-                            minimum=getattr(
-                                self, "minimum_storage_capacity", 0
-                            ),
-                            existing=getattr(self, "storage_capacity", 0),
-                        )
-                    else:
-                        self.investment = Investment(
-                            maximum=self._get_maximum_additional_invest(
-                                "storage_capacity_potential", "storage_capacity"
-                            ),
-                            minimum=getattr(
-                                self, "minimum_storage_capacity", 0
-                            ),
-                            existing=getattr(self, "storage_capacity", 0),
-                        )
-                else:
-                    self.investment = Investment(
-                        ep_costs=self.capacity_cost,
-                        maximum=self._get_maximum_additional_invest(
-                            "capacity_potential", "capacity"
-                        ),
-                        minimum=getattr(
-                            self, "capacity_minimum", 0
-                        ),
-                        existing=getattr(self, "capacity", 0),
-                    )
-        else:
+        if not self.expandable:
             self.investment = None
-
+            return self.investment
+        if self.capacity_cost is None:
+            msg = (
+                "If you set `expandable`to True you need to set "
+                "attribute `capacity_cost` of component {}!"
+            )
+            raise ValueError(msg.format(self.label))
+        if isinstance(self, GenericStorage):
+            self.investment = Investment(
+                ep_costs=self.storage_capacity_cost if self.storage_capacity_cost is not None else 0,
+                maximum=self._get_maximum_additional_invest(
+                    "storage_capacity_potential", "storage_capacity"
+                ),
+                minimum=getattr(
+                    self, "minimum_storage_capacity", 0
+                ),
+                existing=getattr(self, "storage_capacity", 0),
+            )
+        else:
+            self.investment = Investment(
+                ep_costs=self.capacity_cost,
+                maximum=self._get_maximum_additional_invest(
+                    "capacity_potential", "capacity"
+                ),
+                minimum=getattr(
+                    self, "capacity_minimum", 0
+                ),
+                existing=getattr(self, "capacity", 0),
+            )
         return self.investment
 
     def _get_maximum_additional_invest(self, attr_potential, attr_existing):
