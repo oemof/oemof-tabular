@@ -109,7 +109,11 @@ class Facade(Node):
             raise ValueError(msg.format(self.label))
         if isinstance(self, GenericStorage):
             self.investment = Investment(
-                ep_costs=self.storage_capacity_cost if self.storage_capacity_cost is not None else 0,
+                ep_costs=(
+                    self.storage_capacity_cost
+                    if self.storage_capacity_cost is not None
+                    else 0
+                ),
                 maximum=self._get_maximum_additional_invest(
                     "storage_capacity_potential", "storage_capacity"
                 ),
@@ -394,7 +398,9 @@ class Dispatchable(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
+        self.capacity_potential = kwargs.get(
+            "capacity_potential", float("+inf")
+        )
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
@@ -516,7 +522,10 @@ class Volatile(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
 
         self.capacity_minimum = kwargs.get("capacity_minimum")
 
@@ -951,7 +960,10 @@ class Conversion(Transformer, Facade):
 
         self.carrier_cost = kwargs.get("carrier_cost", 0)
 
-        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
 
         self.capacity_minimum = kwargs.get("capacity_minimum")
 
@@ -1088,7 +1100,10 @@ class HeatPump(Transformer, Facade):
 
         self.expandable = bool(kwargs.get("expandable", False))
 
-        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
 
         self.low_temperature_parameters = kwargs.get(
             "low_temperature_parameters", {}
