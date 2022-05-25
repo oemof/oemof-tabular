@@ -26,7 +26,10 @@ def normalize_to_positive_results(lines):
         n for n, line in enumerate(lines) if re.match("^= -", line)
     ]
     equation_start_indices = [
-        [n for n in reversed(range(0, nri)) if re.match(".*:$", lines[n])][0] + 1
+        [
+            n for n in reversed(range(0, nri))
+            if re.match(".*:$", lines[n])
+        ][0] + 1
         for nri in negative_result_indices
     ]
     for (start, end) in zip(equation_start_indices, negative_result_indices):
@@ -84,7 +87,10 @@ class TestConstraints:
         Node.registry = cls.energysystem
 
     def get_om(self):
-        return solph.Model(self.energysystem, timeindex=self.energysystem.timeindex)
+        return solph.Model(
+            self.energysystem,
+            timeindex=self.energysystem.timeindex
+        )
 
     def compare_to_reference_lp(self, ref_filename, my_om=None):
         if my_om is None:
