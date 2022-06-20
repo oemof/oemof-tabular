@@ -1,13 +1,14 @@
+from difflib import unified_diff
 import logging
 import os
 import re
-from difflib import unified_diff
 
 import pandas as pd
 
 from oemof.network.network import Node
 from oemof.solph import helpers
 import oemof.solph as solph
+
 from oemof.tabular.facades import BackpressureTurbine, ExtractionTurbine
 
 
