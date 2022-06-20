@@ -158,3 +158,26 @@ class TestConstraints:
         )
 
         self.compare_to_reference_lp("storage_investment_brown_field.lp")
+
+    def test_storage_investment_brown_field_no_storage_capacity_cost(self):
+        r"""
+        Storage investment with existing capacities. No costs for storage capacity
+        (units of energy).
+        """
+        bus_el = solph.Bus(label="electricity")
+
+        Storage(
+            label="storage",
+            carrier="electricity",
+            tech="storage",
+            bus=bus_el,
+            efficiency=0.9,
+            expandable=True,
+            storage_capacity=2,  # Existing storage capacity
+            storage_capacity_potential=10,
+            capacity=1,  # Existing capacity
+            capacity_cost=240,
+            capacity_potential=5,
+        )
+
+        self.compare_to_reference_lp("storage_investment_brown_field_no_storage_capacity_cost.lp")
