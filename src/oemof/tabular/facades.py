@@ -120,7 +120,15 @@ class Facade(Node):
                     existing=getattr(self, "storage_capacity", 0),
                 )
             else:
-                self.investment = Investment()
+                self.investment = Investment(
+                    maximum=self._get_maximum_additional_invest(
+                        "storage_capacity_potential", "storage_capacity"
+                    ),
+                    minimum=getattr(
+                        self, "minimum_storage_capacity", 0
+                    ),
+                    existing=getattr(self, "storage_capacity", 0),
+                )
         else:
             self.investment = Investment(
                 ep_costs=self.capacity_cost,
