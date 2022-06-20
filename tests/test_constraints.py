@@ -9,7 +9,7 @@ from oemof.network.network import Node
 from oemof.solph import helpers
 import oemof.solph as solph
 
-from oemof.tabular.facades import Storage
+from oemof.tabular.facades import BackpressureTurbine, ExtractionTurbine, Storage
 
 
 def chop_trailing_whitespace(lines):
@@ -181,3 +181,105 @@ class TestConstraints:
         )
 
         self.compare_to_reference_lp("storage_investment_brown_field_no_storage_capacity_cost.lp")
+
+    def test_backpressure_investment_green_field(self):
+        r"""
+        BackpressureTurbine investment without existing capacities.
+        """
+        bus_fuel = solph.Bus(label="fuel")
+        bus_el = solph.Bus(label="electricity")
+        bus_heat = solph.Bus(label="heat")
+
+        BackpressureTurbine(
+            label='backpressure',
+            carrier='gas',
+            tech='bp',
+            fuel_bus=bus_fuel,
+            heat_bus=bus_heat,
+            electricity_bus=bus_el,
+            capacity=0,
+            capacity_cost=50,
+            carrier_cost=0.6,
+            electric_efficiency=0.4,
+            thermal_efficiency=0.35,
+            expandable=True,
+        )
+
+        self.compare_to_reference_lp("backpressure_investment_green_field.lp")
+
+    def test_backpressure_investment_brown_field(self):
+        r"""
+        BackpressureTurbine investment with existing capacities.
+        """
+        bus_fuel = solph.Bus(label="fuel")
+        bus_el = solph.Bus(label="electricity")
+        bus_heat = solph.Bus(label="heat")
+
+        BackpressureTurbine(
+            label='backpressure',
+            carrier='gas',
+            tech='bp',
+            fuel_bus=bus_fuel,
+            heat_bus=bus_heat,
+            electricity_bus=bus_el,
+            capacity=1000,
+            capacity_cost=50,
+            carrier_cost=0.6,
+            electric_efficiency=0.4,
+            thermal_efficiency=0.35,
+            expandable=True,
+        )
+
+        self.compare_to_reference_lp("backpressure_investment_brown_field.lp")
+
+    def test_extraction_investment_green_field(self):
+        r"""
+        ExtractionTurbine investment without existing capacities.
+        """
+        bus_fuel = solph.Bus(label="gas")
+        bus_el = solph.Bus(label="electricity")
+        bus_heat = solph.Bus(label="heat")
+
+        ExtractionTurbine(
+            label='extraction',
+            carrier='gas',
+            tech="extraction",
+            fuel_bus=bus_fuel,
+            heat_bus=bus_heat,
+            electricity_bus=bus_el,
+            capacity=0,
+            capacity_cost=50,
+            carrier_cost=0.6,
+            condensing_efficiency=0.5,
+            electric_efficiency=0.4,
+            thermal_efficiency=0.35,
+            expandable=True,
+        )
+
+        self.compare_to_reference_lp("extraction_investment_green_field.lp")
+
+    def test_extraction_investment_brown_field(self):
+        r"""
+        ExtractionTurbine investment with existing capacities.
+        """
+        bus_fuel = solph.Bus(label="gas")
+        bus_el = solph.Bus(label="electricity")
+        bus_heat = solph.Bus(label="heat")
+
+        ExtractionTurbine(
+            label='extraction',
+            carrier='gas',
+            tech="extraction",
+            fuel_bus=bus_fuel,
+            heat_bus=bus_heat,
+            electricity_bus=bus_el,
+            capacity=1000,
+            capacity_cost=50,
+            carrier_cost=0.6,
+            condensing_efficiency=0.5,
+            electric_efficiency=0.4,
+            thermal_efficiency=0.35,
+            expandable=True,
+        )
+
+        self.compare_to_reference_lp("extraction_investment_brown_field.lp")
