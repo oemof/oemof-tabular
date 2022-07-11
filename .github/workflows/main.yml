@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies via pip
         run: |
           python -m pip install --upgrade pip
-          python -m pip install .
+          python -m pip install . .[aggregation]  # install extra requirement to pass all tests
           python -m pip install pytest coverage docutils check-manifest flake8 readme-renderer pygments isort
 
       - name: Test with pytest
