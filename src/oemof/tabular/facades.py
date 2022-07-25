@@ -19,6 +19,8 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
+import dataclasses
+from dataclasses import dataclass, field
 import warnings
 
 from oemof.network.energy_system import EnergySystem
@@ -32,6 +34,22 @@ from oemof.tools.debugging import SuspiciousUsageWarning
 
 # Switch off SuspiciousUsageWarning
 warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
+
+
+def kwargs_to_parent(cls):
+    original_init = cls.__init__
+
+    def new_init(self, *args, **kwargs):
+
+        super(cls, self).__init__(*args, **kwargs)
+
+        # pass only those kwargs to the dataclass which are expected
+        dataclass_kwargs = {key: value for key, value in kwargs.items() if key in [f.name for f in dataclasses.fields(cls)]}
+
+        original_init(self, **dataclass_kwargs)
+
+    cls.__init__ = new_init
+    return cls
 
 
 def add_subnodes(n, **kwargs):
@@ -1182,6 +1200,8 @@ class Load(Sink, Facade):
         )
 
 
+@dataclass
+@kwargs_to_parent
 class Storage(GenericStorage, Facade):
     r""" Storage unit
 
@@ -1258,38 +1278,35 @@ class Storage(GenericStorage, Facade):
     ...        max_storage_level=[0.9, 0.95, 0.8])) # oemof.solph argument
 
     """
+    bus: str
 
-    def __init__(self, *args, **kwargs):
+    carrier: str
 
-        super().__init__(
-            _facade_requires_=["bus", "carrier", "tech"], *args, **kwargs
-        )
+    tech: str
 
-        self.storage_capacity = kwargs.get("storage_capacity", 0)
+    storage_capacity: float = 0
 
-        self.capacity = kwargs.get("capacity", 0)
+    capacity: float = 0
 
-        self.capacity_cost = kwargs.get("capacity_cost", 0)
+    capacity_cost: float = 0
 
-        self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
+    storage_capacity_cost: float = 0
 
-        self.storage_capacity_potential = kwargs.get(
-            "storage_capacity_potential", float("+inf")
-        )
+    storage_capacity_potential: float = float("+inf")
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential", float("+inf")
-        )
+    capacity_potential: float = float("+inf")
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    expandable: bool = False
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    marginal_cost: float = 0
 
-        self.efficiency = kwargs.get("efficiency", 1)
+    efficiency: float = 1
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    input_parameters: dict = None
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    output_parameters:dict = None
+
+    def __post_init__(self, *args, **kwargs):
 
         self.build_solph_components()
 
