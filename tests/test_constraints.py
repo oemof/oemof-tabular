@@ -9,8 +9,22 @@ from oemof.network.network import Node
 from oemof.solph import helpers
 import oemof.solph as solph
 
-from oemof.tabular.facades import BackpressureTurbine, ExtractionTurbine
-
+from oemof.tabular.facades import (
+    BackpressureTurbine,
+    Commodity,
+    Conversion,
+    Dispatchable,
+    Excess,
+    ExtractionTurbine,
+    Generator,
+    HeatPump,
+    Link,
+    Load,
+    Reservoir,
+    Shortage,
+    Storage,
+    Volatile,
+)
 
 def chop_trailing_whitespace(lines):
     return [re.sub(r"\s*$", "", line) for line in lines]
@@ -214,3 +228,161 @@ class TestConstraints:
 
         self.compare_to_reference_lp("extraction_investment_brown_field.lp")
 
+    def test_commodity(self):
+        r"""
+        """
+        bus_biomass = solph.Bus("biomass")
+
+        Commodity(
+            label='biomass-commodity',
+            bus=bus_biomass,
+            carrier='biomass',
+            amount=1000,
+            marginal_cost=10,
+            output_parameters={'max': [0.9, 0.5, 0.4]}
+        )
+
+        self.compare_to_reference_lp("commodity.lp")
+
+    def test_conversion(self):
+        r"""
+        """
+        bus_biomass = solph.Bus("biomass")
+        bus_heat = solph.Bus("heat")
+
+        Conversion(
+            label='biomass_plant',
+            carrier='biomass',
+            tech='st',
+            from_bus=bus_biomass,
+            to_bus=bus_heat,
+            capacity=100,
+            efficiency=0.4
+        )
+
+        self.compare_to_reference_lp("conversion.lp")
+
+    def test_dispatchable(self):
+        bus = solph.Bus("electricity")
+
+        Dispatchable(
+            label='gt',
+            bus=bus,
+            carrier='gas',
+            tech='ccgt',
+            capacity=1000,
+            marginal_cost=10,
+            output_parameters={'min': 0.2},
+        )
+
+        self.compare_to_reference_lp("dispatchable.lp")
+
+    def test_heatpump(self):
+        r"""
+        """
+        elec_bus = solph.Bus("elec_bus")
+        heat_bus = solph.Bus("heat_bus")
+        heat_bus_low = solph.Bus("heat_bus_low")
+
+        HeatPump(
+            label="hp-storage",
+            carrier="electricity",
+            tech="hp",
+            cop=3,
+            carrier_cost=15,
+            electricity_bus=elec_bus,
+            high_temperature_bus=heat_bus,
+            low_temperature_bus=heat_bus_low,
+        )
+
+        self.compare_to_reference_lp("heatpump.lp")
+
+    def test_link(self):
+        r"""
+        """
+        bus_1 = solph.Bus("bus_1")
+        bus_2 = solph.Bus("bus_2")
+
+        Link(
+            label='link',
+            carrier='electricity',
+            from_bus=bus_1,
+            to_bus=bus_2,
+            from_to_capacity=100,
+            to_from_capacity=80,
+            loss=0.04
+        )
+
+        self.compare_to_reference_lp("link.lp")
+
+    def test_load(self):
+        r"""
+        """
+        bus = solph.Bus("electricity")
+
+        Load(
+            label='load',
+            carrier='electricity',
+            bus=bus,
+            amount=100,
+            profile=[0.3, 0.2, 0.5]
+        )
+
+        self.compare_to_reference_lp("load.lp")
+
+    def test_reservoir(self):
+        r"""
+        """
+        bus = solph.Bus("electricity")
+
+        Reservoir(
+            label='reservoir',
+            bus=bus,
+            carrier='water',
+            tech='reservoir',
+            storage_capacity=1000,
+            capacity=50,
+            profile=[1, 2, 6],
+            loss_rate=0.01,
+            initial_storage_level=0,
+            max_storage_level=0.9,
+            efficiency=0.93,
+        )
+
+        self.compare_to_reference_lp("reservoir.lp")
+
+    def test_storage(self):
+        r"""
+        """
+        bus = solph.Bus("electricity")
+
+        Storage(
+            label="storage",
+            bus=bus,
+            carrier="lithium",
+            tech="battery",
+            storage_capacity_cost=10,
+            invest_relation_output_capacity=1 / 6,  # oemof.solph
+            marginal_cost=5,
+            balanced=True,  # oemof.solph argument
+            initial_storage_level=1,  # oemof.solph argument
+            max_storage_level=[0.9, 0.95, 0.8],
+        )
+
+        self.compare_to_reference_lp("storage.lp")
+
+    def test_volatile(self):
+        r"""
+        """
+        bus = solph.Bus("electricity")
+
+        Volatile(
+            label='wind',
+            bus=bus,
+            carrier='wind',
+            tech='onshore',
+            capacity_cost=150,
+            profile=[0.25, 0.1, 0.3],
+        )
+
+        self.compare_to_reference_lp("volatile.lp")
