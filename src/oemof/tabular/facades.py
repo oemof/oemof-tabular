@@ -299,7 +299,8 @@ class Reservoir(GenericStorage, Facade):
 
         self.subnodes = (inflow,)
 
-
+@dataclass
+@kwargs_to_parent
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
@@ -383,28 +384,25 @@ class Dispatchable(Source, Facade):
     ...         'min': 0.2})
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
-        super().__init__(*args, **kwargs)
+    carrier: str
 
-        self.profile = kwargs.get("profile", 1)
+    tech: str
 
-        self.capacity = kwargs.get("capacity")
+    profile: float = 1
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+    capacity: float = 0
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    capacity_potential: float = float("+inf")
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = 0
 
-        self.capacity_minimum = kwargs.get("capacity_minimum")
+    capacity_cost: float = 0
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity_minimum: float = 0
 
-        self.output_parameters = kwargs.get("output_parameters", {})
-
-        self.build_solph_components()
+    expandable: bool = False
 
     def build_solph_components(self):
         """
