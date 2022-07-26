@@ -48,6 +48,8 @@ def kwargs_to_parent(cls):
 
         original_init(self, **dataclass_kwargs)
 
+        self.build_solph_components()
+
     cls.__init__ = new_init
     return cls
 
@@ -1303,10 +1305,6 @@ class Storage(GenericStorage, Facade):
     input_parameters: dict = None
 
     output_parameters:dict = None
-
-    def __post_init__(self, *args, **kwargs):
-
-        self.build_solph_components()
 
     def build_solph_components(self):
         """
