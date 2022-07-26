@@ -299,8 +299,8 @@ class Reservoir(GenericStorage, Facade):
 
         self.subnodes = (inflow,)
 
-@dataclass(unsafe_hash=True)
 @kwargs_to_parent
+@dataclass(unsafe_hash=True)
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
@@ -1198,8 +1198,8 @@ class Load(Sink, Facade):
         )
 
 
-@dataclass(unsafe_hash=True)
 @kwargs_to_parent
+@dataclass(unsafe_hash=True)
 class Storage(GenericStorage, Facade):
     r""" Storage unit
 
