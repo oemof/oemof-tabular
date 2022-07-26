@@ -406,6 +406,8 @@ class Dispatchable(Source, Facade):
 
     expandable: bool = False
 
+    output_parameters: dict = field(default_factory=dict)
+
     def build_solph_components(self):
         """
         """
@@ -1302,9 +1304,9 @@ class Storage(GenericStorage, Facade):
 
     efficiency: float = 1
 
-    input_parameters: dict = None
+    input_parameters: dict = field(default_factory=dict)
 
-    output_parameters:dict = None
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
         """
