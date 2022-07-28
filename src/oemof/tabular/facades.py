@@ -98,45 +98,82 @@ class Facade(Node):
                 return self.capacity
 
     def _investment(self):
-        if self.expandable is True:
-            if self.capacity_cost is None:
-                msg = (
-                    "If you set `expandable`to True you need to set "
-                    "attribute `capacity_cost` of component {}!"
-                )
-                raise ValueError(msg.format(self.label))
-            else:
-                if isinstance(self, GenericStorage):
-                    if self.storage_capacity_cost is not None:
-                        self.investment = Investment(
-                            ep_costs=self.storage_capacity_cost,
-                            maximum=getattr(
-                                self,
-                                "storage_capacity_potential",
-                                float("+inf"),
-                            ),
-                            minimum=getattr(
-                                self, "minimum_storage_capacity", 0
-                            ),
-                            existing=getattr(self, "storage_capacity", 0),
-                        )
-                    else:
-                        self.investment = Investment()
-                else:
-                    self.investment = Investment(
-                        ep_costs=self.capacity_cost,
-                        maximum=getattr(
-                            self, "capacity_potential", float("+inf")
-                        ),
-                        minimum=getattr(
-                            self, "capacity_minimum", 0
-                        ),
-                        existing=getattr(self, "capacity", 0),
-                    )
-        else:
+        if not self.expandable:
             self.investment = None
-
+            return self.investment
+        if self.capacity_cost is None:
+            msg = (
+                "If you set `expandable`to True you need to set "
+                "attribute `capacity_cost` of component {}!"
+            )
+            raise ValueError(msg.format(self.label))
+        if isinstance(self, GenericStorage):
+            if self.storage_capacity_cost is not None:
+                self.investment = Investment(
+                    ep_costs=self.storage_capacity_cost,
+                    maximum=self._get_maximum_additional_invest(
+                        "storage_capacity_potential", "storage_capacity"
+                    ),
+                    minimum=getattr(
+                        self, "minimum_storage_capacity", 0
+                    ),
+                    existing=getattr(self, "storage_capacity", 0),
+                )
+            else:
+                self.investment = Investment(
+                    maximum=self._get_maximum_additional_invest(
+                        "storage_capacity_potential", "storage_capacity"
+                    ),
+                    minimum=getattr(
+                        self, "minimum_storage_capacity", 0
+                    ),
+                    existing=getattr(self, "storage_capacity", 0),
+                )
+        else:
+            self.investment = Investment(
+                ep_costs=self.capacity_cost,
+                maximum=self._get_maximum_additional_invest(
+                    "capacity_potential", "capacity"
+                ),
+                minimum=getattr(
+                    self, "capacity_minimum", 0
+                ),
+                existing=getattr(self, "capacity", 0),
+            )
         return self.investment
+
+    def _get_maximum_additional_invest(self, attr_potential, attr_existing):
+        r"""
+        Calculates maximum additional investment by
+        substracting existing from potential.
+
+        Throws an error if existing is larger than potential.
+        """
+        _potential = getattr(
+            self,
+            attr_potential,
+            float("+inf"),
+        )
+        _existing = getattr(
+            self,
+            attr_existing,
+            0,
+        )
+
+        if _existing is None:
+            _existing = 0
+
+        if _potential is None:
+            _potential = float("+inf")
+
+        maximum = _potential - _existing
+
+        if maximum < 0:
+            raise ValueError(
+                f"Existing {attr_existing}={_existing} is larger"
+                f" than {attr_potential}={_potential}.")
+
+        return maximum
 
     def update(self):
         self.build_solph_components()
@@ -374,7 +411,9 @@ class Dispatchable(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get(
+            "capacity_potential", float("+inf")
+        )
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
@@ -496,7 +535,10 @@ class Volatile(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
 
         self.capacity_minimum = kwargs.get("capacity_minimum")
 
@@ -931,7 +973,10 @@ class Conversion(Transformer, Facade):
 
         self.carrier_cost = kwargs.get("carrier_cost", 0)
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
 
         self.capacity_minimum = kwargs.get("capacity_minimum")
 
@@ -995,7 +1040,7 @@ class HeatPump(Transformer, Facade):
     expandable: boolean or numeric (binary)
         True, if capacity can be expanded within optimization. Default: False.
     capacity_potential: numeric
-        Maximum invest capacity in unit of output capacity.
+        Maximum invest capacity in unit of output capacity. Default: +inf.
     low_temperature_parameters: dict (optional)
         Set parameters on the input edge of the heat pump unit
         (see oemof.solph for more information on possible parameters)
@@ -1068,7 +1113,10 @@ class HeatPump(Transformer, Facade):
 
         self.expandable = bool(kwargs.get("expandable", False))
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
 
         self.low_temperature_parameters = kwargs.get(
             "low_temperature_parameters", {}
@@ -1202,9 +1250,9 @@ class Storage(GenericStorage, Facade):
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
     storage_capacity_potential: numeric
-        Potential of the investment for storage capacity in MWh
+        Potential of the investment for storage capacity in MWh. Default: +inf.
     capacity_potential: numeric
-        Potential of the investment for capacity in MW
+        Potential of the investment for capacity in MW. Default: +inf.
     input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
@@ -1320,14 +1368,16 @@ class Storage(GenericStorage, Facade):
             fi = Flow(
                 investment=Investment(
                     ep_costs=self.capacity_cost,
-                    maximum=self.capacity_potential,
+                    maximum=self._get_maximum_additional_invest(
+                        "capacity_potential", "capacity"
+                    ),
                     existing=self.capacity,
                 ),
                 **self.input_parameters
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
-                investment=Investment(),
+                investment=Investment(existing=self.capacity),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters
             )

@@ -26,6 +26,7 @@ from oemof.tabular.facades import (
     Volatile,
 )
 
+
 def chop_trailing_whitespace(lines):
     return [re.sub(r"\s*$", "", line) for line in lines]
 
@@ -103,7 +104,8 @@ class TestConstraints:
 
     def get_om(self):
         return solph.Model(
-            self.energysystem, timeindex=self.energysystem.timeindex
+            self.energysystem,
+            timeindex=self.energysystem.timeindex
         )
 
     def compare_to_reference_lp(self, ref_filename, my_om=None):
@@ -125,6 +127,75 @@ class TestConstraints:
         with open(new_filepath) as new_file:
             with open(ref_filepath) as ref_file:
                 compare_lp_files(new_file, ref_file)
+
+    def test_storage_investment_green_field(self):
+        r"""
+        Storage investment without existing capacities.
+        """
+        el_bus = solph.Bus(label="electricity")
+
+        Storage(
+            label="storage",
+            carrier="electricity",
+            tech="storage",
+            bus=el_bus,
+            efficiency=0.9,
+            expandable=True,
+            storage_capacity=0,  # No initially installed storage capacity
+            storage_capacity_potential=10,
+            storage_capacity_cost=1300,
+            capacity=0,  # No initially installed capacity
+            capacity_cost=240,
+            capacity_potential=3,
+        )
+
+        self.compare_to_reference_lp("storage_investment_green_field.lp")
+
+    def test_storage_investment_brown_field(self):
+        r"""
+        Storage investment with existing capacities.
+        """
+        bus_el = solph.Bus(label="electricity")
+
+        Storage(
+            label="storage",
+            carrier="electricity",
+            tech="storage",
+            bus=bus_el,
+            efficiency=0.9,
+            expandable=True,
+            storage_capacity=2,  # Existing storage capacity
+            storage_capacity_potential=10,
+            storage_capacity_cost=1300,
+            capacity=1,  # Existing capacity
+            capacity_cost=240,
+            capacity_potential=5,
+        )
+
+        self.compare_to_reference_lp("storage_investment_brown_field.lp")
+
+    def test_storage_investment_brown_field_no_storage_capacity_cost(self):
+        r"""
+        Storage investment with existing capacities. No costs for storage capacity
+        (units of energy).
+        """
+        bus_el = solph.Bus(label="electricity")
+
+        Storage(
+            label="storage",
+            carrier="electricity",
+            tech="storage",
+            bus=bus_el,
+            efficiency=0.9,
+            expandable=True,
+            storage_capacity=2,  # Existing storage capacity
+            storage_capacity_potential=10,
+            capacity=1,  # Existing capacity
+            capacity_cost=240,
+            capacity_potential=5,
+        )
+
+        self.compare_to_reference_lp("storage_investment_brown_field_no_storage_capacity_cost.lp")
 
     def test_backpressure_investment_green_field(self):
         r"""
