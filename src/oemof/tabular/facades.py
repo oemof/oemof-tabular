@@ -160,6 +160,12 @@ class Facade(Node):
             0,
         )
 
+        if _existing is None:
+            _existing = 0
+
+        if _potential is None:
+            _potential = float("+inf")
+
         maximum = _potential - _existing
 
         if maximum < 0:
