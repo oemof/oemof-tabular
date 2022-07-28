@@ -8,6 +8,7 @@ include .cookiecutterrc
 include .editorconfig
 include punch_config.py
 include punch_version.py
+include pytest.ini
 
 include AUTHORS.rst
 include CHANGELOG.rst
