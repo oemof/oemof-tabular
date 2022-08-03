@@ -37,6 +37,19 @@ warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
 
 
 def kwargs_to_parent(cls):
+    r"""
+    Decorates the __init__ of a given class by first
+    passing args and kwargs to the __init__ of the parent
+    class.
+
+    Parameters
+    ----------
+    cls : Class with an __init__ to decorate
+
+    Returns
+    -------
+    cls : Class with decorated __init__
+    """
     original_init = cls.__init__
 
     def new_init(self, *args, **kwargs):
