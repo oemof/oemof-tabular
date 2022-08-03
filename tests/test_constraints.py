@@ -452,7 +452,10 @@ class TestConstraints:
             bus=bus,
             carrier='wind',
             tech='onshore',
+            capacity=10,
             capacity_cost=150,
+            expandable=True,
+            capacity_potential=100,
             profile=[0.25, 0.1, 0.3],
         )
 
