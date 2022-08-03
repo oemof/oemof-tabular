@@ -302,7 +302,7 @@ class Reservoir(GenericStorage, Facade):
         self.subnodes = (inflow,)
 
 @kwargs_to_parent  # second, decorate to handle kwargs in __init__
-@dataclass(unsafe_hash=True)  # first decorate as dataclasse
+@dataclass(unsafe_hash=False, frozen=False, eq=False)  # first decorate as dataclasse
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
@@ -1203,7 +1203,7 @@ class Load(Sink, Facade):
 
 
 @kwargs_to_parent
-@dataclass(unsafe_hash=True)
+@dataclass(unsafe_hash=False, frozen=False, eq=False)
 class Storage(GenericStorage, Facade):
     r""" Storage unit
 
