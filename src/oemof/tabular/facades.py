@@ -20,7 +20,8 @@ SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
 import dataclasses
-from dataclasses import dataclass, field
+from dataclasses import field
+from pydantic.dataclasses import dataclass
 import warnings
 
 from oemof.network.energy_system import EnergySystem
@@ -34,6 +35,9 @@ from oemof.tools.debugging import SuspiciousUsageWarning
 
 # Switch off SuspiciousUsageWarning
 warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
+
+class MyConfig:
+    arbitrary_types_allowed = True
 
 
 def kwargs_to_parent(cls):
@@ -315,7 +319,7 @@ class Reservoir(GenericStorage, Facade):
         self.subnodes = (inflow,)
 
 @kwargs_to_parent  # second, decorate to handle kwargs in __init__
-@dataclass(unsafe_hash=False, frozen=False, eq=False)  # first decorate as dataclasse
+@dataclass(unsafe_hash=False, frozen=False, eq=False, config=MyConfig)  # first decorate as dataclasse
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
@@ -1216,7 +1220,7 @@ class Load(Sink, Facade):
 
 
 @kwargs_to_parent
-@dataclass(unsafe_hash=False, frozen=False, eq=False)
+@dataclass(unsafe_hash=False, frozen=False, eq=False, config=MyConfig)
 class Storage(GenericStorage, Facade):
     r""" Storage unit
 
