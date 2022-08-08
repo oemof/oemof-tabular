@@ -371,17 +371,18 @@ class TestConstraints:
     def test_link(self):
         r"""
         """
-        bus_1 = solph.Bus("bus_1")
-        bus_2 = solph.Bus("bus_2")
+        bus1 = solph.Bus("bus1")
+        bus2 = solph.Bus("bus2")
 
         Link(
             label='link',
             carrier='electricity',
-            from_bus=bus_1,
-            to_bus=bus_2,
+            from_bus=bus1,
+            to_bus=bus2,
             from_to_capacity=100,
             to_from_capacity=80,
-            loss=0.04
+            loss=0.25,
+            marginal_cost=4,
         )
 
         self.compare_to_reference_lp("link.lp")
