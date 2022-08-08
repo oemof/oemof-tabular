@@ -434,11 +434,12 @@ class TestConstraints:
             carrier="lithium",
             tech="battery",
             storage_capacity_cost=10,
-            invest_relation_output_capacity=1 / 6,  # oemof.solph
+            invest_relation_output_capacity=1 / 8,  # oemof.solph
             marginal_cost=5,
             balanced=True,  # oemof.solph argument
             initial_storage_level=1,  # oemof.solph argument
-            max_storage_level=[0.9, 0.95, 0.8],
+            max_storage_level=[0.75, 0.5, 0.25],
+            expandable=True,
         )
 
         self.compare_to_reference_lp("storage.lp")
