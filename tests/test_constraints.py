@@ -348,26 +348,6 @@ class TestConstraints:
 
         self.compare_to_reference_lp("dispatchable.lp")
 
-    def test_heatpump(self):
-        r"""
-        """
-        elec_bus = solph.Bus("elec_bus")
-        heat_bus = solph.Bus("heat_bus")
-        heat_bus_low = solph.Bus("heat_bus_low")
-
-        HeatPump(
-            label="hp-storage",
-            carrier="electricity",
-            tech="hp",
-            cop=3,
-            carrier_cost=15,
-            electricity_bus=elec_bus,
-            high_temperature_bus=heat_bus,
-            low_temperature_bus=heat_bus_low,
-        )
-
-        self.compare_to_reference_lp("heatpump.lp")
-
     def test_link(self):
         r"""
         """
@@ -415,10 +395,10 @@ class TestConstraints:
             storage_capacity=1000,
             capacity=50,
             profile=[1, 2, 6],
-            loss_rate=0.01,
+            loss_rate=0.1,
             initial_storage_level=0,
-            max_storage_level=0.9,
-            efficiency=0.93,
+            max_storage_level=0.75,
+            efficiency=0.8,
         )
 
         self.compare_to_reference_lp("reservoir.lp")
