@@ -9,18 +9,9 @@ from oemof.network.network import Node
 from oemof.solph import helpers
 import oemof.solph as solph
 
-from oemof.tabular.facades import (
-    BackpressureTurbine,
-    Commodity,
-    Conversion,
-    Dispatchable,
-    ExtractionTurbine,
-    Link,
-    Load,
-    Reservoir,
-    Storage,
-    Volatile,
-)
+from oemof.tabular.facades import (BackpressureTurbine, Commodity, Conversion,
+                                   Dispatchable, ExtractionTurbine, Link, Load,
+                                   Reservoir, Storage, Volatile)
 
 
 def chop_trailing_whitespace(lines):
