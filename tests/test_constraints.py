@@ -14,14 +14,10 @@ from oemof.tabular.facades import (
     Commodity,
     Conversion,
     Dispatchable,
-    Excess,
     ExtractionTurbine,
-    Generator,
-    HeatPump,
     Link,
     Load,
     Reservoir,
-    Shortage,
     Storage,
     Volatile,
 )
@@ -176,8 +172,8 @@ class TestConstraints:
 
     def test_storage_investment_brown_field_no_storage_capacity_cost(self):
         r"""
-        Storage investment with existing capacities. No costs for storage capacity
-        (units of energy).
+        Storage investment with existing capacities. No costs for storage
+        capacity (units of energy).
         """
         bus_el = solph.Bus(label="electricity")
 
@@ -195,7 +191,9 @@ class TestConstraints:
             capacity_potential=5,
         )
 
-        self.compare_to_reference_lp("storage_investment_brown_field_no_storage_capacity_cost.lp")
+        self.compare_to_reference_lp(
+            "storage_investment_brown_field_no_storage_capacity_cost.lp"
+        )
 
     def test_backpressure_investment_green_field(self):
         r"""
