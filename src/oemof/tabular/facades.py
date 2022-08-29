@@ -281,8 +281,6 @@ class Reservoir(GenericStorage, Facade):
 
         self.profile = kwargs.get("profile")
 
-        self.input_parameters = kwargs.get("input_parameters", {})
-
         self.output_parameters = kwargs.get("output_parameters", {})
 
         self.expandable = bool(kwargs.get("expandable", False))
