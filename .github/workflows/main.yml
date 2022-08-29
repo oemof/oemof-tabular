@@ -55,4 +55,4 @@ jobs:
           python setup.py check --strict --metadata --restructuredtext
           check-manifest .
           flake8 src tests
-          isort --verbose --check-only --diff --recursive src tests
+          isort --verbose --check-only --diff src tests

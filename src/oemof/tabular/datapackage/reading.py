@@ -312,7 +312,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     }
 
     def resolve_object_references(source, f=None):
-        """ Check whether any key in `source` is a reference to a `name`d object.
+        """
+        Check whether any key in `source` is a reference to a `name`d object.
         """
 
         def find(n, d):
