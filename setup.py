@@ -67,26 +67,16 @@ setup(
     install_requires=[
         "datapackage==1.5.1",
         "tableschema==1.3.0",
-        "geojson",
         "oemof.solph @ git+https://git@github.com/oemof/oemof-solph@v0.4#egg=oemof.solph",
         "pandas>=0.22",
-        "seaborn",
         "paramiko",
-        "pyproj",
-        "pyshp",
-        "scipy",
-        "shapely",
-        "tsam",
-        "ipython",
-        "click",
         "toml",
-        "plotly",
-        "matplotlib"
     ],
     extras_require={
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
+        'cli': ['click'],
+        'plots': ['plotly', 'matplotlib'],
+        'aggregation': ['tsam'],
+        'geometry': ['shapely', 'scipy', 'pyproj', 'geojson'],
     },
     entry_points={"console_scripts": ["ota = oemof.tabular.cli:main"]},
 )
