@@ -10,17 +10,18 @@ Copyright 2015-2017 Frankfurt Institute for Advanced Studies
 * simplify_poly()
 * nuts()
 """
-
 from collections import OrderedDict
 from functools import partial
 from itertools import product, takewhile
 from operator import attrgetter, itemgetter
+import os
+
+import pandas as pd
 
 try:
-    from shapely.geometry import LinearRing, MultiPolygon, Polygon
+    from shapely.geometry import LinearRing, MultiPolygon, Polygon, shape
     from shapely.ops import transform
     from shapely.prepared import prep
-    from shapely.geometry import shape
 except ImportError:
     raise ImportError("Need to install shapely to use geometry module!")
 
