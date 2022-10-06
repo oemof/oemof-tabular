@@ -16,6 +16,8 @@ import pandas as pd
 import paramiko
 import toml
 
+from oemof.tabular.config import config
+
 
 def infer_resources(directory=os.path.join("data", "elements")):
     """ Method looks at all files in `directory` and creates
@@ -61,20 +63,7 @@ def update_package_descriptor():
 def infer_metadata(
     package_name="default-name",
     keep_resources=False,
-    foreign_keys={
-        "bus": [
-            "volatile",
-            "dispatchable",
-            "storage",
-            "load",
-            "reservoir",
-            "shortage",
-            "excess",
-        ],
-        "profile": ["load", "volatile", "ror"],
-        "from_to_bus": ["connection", "line", "conversion"],
-        "chp": ["backpressure", "extraction", "chp"],
-    },
+    foreign_keys=None,
     path=None,
 ):
     """ Add basic meta data for a datapackage
@@ -83,17 +72,19 @@ def infer_metadata(
     ----------
     package_name: string
         Name of the data package
-    keep_resource: boolean
+    keep_resources: boolean
         Flag indicating of the resources meta data json-files should be kept
-        after main datapackage.json is created. The reource meta data will
+        after main datapackage.json is created. The resource meta data will
         be stored in the `resources` directory.
     foreign_keys: dict
         Dictionary with foreign key specification. Keys for dictionary are:
         'bus', 'profile', 'from_to_bus'. Values are list with
         strings with the name of the resources
     path: string
-        Absoltue path to root-folder of the datapackage
+        Absolute path to root-folder of the datapackage
     """
+    foreign_keys = foreign_keys or config.FOREIGN_KEYS
+
     current_path = os.getcwd()
     if path:
         print("Setting current work directory to {}".format(path))
@@ -119,52 +110,27 @@ def infer_metadata(
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
-            if r.name in foreign_keys.get("bus", []):
-                r.descriptor["schema"]["foreignKeys"] = [
+            r.descriptor["schema"]["foreignKeys"] = []
+
+            # Define foreign keys from dictionary 'foreign_key_descriptors'
+            for label, descriptor in config.FOREIGN_KEY_DESCRIPTORS.items():
+                if r.name in foreign_keys.get(label, []):
+                    r.descriptor["schema"]["foreignKeys"].extend(descriptor)
+
+            # Define foreign keys for 'profile' as <resource name>_profile
+            if r.name in foreign_keys.get("profile", []):
+                r.descriptor["schema"]["foreignKeys"].append(
                     {
-                        "fields": "bus",
-                        "reference": {"resource": "bus", "fields": "name"},
+                        "fields": "profile",
+                        "reference": {"resource": r.name + "_profile"},
                     }
-                ]
+                )
 
-                if r.name in foreign_keys.get("profile", []):
-                    r.descriptor["schema"]["foreignKeys"].append(
-                        {
-                            "fields": "profile",
-                            "reference": {"resource": r.name + "_profile"},
-                        }
-                    )
-
-            elif r.name in foreign_keys.get("from_to_bus", []):
-                r.descriptor["schema"]["foreignKeys"] = [
-                    {
-                        "fields": "from_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                    {
-                        "fields": "to_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                ]
-
-            elif r.name in foreign_keys.get("chp", []):
-                r.descriptor["schema"]["foreignKeys"] = [
-                    {
-                        "fields": "fuel_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                    {
-                        "fields": "electricity_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                    {
-                        "fields": "heat_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                ]
-
+            # Define all undefined foreign keys for as <var name>_profile
             for key in foreign_keys:
-                if key not in ["chp", "bus", "profile", "from_to_bus"]:
+                if key not in (
+                    ["profile"] + list(config.FOREIGN_KEY_DESCRIPTORS)
+                ):
                     if r.name in foreign_keys[key]:
                         r.descriptor["schema"]["foreignKeys"].append(
                             {
@@ -172,7 +138,6 @@ def infer_metadata(
                                 "reference": {"resource": key + "_profile"},
                             }
                         )
-
 
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
@@ -192,7 +157,6 @@ def infer_metadata(
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
-
 
     if not os.path.exists(os.path.join("data", "geometries")):
         print(

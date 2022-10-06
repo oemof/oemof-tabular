@@ -1,0 +1,14 @@
+{
+    "bus": [
+        "volatile",
+        "dispatchable",
+        "storage",
+        "load",
+        "reservoir",
+        "shortage",
+        "excess"
+    ],
+    "profile": ["load", "volatile", "ror"],
+    "from_to_bus": ["connection", "line", "conversion"],
+    "chp": ["backpressure", "extraction", "chp"]
+}

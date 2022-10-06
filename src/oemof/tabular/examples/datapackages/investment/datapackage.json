@@ -356,7 +356,7 @@
                     },
                     {
                         "name": "storage_capacity",
-                        "type": "string",
+                        "type": "integer",
                         "format": "default"
                     },
                     {
