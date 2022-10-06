@@ -57,7 +57,11 @@ def kwargs_to_parent(cls):
         super(cls, self).__init__(*args, **kwargs)
 
         # pass only those kwargs to the dataclass which are expected
-        dataclass_kwargs = {key: value for key, value in kwargs.items() if key in [f.name for f in dataclasses.fields(cls)]}
+        dataclass_kwargs = {
+            key: value
+            for key, value in kwargs.items()
+            if key in [f.name for f in dataclasses.fields(cls)]
+        }
 
         original_init(self, **dataclass_kwargs)
 
@@ -351,8 +355,10 @@ class Reservoir(GenericStorage, Facade):
 
         self.subnodes = (inflow,)
 
-@kwargs_to_parent  # second, decorate to handle kwargs in __init__
-@dataclass(unsafe_hash=False, frozen=False, eq=False)  # first decorate as dataclasse
+
+# First, decorate as dataclass. Second, decorate to handle kwargs in __init__
+@kwargs_to_parent
+@dataclass(unsafe_hash=False, frozen=False, eq=False)
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
