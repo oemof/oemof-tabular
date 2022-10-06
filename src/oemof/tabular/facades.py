@@ -359,6 +359,8 @@ class Reservoir(GenericStorage, Facade):
 # First, decorate as dataclass. Second, decorate to handle kwargs in __init__
 @kwargs_to_parent
 @dataclass(unsafe_hash=False, frozen=False, eq=False)
+# The above settings are important to not override the __hash__ method
+# defined in oemof.network.Node
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
