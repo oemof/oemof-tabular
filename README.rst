@@ -17,7 +17,7 @@ Overview
     :alt: Coverage Status
     :target: https://coveralls.io/github/oemof/oemof-tabular
 
-.. |codecov| image:: https://codecov.io/github/oemof/oemof-tabular/coverage.svg?branch=master
+.. |codecov| image:: https://codecov.io/github/oemof/oemof-tabular/coverage.svg?branch=dev
     :alt: Coverage Status
     :target: https://codecov.io/github/oemof/oemof-tabular
 
@@ -29,9 +29,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/oemof.tabular
 
-.. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-tabular%2Fcompare%2Fv0.0.2...master&query=%24.total_commits&colorB=blue
+.. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-tabular%2Fcompare%2Fv0.0.2...dev&query=%24.total_commits&colorB=blue
     :alt: Commits since latest release
-    :target: https://github.com/oemof/oemof-tabular/compare/v0.0.2...master
+    :target: https://github.com/oemof/oemof-tabular/compare/v0.0.2...dev
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/oemof.tabular.svg
     :alt: PyPI Wheel
