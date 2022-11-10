@@ -23,12 +23,16 @@ import warnings
 
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Node
-from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
-from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
-from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
-from oemof.solph.plumbing import sequence
+from oemof.solph import Investment
+from oemof.solph._plumbing import sequence
+from oemof.solph.buses import Bus
+from oemof.solph.buses.experimental import ElectricalBus
+from oemof.solph.components import (ExtractionTurbineCHP, GenericStorage, Sink,
+                                    Source, Transformer)
+from oemof.solph.components.experimental import Link
+from oemof.solph.flows import Flow
+from oemof.solph.flows.experimental import ElectricalLine
 from oemof.tools.debugging import SuspiciousUsageWarning
-
 
 # Switch off SuspiciousUsageWarning
 warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
