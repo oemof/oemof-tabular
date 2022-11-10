@@ -1,6 +1,6 @@
 \* Source Pyomo model name=Model *\
 
-min 
+min
 objective:
 +10 flow(biomass_commodity_biomass_0)
 +10 flow(biomass_commodity_biomass_1)
@@ -8,15 +8,15 @@ objective:
 
 s.t.
 
-c_e_Bus_balance(biomass_0)_:
+c_e_BusBlock_balance(biomass_0)_:
 +1 flow(biomass_commodity_biomass_0)
 = 0
 
-c_e_Bus_balance(biomass_1)_:
+c_e_BusBlock_balance(biomass_1)_:
 +1 flow(biomass_commodity_biomass_1)
 = 0
 
-c_e_Bus_balance(biomass_2)_:
+c_e_BusBlock_balance(biomass_2)_:
 +1 flow(biomass_commodity_biomass_2)
 = 0
 
@@ -26,7 +26,7 @@ c_u_Flow_summed_max(biomass_commodity_biomass)_:
 +1 flow(biomass_commodity_biomass_2)
 <= 1000
 
-c_e_ONE_VAR_CONSTANT: 
+c_e_ONE_VAR_CONSTANT:
 ONE_VAR_CONSTANT = 1.0
 
 bounds

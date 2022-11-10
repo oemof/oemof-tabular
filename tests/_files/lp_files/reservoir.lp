@@ -6,15 +6,15 @@ objective:
 
 s.t.
 
-c_e_Bus_balance(electricity_0)_:
+c_e_BusBlock_balance(electricity_0)_:
 +1 flow(reservoir_electricity_0)
 = 0
 
-c_e_Bus_balance(electricity_1)_:
+c_e_BusBlock_balance(electricity_1)_:
 +1 flow(reservoir_electricity_1)
 = 0
 
-c_e_Bus_balance(electricity_2)_:
+c_e_BusBlock_balance(electricity_2)_:
 +1 flow(reservoir_electricity_2)
 = 0
 
