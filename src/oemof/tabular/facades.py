@@ -74,6 +74,33 @@ def kwargs_to_parent(cls):
     return cls
 
 
+def dataclass_facade(cls):
+    r"""
+    Decorates a facade class by first as a
+    dataclass, taking care of args and kwargs
+    in the __init__
+
+    Parameters
+    ----------
+    cls : facade class
+
+    Returns
+    -------
+    cls : facade class
+    """
+    assert issubclass(cls, Facade)
+
+    # First, decorate as dataclass.
+    # The settings are important to not override the __hash__ method
+    # defined in oemof.network.Node
+    cls = dataclass(cls, unsafe_hash=False, frozen=False, eq=False)
+
+    # Second, decorate to handle kwargs in __init__
+    cls = kwargs_to_parent(cls)
+
+    return cls
+
+
 def add_subnodes(n, **kwargs):
     deque((kwargs["EnergySystem"].add(sn) for sn in n.subnodes), maxlen=0)
 
@@ -359,12 +386,7 @@ class Reservoir(GenericStorage, Facade):
         self.subnodes = (inflow,)
 
 
-# First, decorate as dataclass. Second, decorate to handle kwargs in __init__
-@kwargs_to_parent
-@dataclass(unsafe_hash=False, frozen=False, eq=False, config=MyConfig)
-# The settings unsafe_hash=False, frozen=False, eq=False
-# are important to not override the __hash__ method
-# defined in oemof.network.Node
+@dataclass_facade
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
@@ -1273,8 +1295,7 @@ class Load(Sink, Facade):
         )
 
 
-@kwargs_to_parent
-@dataclass(unsafe_hash=False, frozen=False, eq=False, config=MyConfig)
+@dataclass_facade
 class Storage(GenericStorage, Facade):
     r""" Storage unit
 
