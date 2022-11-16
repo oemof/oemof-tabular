@@ -1,2 +1,2 @@
-__version__ = "0.0.2dev"
+__version__ = "0.0.3dev"
 __project__ = "oemof.tabular"
