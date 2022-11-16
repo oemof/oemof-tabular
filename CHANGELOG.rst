@@ -2,6 +2,23 @@
 Changelog
 =========
 
+0.0.3 (2022-11-17)
+------------------
+Fixes
+* Fix link by not setting constraints that limit direction #38
+* Storage investment #33
+* Link investment #28
+* Variable cost #24
+* Marginal cost #23
+
+Features
+* Adjust to new oemof.solph structure #21
+* Allow to define custom foreign keys #39
+* Add constraint tests for most facades #35 #42
+* Reduce number of imported packages #32 #49
+* Cleaned up the badges in README #59
+* Move most CI services to github actions # 37
+
 0.0.2 (2019-07-08)
 ------------------
 
