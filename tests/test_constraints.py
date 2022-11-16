@@ -5,7 +5,6 @@ import re
 
 import pandas as pd
 
-from oemof.network.network import Node
 from oemof.solph import helpers
 import oemof.solph as solph
 
