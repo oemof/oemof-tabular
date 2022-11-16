@@ -6,24 +6,12 @@ Overview
 
 |version| |commits-since| |supported-versions| |license|
 
-|docs| |wheel| |coveralls| |codecov| |codeclimate|
+|docs| |wheel|
 
 
 .. |docs| image:: https://readthedocs.org/projects/oemof-tabular/badge/?style=flat
     :target: https://readthedocs.org/projects/oemof-tabular
     :alt: Documentation Status
-
-.. |coveralls| image:: https://coveralls.io/repos/oemof/oemof-tabular/badge.svg?branch=dev&service=github
-    :alt: Coverage Status
-    :target: https://coveralls.io/github/oemof/oemof-tabular
-
-.. |codecov| image:: https://codecov.io/github/oemof/oemof-tabular/coverage.svg?branch=dev
-    :alt: Coverage Status
-    :target: https://codecov.io/github/oemof/oemof-tabular
-
-.. |codeclimate| image:: https://codeclimate.com/github/oemof/oemof-tabular/badges/gpa.svg
-   :target: https://codeclimate.com/github/oemof/oemof-tabular
-   :alt: CodeClimate Quality Status
 
 .. |version| image:: https://img.shields.io/pypi/v/oemof.tabular.svg
     :alt: PyPI Package latest release
