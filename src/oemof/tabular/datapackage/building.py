@@ -155,7 +155,7 @@ def infer_metadata(
             r = Resource({"path": str(pathlib.PurePosixPath("data", "sequences", f))})
             r.infer()
             r.commit()
-            r.save(os.pathlib.PurePosixPath("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
 
     if not os.path.exists("data/geometries"):
