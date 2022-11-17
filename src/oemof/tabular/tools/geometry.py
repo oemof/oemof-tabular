@@ -28,7 +28,7 @@ except ImportError:
 try:
     import pyproj
 except ImportError:
-    raise ImportError("Need to install shapely to use geometry module!")
+    raise ImportError("Need to install pyproj to use geometry module!")
 
 try:
     from geojson import Feature, FeatureCollection, dump, load
@@ -38,7 +38,7 @@ except ImportError:
 try:
     import scipy.sparse as sparse
 except ImportError:
-    raise ImportError("Need to install shapely to use geometry module!")
+    raise ImportError("Need to install scipy to use geometry module!")
 
 import numpy as np
 import shapefile
