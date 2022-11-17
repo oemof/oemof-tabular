@@ -140,7 +140,7 @@ def infer_metadata(
                         )
 
             r.commit()
-            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
 
     # create meta data resources sequences
