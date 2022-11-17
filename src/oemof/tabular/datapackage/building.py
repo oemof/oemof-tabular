@@ -152,7 +152,7 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/sequences"):
-            r = Resource({"path": os.path.join("data/sequences", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath("data", "sequences", f))})
             r.infer()
             r.commit()
             r.save(os.path.join("resources", f.replace(".csv", ".json")))
