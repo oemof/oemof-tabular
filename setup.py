@@ -75,7 +75,7 @@ setup(
         'cli': ['click'],
         'plots': ['plotly', 'matplotlib'],
         'aggregation': ['tsam'],
-        'geometry': ['shapely', 'scipy', 'pyproj', 'geojson'],
+        'geometry': ['shapely', 'scipy', 'pyproj', 'geojson', 'pyshp'],
     },
     entry_points={"console_scripts": ["ota = oemof.tabular.cli:main"]},
 )

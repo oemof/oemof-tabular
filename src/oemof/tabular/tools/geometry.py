@@ -40,8 +40,12 @@ try:
 except ImportError:
     raise ImportError("Need to install scipy to use geometry module!")
 
+try:
+    import shapefile
+except ImportError:
+    raise ImportError("Need to install pyshp to use geometry module!")
+
 import numpy as np
-import shapefile
 
 
 def read_geometries(filename, directory="data/geometries"):
