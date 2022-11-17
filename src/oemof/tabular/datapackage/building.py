@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pathlib
 from ftplib import FTP
 from urllib.parse import urlparse
 import errno
@@ -8,6 +9,7 @@ import sys
 import tarfile
 import urllib.request
 import zipfile
+import pathlib
 
 from datapackage import Package, Resource
 import pandas as pd
@@ -104,7 +106,7 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/elements"):
-            r = Resource({"path": os.path.join("data/elements", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath("data", "elements", f))})
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
