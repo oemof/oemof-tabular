@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import pathlib
 from ftplib import FTP
 from urllib.parse import urlparse
 import errno
 import os
+import pathlib
 import shutil
 import sys
 import tarfile
