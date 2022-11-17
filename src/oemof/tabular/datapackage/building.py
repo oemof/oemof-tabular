@@ -9,7 +9,6 @@ import sys
 import tarfile
 import urllib.request
 import zipfile
-import pathlib
 
 from datapackage import Package, Resource
 import pandas as pd
@@ -166,10 +165,10 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/geometries"):
-            r = Resource({"path": os.path.join("data/geometries", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath("data", "geometries", f))})
             r.infer()
             r.commit()
-            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(".csv", ".json")))
             p.add_resource(r.descriptor)
 
     p.commit()
