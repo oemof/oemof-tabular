@@ -462,7 +462,7 @@ class Dispatchable(Source, Facade):
 
     tech: str
 
-    profile: float = 1
+    profile: Union[float, Sequence[float]] = 1
 
     capacity: float = None
 
