@@ -264,11 +264,9 @@ class Reservoir(GenericStorage, Facade):
         production, default: 1
     profile: array-like
         Absolute inflow profile of inflow into the storage
-    input_parameters: dict
+    output_parameters: dict
         Dictionary to specifiy parameters on the input edge. You can use
         all keys that are available for the  oemof.solph.network.Flow class.
-    output_parameters: dict
-        see: input_parameters
 
 
     The reservoir is modelled as a storage with a constant inflow:
@@ -335,8 +333,6 @@ class Reservoir(GenericStorage, Facade):
     efficiency: float = 1
 
     profile: Union[float, Sequence[float]] = None
-
-    input_parameters: dict = field(default_factory=dict)
 
     output_parameters: dict = field(default_factory=dict)
 
