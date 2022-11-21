@@ -496,6 +496,7 @@ class Dispatchable(Source, Facade):
         self.outputs.update({self.bus: f})
 
 
+@dataclass_facade
 class Volatile(Source, Facade):
     r"""Volatile element with one output. This class can be used to model
     PV oder Wind power plants.
@@ -575,33 +576,27 @@ class Volatile(Source, Facade):
     ...     profile=[0.25, 0.1, 0.3])
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update(
-            {"_facade_requires_": ["bus", "carrier", "tech", "profile"]}
-        )
-        super().__init__(*args, **kwargs)
+    carrier: str
 
-        self.profile = kwargs.get("profile")
+    tech: str
 
-        self.capacity = kwargs.get("capacity")
+    profile: Union[float, Sequence[float]] = None
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential",
-            float("+inf")
-        )
+    capacity: float = None
 
-        self.capacity_minimum = kwargs.get("capacity_minimum")
+    capacity_potential: float = float("+inf")
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity_minimum: float = None
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    expandable: bool = False
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = 0
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    capacity_cost: float = None
 
-        self.build_solph_components()
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
         """
