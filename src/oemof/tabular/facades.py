@@ -20,6 +20,7 @@ SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
 from dataclasses import dataclass, field
+from typing import Sequence, Union
 import dataclasses
 import warnings
 
@@ -242,6 +243,7 @@ class Facade(Node):
         self.build_solph_components()
 
 
+@dataclass_facade
 class Reservoir(GenericStorage, Facade):
     r""" A Reservoir storage unit, that is initially half full.
 
@@ -320,37 +322,25 @@ class Reservoir(GenericStorage, Facade):
     ...     efficiency=0.93)
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
+    carrier: str
 
-        kwargs.update(
-            {
-                "_facade_requires_": [
-                    "bus",
-                    "carrier",
-                    "tech",
-                    "profile",
-                    "efficiency",
-                ]
-            }
-        )
-        super().__init__(*args, **kwargs)
+    tech: str
 
-        self.storage_capacity = kwargs.get("storage_capacity")
+    storage_capacity: float = None
 
-        self.capacity = kwargs.get("capacity")
+    capacity: float = None
 
-        self.efficiency = kwargs.get("efficiency", 1)
+    efficiency: float = 1
 
-        self.profile = kwargs.get("profile")
+    profile: Union[float, Sequence[float]] = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    input_parameters: dict = field(default_factory=dict)
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    output_parameters: dict = field(default_factory=dict)
 
-        self.expandable = bool(kwargs.get("expandable", False))
-
-        self.build_solph_components()
+    expandable: bool = False
 
     def build_solph_components(self):
         """
