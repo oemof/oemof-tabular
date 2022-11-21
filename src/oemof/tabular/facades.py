@@ -474,15 +474,15 @@ class Dispatchable(Source, Facade):
 
     profile: float = 1
 
-    capacity: float = 0
+    capacity: float = None
 
     capacity_potential: float = float("+inf")
 
     marginal_cost: float = 0
 
-    capacity_cost: float = 0
+    capacity_cost: float = None
 
-    capacity_minimum: float = 0
+    capacity_minimum: float = None
 
     expandable: bool = False
 
@@ -1380,7 +1380,7 @@ class Storage(GenericStorage, Facade):
 
     capacity_cost: float = 0
 
-    storage_capacity_cost: float = 0
+    storage_capacity_cost: float = None
 
     storage_capacity_potential: float = float("+inf")
 
