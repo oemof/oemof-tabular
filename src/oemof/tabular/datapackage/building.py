@@ -3,6 +3,7 @@ from ftplib import FTP
 from urllib.parse import urlparse
 import errno
 import os
+import pathlib
 import shutil
 import sys
 import tarfile
@@ -104,7 +105,8 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/elements"):
-            r = Resource({"path": os.path.join("data/elements", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath(
+                "data", "elements", f))})
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
@@ -138,7 +140,8 @@ def infer_metadata(
                         )
 
             r.commit()
-            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(
+                ".csv", ".json")))
             p.add_resource(r.descriptor)
 
     # create meta data resources sequences
@@ -150,10 +153,12 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/sequences"):
-            r = Resource({"path": os.path.join("data/sequences", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath(
+                "data", "sequences", f))})
             r.infer()
             r.commit()
-            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(
+                ".csv", ".json")))
             p.add_resource(r.descriptor)
 
     if not os.path.exists("data/geometries"):
@@ -164,10 +169,12 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/geometries"):
-            r = Resource({"path": os.path.join("data/geometries", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath(
+                "data", "geometries", f))})
             r.infer()
             r.commit()
-            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(
+                ".csv", ".json")))
             p.add_resource(r.descriptor)
 
     p.commit()

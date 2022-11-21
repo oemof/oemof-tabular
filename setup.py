@@ -65,7 +65,7 @@ setup(
     ],
     install_requires=[
         "datapackage==1.5.1",
-        "tableschema==1.3.0",
+        "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
         "oemof.solph @ git+https://git@github.com/oemof/oemof-solph@v0.4#egg=oemof.solph",
         "pandas>=0.22",
         "paramiko",
