@@ -10,7 +10,7 @@ import oemof.solph as solph
 
 from oemof.tabular.facades import (BackpressureTurbine, Commodity, Conversion,
                                    Dispatchable, ExtractionTurbine, Link, Load,
-                                   Reservoir, Storage, Volatile)
+                                   Reservoir, Storage, Volatile, Excess)
 
 
 def chop_trailing_whitespace(lines):
@@ -344,6 +344,21 @@ class TestConstraints:
         self.energysystem.add(bus, dispatchable)
 
         self.compare_to_reference_lp("dispatchable.lp")
+
+    def test_excess(self):
+        bus = solph.Bus("electricity")
+
+        excess = Excess(
+            label='excess',
+            bus=bus,
+            carrier='electricity',
+            tech='excess',
+            capacity=1000,
+            marginal_cost=10,
+        )
+        self.energysystem.add(bus, excess)
+
+        self.compare_to_reference_lp("excess.lp")
 
     def test_link(self):
         r"""
