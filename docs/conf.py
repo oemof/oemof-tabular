@@ -73,8 +73,3 @@ autodoc_mock_imports = [
     "scipy",
     "shapefile",
 ]
-
-# Use this kernel instead of the one stored in the notebook metadata:
-# https://nbsphinx.readthedocs.io/en/0.5.1/configuring-kernels.html#Kernel-Name
-# https://github.com/spatialaudio/nbsphinx/pull/98
-nbsphinx_kernel_name = 'python3'
