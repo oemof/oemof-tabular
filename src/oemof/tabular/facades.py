@@ -19,8 +19,9 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
-from dataclasses import dataclass, field
 import dataclasses
+from dataclasses import dataclass, field
+from pydantic.dataclasses import dataclass
 import warnings
 
 from oemof.network.energy_system import EnergySystem
@@ -33,6 +34,9 @@ from oemof.tools.debugging import SuspiciousUsageWarning
 
 # Switch off SuspiciousUsageWarning
 warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
+
+class MyConfig:
+    arbitrary_types_allowed = True
 
 
 def kwargs_to_parent(cls):
