@@ -6,11 +6,11 @@ import re
 import pandas as pd
 
 from oemof.solph import helpers
-import oemof.solph as solph
+from oemof import solph
 
 from oemof.tabular.facades import (BackpressureTurbine, Commodity, Conversion,
-                                   Dispatchable, ExtractionTurbine, Link, Load,
-                                   Reservoir, Storage, Volatile, Excess)
+                                   Dispatchable, Excess, ExtractionTurbine,
+                                   Link, Load, Reservoir, Storage, Volatile)
 
 
 def chop_trailing_whitespace(lines):
