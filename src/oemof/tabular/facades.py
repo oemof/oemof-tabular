@@ -1576,9 +1576,35 @@ class Excess(Sink, Facade):
 
         self.bus = kwargs.get("bus")
 
-        self.marginal_cost = kwargs.get("marginal_cost")
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.inputs.update({self.bus: Flow(variable_costs=self.marginal_cost)})
+        self.capacity = kwargs.get("capacity")
+
+        self.capacity_potential = kwargs.get(
+            "capacity_potential", float("+inf")
+        )
+
+        self.capacity_cost = kwargs.get("capacity_cost")
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
+
+        self.expandable = bool(kwargs.get("expandable", False))
+
+        self.input_parameters = kwargs.get("input_parameters", {})
+
+        self.build_solph_components()
+
+    def build_solph_components(self):
+        """
+        """
+        f = Flow(
+            nominal_value=self._nominal_value(),
+            variable_costs=self.marginal_cost,
+            investment=self._investment(),
+            **self.input_parameters
+        )
+
+        self.inputs.update({self.bus: f})
 
 
 class Shortage(Dispatchable):
