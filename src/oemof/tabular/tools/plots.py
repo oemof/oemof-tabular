@@ -1,9 +1,18 @@
 import os
 
 # import plotly.offline as offline
-from matplotlib import colors
+try:
+    from matplotlib import colors
+except ImportError:
+    raise ImportError("Need to install matplotlib to use plots!")
+
+try:
+    import plotly.graph_objs as go
+except ImportError:
+    raise ImportError("Need to install plotly to use plots!")
+
 import pandas as pd
-import plotly.graph_objs as go
+
 
 # offline.init_notebook_mode()
 from oemof.tabular.facades import CARRIER_COLER_MAP, TECH_COLOR_MAP
@@ -27,20 +36,32 @@ def hourly_plot(
         "phs",
         "lithium-battery",
         "battery",
-        "storage"
+        "storage",
+        "heat-storage",
     ],
     aggregate=[
-        "coal", "lignite", "oil", "gas", "waste", "uranium", "wind", "solar"],
+        "coal",
+        "lignite",
+        "oil",
+        "gas",
+        "waste",
+        "uranium",
+        "wind",
+        "solar",
+    ],
     daily=False,
     plot_filling_levels=True,
 ):
     """
     """
-    df = pd.read_csv(
-        os.path.join(datapath, scenario, "output", bus + ".csv"),
-        index_col=[0],
-        parse_dates=True,
-    )
+    if scenario.endswith(".csv"):
+        df = pd.read_csv(scenario, index_col=[0], parse_dates=True)
+    else:
+        df = pd.read_csv(
+            os.path.join(datapath, scenario, "output", bus + ".csv"),
+            index_col=[0],
+            parse_dates=True,
+        )
 
     if plot_filling_levels:
         filling_levels = pd.read_csv(
@@ -61,10 +82,13 @@ def hourly_plot(
         df = df.resample("1D").mean()
 
     x = df.index
+
     # kind of a hack to get only the technologies
     df.columns = [c.replace(bus + "-", "") for c in df.columns]
+
     # strip also if only country code is part of supply name like ("DE-coal")
-    df.columns = [c.replace(bus[0:3], "") for c in df.columns]
+    if bus[0:2].isupper():
+        df.columns = [c.replace(bus[0:3], "") for c in df.columns]
     # create plot
     layout = go.Layout(
         barmode="stack",

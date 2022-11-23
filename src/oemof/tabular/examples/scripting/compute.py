@@ -19,7 +19,8 @@ datapackage_dir = pkg.resource_filename(
 
 # create  path for results (we use the datapackage_dir to store results)
 results_path = os.path.join(
-    os.path.expanduser("~"), "oemof-results", name, "output")
+    os.path.expanduser("~"), "oemof-results", name, "output"
+)
 if not os.path.exists(results_path):
     os.makedirs(results_path)
 
@@ -39,9 +40,7 @@ m = Model(es)
 # select solver 'gurobi', 'cplex', 'glpk' etc
 m.solve("cbc")
 
-# get the results from the the solved model(still oemof.solph)
-m.results = m.results()
-
+results = m.results()
 # now we use the write results method to write the results in oemof-tabular
 # format
-pp.write_results(m, results_path)
+pp.write_results(m, results, results_path)

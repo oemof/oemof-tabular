@@ -6,8 +6,8 @@ import os
 import numpy as np
 import pandas as pd
 
-from oemof.network import Bus, Sink
-from oemof.outputlib import views
+from oemof.network.network import Bus, Sink
+from oemof.solph import views
 from oemof.solph.components import GenericStorage
 
 from oemof.tabular import facades
@@ -91,6 +91,7 @@ def supply_results(
         "volatile",
         "conversion",
         "backpressure",
+        "heatpump",
         "extraction",
         "storage",
         "reservoir",
@@ -125,7 +126,9 @@ def supply_results(
     return selection
 
 
-def demand_results(types=["load"], bus=None, results=None, es=None):
+def demand_results(
+    types=["load", "conversion", "heatpump"], bus=None, results=None, es=None
+):
     """
     """
     if not hasattr(es, "typemap"):
@@ -149,7 +152,7 @@ def demand_results(types=["load"], bus=None, results=None, es=None):
 
 
 def write_results(
-    m, output_path, raw=False, summary=True, scalars=True, **kwargs
+    m, results, output_path, raw=False, summary=True, scalars=True, **kwargs
 ):
     """
     """
@@ -161,18 +164,18 @@ def write_results(
 
     buses = [b.label for b in m.es.nodes if isinstance(b, Bus)]
 
-    link_results = component_results(m.es, m.results).get("link")
+    link_results = component_results(m.es, results).get("link")
     if link_results is not None and raw:
         save(link_results, "links-oemof")
 
     imports = pd.DataFrame()
     for b in buses:
-        supply = supply_results(results=m.results, es=m.es, bus=[b], **kwargs)
+        supply = supply_results(results=results, es=m.es, bus=[b], **kwargs)
         supply.columns = supply.columns.droplevel([1, 2])
 
-        demand = demand_results(results=m.results, es=m.es, bus=[b])
+        demand = demand_results(results=results, es=m.es, bus=[b])
 
-        excess = component_results(m.es, m.results, select="sequences").get(
+        excess = component_results(m.es, results, select="sequences").get(
             "excess"
         )
 
@@ -201,11 +204,13 @@ def write_results(
                 _excess = excess.loc[:, (m.es.groups[b], slice(None), "flow")]
                 _excess.columns = _excess.columns.droplevel([0, 2])
                 supply = pd.concat([supply, _excess], axis=1)
+            save(excess, "excess")
+
         save(supply, b)
         save(imports, "import")
 
     try:
-        all = bus_results(m.es, m.results, select="scalars", concat=True)
+        all = bus_results(m.es, results, select="scalars", concat=True)
         all.name = "value"
         endogenous = all.reset_index()
         endogenous["tech"] = [
@@ -249,7 +254,7 @@ def write_results(
 
     save(capacities, "capacities")
 
-    bresults = bus_results(m.es, m.results, concat=True)
+    bresults = bus_results(m.es, results, concat=True)
     if "duals" in bresults.columns.levels[2]:
         duals = bresults.xs("duals", level=2, axis=1)
         duals.columns = duals.columns.droplevel(1)
@@ -258,6 +263,6 @@ def write_results(
 
     # check if storages exist in energy system nodes
     if [n for n in m.es.nodes if isinstance(n, GenericStorage)]:
-        filling_levels = views.node_weight_by_type(m.results, GenericStorage)
+        filling_levels = views.node_weight_by_type(results, GenericStorage)
         filling_levels.columns = filling_levels.columns.droplevel(1)
         save(filling_levels, "filling_levels")

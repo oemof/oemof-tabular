@@ -19,7 +19,7 @@ import re
 import datapackage as dp
 import pandas as pd
 
-from oemof.network import Bus, Component
+from oemof.network.network import Bus, Component
 
 from ..tools import HSN, raisestatement, remap
 
@@ -31,22 +31,29 @@ def sequences(r, timeindices=None):
     """ Parses the resource `r` as a sequence.
     """
     result = {
-        name: [float(s[name]) if isinstance(s[name], Decimal) else s[name]
-               for s in r.read(keyed=True)]
-        for name in r.headers}
+        name: [
+            float(s[name]) if isinstance(s[name], Decimal) else s[name]
+            for s in r.read(keyed=True)
+        ]
+        for name in r.headers
+    }
     if timeindices is not None:
         timeindices[r.name] = result["timeindex"]
-    result = {
-        name: result[name]
-        for name in result
-        if name != "timeindex"}
+    result = {name: result[name] for name in result if name != "timeindex"}
     return result
 
 
-def read_facade(facade, facades, create, typemap, data, objects,
-                sequence_names,
-                fks,
-                resources):
+def read_facade(
+    facade,
+    facades,
+    create,
+    typemap,
+    data,
+    objects,
+    sequence_names,
+    fks,
+    resources,
+):
     """ Parse the resource `r` as a facade.
     """
     # TODO: Generate better error messages, if keys which are assumed to be
@@ -65,33 +72,50 @@ def read_facade(facade, facades, create, typemap, data, objects,
         else:
             foreign_keys = {
                 fk["fields"]: fk["reference"]
-                for fk in (resources(reference["resource"])
-                           .descriptor["schema"]
-                           .get("foreignKeys", ()))}
+                for fk in (
+                    resources(reference["resource"])
+                    .descriptor["schema"]
+                    .get("foreignKeys", ())
+                )
+            }
             facade[field] = read_facade(
-                facade[field], facades, create, typemap, data, objects,
-                sequence_names, foreign_keys, resources)
+                facade[field],
+                facades,
+                create,
+                typemap,
+                data,
+                objects,
+                sequence_names,
+                foreign_keys,
+                resources,
+            )
     # TODO: Do we really want to strip whitespace?
     mapping = typemap.get(facade.get("type").strip())
     if mapping is None:
-        raise(ValueError("Typemap is missing a mapping for '{}'."
-                         .format(facade.get("type", "<MISSING TYPE>"))))
+        raise (
+            ValueError(
+                "Typemap is missing a mapping for '{}'.".format(
+                    facade.get("type", "<MISSING TYPE>")
+                )
+            )
+        )
     instance = create(mapping, facade, facade)
     facades[facade["name"]] = instance
     return instance
 
 
-def deserialize_energy_system(cls, path,
-                              typemap={},
-                              attributemap={}):
+def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     cast_error_msg = (
         "Metadata structure of resource `{}` does not match data "
-        "structure. Check the column names, types and their order.")
+        "structure. Check the column names, types and their order."
+    )
 
-    default_typemap = {"bus": Bus,
-                       "hub": Bus,
-                       DEFAULT: Component,
-                       FLOW_TYPE: HSN}
+    default_typemap = {
+        "bus": Bus,
+        "hub": Bus,
+        DEFAULT: Component,
+        FLOW_TYPE: HSN,
+    }
 
     for k, v in default_typemap.items():
         typemap[k] = typemap.get(k, v)
@@ -110,8 +134,7 @@ def deserialize_energy_system(cls, path,
         try:
             r.read()
         except dp.exceptions.CastError:
-            raise dp.exceptions.CastError(
-                (cast_error_msg).format(r.name))
+            raise dp.exceptions.CastError((cast_error_msg).format(r.name))
     empty = HSN()
     empty.read = lambda *xs, **ks: ()
     empty.headers = ()
@@ -123,9 +146,8 @@ def deserialize_energy_system(cls, path,
 
     def listify(x, n=None):
         return (
-            x if isinstance(x, list)
-            else repeat(x) if not n
-            else repeat(x, n))
+            x if isinstance(x, list) else repeat(x) if not n else repeat(x, n)
+        )
 
     def resource(r):
         return package.get_resource(r) or empty
@@ -133,43 +155,75 @@ def deserialize_energy_system(cls, path,
     timeindices = {}
 
     for r in package.resources:
-        if all(re.match(r"^data/sequences/.*$", p)
-               for p in listify(r.descriptor["path"], 1)):
+        if all(
+            re.match(r"^data/sequences/.*$", p)
+            for p in listify(r.descriptor["path"], 1)
+        ):
             data.update({r.name: sequences(r, timeindices)})
     sequence_names = set(data.keys())
 
     data.update(
-        {name: {r["name"]: {key: r[key] for key in r}
-                for r in resource(name).read(keyed=True)}
-         for name in ("hubs", "components")})
+        {
+            name: {
+                r["name"]: {key: r[key] for key in r}
+                for r in resource(name).read(keyed=True)
+            }
+            for name in ("hubs", "components")
+        }
+    )
 
     data["elements"] = {
         e["name"]: {
             "name": e["name"],
-            "inputs": {source: edges[i, source]
-                       for i, source in enumerate(inputs)},
-            "outputs": {target: edges[i, target]
-                        for i, target in enumerate(outputs, len(inputs))},
-            "parameters": dict(chain(
-                parse(e.get("node_parameters", "{}")).items(),
-                data["components"].get(e["name"], {}).items())),
-            "type": e["type"]}
+            "inputs": {
+                source: edges[i, source] for i, source in enumerate(inputs)
+            },
+            "outputs": {
+                target: edges[i, target]
+                for i, target in enumerate(outputs, len(inputs))
+            },
+            "parameters": dict(
+                chain(
+                    parse(e.get("node_parameters", "{}")).items(),
+                    data["components"].get(e["name"], {}).items(),
+                )
+            ),
+            "type": e["type"],
+        }
         for e in resource("elements").read(keyed=True)
-        for inputs, outputs in
-        (([p.strip() for p in e["predecessors"].split(",") if p],
-          [s.strip() for s in e["successors"].split(",") if s]),)
-        for triples in (chain(
-            *(zip(enumerate(chain(inputs, outputs)),
-                  repeat(parameter),
-                  listify(value))
-              for parameter, value in
-              parse(e.get("edge_parameters", "{}")).items())),)
+        for inputs, outputs in (
+            (
+                [p.strip() for p in e["predecessors"].split(",") if p],
+                [s.strip() for s in e["successors"].split(",") if s],
+            ),
+        )
+        for triples in (
+            chain(
+                *(
+                    zip(
+                        enumerate(chain(inputs, outputs)),
+                        repeat(parameter),
+                        listify(value),
+                    )
+                    for parameter, value in parse(
+                        e.get("edge_parameters", "{}")
+                    ).items()
+                )
+            ),
+        )
         for edges in (
-            {group: {parameter: value
-                     for _, parameter, value in grouped_triples
-                     if value is not None}
-             for group, grouped_triples in
-             groupby(sorted(triples), key=lambda triple: triple[0])},)}
+            {
+                group: {
+                    parameter: value
+                    for _, parameter, value in grouped_triples
+                    if value is not None
+                }
+                for group, grouped_triples in groupby(
+                    sorted(triples), key=lambda triple: triple[0]
+                )
+            },
+        )
+    }
 
     def resolve_foreign_keys(source):
         """ Check whether any key in `source` is a FK and follow it.
@@ -192,9 +246,11 @@ def deserialize_energy_system(cls, path,
         arbitrary levels are resolved.
         """
         for key in source:
-            if (isinstance(source[key], str)
-                    and key in data
-                    and source[key] in data[key]):
+            if (
+                isinstance(source[key], str)
+                and key in data
+                and source[key] in data[key]
+            ):
 
                 source[key] = data[key][source[key]]
 
@@ -205,15 +261,23 @@ def deserialize_energy_system(cls, path,
 
     resolve_foreign_keys(data["elements"])
 
-    bus_names = set(chain(*(e[io].keys()
-                            for e in data["elements"].values()
-                            for io in ["inputs", "outputs"])))
-    data["buses"] = {name: {"name": name,
-                            "type": (data["hubs"]
-                                     .get(name, {})
-                                     .get("type", "bus")),
-                            "parameters": data["hubs"].get(name, {})}
-                     for name in bus_names}
+    bus_names = set(
+        chain(
+            *(
+                e[io].keys()
+                for e in data["elements"].values()
+                for io in ["inputs", "outputs"]
+            )
+        )
+    )
+    data["buses"] = {
+        name: {
+            "name": name,
+            "type": (data["hubs"].get(name, {}).get("type", "bus")),
+            "parameters": data["hubs"].get(name, {}),
+        }
+        for name in bus_names
+    }
 
     objects = {}
 
@@ -231,19 +295,27 @@ def deserialize_energy_system(cls, path,
         return instance
 
     data["buses"] = {
-        name: create(mapping if mapping
-                     else raisestatement(
-                         ValueError,
-                         "Typemap is missing a mapping for '{}'."
-                         .format(bus.get("type", "bus"))),
-                     {"label": name},
-                     bus["parameters"])
+        name: create(
+            mapping
+            if mapping
+            else raisestatement(
+                ValueError,
+                "Typemap is missing a mapping for '{}'.".format(
+                    bus.get("type", "bus")
+                ),
+            ),
+            {"label": name},
+            bus["parameters"],
+        )
         for name, bus in sorted(data["buses"].items())
-        for mapping in (typemap.get(bus.get("type", "bus")),)}
+        for mapping in (typemap.get(bus.get("type", "bus")),)
+    }
 
     def resolve_object_references(source, f=None):
-        """ Check whether any key in `source` is a reference to a `name`d object.
         """
+        Check whether any key in `source` is a reference to a `name`d object.
+        """
+
         def find(n, d):
             found = []
             for resource in d:
@@ -274,58 +346,88 @@ def deserialize_energy_system(cls, path,
     data["components"] = {
         name: create(
             typemap[element.get("type", DEFAULT)],
-            {"label": name,
-             "inputs": {
-                 data["buses"][bus]: flow(**remap(kwargs, attributemap, flow))
-                 for bus, kwargs in sorted(element["inputs"].items())},
-             "outputs": {
-                 data["buses"][bus]: flow(**remap(kwargs, attributemap, flow))
-                 for bus, kwargs in sorted(element["outputs"].items())}},
-            resolve_object_references(element["parameters"],
-                                      f=lambda r: r == "buses"))
+            {
+                "label": name,
+                "inputs": {
+                    data["buses"][bus]: flow(
+                        **remap(kwargs, attributemap, flow)
+                    )
+                    for bus, kwargs in sorted(element["inputs"].items())
+                },
+                "outputs": {
+                    data["buses"][bus]: flow(
+                        **remap(kwargs, attributemap, flow)
+                    )
+                    for bus, kwargs in sorted(element["outputs"].items())
+                },
+            },
+            resolve_object_references(
+                element["parameters"], f=lambda r: r == "buses"
+            ),
+        )
         for name, element in sorted(data["elements"].items())
-        for flow in (typemap.get(FLOW_TYPE, HSN),)}
+        for flow in (typemap.get(FLOW_TYPE, HSN),)
+    }
 
     facades = {}
     for r in package.resources:
-        if all(re.match(r"^data/elements/.*$", p)
-               for p in listify(r.descriptor["path"], 1)):
+        if all(
+            re.match(r"^data/elements/.*$", p)
+            for p in listify(r.descriptor["path"], 1)
+        ):
             try:
                 facade_data = r.read(keyed=True, relations=True)
             except dp.exceptions.CastError:
                 raise dp.exceptions.LoadError((cast_error_msg).format(r.name))
             except Exception as e:
                 raise dp.exceptions.LoadError(
-                    ("Could not read data for resource with name `{}`. "
-                     " Maybe wrong foreign keys?\n"
-                     "Exception was: {}").format(r.name, e))
+                    (
+                        "Could not read data for resource with name `{}`. "
+                        " Maybe wrong foreign keys?\n"
+                        "Exception was: {}"
+                    ).format(r.name, e)
+                )
 
             foreign_keys = {
                 fk["fields"]: fk["reference"]
-                for fk in r.descriptor["schema"].get("foreignKeys", ())}
+                for fk in r.descriptor["schema"].get("foreignKeys", ())
+            }
             for facade in facade_data:
                 # convert decimal to float
                 for f, v in facade.items():
                     if isinstance(v, Decimal):
                         facade[f] = float(v)
-                read_facade(facade, facades, create, typemap, data, objects,
-                            sequence_names,
-                            foreign_keys,
-                            resource)
+                read_facade(
+                    facade,
+                    facades,
+                    create,
+                    typemap,
+                    data,
+                    objects,
+                    sequence_names,
+                    foreign_keys,
+                    resource,
+                )
 
     # TODO: Find concept how to deal with timeindices and clean up based on
     # concept
-    lst = ([idx for idx in timeindices.values()])
+    lst = [idx for idx in timeindices.values()]
     if lst[1:] == lst[:-1]:
         # look for temporal resource and if present, take as timeindex from it
         if package.get_resource("temporal"):
-            temporal = pd.DataFrame.from_dict(
-                package.get_resource("temporal").read(keyed=True)
-            ).set_index("timeindex").astype(float)
+            temporal = (
+                pd.DataFrame.from_dict(
+                    package.get_resource("temporal").read(keyed=True)
+                )
+                .set_index("timeindex")
+                .astype(float)
+            )
             # for correct freq setting of timeindex
             temporal.index = pd.DatetimeIndex(
-                temporal.index.values, freq=temporal.index.inferred_freq,
-                name="timeindex")
+                temporal.index.values,
+                freq=temporal.index.inferred_freq,
+                name="timeindex",
+            )
             timeindex = temporal.index
 
         # if no temporal provided as resource, take the first timeindex
@@ -334,27 +436,35 @@ def deserialize_energy_system(cls, path,
             # if lst is not empty
             if lst:
                 idx = pd.DatetimeIndex(lst[0])
-                timeindex = pd.DatetimeIndex(idx.values,
-                                             freq=idx.inferred_freq,
-                                             name="timeindex")
+                timeindex = pd.DatetimeIndex(
+                    idx.values, freq=idx.inferred_freq, name="timeindex"
+                )
                 temporal = None
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
             # step of today (same as in the EnergySystem __init__ if no
             # timeindex is passed)
             else:
-                timeindex = pd.date_range(start=pd.to_datetime("today"),
-                                          periods=1, freq="H")
+                timeindex = pd.date_range(
+                    start=pd.to_datetime("today"), periods=1, freq="H"
+                )
 
-        es = (cls(timeindex=timeindex, temporal=temporal)
-              if lst
-              else cls())
+        es = cls(timeindex=timeindex, temporal=temporal) if lst else cls()
 
-        es.add(*chain(data["components"].values(),
-                      data["buses"].values(),
-                      facades.values(),
-                      chain(*[f.subnodes for f in facades.values()
-                              if hasattr(f, "subnodes")])))
+        es.add(
+            *chain(
+                data["components"].values(),
+                data["buses"].values(),
+                facades.values(),
+                chain(
+                    *[
+                        f.subnodes
+                        for f in facades.values()
+                        if hasattr(f, "subnodes")
+                    ]
+                ),
+            )
+        )
 
         es.typemap = typemap
 

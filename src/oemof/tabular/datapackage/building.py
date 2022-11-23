@@ -3,6 +3,7 @@ from ftplib import FTP
 from urllib.parse import urlparse
 import errno
 import os
+import pathlib
 import shutil
 import sys
 import tarfile
@@ -10,11 +11,11 @@ import urllib.request
 import zipfile
 
 from datapackage import Package, Resource
-from geojson import Feature, FeatureCollection, dump, load
-from shapely.geometry import shape
 import pandas as pd
 import paramiko
 import toml
+
+from oemof.tabular.config import config
 
 
 def infer_resources(directory="data/elements"):
@@ -61,20 +62,7 @@ def update_package_descriptor():
 def infer_metadata(
     package_name="default-name",
     keep_resources=False,
-    foreign_keys={
-        "bus": [
-            "volatile",
-            "dispatchable",
-            "storage",
-            "load",
-            "reservoir",
-            "shortage",
-            "excess",
-        ],
-        "profile": ["load", "volatile", "ror"],
-        "from_to_bus": ["connection", "line", "conversion"],
-        "chp": ["backpressure", "extraction", "chp"],
-    },
+    foreign_keys=None,
     path=None,
 ):
     """ Add basic meta data for a datapackage
@@ -83,17 +71,19 @@ def infer_metadata(
     ----------
     package_name: string
         Name of the data package
-    keep_resource: boolean
+    keep_resources: boolean
         Flag indicating of the resources meta data json-files should be kept
-        after main datapackage.json is created. The reource meta data will
+        after main datapackage.json is created. The resource meta data will
         be stored in the `resources` directory.
     foreign_keys: dict
         Dictionary with foreign key specification. Keys for dictionary are:
         'bus', 'profile', 'from_to_bus'. Values are list with
         strings with the name of the resources
     path: string
-        Absoltue path to root-folder of the datapackage
+        Absolute path to root-folder of the datapackage
     """
+    foreign_keys = foreign_keys or config.FOREIGN_KEYS
+
     current_path = os.getcwd()
     if path:
         print("Setting current work directory to {}".format(path))
@@ -115,59 +105,46 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/elements"):
-            r = Resource({"path": os.path.join("data/elements", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath(
+                "data", "elements", f))})
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
-            if r.name in foreign_keys.get("bus", []):
-                r.descriptor["schema"]["foreignKeys"] = [
+            r.descriptor["schema"]["foreignKeys"] = []
+
+            # Define foreign keys from dictionary 'foreign_key_descriptors'
+            for label, descriptor in config.FOREIGN_KEY_DESCRIPTORS.items():
+                if r.name in foreign_keys.get(label, []):
+                    r.descriptor["schema"]["foreignKeys"].extend(descriptor)
+
+            # Define foreign keys for 'profile' as <resource name>_profile
+            if r.name in foreign_keys.get("profile", []):
+                r.descriptor["schema"]["foreignKeys"].append(
                     {
-                        "fields": "bus",
-                        "reference": {"resource": "bus", "fields": "name"},
+                        "fields": "profile",
+                        "reference": {"resource": r.name + "_profile"},
                     }
-                ]
+                )
 
-                if r.name in foreign_keys.get("profile", []):
-                    r.descriptor["schema"]["foreignKeys"].append(
-                        {
-                            "fields": "profile",
-                            "reference": {"resource": r.name + "_profile"},
-                        }
-                    )
-
-            elif r.name in foreign_keys.get("from_to_bus", []):
-                r.descriptor["schema"]["foreignKeys"] = [
-                    {
-                        "fields": "from_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                    {
-                        "fields": "to_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                ]
-
-            elif r.name in foreign_keys.get("chp", []):
-                r.descriptor["schema"]["foreignKeys"] = [
-                    {
-                        "fields": "fuel_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                    {
-                        "fields": "electricity_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                    {
-                        "fields": "heat_bus",
-                        "reference": {"resource": "bus", "fields": "name"},
-                    },
-                ]
+            # Define all undefined foreign keys for as <var name>_profile
+            for key in foreign_keys:
+                if key not in (
+                    ["profile"] + list(config.FOREIGN_KEY_DESCRIPTORS)
+                ):
+                    if r.name in foreign_keys[key]:
+                        r.descriptor["schema"]["foreignKeys"].append(
+                            {
+                                "fields": key,
+                                "reference": {"resource": key + "_profile"},
+                            }
+                        )
 
             r.commit()
-            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(
+                ".csv", ".json")))
             p.add_resource(r.descriptor)
 
-    # create meta data resources elements
+    # create meta data resources sequences
     if not os.path.exists("data/sequences"):
         print(
             "No data path found in directory {}. Skipping...".format(
@@ -176,10 +153,28 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/sequences"):
-            r = Resource({"path": os.path.join("data/sequences", f)})
+            r = Resource({"path": str(pathlib.PurePosixPath(
+                "data", "sequences", f))})
             r.infer()
             r.commit()
-            r.save(os.path.join("resources", f.replace(".csv", ".json")))
+            r.save(pathlib.PurePosixPath("resources", f.replace(
+                ".csv", ".json")))
+            p.add_resource(r.descriptor)
+
+    if not os.path.exists("data/geometries"):
+        print(
+            "No geometries path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in os.listdir("data/geometries"):
+            r = Resource({"path": str(pathlib.PurePosixPath(
+                "data", "geometries", f))})
+            r.infer()
+            r.commit()
+            r.save(pathlib.PurePosixPath("resources", f.replace(
+                ".csv", ".json")))
             p.add_resource(r.descriptor)
 
     p.commit()
@@ -373,6 +368,8 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
                 zipped.extractall(
                     filepath, members=list(filter(member, zipped.namelist()))
                 )
+            elif unzip_file == "":
+                zipped.extractall(directory)
             else:
                 zipped.extract(unzip_file, directory)
 
@@ -397,7 +394,7 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
     return filepath
 
 
-def timeindex(year, periods=8760, freq='H'):
+def timeindex(year, periods=8760, freq="H"):
     """ Create pandas datetimeindex.
 
     Parameters
@@ -415,7 +412,7 @@ def timeindex(year, periods=8760, freq='H'):
     return idx
 
 
-def initialize(config, directory='.'):
+def initialize(config, directory="."):
     """ Initialize datapackage by reading config file and creating required
     directories (data/elements, data/sequences etc.) if directories are
     not specified in the config file, the default directory setup up
@@ -553,105 +550,12 @@ def read_elements(filename, directory="data/elements"):
     return elements
 
 
-def read_geometries(filename, directory="data/geometries"):
-    """
-    Reads geometry resources from the datapackage. Data may either be stored
-    in geojson format or as WKT representation in CSV-files.
-
-    Parameters
-    ----------
-    filename: string
-        Name of the elements to be read, for example `buses.geojson`
-    directory: string
-        Directory where the file is located. Default: `data/geometries`
-
-    Returns
-    -------
-    pd.Series
-    """
-
-    path = os.path.join(directory, filename)
-
-    if os.path.splitext(filename)[1] == ".geojson":
-        if os.path.exists(path):
-            with open(path, "r") as infile:
-                features = load(infile)["features"]
-                names = [f["properties"]["name"] for f in features]
-                geometries = [shape(f["geometry"]) for f in features]
-                geometries = pd.Series(dict(zip(names, geometries)))
-
-    if os.path.splitext(filename)[1] == ".csv":
-        if os.path.exists(path):
-            geometries = pd.read_csv(path, sep=";", index_col=["name"])
-        else:
-            geometries = pd.Series(name="geometry")
-            geometries.index.name = "name"
-
-    return geometries
-
-
-def write_geometries(filename, geometries, directory="data/geometries"):
-    """ Writes geometries to filesystem.
-
-    Parameters
-    ----------
-    filename: string
-        Name of the geometries stored, for example `buses.geojson`
-    geometries: pd.Series
-        Index entries become name fields in GeoJSON properties.
-    directory: string
-        Directory where the file is stored. Default: `data/geometries`
-
-    Returns
-    -------
-    path: string
-        Returns the path where the file has been stored.
-    """
-
-    path = os.path.join(directory, filename)
-
-    if os.path.splitext(filename)[1] == ".geojson":
-        features = FeatureCollection(
-            [
-                Feature(geometry=v, properties={"name": k})
-                for k, v in geometries.iteritems()
-            ]
-        )
-
-        if os.path.exists(path):
-            with open(path) as infile:
-                existing_features = load(infile)["features"]
-
-            names = [f["properties"]["name"] for f in existing_features]
-
-            assert all(i not in names for i in geometries.index), (
-                "Cannot " "create duplicate entries in %s." % filename
-            )
-
-            features["features"] += existing_features
-
-        with open(path, "w") as outfile:
-            dump(features, outfile)
-
-    if os.path.splitext(filename)[1] == ".csv":
-        if os.path.exists(path):
-            existing_geometries = read_geometries(filename, directory)
-            geometries = pd.concat(
-                [existing_geometries, geometries], verify_integrity=True
-            )
-
-        geometries.index.name = "name"
-
-        geometries.to_csv(path, sep=";", header=True)
-
-    return path
-
-
 def write_elements(
     filename,
     elements,
     directory="data/elements",
     replace=False,
+    overwrite=False,
     create_dir=True,
 ):
     """ Writes elements to filesystem.
@@ -667,6 +571,8 @@ def write_elements(
     replace: boolean
         If set, existing data will be overwritten. Otherwise integrity of
         data (unique indices) will be checked
+    overwrite: boolean
+        If set, existing elements will be overwritten
     create_dir: boolean
         Create the directory if not exists
     Returns
@@ -687,6 +593,9 @@ def write_elements(
 
     if not replace:
         existing_elements = read_elements(filename, directory=directory)
+        if overwrite:
+            overlapp = list(set(elements.index) & set(existing_elements.index))
+            existing_elements.drop(overlapp, inplace=True)
         elements = pd.concat(
             [existing_elements, elements], verify_integrity=True, sort=False
         )

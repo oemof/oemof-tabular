@@ -19,13 +19,19 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 from collections import deque
+import warnings
 
-from oemof.energy_system import EnergySystem
-from oemof.network import Node
+from oemof.network.energy_system import EnergySystem
+from oemof.network.network import Node
 from oemof.solph import Bus, Flow, Investment, Sink, Source, Transformer
 from oemof.solph.components import ExtractionTurbineCHP, GenericStorage
 from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
+from oemof.tools.debugging import SuspiciousUsageWarning
+
+
+# Switch off SuspiciousUsageWarning
+warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
 
 
 def add_subnodes(n, **kwargs):
@@ -76,48 +82,98 @@ class Facade(Node):
         the capacity
         """
         if self.expandable is True:
-            return None
+            if isinstance(self, Link):
+                return {
+                    "from_to": None,
+                    "to_from": None}
+            else:
+                return None
 
         else:
-            return self.capacity
+            if isinstance(self, Link):
+                return {
+                    "from_to": self.from_to_capacity,
+                    "to_from": self.to_from_capacity}
+            else:
+                return self.capacity
 
     def _investment(self):
-        if self.expandable is True:
-            if self.capacity_cost is None:
-                msg = (
-                    "If you set `expandable`to True you need to set "
-                    "attribute `capacity_cost` of component {}!"
-                )
-                raise ValueError(msg.format(self.label))
-            else:
-                if isinstance(self, GenericStorage):
-                    if self.storage_capacity_cost is not None:
-                        self.investment = Investment(
-                            ep_costs=self.storage_capacity_cost,
-                            maximum=getattr(
-                                self,
-                                "storage_capacity_potential",
-                                float("+inf"),
-                            ),
-                            minimum=getattr(
-                                self, "minimum_storage_capacity", 0
-                            ),
-                            existing=getattr(self, "storage_capacity", 0),
-                        )
-                    else:
-                        self.investment = Investment()
-                else:
-                    self.investment = Investment(
-                        ep_costs=self.capacity_cost,
-                        maximum=getattr(
-                            self, "capacity_potential", float("+inf")
-                        ),
-                        existing=getattr(self, "capacity", 0),
-                    )
-        else:
+        if not self.expandable:
             self.investment = None
-
+            return self.investment
+        if self.capacity_cost is None:
+            msg = (
+                "If you set `expandable`to True you need to set "
+                "attribute `capacity_cost` of component {}!"
+            )
+            raise ValueError(msg.format(self.label))
+        if isinstance(self, GenericStorage):
+            if self.storage_capacity_cost is not None:
+                self.investment = Investment(
+                    ep_costs=self.storage_capacity_cost,
+                    maximum=self._get_maximum_additional_invest(
+                        "storage_capacity_potential", "storage_capacity"
+                    ),
+                    minimum=getattr(
+                        self, "minimum_storage_capacity", 0
+                    ),
+                    existing=getattr(self, "storage_capacity", 0),
+                )
+            else:
+                self.investment = Investment(
+                    maximum=self._get_maximum_additional_invest(
+                        "storage_capacity_potential", "storage_capacity"
+                    ),
+                    minimum=getattr(
+                        self, "minimum_storage_capacity", 0
+                    ),
+                    existing=getattr(self, "storage_capacity", 0),
+                )
+        else:
+            self.investment = Investment(
+                ep_costs=self.capacity_cost,
+                maximum=self._get_maximum_additional_invest(
+                    "capacity_potential", "capacity"
+                ),
+                minimum=getattr(
+                    self, "capacity_minimum", 0
+                ),
+                existing=getattr(self, "capacity", 0),
+            )
         return self.investment
+
+    def _get_maximum_additional_invest(self, attr_potential, attr_existing):
+        r"""
+        Calculates maximum additional investment by
+        substracting existing from potential.
+
+        Throws an error if existing is larger than potential.
+        """
+        _potential = getattr(
+            self,
+            attr_potential,
+            float("+inf"),
+        )
+        _existing = getattr(
+            self,
+            attr_existing,
+            0,
+        )
+
+        if _existing is None:
+            _existing = 0
+
+        if _potential is None:
+            _potential = float("+inf")
+
+        maximum = _potential - _existing
+
+        if maximum < 0:
+            raise ValueError(
+                f"Existing {attr_existing}={_existing} is larger"
+                f" than {attr_potential}={_potential}.")
+
+        return maximum
 
     def update(self):
         self.build_solph_components()
@@ -225,8 +281,6 @@ class Reservoir(GenericStorage, Facade):
 
         self.profile = kwargs.get("profile")
 
-        self.input_parameters = kwargs.get("input_parameters", {})
-
         self.output_parameters = kwargs.get("output_parameters", {})
 
         self.expandable = bool(kwargs.get("expandable", False))
@@ -248,7 +302,7 @@ class Reservoir(GenericStorage, Facade):
         inflow = Source(
             label=self.label + "-inflow",
             outputs={
-                self: Flow(nominal_value=1, max=self.profile, fixed=False)
+                self: Flow(nominal_value=1, max=self.profile)
             },
         )
 
@@ -291,7 +345,8 @@ class Dispatchable(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if capacity is to be expanded
-
+    capacity_minimum: numeric
+        Minimum install capacity if capacity is to be expanded
 
     The mathematical representations for this components are dependent on the
     user defined attributes. If the capacity is fixed before
@@ -354,11 +409,15 @@ class Dispatchable(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get(
+            "capacity_potential", float("+inf")
+        )
 
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
         self.capacity_cost = kwargs.get("capacity_cost")
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
 
         self.expandable = bool(kwargs.get("expandable", False))
 
@@ -411,11 +470,10 @@ class Volatile(Source, Facade):
         Edge/Flow class for possible arguments)
     capacity_potential: numeric
         Max install capacity if investment
+    capacity_minimum: numeric
+        Minimum install capacity if investment
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
-    fixed: boolean
-        If False, the output may be curtailed when optimizing dispatch.
-        Default: True
 
 
     The mathematical representations for this components are dependent on the
@@ -475,7 +533,12 @@ class Volatile(Source, Facade):
 
         self.capacity = kwargs.get("capacity")
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
 
         self.expandable = bool(kwargs.get("expandable", False))
 
@@ -485,8 +548,6 @@ class Volatile(Source, Facade):
 
         self.output_parameters = kwargs.get("output_parameters", {})
 
-        self.fixed = bool(kwargs.get("fixed", True))
-
         self.build_solph_components()
 
     def build_solph_components(self):
@@ -495,9 +556,8 @@ class Volatile(Source, Facade):
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
-            actual_value=self.profile,
+            fix=self.profile,
             investment=self._investment(),
-            fixed=self.fixed,
             **self.output_parameters
         )
 
@@ -653,7 +713,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         self.inputs.update(
             {
                 self.fuel_bus: Flow(
-                    variable_cost=self.carrier_cost, **self.input_parameters
+                    variable_costs=self.carrier_cost, **self.input_parameters
                 )
             }
         )
@@ -849,6 +909,8 @@ class Conversion(Transformer, Facade):
         True, if capacity can be expanded within optimization. Default: False.
     capacity_potential: numeric
         Maximum invest capacity in unit of output capacity.
+    capacity_minimum: numeric
+        Minimum invest capacity in unit of output capacity.
     input_parameters: dict (optional)
         Set parameters on the input edge of the conversion unit
         (see oemof.solph for more information on possible parameters)
@@ -907,7 +969,14 @@ class Conversion(Transformer, Facade):
 
         self.expandable = bool(kwargs.get("expandable", False))
 
-        self.capacity_potential = kwargs.get("capacity_potential")
+        self.carrier_cost = kwargs.get("carrier_cost", 0)
+
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
 
         self.input_parameters = kwargs.get("input_parameters", {})
 
@@ -925,8 +994,13 @@ class Conversion(Transformer, Facade):
             }
         )
 
-        self.inputs.update({self.from_bus: Flow(
-            variable_costs=self.carrier_cost, **self.input_parameters)})
+        self.inputs.update(
+            {
+                self.from_bus: Flow(
+                    variable_costs=self.carrier_cost, **self.input_parameters
+                )
+            }
+        )
 
         self.outputs.update(
             {
@@ -935,6 +1009,154 @@ class Conversion(Transformer, Facade):
                     variable_costs=self.marginal_cost,
                     investment=self._investment(),
                     **self.output_parameters
+                )
+            }
+        )
+
+
+class HeatPump(Transformer, Facade):
+    r""" HeatPump unit with two inputs and one output.
+
+    Parameters
+    ----------
+    low_temperature_bus: oemof.solph.Bus
+        An oemof bus instance where unit is connected to with
+        its low temperature input.
+    high_temperature_bus: oemof.solph.Bus
+        An oemof bus instance where the unit is connected to with
+        its high temperature input.
+    capacity: numeric
+        The thermal capacity (high temperature output side) of the unit.
+    cop: numeric
+        Coefficienct of performance
+    carrier_cost: numeric
+        Carrier cost for one unit of used input. Default: 0
+    capacity_cost: numeric
+        Investment costs per unit of output capacity.
+        If capacity is not set, this value will be used for optimizing the
+        conversion output capacity.
+    expandable: boolean or numeric (binary)
+        True, if capacity can be expanded within optimization. Default: False.
+    capacity_potential: numeric
+        Maximum invest capacity in unit of output capacity. Default: +inf.
+    low_temperature_parameters: dict (optional)
+        Set parameters on the input edge of the heat pump unit
+        (see oemof.solph for more information on possible parameters)
+    high_temperature_parameters: dict (optional)
+        Set parameters on the output edge of the heat pump unit
+        (see oemof.solph for more information on possible parameters)
+    input_parameters: dict (optional)
+        Set parameters on the input edge of the conversion unit
+         (see oemof.solph for more information on possible parameters)
+
+
+    .. math::
+        x_{electricity\_bus, hp}^{flow} = \frac{1}{c^{COP}} \cdot
+        x_{hp, high\_temperature\_bus}^{flow}
+
+    .. math::
+        x_{low\_temperature\_source, low\_temperature\_bus}^{flow} =
+        x_{hp, high\_temperature\_bus}^{flow} \frac{c^{COP} -1}{c^{COP}}
+
+    **Ojective expression** for operation includes marginal cost and/or
+    carrier costs:
+
+        .. math::
+
+            x^{opex} =  \sum_t (x^{flow, out}(t) \cdot c^{marginal\_cost}(t)
+            + x^{flow, carrier}(t) \cdot c^{carrier\_cost}(t))
+
+
+    Examples
+    ---------
+
+    >>> from oemof import solph
+    >>> from oemof.tabular import facades
+    >>> electricity_bus = solph.Bus("elec-bus")
+    >>> heat_bus= solph.Bus('heat_bus')
+    >>> heat_bus_low = solph.Bus('heat_bus_low')
+    >>> fc.HeatPump(
+    ...     label="hp-storage",
+    ...     carrier="electricity",
+    ...     tech="hp",
+    ...     cop=3,
+    ...     carrier_cost=15,
+    ...     electricity_bus=elec_bus,
+    ...     high_temperature_bus=heat_bus,
+    ...     low_temperature_bus=heat_bus_low)
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            _facade_requires_=[
+                "low_temperature_bus",
+                "high_temperature_bus",
+                "electricity_bus",
+                "cop",
+                "carrier",
+                "tech",
+            ],
+            *args,
+            **kwargs
+        )
+
+        self.capacity = kwargs.get("capacity")
+
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
+
+        self.carrier_cost = kwargs.get("carrier_cost", 0)
+
+        self.capacity_cost = kwargs.get("capacity_cost")
+
+        self.expandable = bool(kwargs.get("expandable", False))
+
+        self.capacity_potential = kwargs.get(
+            "capacity_potential",
+            float("+inf")
+        )
+
+        self.low_temperature_parameters = kwargs.get(
+            "low_temperature_parameters", {}
+        )
+
+        self.high_temperature_parameters = kwargs.get(
+            "high_temperature_parameters", {}
+        )
+
+        self.input_parameters = kwargs.get("input_parameters", {})
+
+        self.build_solph_components()
+
+    def build_solph_components(self):
+        """
+        """
+        self.conversion_factors.update(
+            {
+                self.electricity_bus: sequence(1 / self.cop),
+                self.low_temperature_bus: sequence((self.cop - 1) / self.cop),
+                self.high_temperature_bus: sequence(1),
+            }
+        )
+
+        self.inputs.update(
+            {
+                self.electricity_bus: Flow(
+                    variable_costs=self.carrier_cost, **self.input_parameters
+                ),
+                self.low_temperature_bus: Flow(
+                    **self.low_temperature_parameters
+                ),
+            }
+        )
+
+        self.outputs.update(
+            {
+                self.high_temperature_bus: Flow(
+                    nominal_value=self._nominal_value(),
+                    variable_costs=self.marginal_cost,
+                    investment=self._investment(),
+                    **self.high_temperature_parameters
                 )
             }
         )
@@ -954,8 +1176,6 @@ class Load(Sink, Facade):
         yields the load in timestep t (e.g. in MWh)
     marginal_utility: numeric
         Marginal utility in for example Euro / MWh
-    fixed: boolean
-        True, if demand should be inelastic (Default: True)
     input_parameters: dict (optional)
 
 
@@ -991,8 +1211,6 @@ class Load(Sink, Facade):
 
         self.marginal_utility = kwargs.get("marginal_utility", 0)
 
-        self.fixed = kwargs.get("fixed", True)
-
         self.build_solph_components()
 
     def build_solph_components(self):
@@ -1002,8 +1220,7 @@ class Load(Sink, Facade):
             {
                 self.bus: Flow(
                     nominal_value=self.amount,
-                    actual_value=self.profile,
-                    fixed=self.fixed,
+                    fix=self.profile,
                     variable_cost=self.marginal_utility,
                     **self.input_parameters
                 )
@@ -1026,12 +1243,14 @@ class Storage(GenericStorage, Facade):
         Efficiency of charging and discharging process: Default: 1
     storage_capacity_cost: numeric
         Investment costs for the storage unit e.g in €/MWh-capacity
+    capacity_cost: numeric
+        Investment costs for the storage unit e.g in €/MW-capacity
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
     storage_capacity_potential: numeric
-        Potential of the investment for storage capacity in MWh
+        Potential of the investment for storage capacity in MWh. Default: +inf.
     capacity_potential: numeric
-        Potential of the investment for capacity in MW
+        Potential of the investment for capacity in MW. Default: +inf.
     input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
@@ -1096,7 +1315,7 @@ class Storage(GenericStorage, Facade):
 
         self.capacity = kwargs.get("capacity", 0)
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+        self.capacity_cost = kwargs.get("capacity_cost", 0)
 
         self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
 
@@ -1147,14 +1366,16 @@ class Storage(GenericStorage, Facade):
             fi = Flow(
                 investment=Investment(
                     ep_costs=self.capacity_cost,
-                    maximum=self.capacity_potential,
+                    maximum=self._get_maximum_additional_invest(
+                        "capacity_potential", "capacity"
+                    ),
                     existing=self.capacity,
                 ),
                 **self.input_parameters
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
-                investment=Investment(),
+                investment=Investment(existing=self.capacity),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters
             )
@@ -1178,7 +1399,7 @@ class Storage(GenericStorage, Facade):
 
 
 class Link(Link, Facade):
-    """ Bi-direction link for two buses (e.g. to model transshipment)
+    """Bidirectional link for two buses, e.g. to model transshipment.
 
     Parameters
     ----------
@@ -1188,19 +1409,23 @@ class Link(Link, Facade):
     to_bus: oemof.solph.Bus
         An oemof bus instance where the link unit is connected to with
         its output.
-    capacity: numeric
-        The maximal capacity (output side each) of the unit. If not set, attr
-        `capacity_cost` needs to be set.
+    from_to_capacity: numeric
+        The maximal capacity (output side to bus) of the unit. If not
+        set, attr `capacity_cost` needs to be set.
+    to_from_capacity: numeric
+        The maximal capacity (output side from bus) of the unit. If not
+        set, attr `capacity_cost` needs to be set.
     loss:
         Relative loss through the link (default: 0)
     capacity_cost: numeric
         Investment costs per unit of output capacity.
-        If capacity is not set, this value will be used for optimizing the
-        chp capacity.
+        If capacity is not set, this value will be used for optimizing
+        the chp capacity.
     marginal_cost: numeric
         Cost per unit Transport in each timestep. Default: 0
     expandable: boolean
-        True, if capacity can be expanded within optimization. Default: False.
+        True, if capacity can be expanded within optimization. Default:
+        False.
 
 
     Note
@@ -1220,7 +1445,8 @@ class Link(Link, Facade):
     ...     carrier='electricity',
     ...     from_bus=my_elec_bus_1,
     ...     to_bus=my_elec_bus_2,
-    ...     capacity=100,
+    ...     from_to_capacity=100,
+    ...     to_from_capacity=80,
     ...     loss=0.04)
     """
 
@@ -1229,7 +1455,9 @@ class Link(Link, Facade):
             _facade_requires_=["from_bus", "to_bus"], *args, **kwargs
         )
 
-        self.capacity = kwargs.get("capacity")
+        self.from_to_capacity = kwargs.get("from_to_capacity")
+
+        self.to_from_capacity = kwargs.get("to_from_capacity")
 
         self.loss = kwargs.get("loss", 0)
 
@@ -1238,6 +1466,8 @@ class Link(Link, Facade):
         self.marginal_cost = kwargs.get("marginal_cost", 0)
 
         self.expandable = bool(kwargs.get("expandable", False))
+
+        self.limit_direction = bool(kwargs.get("limit_direction", False))
 
         self.build_solph_components()
 
@@ -1252,11 +1482,13 @@ class Link(Link, Facade):
             {
                 self.from_bus: Flow(
                     variable_costs=self.marginal_cost,
-                    nominal_value=self._nominal_value(),
+                    nominal_value=self._nominal_value()["to_from"],
                     investment=investment,
                 ),
                 self.to_bus: Flow(
-                    nominal_value=self._nominal_value(), investment=investment
+                    variable_costs=self.marginal_cost,
+                    nominal_value=self._nominal_value()["from_to"],
+                    investment=investment
                 ),
             }
         )
@@ -1344,9 +1576,35 @@ class Excess(Sink, Facade):
 
         self.bus = kwargs.get("bus")
 
-        self.marginal_cost = kwargs.get("marginal_cost")
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
-        self.inputs.update({self.bus: Flow(variable_costs=self.marginal_cost)})
+        self.capacity = kwargs.get("capacity")
+
+        self.capacity_potential = kwargs.get(
+            "capacity_potential", float("+inf")
+        )
+
+        self.capacity_cost = kwargs.get("capacity_cost")
+
+        self.capacity_minimum = kwargs.get("capacity_minimum")
+
+        self.expandable = bool(kwargs.get("expandable", False))
+
+        self.input_parameters = kwargs.get("input_parameters", {})
+
+        self.build_solph_components()
+
+    def build_solph_components(self):
+        """
+        """
+        f = Flow(
+            nominal_value=self._nominal_value(),
+            variable_costs=self.marginal_cost,
+            investment=self._investment(),
+            **self.input_parameters
+        )
+
+        self.inputs.update({self.bus: f})
 
 
 class Shortage(Dispatchable):
@@ -1368,6 +1626,7 @@ class Generator(Dispatchable):
 TYPEMAP = {
     "backpressure": BackpressureTurbine,
     "bus": Bus,
+    "heatpump": HeatPump,
     "commodity": Commodity,
     "conversion": Conversion,
     "dispatchable": Dispatchable,
@@ -1389,10 +1648,16 @@ TECH_COLOR_MAP = {
     "ocgt": "gray",
     "st": "darkgray",
     "ccgt": "lightgray",
+    "heat-storage": "lightsalmon",
+    "extraction-turbine": "orange",
+    "heat-pump": "skyblue",
+    "motoric-chp": "gray",
+    "electro-boiler": "darkblue",
     "pv": "gold",
     "onshore": "skyblue",
     "offshore": "darkblue",
     "ce": "olivedrab",
+    "hp": "lightsalmon",
     "battery": "lightsalmon",
     "ror": "aqua",
     "phs": "darkblue",

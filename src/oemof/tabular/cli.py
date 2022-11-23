@@ -2,9 +2,59 @@
 Module that contains the command line app.
 
 """
+import collections
+import copy
+
 from datapackage import Package, exceptions
-import click
+
+try:
+    import click
+except ImportError:
+    raise ImportError("Need to install click to use cli!")
+
 import pandas as pd
+
+from .datapackage import building
+
+
+def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, collections.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
+
+scenarios = {}
+
+
+# TODO: This definitely needs docstrings.
+class Scenario(dict):
+    @classmethod
+    def from_path(cls, path):
+        scenarios[path] = cls(
+            building.read_build_config(path)
+        )
+        if "name" in scenarios[path]:
+            name = scenarios[path]["name"]
+            scenarios[name] = scenarios[path]
+        return scenarios[path]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "parents" in self:
+            for parent in self["parents"]:
+                if parent in scenarios:
+                    scenario = copy.deepcopy(scenarios[parent])
+                else:
+                    scenario = copy.deepcopy(type(self).from_path(parent))
+
+                # hackish, but necessary to get self (the child) right
+                # with all key/values of the parent and
+                # it's own key/value pairs
+                update(scenario, self)
+                update(self, scenario)
 
 
 def _test(ctx, package):
@@ -14,19 +64,19 @@ def _test(ctx, package):
     for r in p.resources:
         try:
             r.read(keyed=True)
-            fks = r.descriptor['schema'].get('foreignKeys', [])
+            fks = r.descriptor["schema"].get("foreignKeys", [])
             for fk in fks:
-                if fk.get('fields') == 'profile':
-                    profile = p.get_resource(fk['reference']['resource'])
+                if fk.get("fields") == "profile":
+                    profile = p.get_resource(fk["reference"]["resource"])
                     field_names = set(
                         [
-                            field['name']
-                            for field in profile.descriptor['schema']['fields']
+                            field["name"]
+                            for field in profile.descriptor["schema"]["fields"]
                         ]
                     )
-                    field_names.remove('timeindex')
+                    field_names.remove("timeindex")
                     profile_names = set(
-                        pd.DataFrame(r.read(keyed=True))['profile']
+                        pd.DataFrame(r.read(keyed=True))["profile"]
                     )
 
                     diff = field_names.symmetric_difference(profile_names)
@@ -71,10 +121,10 @@ def _test(ctx, package):
             raise exceptions.DataPackageException(
                 (
                     "Could not read resource {} from datpackage "
-                    "with name {}".format(r.name, p.descriptor['name'])
+                    "with name {}".format(r.name, p.descriptor["name"])
                 )
             )
-    print("Successfully tested datapackage {}.".format(p.descriptor['name']))
+    print("Successfully tested datapackage {}.".format(p.descriptor["name"]))
 
 
 @click.group(chain=True)

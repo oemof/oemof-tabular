@@ -8,7 +8,11 @@ import re
 
 from datapackage import Package, Resource
 import pandas as pd
-import tsam.timeseriesaggregation as tsam
+
+try:
+    import tsam.timeseriesaggregation as tsam
+except ImportError:
+    raise ImportError("Need to install tsam to use aggregation!")
 
 from .building import write_sequences
 from .processing import copy_datapackage
