@@ -5,6 +5,8 @@ Changelog
 0.0.3 (2022-11-17)
 ------------------
 Fixes
+#####
+
 * Fix link by not setting constraints that limit direction #38
 * Storage investment #33
 * Link investment #28
@@ -12,6 +14,8 @@ Fixes
 * Marginal cost #23
 
 Features
+########
+
 * Adjust to new oemof.solph structure #21
 * Allow to define custom foreign keys #39
 * Add constraint tests for most facades #35 #42
