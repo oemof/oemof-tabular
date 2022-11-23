@@ -7,21 +7,34 @@ Changelog
 Fixes
 #####
 
-* Fix link by not setting constraints that limit direction #38
-* Storage investment #33
-* Link investment #28
-* Variable cost #24
-* Marginal cost #23
+* Fix link by not setting constraints that limit direction `#38 <https://github.com/oemof/oemof-solph/
+  pull/38>`_
+* Fix storage investment `#33 <https://github.com/oemof/oemof-solph/
+  pull/33>`_
+* Link investment `#28 <https://github.com/oemof/oemof-solph/
+  pull/28>`_
+* Variable cost `#24 <https://github.com/oemof/oemof-solph/
+  pull/24>`_
+* Marginal cost `#23 <https://github.com/oemof/oemof-solph/
+  pull/23>`_
 
 Features
 ########
 
-* Adjust to new oemof.solph structure #21
-* Allow to define custom foreign keys #39
-* Add constraint tests for most facades #35 #42
-* Reduce number of imported packages #32 #49
-* Cleaned up the badges in README #59
-* Move most CI services to github actions # 37
+* Adjust to new oemof.solph structure `#21 <https://github.com/oemof/oemof-solph/
+  pull/21>`_
+* Allow to define custom foreign keys `#39 <https://github.com/oemof/oemof-solph/
+  pull/39>`_
+* Add constraint tests for most facades `#35 <https://github.com/oemof/oemof-solph/
+  pull/35>`_, `#42 <https://github.com/oemof/oemof-solph/
+  pull/42>`
+* Reduce number of imported packages `#32 <https://github.com/oemof/oemof-solph/
+  pull/32>`_, `#49 <https://github.com/oemof/oemof-solph/
+  pull/49>`_
+* Cleaned up the badges in README `#59 <https://github.com/oemof/oemof-solph/
+  pull/59>`_
+* Move most CI services to github actions `#37 <https://github.com/oemof/oemof-solph/
+  pull/37>`_
 
 0.0.2 (2019-07-08)
 ------------------
