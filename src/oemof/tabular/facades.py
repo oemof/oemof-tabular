@@ -1576,7 +1576,7 @@ class Excess(Sink, Facade):
 
         self.bus = kwargs.get("bus")
 
-        self.marginal_cost = kwargs.get("marginal_cost")
+        self.marginal_cost = kwargs.get("marginal_cost", 0)
 
         self.capacity = kwargs.get("capacity")
 
