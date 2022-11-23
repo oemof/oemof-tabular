@@ -1,11 +1,9 @@
-import pathlib
 import importlib
+import pathlib
 import pkg_resources as pkg
-
 
 from oemof.network.energy_system import EnergySystem as ES
 from oemof.tabular.facades import TYPEMAP
-
 # The import below is only used to monkey patch `EnergySystem`.
 # Hence the `noqa` because otherwise, style checkers would complain about an
 # unused import.
