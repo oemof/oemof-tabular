@@ -36,7 +36,7 @@ project = 'oemof.tabular'
 year = '2018'
 author = 'Stephan Günther'
 copyright = '{0}, {1}'.format(year, author)
-version = release = '0.0.3dev'
+version = release = '0.0.3'
 
 pygments_style = 'trac'
 templates_path = ['.']
