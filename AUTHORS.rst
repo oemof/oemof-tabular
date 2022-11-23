@@ -10,3 +10,5 @@ Authors
 * Hendrik Huyskens
 * Monika Orlowski
 * Francesco Witte
+* Sarah Berendes
+* Marie-Claire Gering
