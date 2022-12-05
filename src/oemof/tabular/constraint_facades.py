@@ -9,7 +9,7 @@ def add_subnodes(n, **kwargs):
 
 
 class ConstraintFacade():
-    __init__(self):
+    def __init__(self):
         Model.signals[EnergySystem.add].connect(
             add_constraint_blocks, sender=self
         )
