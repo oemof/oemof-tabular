@@ -478,6 +478,34 @@ def deserialize_constraints(model, path, constraint_type_map=None):
     if constraint_type_map is None:
         constraint_type_map = {}
 
-    # read
-    # call build_constraint for each facade
+    def listify(x, n=None):
+        return (
+            x if isinstance(x, list) else repeat(x) if not n else repeat(x, n)
+        )
+
+    package = dp.Package(path)
+
+    # read all resources in data/constraints
+    resources = []
+    for r in package.resources:
+        if all(
+            re.match(r"^data/constraints/.*$", p)
+            for p in listify(r.descriptor["path"], 1)
+        ):
+            resources.append(r)
+
+    for resource in resources:
+
+        resource_data = resource.read(keyed=True, relations=True)
+
+        for rw in resource_data:
+            constraint_type = rw["type"]
+
+            constraint_facade = constraint_type_map[constraint_type]
+
+            constraint = constraint_facade(**rw)
+
+            # build constraint for each facade
+            constraint.build_constraint(model)
+
     # return model
