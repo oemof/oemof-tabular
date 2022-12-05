@@ -472,3 +472,12 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
     else:
         raise ValueError("Timeindices in resources differ!")
+
+
+def deserialize_constraints(model, path, constraint_type_map=None):
+    if constraint_type_map is None:
+        constraint_type_map = {}
+
+    # read
+    # call build_constraint for each facade
+    # return model

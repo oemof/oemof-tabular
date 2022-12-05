@@ -8,6 +8,7 @@ from oemof.solph import EnergySystem, Model
 # DONT REMOVE THIS LINE!
 from oemof.tabular import datapackage  # noqa
 from oemof.tabular.facades import TYPEMAP
+from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 import oemof.tabular.tools.postprocessing as pp
 
 name = "dispatch"
@@ -33,6 +34,12 @@ es = EnergySystem.from_datapackage(
 
 # create model from energy system (this is just oemof.solph)
 m = Model(es)
+
+# add constraints from datapackage to the model
+m.add_constraints_from_datapackage(
+    os.path.join(datapackage_dir, "datapackage.json"),
+    constraint_type_map=CONSTRAINT_TYPE_MAP
+)
 
 # if you want dual variables / shadow prices uncomment line below
 # m.receive_duals()
