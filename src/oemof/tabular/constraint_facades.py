@@ -14,7 +14,8 @@ class ConstraintFacade(abc.ABC):
 
 @dataclass
 class EmissionConstraint(ConstraintFacade):
-    emission_min: float
+    name : str
+    type : str
     emission_max: float
     keyword: str = "emission_factor"
 
