@@ -400,6 +400,41 @@
                     ""
                 ]
             }
+        },
+        {
+            "path": "data/constraints/emission_constraint.csv",
+            "profile": "tabular-data-resource",
+            "name": "emission_constraint",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "emission_max",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "keyword",
+                        "type": "string",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ]
+            }
         }
     ]
 }
