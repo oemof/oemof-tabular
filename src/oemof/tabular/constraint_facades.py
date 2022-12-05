@@ -1,7 +1,9 @@
+import logging
+
 from oemof.solph import Model
 from dataclasses import dataclass
 
-from oemof.solph.constraints.integral_limit import emission_limit
+from oemof.solph.constraints.integral_limit import generic_integral_limit
 
 def add_subnodes(n, **kwargs):
     # ????
@@ -19,11 +21,24 @@ class ConstraintFacade():
 class EmissionConstraint(ConstraintFacade):
     emission_min: float
     emission_max: float
-    flow_keyword: str
+    keyword: str = "emission_factor"
 
     def build_constraint(self, model):
         # to use the constraints in oemof.solph, we need to pass the model.
-        emission_limit(model, flows=None, limit=self.emission_max)
+
+        # check if there are flows with key
+        flows = {}
+        for (i, o) in model.flows:
+            if hasattr(model.flows[i, o], self.keyword):
+                flows[(i, o)] = model.flows[i, o]
+
+        if not flows:
+            raise Warning(f"No flows with keyword {self.keyword}")
+        else:
+            print(f"These flows will contribute to the emission constraint {flows.keys()}")
+
+        # add constraint to the model
+        generic_integral_limit(model, keyword=self.keyword, flows=flows, limit=self.emission_max)
 
 
 CONSTRAINT_TYPE_MAP = {
