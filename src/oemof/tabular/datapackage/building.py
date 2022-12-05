@@ -161,6 +161,7 @@ def infer_metadata(
                 ".csv", ".json")))
             p.add_resource(r.descriptor)
 
+    # create meta data resources geometries
     if not os.path.exists("data/geometries"):
         print(
             "No geometries path found in directory {}. Skipping...".format(
@@ -171,6 +172,23 @@ def infer_metadata(
         for f in os.listdir("data/geometries"):
             r = Resource({"path": str(pathlib.PurePosixPath(
                 "data", "geometries", f))})
+            r.infer()
+            r.commit()
+            r.save(pathlib.PurePosixPath("resources", f.replace(
+                ".csv", ".json")))
+            p.add_resource(r.descriptor)
+
+    # create meta data resources constraints
+    if not os.path.exists("data/constraints"):
+        print(
+            "No constraints path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in os.listdir("data/constraints"):
+            r = Resource({"path": str(pathlib.PurePosixPath(
+                "data", "constraints", f))})
             r.infer()
             r.commit()
             r.save(pathlib.PurePosixPath("resources", f.replace(
