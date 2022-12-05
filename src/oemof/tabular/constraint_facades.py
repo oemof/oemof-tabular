@@ -1,3 +1,4 @@
+import abc
 import logging
 
 from oemof.solph import Model
@@ -5,16 +6,10 @@ from dataclasses import dataclass
 
 from oemof.solph.constraints.integral_limit import generic_integral_limit
 
-def add_subnodes(n, **kwargs):
-    # ????
-    deque((kwargs["Model"].add(sn) for sn in n.subnodes), maxlen=0)
 
-
-class ConstraintFacade():
-    def __init__(self):
-        Model.signals[EnergySystem.add].connect(
-            add_constraint_blocks, sender=self
-        )
+class ConstraintFacade(abc.ABC):
+    def build_constraint(self):
+        pass
 
 
 @dataclass
