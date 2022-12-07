@@ -699,49 +699,34 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     ...     thermal_efficiency=0.35)
 
     """
+    carrier: str
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update(
-            {
-                "_facade_requires_": [
-                    "fuel_bus",
-                    "carrier",
-                    "tech",
-                    "electricity_bus",
-                    "heat_bus",
-                    "thermal_efficiency",
-                    "electric_efficiency",
-                    "condensing_efficiency",
-                ]
-            }
-        )
-        super().__init__(
-            conversion_factor_full_condensation={}, *args, **kwargs
-        )
+    tech: str
 
-        self.fuel_bus = kwargs.get("fuel_bus")
+    electricity_bus: Bus
 
-        self.electricity_bus = kwargs.get("electricity_bus")
+    heat_bus: Bus
 
-        self.heat_bus = kwargs.get("heat_bus")
+    fuel_bus: Bus
 
-        self.carrier = kwargs.get("carrier")
+    capacity: float = None
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    condensing_efficiency: Union[float, Sequence[float]] = None
 
-        self.capacity = kwargs.get("capacity")
+    electric_efficiency: Union[float, Sequence[float]] = None
 
-        self.condensing_efficiency = sequence(self.condensing_efficiency)
+    thermal_efficiency: Union[float, Sequence[float]] = None
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    carrier_cost: float = None
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = None
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity_cost: float = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    expandable: bool = False
 
-        self.build_solph_components()
+    input_parameters: dict = field(default_factory = dict)
+
 
     def build_solph_components(self):
         """
