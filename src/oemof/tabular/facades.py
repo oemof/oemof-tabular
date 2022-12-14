@@ -865,9 +865,9 @@ class BackpressureTurbine(Transformer, Facade):
 
     capacity_cost: float = None
 
-    carrier_cost: float = None
+    carrier_cost: float = 0
 
-    marginal_cost: float = None
+    marginal_cost: float = 0
 
     expandable: bool = False
 
