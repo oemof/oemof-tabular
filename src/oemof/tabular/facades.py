@@ -966,7 +966,7 @@ class Conversion(Transformer, Facade):
 
     expandable: bool = False
 
-    capacity_potential: float = None
+    capacity_potential: float = float("+inf")
 
     capacity_minimum: float = None
 
@@ -1073,40 +1073,36 @@ class HeatPump(Transformer, Facade):
     ...     low_temperature_bus=heat_bus_low)
 
     """
+    electricity_bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=[
-                "low_temperature_bus",
-                "high_temperature_bus",
-                "electricity_bus",
-                "cop",
-                "carrier",
-                "tech",
-            ],
-            *args,
-            **kwargs,
-        )
+    high_temperature_bus: Bus
 
-        self.capacity = kwargs.get("capacity")
+    low_temperature_bus: Bus
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    carrier: str
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    tech: str
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    cop: float
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity: float = None
 
-        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
+    marginal_cost: float = 0
 
-        self.low_temperature_parameters = kwargs.get("low_temperature_parameters", {})
+    carrier_cost: float = 0
 
-        self.high_temperature_parameters = kwargs.get("high_temperature_parameters", {})
+    capacity_cost: float = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    expandable: bool = False
 
-        self.build_solph_components()
+    capacity_potential: float = float("+inf")
+
+    low_temperature_parameters: dict = field(default_factory=dict)
+
+    high_temperature_parameters: dict = field(default_factory=dict)
+
+    input_parameters: dict = field(default_factory=dict)
+
 
     def build_solph_components(self):
         """
