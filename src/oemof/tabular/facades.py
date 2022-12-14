@@ -711,11 +711,11 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     capacity: float = None
 
-    condensing_efficiency: Union[float, Sequence[float]] = None
+    condensing_efficiency: Union[float, Sequence[float]]
 
-    electric_efficiency: Union[float, Sequence[float]] = None
+    electric_efficiency: Union[float, Sequence[float]]
 
-    thermal_efficiency: Union[float, Sequence[float]] = None
+    thermal_efficiency: Union[float, Sequence[float]]
 
     carrier_cost: float = None
 
@@ -726,6 +726,8 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     expandable: bool = False
 
     input_parameters: dict = field(default_factory = dict)
+
+    conversion_factor_full_condensation: dict = {}
 
 
     def build_solph_components(self):
