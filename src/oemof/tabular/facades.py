@@ -847,41 +847,31 @@ class BackpressureTurbine(Transformer, Facade):
 
 
     """
+    fuel_bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=[
-                "carrier",
-                "tech",
-                "electricity_bus",
-                "heat_bus",
-                "fuel_bus",
-                "thermal_efficiency",
-                "electric_efficiency",
-            ],
-            *args,
-            **kwargs
-        )
+    heat_bus: Bus
 
-        self.electricity_bus = kwargs.get("electricity_bus")
+    electricity_bus: Bus
 
-        self.heat_bus = kwargs.get("heat_bus")
+    carrier: str
 
-        self.fuel_bus = kwargs.get("fuel_bus")
+    tech: str
 
-        self.capacity = kwargs.get("capacity")
+    electric_efficiency: Union[float, Sequence[float]]
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    thermal_efficiency: Union[float, Sequence[float]]
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    capacity: float = None
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    capacity_cost: float = None
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    carrier_cost: float = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    marginal_cost: float = None
 
-        self.build_solph_components()
+    expandable: bool = False
+
+    input_parameters: dict = field(default_factory = dict)
 
     def build_solph_components(self):
         """
