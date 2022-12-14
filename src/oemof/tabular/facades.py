@@ -126,9 +126,7 @@ class Facade(Node):
         super().__init__(*args, **kwargs)
 
         self.subnodes = []
-        EnergySystem.signals[EnergySystem.add].connect(
-            add_subnodes, sender=self
-        )
+        EnergySystem.signals[EnergySystem.add].connect(add_subnodes, sender=self)
 
         for r in required:
             if r in kwargs:
@@ -147,9 +145,7 @@ class Facade(Node):
         """
         if self.expandable is True:
             if isinstance(self, Link):
-                return {
-                    "from_to": None,
-                    "to_from": None}
+                return {"from_to": None, "to_from": None}
             else:
                 return None
 
@@ -157,7 +153,8 @@ class Facade(Node):
             if isinstance(self, Link):
                 return {
                     "from_to": self.from_to_capacity,
-                    "to_from": self.to_from_capacity}
+                    "to_from": self.to_from_capacity,
+                }
             else:
                 return self.capacity
 
@@ -178,9 +175,7 @@ class Facade(Node):
                     maximum=self._get_maximum_additional_invest(
                         "storage_capacity_potential", "storage_capacity"
                     ),
-                    minimum=getattr(
-                        self, "minimum_storage_capacity", 0
-                    ),
+                    minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
                 )
             else:
@@ -188,9 +183,7 @@ class Facade(Node):
                     maximum=self._get_maximum_additional_invest(
                         "storage_capacity_potential", "storage_capacity"
                     ),
-                    minimum=getattr(
-                        self, "minimum_storage_capacity", 0
-                    ),
+                    minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
                 )
         else:
@@ -199,9 +192,7 @@ class Facade(Node):
                 maximum=self._get_maximum_additional_invest(
                     "capacity_potential", "capacity"
                 ),
-                minimum=getattr(
-                    self, "capacity_minimum", 0
-                ),
+                minimum=getattr(self, "capacity_minimum", 0),
                 existing=getattr(self, "capacity", 0),
             )
         return self.investment
@@ -213,16 +204,8 @@ class Facade(Node):
 
         Throws an error if existing is larger than potential.
         """
-        _potential = getattr(
-            self,
-            attr_potential,
-            float("+inf"),
-        )
-        _existing = getattr(
-            self,
-            attr_existing,
-            0,
-        )
+        _potential = getattr(self, attr_potential, float("+inf"))
+        _existing = getattr(self, attr_existing, 0)
 
         if _existing is None:
             _existing = 0
@@ -235,7 +218,8 @@ class Facade(Node):
         if maximum < 0:
             raise ValueError(
                 f"Existing {attr_existing}={_existing} is larger"
-                f" than {attr_potential}={_potential}.")
+                f" than {attr_potential}={_potential}."
+            )
 
         return maximum
 
@@ -352,17 +336,11 @@ class Reservoir(GenericStorage, Facade):
 
         inflow = Source(
             label=self.label + "-inflow",
-            outputs={
-                self: Flow(nominal_value=1, max=self.profile)
-            },
+            outputs={self: Flow(nominal_value=1, max=self.profile)},
         )
 
         self.outputs.update(
-            {
-                self.bus: Flow(
-                    nominal_value=self.capacity, **self.output_parameters
-                )
-            }
+            {self.bus: Flow(nominal_value=self.capacity, **self.output_parameters)}
         )
 
         self.subnodes = (inflow,)
@@ -486,7 +464,7 @@ class Dispatchable(Source, Facade):
             variable_costs=self.marginal_cost,
             max=self.profile,
             investment=self._investment(),
-            **self.output_parameters
+            **self.output_parameters,
         )
 
         self.outputs.update({self.bus: f})
@@ -602,7 +580,7 @@ class Volatile(Source, Facade):
             variable_costs=self.marginal_cost,
             fix=self.profile,
             investment=self._investment(),
-            **self.output_parameters
+            **self.output_parameters,
         )
 
         self.outputs.update({self.bus: f})
@@ -725,10 +703,9 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     expandable: bool = False
 
-    input_parameters: dict = field(default_factory = dict)
+    input_parameters: dict = field(default_factory=dict)
 
     conversion_factor_full_condensation: dict = {}
-
 
     def build_solph_components(self):
         """
@@ -871,7 +848,7 @@ class BackpressureTurbine(Transformer, Facade):
 
     expandable: bool = False
 
-    input_parameters: dict = field(default_factory = dict)
+    input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
         """
@@ -895,8 +872,7 @@ class BackpressureTurbine(Transformer, Facade):
         self.outputs.update(
             {
                 self.electricity_bus: Flow(
-                    nominal_value=self._nominal_value(),
-                    investment=self._investment(),
+                    nominal_value=self._nominal_value(), investment=self._investment()
                 ),
                 self.heat_bus: Flow(),
             }
@@ -970,49 +946,39 @@ class Conversion(Transformer, Facade):
     ...     efficiency=0.4)
 
     """
+    from_bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=["from_bus", "to_bus", "carrier", "tech"],
-            *args,
-            **kwargs
-        )
+    to_bus: Bus
 
-        self.capacity = kwargs.get("capacity")
+    carrier: str
 
-        self.efficiency = kwargs.get("efficiency", 1)
+    tech: str
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    capacity: float = None
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    efficiency: float = 1
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = 0
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    carrier_cost: float = 0
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    capacity_cost: float = None
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential",
-            float("+inf")
-        )
+    expandable: bool = False
 
-        self.capacity_minimum = kwargs.get("capacity_minimum")
+    capacity_potential: float = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    capacity_minimum: float = None
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    input_parameters: dict = field(default_factory=dict)
 
-        self.build_solph_components()
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
         """
         """
         self.conversion_factors.update(
-            {
-                self.from_bus: sequence(1),
-                self.to_bus: sequence(self.efficiency),
-            }
+            {self.from_bus: sequence(1), self.to_bus: sequence(self.efficiency)}
         )
 
         self.inputs.update(
@@ -1029,7 +995,7 @@ class Conversion(Transformer, Facade):
                     nominal_value=self._nominal_value(),
                     variable_costs=self.marginal_cost,
                     investment=self._investment(),
-                    **self.output_parameters
+                    **self.output_parameters,
                 )
             }
         )
@@ -1119,7 +1085,7 @@ class HeatPump(Transformer, Facade):
                 "tech",
             ],
             *args,
-            **kwargs
+            **kwargs,
         )
 
         self.capacity = kwargs.get("capacity")
@@ -1132,18 +1098,11 @@ class HeatPump(Transformer, Facade):
 
         self.expandable = bool(kwargs.get("expandable", False))
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential",
-            float("+inf")
-        )
+        self.capacity_potential = kwargs.get("capacity_potential", float("+inf"))
 
-        self.low_temperature_parameters = kwargs.get(
-            "low_temperature_parameters", {}
-        )
+        self.low_temperature_parameters = kwargs.get("low_temperature_parameters", {})
 
-        self.high_temperature_parameters = kwargs.get(
-            "high_temperature_parameters", {}
-        )
+        self.high_temperature_parameters = kwargs.get("high_temperature_parameters", {})
 
         self.input_parameters = kwargs.get("input_parameters", {})
 
@@ -1165,9 +1124,7 @@ class HeatPump(Transformer, Facade):
                 self.electricity_bus: Flow(
                     variable_costs=self.carrier_cost, **self.input_parameters
                 ),
-                self.low_temperature_bus: Flow(
-                    **self.low_temperature_parameters
-                ),
+                self.low_temperature_bus: Flow(**self.low_temperature_parameters),
             }
         )
 
@@ -1177,7 +1134,7 @@ class HeatPump(Transformer, Facade):
                     nominal_value=self._nominal_value(),
                     variable_costs=self.marginal_cost,
                     investment=self._investment(),
-                    **self.high_temperature_parameters
+                    **self.high_temperature_parameters,
                 )
             }
         )
@@ -1243,7 +1200,7 @@ class Load(Sink, Facade):
                     nominal_value=self.amount,
                     fix=self.profile,
                     variable_cost=self.marginal_utility,
-                    **self.input_parameters
+                    **self.input_parameters,
                 )
             }
         )
@@ -1372,9 +1329,9 @@ class Storage(GenericStorage, Facade):
             for attr in ["invest_relation_input_output"]:
                 if getattr(self, attr) is None:
                     raise AttributeError(
-                        (
-                            "You need to set attr " "`{}` " "for component {}"
-                        ).format(attr, self.label)
+                        ("You need to set attr " "`{}` " "for component {}").format(
+                            attr, self.label
+                        )
                     )
 
             # set capacity costs at one of the flows
@@ -1386,24 +1343,22 @@ class Storage(GenericStorage, Facade):
                     ),
                     existing=self.capacity,
                 ),
-                **self.input_parameters
+                **self.input_parameters,
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
                 investment=Investment(existing=self.capacity),
                 variable_costs=self.marginal_cost,
-                **self.output_parameters
+                **self.output_parameters,
             )
             # required for correct grouping in oemof.solph.components
             self._invest_group = True
         else:
-            fi = Flow(
-                nominal_value=self._nominal_value(), **self.input_parameters
-            )
+            fi = Flow(nominal_value=self._nominal_value(), **self.input_parameters)
             fo = Flow(
                 nominal_value=self._nominal_value(),
                 variable_costs=self.marginal_cost,
-                **self.output_parameters
+                **self.output_parameters,
             )
 
         self.inputs.update({self.bus: fi})
@@ -1466,9 +1421,7 @@ class Link(Link, Facade):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=["from_bus", "to_bus"], *args, **kwargs
-        )
+        super().__init__(_facade_requires_=["from_bus", "to_bus"], *args, **kwargs)
 
         self.from_to_capacity = kwargs.get("from_to_capacity")
 
@@ -1503,7 +1456,7 @@ class Link(Link, Facade):
                 self.to_bus: Flow(
                     variable_costs=self.marginal_cost,
                     nominal_value=self._nominal_value()["from_to"],
-                    investment=investment
+                    investment=investment,
                 ),
             }
         )
@@ -1576,7 +1529,7 @@ class Commodity(Source, Facade):
             nominal_value=self.amount,
             variable_costs=self.marginal_cost,
             summed_max=1,
-            **self.output_parameters
+            **self.output_parameters,
         )
 
         self.outputs.update({self.bus: f})
