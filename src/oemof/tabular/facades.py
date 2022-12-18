@@ -1171,21 +1171,16 @@ class Load(Sink, Facade):
     ...     amount=100,
     ...     profile=[0.3, 0.2, 0.5])
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=["bus", "amount", "profile"], *args, **kwargs
-        )
+    amount: float
 
-        self.amount = kwargs.get("amount")
+    profile: Union[float, Sequence[float]]
 
-        self.profile = kwargs.get("profile")
+    marginal_utility: float = 0
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    input_parameters: dict = field(default_factory=dict)
 
-        self.marginal_utility = kwargs.get("marginal_utility", 0)
-
-        self.build_solph_components()
 
     def build_solph_components(self):
         """
