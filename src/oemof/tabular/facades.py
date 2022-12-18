@@ -1410,25 +1410,23 @@ class Link(Link, Facade):
     ...     to_from_capacity=80,
     ...     loss=0.04)
     """
+    from_bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=["from_bus", "to_bus"], *args, **kwargs)
+    to_bus: Bus
 
-        self.from_to_capacity = kwargs.get("from_to_capacity")
+    from_to_capacity: float = None
 
-        self.to_from_capacity = kwargs.get("to_from_capacity")
+    to_from_capacity: float = None
 
-        self.loss = kwargs.get("loss", 0)
+    loss: float = 0
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    capacity_cost: float = None
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    marginal_cost: float = 0
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    expandable: bool = False
 
-        self.limit_direction = bool(kwargs.get("limit_direction", False))
-
-        self.build_solph_components()
+    limit_direction: bool = False
 
     def build_solph_components(self):
         """
