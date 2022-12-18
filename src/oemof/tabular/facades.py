@@ -1103,7 +1103,6 @@ class HeatPump(Transformer, Facade):
 
     input_parameters: dict = field(default_factory=dict)
 
-
     def build_solph_components(self):
         """
         """
@@ -1180,7 +1179,6 @@ class Load(Sink, Facade):
     marginal_utility: float = 0
 
     input_parameters: dict = field(default_factory=dict)
-
 
     def build_solph_components(self):
         """
@@ -1410,6 +1408,7 @@ class Link(Link, Facade):
     ...     to_from_capacity=80,
     ...     loss=0.04)
     """
+
     from_bus: Bus
 
     to_bus: Bus
@@ -1506,7 +1505,6 @@ class Commodity(Source, Facade):
     marginal_cost: float = 0
 
     output_parameters: dict = field(default_factory=dict)
-
 
     def build_solph_components(self):
         """
