@@ -1497,18 +1497,16 @@ class Commodity(Source, Facade):
     ...         'max': [0.9, 0.5, 0.4]})
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "amount"]})
-        super().__init__(*args, **kwargs)
+    carrier: str
 
-        self.amount = kwargs.get("amount")
+    amount: float
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    marginal_cost: float = 0
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    output_parameters: dict = field(default_factory=dict)
 
-        self.build_solph_components()
 
     def build_solph_components(self):
         """
