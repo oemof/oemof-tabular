@@ -1,11 +1,9 @@
+import importlib
 import pathlib
-
 import pkg_resources as pkg
 
 from oemof.network.energy_system import EnergySystem as ES
-
 from oemof.tabular.facades import TYPEMAP
-
 # The import below is only used to monkey patch `EnergySystem`.
 # Hence the `noqa` because otherwise, style checkers would complain about an
 # unused import.
@@ -70,7 +68,6 @@ def test_custom_foreign_keys(monkeypatch):
         "OEMOF_TABULAR_FOREIGN_KEYS_FILE",
         ROOT_DIR / "tests" / "custom_foreign_keys.json"
     )
-    import importlib
     importlib.reload(oemof.tabular.config.config)
     oemof.tabular.datapackage.building.infer_metadata(
         path=str(
