@@ -1,7 +1,5 @@
 import abc
-import logging
 
-from oemof.solph import Model
 from dataclasses import dataclass
 
 from oemof.solph.constraints.integral_limit import generic_integral_limit
@@ -31,10 +29,18 @@ class EmissionConstraint(ConstraintFacade):
         if not flows:
             raise Warning(f"No flows with keyword {self.keyword}")
         else:
-            print(f"These flows will contribute to the emission constraint {flows.keys()}")
+            print(
+                f"These flows will contribute to the "
+                f"emission constraint {flows.keys()}"
+            )
 
         # add constraint to the model
-        generic_integral_limit(model, keyword=self.keyword, flows=flows, limit=self.emission_max)
+        generic_integral_limit(
+            model,
+            keyword=self.keyword,
+            flows=flows,
+            limit=self.emission_max
+        )
 
 
 CONSTRAINT_TYPE_MAP = {

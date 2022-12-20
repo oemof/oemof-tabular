@@ -14,6 +14,7 @@ from oemof.tabular.facades import (BackpressureTurbine, Commodity, Conversion,
 
 from oemof.tabular.constraint_facades import EmissionConstraint
 
+
 def chop_trailing_whitespace(lines):
     return [re.sub(r"\s*$", "", line) for line in lines]
 
