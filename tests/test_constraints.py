@@ -8,11 +8,10 @@ import pandas as pd
 from oemof import solph
 from oemof.solph import helpers
 
+from oemof.tabular.constraint_facades import EmissionConstraint
 from oemof.tabular.facades import (BackpressureTurbine, Commodity, Conversion,
                                    Dispatchable, Excess, ExtractionTurbine,
                                    Link, Load, Reservoir, Storage, Volatile)
-
-from oemof.tabular.constraint_facades import EmissionConstraint
 
 
 def chop_trailing_whitespace(lines):

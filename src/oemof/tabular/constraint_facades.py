@@ -1,6 +1,5 @@
-import abc
-
 from dataclasses import dataclass
+import abc
 
 from oemof.solph.constraints.integral_limit import generic_integral_limit
 
