@@ -54,5 +54,6 @@ jobs:
         run: |
           python setup.py check --strict --metadata --restructuredtext
           check-manifest .
+          black --check . --exclude "\.direnv|\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|venv|\.svn|_build|buck-out|build|dist|docs"
           flake8 src tests
           isort --verbose --check-only --diff src tests
