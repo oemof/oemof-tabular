@@ -26,3 +26,11 @@ repos:
         language: python
         types: [python]
         args: ["--verbose", "src", "tests"]
+
+-   repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: black
+        language: python
+        types: [python]
