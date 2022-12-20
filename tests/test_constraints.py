@@ -12,6 +12,7 @@ from oemof.tabular.facades import (BackpressureTurbine, Commodity, Conversion,
                                    Dispatchable, Excess, ExtractionTurbine,
                                    Link, Load, Reservoir, Storage, Volatile)
 
+from oemof.tabular.constraint_facades import EmissionConstraint
 
 def chop_trailing_whitespace(lines):
     return [re.sub(r"\s*$", "", line) for line in lines]
@@ -459,3 +460,30 @@ class TestConstraints:
         self.energysystem.add(bus, volatile)
 
         self.compare_to_reference_lp("volatile.lp")
+
+    def test_emission_constraint(self):
+        bus = solph.Bus("ch4")
+
+        dispatchable = Dispatchable(
+            label='ch4-import',
+            bus=bus,
+            carrier='ch4',
+            tech='import',
+            output_parameters={"emission_factor": 2.5}
+        )
+
+        emission_constraint = EmissionConstraint(
+            name="emission_constraint",
+            type="e",
+            emission_max=1000,
+        )
+
+        self.energysystem.add(bus, dispatchable)
+
+        model = solph.Model(self.energysystem)
+
+        emission_constraint.build_constraint(model)
+
+        self.compare_to_reference_lp("emission_constraint.lp", my_om=model)
+
+
