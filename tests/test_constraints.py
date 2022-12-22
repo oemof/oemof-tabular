@@ -432,7 +432,7 @@ class TestConstraints:
             invest_relation_output_capacity=1 / 8,  # oemof.solph
             marginal_cost=5,
             balanced=True,  # oemof.solph argument
-            initial_storage_level=1,  # oemof.solph argument
+            initial_storage_level=0.5,  # oemof.solph argument
             max_storage_level=[0.75, 0.5, 0.25],
             expandable=True,
         )

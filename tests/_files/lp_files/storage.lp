@@ -56,7 +56,7 @@ c_u_InvestmentFlowBlock_max(storage_electricity_2)_:
 
 c_e_GenericInvestmentStorageBlock_init_content_fix(storage)_:
 +1 GenericInvestmentStorageBlock_init_content(storage)
--1 GenericInvestmentStorageBlock_invest(storage)
+-0.5 GenericInvestmentStorageBlock_invest(storage)
 = 0
 
 c_e_GenericInvestmentStorageBlock_balance_first(storage)_:
