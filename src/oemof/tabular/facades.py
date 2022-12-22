@@ -1564,7 +1564,7 @@ class Commodity(Source, Facade):
         f = Flow(
             nominal_value=self.amount,
             variable_costs=self.marginal_cost,
-            summed_max=1,
+            full_load_time_max=1,
             **self.output_parameters
         )
 
