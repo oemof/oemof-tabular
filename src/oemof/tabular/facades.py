@@ -586,6 +586,7 @@ class Volatile(Source, Facade):
         self.outputs.update({self.bus: f})
 
 
+@dataclass_facade
 class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     r""" Combined Heat and Power (extraction) unit with one input and
     two outputs.
@@ -705,7 +706,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     input_parameters: dict = field(default_factory=dict)
 
-    conversion_factor_full_condensation: dict = {}
+    conversion_factor_full_condensation: dict = field(default_factory=dict)
 
     def build_solph_components(self):
         """
@@ -742,6 +743,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         )
 
 
+@dataclass_facade
 class BackpressureTurbine(Transformer, Facade):
     r""" Combined Heat and Power (backpressure) unit with one input and
     two outputs.
@@ -879,6 +881,7 @@ class BackpressureTurbine(Transformer, Facade):
         )
 
 
+@dataclass_facade
 class Conversion(Transformer, Facade):
     r""" Conversion unit with one input and one output.
 
@@ -1001,6 +1004,7 @@ class Conversion(Transformer, Facade):
         )
 
 
+@dataclass_facade
 class HeatPump(Transformer, Facade):
     r""" HeatPump unit with two inputs and one output.
 
@@ -1135,6 +1139,7 @@ class HeatPump(Transformer, Facade):
         )
 
 
+@dataclass_facade
 class Load(Sink, Facade):
     r""" Load object with one input
 
@@ -1357,6 +1362,7 @@ class Storage(GenericStorage, Facade):
         self._set_flows()
 
 
+@dataclass_facade
 class Link(Link, Facade):
     """Bidirectional link for two buses, e.g. to model transshipment.
 
@@ -1457,6 +1463,7 @@ class Link(Link, Facade):
         )
 
 
+@dataclass_facade
 class Commodity(Source, Facade):
     r""" Commodity element with one output for example a biomass commodity
 
