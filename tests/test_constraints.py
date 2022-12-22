@@ -82,7 +82,7 @@ class TestConstraints:
         logging.info(cls.tmpdir)
 
     @classmethod
-    def setup(cls):
+    def setup_method(cls):
         cls.energysystem = solph.EnergySystem(
             groupings=solph.GROUPINGS, timeindex=cls.date_time_index
         )
