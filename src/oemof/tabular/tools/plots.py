@@ -30,39 +30,44 @@ def hourly_plot(
     scenario,
     bus,
     datapath="results",
-    flexibility=[
-        "import",
-        "acaes",
-        "phs",
-        "lithium-battery",
-        "battery",
-        "storage",
-        "heat-storage",
-    ],
-    aggregate=[
-        "coal",
-        "lignite",
-        "oil",
-        "gas",
-        "waste",
-        "uranium",
-        "wind",
-        "solar",
-    ],
+    flexibility=None,
+    aggregate=None,
     daily=False,
     plot_filling_levels=True,
     title=None,
 ):
     """
     """
-    df, filling_levels = _load_results_sequences(scenario, datapath, bus, plot_filling_levels)
-
-    df = _prepare_results_sequences(df, bus, aggregate, daily)
-
     if title is None:
         title = "Hourly supply and demand in {} for model/scenario {}".format(
             bus, scenario
         )
+    if flexibility is None:
+        flexibility = [
+            "import",
+            "acaes",
+            "phs",
+            "lithium-battery",
+            "battery",
+            "storage",
+            "heat-storage",
+        ]
+
+    if aggregate is None:
+        aggregate = [
+            "coal",
+            "lignite",
+            "oil",
+            "gas",
+            "waste",
+            "uranium",
+            "wind",
+            "solar",
+        ]
+
+    df, filling_levels = _load_results_sequences(scenario, datapath, bus, plot_filling_levels)
+
+    df = _prepare_results_sequences(df, bus, aggregate, daily)
 
     x = df.index
 
