@@ -51,50 +51,25 @@ def hourly_plot(
     ],
     daily=False,
     plot_filling_levels=True,
+    title=None,
 ):
     """
     """
-    if scenario.endswith(".csv"):
-        df = pd.read_csv(scenario, index_col=[0], parse_dates=True)
-    else:
-        df = pd.read_csv(
-            os.path.join(datapath, scenario, "output", bus + ".csv"),
-            index_col=[0],
-            parse_dates=True,
+    df, filling_levels = _load_results_sequences(scenario, datapath, bus, plot_filling_levels)
+
+    df = _prepare_results_sequences(df, bus, aggregate, daily)
+
+    if title is None:
+        title = "Hourly supply and demand in {} for model/scenario {}".format(
+            bus, scenario
         )
-
-    if plot_filling_levels:
-        filling_levels = pd.read_csv(
-            os.path.join(datapath, scenario, "output", "filling_levels.csv"),
-            index_col=[0],
-            parse_dates=True,
-        )
-
-    for i in aggregate:
-        group = [c for c in df.columns if i in c]
-        df[i] = df[group].sum(axis=1)
-        df.drop(group, axis=1, inplace=True)
-
-    # remove all zero columns
-    df = df.loc[:, (df != 0).any(axis=0)]
-
-    if daily:
-        df = df.resample("1D").mean()
 
     x = df.index
 
-    # kind of a hack to get only the technologies
-    df.columns = [c.replace(bus + "-", "") for c in df.columns]
-
-    # strip also if only country code is part of supply name like ("DE-coal")
-    if bus[0:2].isupper():
-        df.columns = [c.replace(bus[0:3], "") for c in df.columns]
     # create plot
     layout = go.Layout(
         barmode="stack",
-        title="Hourly supply and demand in {} for model/scenario {}".format(
-            bus, scenario
-        ),
+        title=title,
         yaxis=dict(
             title="Energy in MWh",
             titlefont=dict(size=16, color="rgb(107, 107, 107)"),
@@ -204,3 +179,47 @@ def stacked_plot(scenario, datapath=None):
             title="Installed capacities for scenario {}".format(scenario),
         ),
     }
+
+
+def _load_results_sequences(scenario, datapath, bus, plot_filling_levels):
+    if scenario.endswith(".csv"):
+        df = pd.read_csv(scenario, index_col=[0], parse_dates=True)
+    else:
+        df = pd.read_csv(
+            os.path.join(datapath, scenario, "output", bus + ".csv"),
+            index_col=[0],
+            parse_dates=True,
+        )
+
+    if plot_filling_levels:
+        filling_levels = pd.read_csv(
+            os.path.join(datapath, scenario, "output", "filling_levels.csv"),
+            index_col=[0],
+            parse_dates=True,
+        )
+    else:
+        filling_levels = None
+
+    return df, filling_levels
+
+
+def _prepare_results_sequences(df, bus, aggregate, daily):
+    for i in aggregate:
+        group = [c for c in df.columns if i in c]
+        df[i] = df[group].sum(axis=1)
+        df.drop(group, axis=1, inplace=True)
+
+    # remove all zero columns
+    df = df.loc[:, (df != 0).any(axis=0)]
+
+    if daily:
+        df = df.resample("1D").mean()
+
+    # kind of a hack to get only the technologies
+    df.columns = [c.replace(bus + "-", "") for c in df.columns]
+
+    # strip also if only country code is part of supply name like ("DE-coal")
+    if bus[0:2].isupper():
+        df.columns = [c.replace(bus[0:3], "") for c in df.columns]
+
+    return df
