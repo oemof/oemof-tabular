@@ -20,7 +20,7 @@ c_e_BusBlock_balance(biomass_2)_:
 +1 flow(biomass_commodity_biomass_2)
 = 0
 
-c_u_Flow_summed_max(biomass_commodity_biomass)_:
+c_u_SimpleFlowBlock_full_load_time_max_constr(biomass_commodity_biomass)_:
 +1 flow(biomass_commodity_biomass_0)
 +1 flow(biomass_commodity_biomass_1)
 +1 flow(biomass_commodity_biomass_2)
