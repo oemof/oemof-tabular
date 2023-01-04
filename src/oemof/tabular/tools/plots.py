@@ -52,8 +52,7 @@ def hourly_plot(
     daily=False,
     plot_filling_levels=True,
 ):
-    """
-    """
+    """ """
     if scenario.endswith(".csv"):
         df = pd.read_csv(scenario, index_col=[0], parse_dates=True)
     else:
@@ -171,8 +170,7 @@ def hourly_plot(
 
 
 def stacked_plot(scenario, datapath=None):
-    """
-    """
+    """ """
 
     df = pd.read_csv(
         os.path.join(datapath, scenario, "output", "capacities.csv"),

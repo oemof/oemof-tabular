@@ -19,7 +19,7 @@ from .processing import copy_datapackage
 
 
 def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
-    """ Creates a new datapackage by aggregating sequences inside the
+    """Creates a new datapackage by aggregating sequences inside the
     `sequence` folder of the specified datapackage by skipping `n` timesteps
 
     Parameters
@@ -106,7 +106,7 @@ def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
 
 
 def temporal_clustering(datapackage, n, path="/tmp", how="daily"):
-    """ Creates a new datapackage by aggregating sequences inside the
+    """Creates a new datapackage by aggregating sequences inside the
     `sequence` folder of the specified datapackage by clustering `n` timesteps
 
     Parameters

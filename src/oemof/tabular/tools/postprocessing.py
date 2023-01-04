@@ -14,8 +14,7 @@ from oemof.tabular import facades
 
 
 def component_results(es, results, select="sequences"):
-    """ Aggregated by component type
-    """
+    """Aggregated by component type"""
 
     c = {}
 
@@ -55,8 +54,7 @@ def component_results(es, results, select="sequences"):
 
 
 def bus_results(es, results, select="sequences", concat=False):
-    """ Aggregated for every bus of the energy system
-    """
+    """Aggregated for every bus of the energy system"""
     br = {}
 
     buses = [b for b in es.nodes if isinstance(b, Bus)]
@@ -100,8 +98,7 @@ def supply_results(
     results=None,
     es=None,
 ):
-    """
-    """
+    """ """
     if not hasattr(es, "typemap"):
         setattr(es, "typemap", facades.TYPEMAP)
 
@@ -129,8 +126,7 @@ def supply_results(
 def demand_results(
     types=["load", "conversion", "heatpump"], bus=None, results=None, es=None
 ):
-    """
-    """
+    """ """
     if not hasattr(es, "typemap"):
         setattr(es, "typemap", facades.TYPEMAP)
     selection = pd.DataFrame()
@@ -154,12 +150,10 @@ def demand_results(
 def write_results(
     m, results, output_path, raw=False, summary=True, scalars=True, **kwargs
 ):
-    """
-    """
+    """ """
 
     def save(df, name, path=output_path):
-        """ Helper for writing csv files
-        """
+        """Helper for writing csv files"""
         df.to_csv(os.path.join(path, name + ".csv"))
 
     buses = [b.label for b in m.es.nodes if isinstance(b, Bus)]

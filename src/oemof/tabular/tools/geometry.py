@@ -86,7 +86,7 @@ def read_geometries(filename, directory="data/geometries"):
 
 
 def write_geometries(filename, geometries, directory="data/geometries"):
-    """ Writes geometries to filesystem.
+    """Writes geometries to filesystem.
 
     Parameters
     ----------
@@ -289,8 +289,7 @@ def Shapes2Shapes(
 
 
 def intersects(geom, labels, geometries):
-    """
-    """
+    """ """
     for label, geom_to_check in zip(labels, geometries):
         if geom.intersects(geom_to_check):
             return label
