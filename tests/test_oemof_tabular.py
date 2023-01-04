@@ -1,9 +1,9 @@
+import oemof.solph
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Bus
-import oemof.solph
 
-from oemof.tabular.facades import Reservoir
 import oemof.tabular
+from oemof.tabular.facades import Reservoir
 
 
 def test_version_specification():

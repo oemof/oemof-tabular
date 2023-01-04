@@ -13,7 +13,6 @@ except ImportError:
 
 import pandas as pd
 
-
 # offline.init_notebook_mode()
 from oemof.tabular.facades import CARRIER_COLER_MAP, TECH_COLOR_MAP
 

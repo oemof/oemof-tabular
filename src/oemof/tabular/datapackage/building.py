@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from ftplib import FTP
-from urllib.parse import urlparse
 import errno
 import os
 import pathlib
@@ -9,11 +7,13 @@ import sys
 import tarfile
 import urllib.request
 import zipfile
+from ftplib import FTP
+from urllib.parse import urlparse
 
-from datapackage import Package, Resource
 import pandas as pd
 import paramiko
 import toml
+from datapackage import Package, Resource
 
 from oemof.tabular.config import config
 

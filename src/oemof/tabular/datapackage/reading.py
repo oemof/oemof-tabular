@@ -10,15 +10,14 @@ along with how to use the functions in this module.
 
 """
 
-from decimal import Decimal
-from itertools import chain, groupby, repeat
 import collections.abc as cabc
 import json
 import re
+from decimal import Decimal
+from itertools import chain, groupby, repeat
 
 import datapackage as dp
 import pandas as pd
-
 from oemof.network.network import Bus, Component
 
 from ..tools import HSN, raisestatement, remap

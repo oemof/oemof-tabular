@@ -6,8 +6,8 @@ Module used for aggregation sequences and elements.
 import os
 import re
 
-from datapackage import Package, Resource
 import pandas as pd
+from datapackage import Package, Resource
 
 try:
     import tsam.timeseriesaggregation as tsam

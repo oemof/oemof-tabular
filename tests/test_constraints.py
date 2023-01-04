@@ -1,13 +1,12 @@
-from difflib import unified_diff
 import logging
 import os
 import re
+from difflib import unified_diff
 
 import pandas as pd
-
-from oemof import solph
 from oemof.solph import helpers
 
+from oemof import solph
 from oemof.tabular.facades import (
     BackpressureTurbine,
     Commodity,
