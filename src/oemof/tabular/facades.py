@@ -1527,16 +1527,16 @@ class Commodity(Source, Facade):
         self.outputs.update({self.bus: f})
 
 
+@dataclass_facade
 class Excess(Sink, Facade):
     """
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=["bus"], *args, **kwargs)
+    bus: Bus
 
-        self.bus = kwargs.get("bus")
+    marginal_cost: float = 0
 
-        self.marginal_cost = kwargs.get("marginal_cost")
+    def build_solph_components(self):
 
         self.inputs.update({self.bus: Flow(variable_costs=self.marginal_cost)})
 
