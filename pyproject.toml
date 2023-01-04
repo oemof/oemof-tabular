@@ -10,7 +10,19 @@ exclude = '''
   | meta/migrations
   | docs
   | .venv
+  | venv
   | .ipynb
+  | \.direnv
+  | \.hg
+  | \.mypy_cache
+  | \.nox
+  | \.tox
+  \.svn
+  | _build
+  | buck-out
+  | build
+  | dist
+  | docs
 )/
 '''
 line-length=79
