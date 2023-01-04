@@ -6,7 +6,7 @@ graft tests
 include .coveragerc
 include .cookiecutterrc
 include .editorconfig
-include.pre-commit-config.yaml
+include .pre-commit-config.yaml
 include punch_config.py
 include punch_version.py
 include pytest.ini
