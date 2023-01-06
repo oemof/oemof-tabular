@@ -63,6 +63,7 @@ def kwargs_to_parent(cls):
 
         original_init(self, **dataclass_kwargs)
 
+        # TODO: Could move the following lines to a __post_init__
         kwargs.update(dataclasses.asdict(self))
 
         super(cls, self).__init__(*args, **kwargs)
