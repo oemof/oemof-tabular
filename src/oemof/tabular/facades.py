@@ -1561,6 +1561,8 @@ class Excess(Sink, Facade):
             **self.input_parameters
         )
 
+        self.inputs.update({self.bus: f})
+
 
 class Shortage(Dispatchable):
     """
