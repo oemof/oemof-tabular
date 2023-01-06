@@ -1539,9 +1539,27 @@ class Excess(Sink, Facade):
 
     marginal_cost: float = 0
 
-    def build_solph_components(self):
+    capacity: float = None
 
-        self.inputs.update({self.bus: Flow(variable_costs=self.marginal_cost)})
+    capacity_potential: float = float("+inf")
+
+    capacity_cost: float = None
+
+    capacity_minimum: float = None
+
+    expandable: bool = False
+
+    input_parameters: dict = field(default_factory=dict)
+
+    def build_solph_components(self):
+        """
+        """
+        f = Flow(
+            nominal_value=self._nominal_value(),
+            variable_costs=self.marginal_cost,
+            investment=self._investment(),
+            **self.input_parameters
+        )
 
 
 class Shortage(Dispatchable):

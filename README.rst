@@ -17,9 +17,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/oemof.tabular
 
-.. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-tabular%2Fcompare%2Fv0.0.2...dev&query=%24.total_commits&colorB=blue
+.. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-tabular%2Fcompare%2Fv0.0.3...dev&query=%24.total_commits&colorB=blue
     :alt: Commits since latest release
-    :target: https://github.com/oemof/oemof-tabular/compare/v0.0.2...dev
+    :target: https://github.com/oemof/oemof-tabular/compare/v0.0.3...dev
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/oemof.tabular.svg
     :alt: PyPI Wheel
@@ -61,11 +61,14 @@ Development
 
 To run the all tests run::
 
-    tox
+    pytest
 
-Note, to combine the coverage data from all the tox environments run:
 
-.. list-table::
+..    tox
+
+.. Note, to combine the coverage data from all the tox environments run:
+
+.. .. list-table::
     :widths: 10 90
     :stub-columns: 1
 
