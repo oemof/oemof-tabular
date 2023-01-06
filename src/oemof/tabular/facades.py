@@ -690,13 +690,13 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     fuel_bus: Bus
 
-    capacity: float = None
-
     condensing_efficiency: Union[float, Sequence[float]]
 
     electric_efficiency: Union[float, Sequence[float]]
 
     thermal_efficiency: Union[float, Sequence[float]]
+
+    capacity: float = None
 
     carrier_cost: float = None
 
@@ -741,7 +741,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         )
 
         self.conversion_factor_full_condensation.update(
-            {self.electricity_bus: self.condensing_efficiency}
+            {self.electricity_bus: sequence(self.condensing_efficiency)}
         )
 
 
