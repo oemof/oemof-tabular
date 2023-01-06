@@ -54,8 +54,6 @@ def kwargs_to_parent(cls):
 
     def new_init(self, *args, **kwargs):
 
-        super(cls, self).__init__(*args, **kwargs)
-
         # pass only those kwargs to the dataclass which are expected
         dataclass_kwargs = {
             key: value
@@ -64,6 +62,10 @@ def kwargs_to_parent(cls):
         }
 
         original_init(self, **dataclass_kwargs)
+
+        kwargs.update(dataclasses.asdict(self))
+
+        super(cls, self).__init__(*args, **kwargs)
 
         self.build_solph_components()
 
