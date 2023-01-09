@@ -10,15 +10,18 @@ along with how to use the functions in this module.
 
 """
 
+from decimal import Decimal
+from itertools import chain, groupby, repeat
 import collections.abc as cabc
 import json
 import re
-from decimal import Decimal
-from itertools import chain, groupby, repeat
-
+import warnings
 import datapackage as dp
 import pandas as pd
+
 from oemof.network.network import Bus, Component
+
+from oemof.tabular.config.config import supported_oemof_tabular_versions
 
 from ..tools import HSN, raisestatement, remap
 
@@ -27,7 +30,8 @@ FLOW_TYPE = object()
 
 
 def sequences(r, timeindices=None):
-    """Parses the resource `r` as a sequence."""
+    """ Parses the resource `r` as a sequence.
+    """
     result = {
         name: [
             float(s[name]) if isinstance(s[name], Decimal) else s[name]
@@ -52,7 +56,8 @@ def read_facade(
     fks,
     resources,
 ):
-    """Parse the resource `r` as a facade."""
+    """ Parse the resource `r` as a facade.
+    """
     # TODO: Generate better error messages, if keys which are assumed to be
     # present, e.g. because they are used as foreign keys or because our
     # way of reading data packages needs them, are missing.
@@ -135,6 +140,16 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     empty = HSN()
     empty.read = lambda *xs, **ks: ()
     empty.headers = ()
+
+    # check version that was used to create metadata
+    oemof_tabular_version = package.descriptor.get("oemof_tabular_version")
+
+    if oemof_tabular_version not in supported_oemof_tabular_versions:
+        warnings.warn(
+            f"Version of datapackage '{oemof_tabular_version}' is not "
+            f"supported. These versions are supported: "
+            f"{supported_oemof_tabular_versions}"
+        )
 
     def parse(s):
         return json.loads(s) if s else {}
@@ -223,7 +238,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     }
 
     def resolve_foreign_keys(source):
-        """Check whether any key in `source` is a FK and follow it.
+        """ Check whether any key in `source` is a FK and follow it.
 
         The `source` dictionary is checked for whether any of
         its keys is a foreign key. A key is considered a
@@ -279,7 +294,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     objects = {}
 
     def create(cls, init, attributes):
-        """Creates an instance of `cls` and sets `attributes`."""
+        """ Creates an instance of `cls` and sets `attributes`.
+        """
         init.update(attributes)
         instance = cls(**remap(init, attributemap, cls))
         for k, v in remap(attributes, attributemap, cls).items():
