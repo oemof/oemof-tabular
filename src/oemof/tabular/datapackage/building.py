@@ -32,7 +32,7 @@ def infer_resources(directory="data/elements"):
         os.makedirs("resources")
 
     # create meta data resources
-    for f in os.listdir(directory):
+    for f in sorted(os.listdir(directory)):
         r = Resource({"path": os.path.join(directory, f)})
         r.infer()
         r.save(os.path.join("resources", f.replace(".csv", ".json")))
@@ -43,7 +43,7 @@ def update_package_descriptor():
     """
     p = Package("datapackage.json")
 
-    for f in os.listdir("resources"):
+    for f in sorted(os.listdir("resources")):
         path = os.path.join("resources", f)
 
         r = Resource(path)
@@ -104,7 +104,7 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/elements"):
+        for f in sorted(os.listdir("data/elements")):
             r = Resource({"path": str(pathlib.PurePosixPath(
                 "data", "elements", f))})
             r.infer()
@@ -152,7 +152,7 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/sequences"):
+        for f in sorted(os.listdir("data/sequences")):
             r = Resource({"path": str(pathlib.PurePosixPath(
                 "data", "sequences", f))})
             r.infer()
@@ -168,7 +168,7 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/geometries"):
+        for f in sorted(os.listdir("data/geometries")):
             r = Resource({"path": str(pathlib.PurePosixPath(
                 "data", "geometries", f))})
             r.infer()
@@ -204,7 +204,7 @@ def package_from_resources(resource_path, output_path, clean=True):
     p.descriptor["profile"] = "tabular-data-package"
     p.commit()
 
-    for f in os.listdir(resource_path):
+    for f in sorted(os.listdir(resource_path)):
         path = os.path.join(resource_path, f)
 
         r = Resource(path)
