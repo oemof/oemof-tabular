@@ -129,7 +129,9 @@ class Facade(Node):
         super().__init__(*args, **kwargs)
 
         self.subnodes = []
-        EnergySystem.signals[EnergySystem.add].connect(add_subnodes, sender=self)
+        EnergySystem.signals[EnergySystem.add].connect(
+            add_subnodes, sender=self
+        )
 
         for r in required:
             if r in kwargs:
@@ -343,7 +345,11 @@ class Reservoir(GenericStorage, Facade):
         )
 
         self.outputs.update(
-            {self.bus: Flow(nominal_value=self.capacity, **self.output_parameters)}
+            {
+                self.bus: Flow(
+                    nominal_value=self.capacity, **self.output_parameters
+                )
+            }
         )
 
         self.subnodes = (inflow,)
@@ -877,7 +883,8 @@ class BackpressureTurbine(Transformer, Facade):
         self.outputs.update(
             {
                 self.electricity_bus: Flow(
-                    nominal_value=self._nominal_value(), investment=self._investment()
+                    nominal_value=self._nominal_value(),
+                    investment=self._investment()
                 ),
                 self.heat_bus: Flow(),
             }
@@ -984,7 +991,10 @@ class Conversion(Transformer, Facade):
         """
         """
         self.conversion_factors.update(
-            {self.from_bus: sequence(1), self.to_bus: sequence(self.efficiency)}
+            {
+                self.from_bus: sequence(1),
+                self.to_bus: sequence(self.efficiency)
+            }
         )
 
         self.inputs.update(
@@ -1126,7 +1136,9 @@ class HeatPump(Transformer, Facade):
                 self.electricity_bus: Flow(
                     variable_costs=self.carrier_cost, **self.input_parameters
                 ),
-                self.low_temperature_bus: Flow(**self.low_temperature_parameters),
+                self.low_temperature_bus: Flow(
+                    **self.low_temperature_parameters
+                ),
             }
         )
 
@@ -1326,7 +1338,9 @@ class Storage(GenericStorage, Facade):
             for attr in ["invest_relation_input_output"]:
                 if getattr(self, attr) is None:
                     raise AttributeError(
-                        ("You need to set attr " "`{}` " "for component {}").format(
+                        (
+                            "You need to set attr " "`{}` " "for component {}"
+                        ).format(
                             attr, self.label
                         )
                     )
@@ -1351,7 +1365,10 @@ class Storage(GenericStorage, Facade):
             # required for correct grouping in oemof.solph.components
             self._invest_group = True
         else:
-            fi = Flow(nominal_value=self._nominal_value(), **self.input_parameters)
+            fi = Flow(
+                nominal_value=self._nominal_value(),
+                **self.input_parameters
+            )
             fo = Flow(
                 nominal_value=self._nominal_value(),
                 variable_costs=self.marginal_cost,
