@@ -62,10 +62,13 @@ Development
 Please activate pre-commit hooks in order to follow our coding styles:
 
 ::
+
     pip install pre-commit
     pre-commit install
 
-To run the all tests run::
+To run the all tests run:
+
+::
 
     pytest
 
