@@ -15,8 +15,8 @@ import paramiko
 import toml
 from datapackage import Package, Resource
 
-from oemof.tabular.config import config
 from oemof.tabular import __version__ as oemof_tabular_version
+from oemof.tabular.config import config
 
 
 def infer_resources(directory="data/elements"):

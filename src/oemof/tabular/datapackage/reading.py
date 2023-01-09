@@ -10,15 +10,15 @@ along with how to use the functions in this module.
 
 """
 
-from decimal import Decimal
-from itertools import chain, groupby, repeat
 import collections.abc as cabc
 import json
 import re
 import warnings
+from decimal import Decimal
+from itertools import chain, groupby, repeat
+
 import datapackage as dp
 import pandas as pd
-
 from oemof.network.network import Bus, Component
 
 from oemof.tabular.config.config import supported_oemof_tabular_versions
@@ -30,8 +30,7 @@ FLOW_TYPE = object()
 
 
 def sequences(r, timeindices=None):
-    """ Parses the resource `r` as a sequence.
-    """
+    """Parses the resource `r` as a sequence."""
     result = {
         name: [
             float(s[name]) if isinstance(s[name], Decimal) else s[name]
@@ -56,8 +55,7 @@ def read_facade(
     fks,
     resources,
 ):
-    """ Parse the resource `r` as a facade.
-    """
+    """Parse the resource `r` as a facade."""
     # TODO: Generate better error messages, if keys which are assumed to be
     # present, e.g. because they are used as foreign keys or because our
     # way of reading data packages needs them, are missing.
@@ -238,7 +236,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     }
 
     def resolve_foreign_keys(source):
-        """ Check whether any key in `source` is a FK and follow it.
+        """Check whether any key in `source` is a FK and follow it.
 
         The `source` dictionary is checked for whether any of
         its keys is a foreign key. A key is considered a
@@ -294,8 +292,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     objects = {}
 
     def create(cls, init, attributes):
-        """ Creates an instance of `cls` and sets `attributes`.
-        """
+        """Creates an instance of `cls` and sets `attributes`."""
         init.update(attributes)
         instance = cls(**remap(init, attributemap, cls))
         for k, v in remap(attributes, attributemap, cls).items():
