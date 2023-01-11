@@ -337,7 +337,8 @@ class Dispatchable(Source, Facade):
     capacity_minimum: numeric
         Minimum install capacity if capacity is to be expanded
 
-    The mathematical representations for this components are dependent on the
+
+    The mathematical representations for these components are dependent on the
     user defined attributes. If the capacity is fixed before
     (**dispatch mode**) the following equation holds:
 
@@ -762,7 +763,7 @@ class BackpressureTurbine(Transformer, Facade):
 
         x^{flow, carrier}(t) =
         \frac{x^{flow, electricity}(t) + x^{flow, heat}(t)}\
-        {c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)}
+        {c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)} \\
         \qquad \forall t \in T
 
     .. math::
