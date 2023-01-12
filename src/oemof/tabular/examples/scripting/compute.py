@@ -1,14 +1,15 @@
 """
 """
 import os
-import pkg_resources as pkg
 
+import pkg_resources as pkg
 from oemof.solph import EnergySystem, Model
+
+import oemof.tabular.tools.postprocessing as pp
 
 # DONT REMOVE THIS LINE!
 from oemof.tabular import datapackage  # noqa
 from oemof.tabular.facades import TYPEMAP
-import oemof.tabular.tools.postprocessing as pp
 
 name = "dispatch"
 

@@ -1,9 +1,8 @@
 from oemof.tabular.datapackage import building
 
-
 # This part is for testing only: It allows to pass
 # the filename of inferred metadata other than the default.
-if not "kwargs" in locals():
+if "kwargs" not in locals():
     kwargs = {}
 
 building.infer_metadata(

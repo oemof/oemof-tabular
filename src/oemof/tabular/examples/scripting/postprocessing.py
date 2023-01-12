@@ -1,10 +1,9 @@
 import pkg_resources as pkg
-
 from oemof.solph import EnergySystem, Model, views
 
-from oemof.tabular.facades import TYPEMAP
 import oemof.tabular.datapackage  # noqa
 import oemof.tabular.tools.postprocessing as pp
+from oemof.tabular.facades import TYPEMAP
 
 examples = ["dispatch", "investment", "foreignkeys"]
 for example in examples:
