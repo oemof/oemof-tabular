@@ -137,7 +137,7 @@ def test_examples_datapackages_scripts_infer():
             )
             os.rename(test_filepath, new_filepath)
 
-            ref_filepath = datapackage_path / "datapackage_test.json"
+            ref_filepath = datapackage_path / "datapackage.json"
 
             with open(new_filepath) as new_file:
                 with open(ref_filepath) as ref_file:
