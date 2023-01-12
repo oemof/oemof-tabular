@@ -64,6 +64,7 @@ def infer_metadata(
     keep_resources=False,
     foreign_keys=None,
     path=None,
+    metadata_filename="datapackage.json",
 ):
     """ Add basic meta data for a datapackage
 
@@ -81,6 +82,8 @@ def infer_metadata(
         strings with the name of the resources
     path: string
         Absolute path to root-folder of the datapackage
+    metadata_filename: basestring
+        Name of the inferred metadata string.
     """
     foreign_keys = foreign_keys or config.FOREIGN_KEYS
 
@@ -178,7 +181,7 @@ def infer_metadata(
             p.add_resource(r.descriptor)
 
     p.commit()
-    p.save("datapackage.json")
+    p.save(metadata_filename)
 
     if not keep_resources:
         shutil.rmtree("resources")
