@@ -318,9 +318,9 @@ class Reservoir(GenericStorage, Facade):
 
     capacity: float = None
 
-    efficiency: float = 1
+    efficiency: float
 
-    profile: Union[float, Sequence[float]] = None
+    profile: Union[float, Sequence[float]]
 
     output_parameters: dict = field(default_factory=dict)
 
@@ -562,7 +562,7 @@ class Volatile(Source, Facade):
 
     tech: str
 
-    profile: Union[float, Sequence[float]] = None
+    profile: Union[float, Sequence[float]]
 
     capacity: float = None
 
@@ -701,9 +701,9 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     capacity: float = None
 
-    carrier_cost: float = None
+    carrier_cost: float = 0
 
-    marginal_cost: float = None
+    marginal_cost: float = 0
 
     capacity_cost: float = None
 
