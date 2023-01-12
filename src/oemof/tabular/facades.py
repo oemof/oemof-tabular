@@ -18,11 +18,11 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 
 SPDX-License-Identifier: BSD-3-Clause
 """
+import dataclasses
+import warnings
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Sequence, Union
-import dataclasses
-import warnings
 
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Node
@@ -117,8 +117,7 @@ class Facade(Node):
     """
 
     def __init__(self, *args, **kwargs):
-        """
-        """
+        """ """
 
         self.mapped_type = type(self)
 
@@ -145,7 +144,7 @@ class Facade(Node):
                 )
 
     def _nominal_value(self):
-        """ Returns None if self.expandable ist True otherwise it returns
+        """Returns None if self.expandable ist True otherwise it returns
         the capacity
         """
         if self.expandable is True:
@@ -234,7 +233,7 @@ class Facade(Node):
 
 @dataclass_facade
 class Reservoir(GenericStorage, Facade):
-    r""" A Reservoir storage unit, that is initially half full.
+    r"""A Reservoir storage unit, that is initially half full.
 
     Note that the investment option is not available for this facade at
     the current development state.
@@ -254,7 +253,7 @@ class Reservoir(GenericStorage, Facade):
     profile: array-like
         Absolute inflow profile of inflow into the storage
     output_parameters: dict
-        Dictionary to specifiy parameters on the input edge. You can use
+        Dictionary to specifiy parameters on the output edge. You can use
         all keys that are available for the  oemof.solph.network.Flow class.
 
 
@@ -328,8 +327,7 @@ class Reservoir(GenericStorage, Facade):
     expandable: bool = False
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.nominal_storage_capacity = self.storage_capacity
 
         self.outflow_conversion_factor = sequence(self.efficiency)
@@ -462,8 +460,7 @@ class Dispatchable(Source, Facade):
     output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
 
         if self.profile is None:
             self.profile = 1
@@ -582,8 +579,7 @@ class Volatile(Source, Facade):
     output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
@@ -718,8 +714,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     conversion_factor_full_condensation: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.fuel_bus: sequence(1),
@@ -862,8 +857,7 @@ class BackpressureTurbine(Transformer, Facade):
     input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.fuel_bus: sequence(1),
@@ -884,7 +878,7 @@ class BackpressureTurbine(Transformer, Facade):
             {
                 self.electricity_bus: Flow(
                     nominal_value=self._nominal_value(),
-                    investment=self._investment()
+                    investment=self._investment(),
                 ),
                 self.heat_bus: Flow(),
             }
@@ -893,7 +887,7 @@ class BackpressureTurbine(Transformer, Facade):
 
 @dataclass_facade
 class Conversion(Transformer, Facade):
-    r""" Conversion unit with one input and one output.
+    r"""Conversion unit with one input and one output.
 
     Parameters
     ----------
@@ -988,12 +982,11 @@ class Conversion(Transformer, Facade):
     output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.from_bus: sequence(1),
-                self.to_bus: sequence(self.efficiency)
+                self.to_bus: sequence(self.efficiency),
             }
         )
 
@@ -1019,7 +1012,7 @@ class Conversion(Transformer, Facade):
 
 @dataclass_facade
 class HeatPump(Transformer, Facade):
-    r""" HeatPump unit with two inputs and one output.
+    r"""HeatPump unit with two inputs and one output.
 
     Parameters
     ----------
@@ -1121,8 +1114,7 @@ class HeatPump(Transformer, Facade):
     input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.electricity_bus: sequence(1 / self.cop),
@@ -1156,7 +1148,7 @@ class HeatPump(Transformer, Facade):
 
 @dataclass_facade
 class Load(Sink, Facade):
-    r""" Load object with one input
+    r"""Load object with one input
 
     Parameters
     ----------
@@ -1201,8 +1193,7 @@ class Load(Sink, Facade):
     input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.inputs.update(
             {
                 self.bus: Flow(
@@ -1217,7 +1208,7 @@ class Load(Sink, Facade):
 
 @dataclass_facade
 class Storage(GenericStorage, Facade):
-    r""" Storage unit
+    r"""Storage unit
 
     Parameters
     ----------
@@ -1321,8 +1312,7 @@ class Storage(GenericStorage, Facade):
     output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.nominal_storage_capacity = self.storage_capacity
 
         self.inflow_conversion_factor = sequence(self.efficiency)
@@ -1340,9 +1330,7 @@ class Storage(GenericStorage, Facade):
                     raise AttributeError(
                         (
                             "You need to set attr " "`{}` " "for component {}"
-                        ).format(
-                            attr, self.label
-                        )
+                        ).format(attr, self.label)
                     )
 
             # set capacity costs at one of the flows
@@ -1366,8 +1354,7 @@ class Storage(GenericStorage, Facade):
             self._invest_group = True
         else:
             fi = Flow(
-                nominal_value=self._nominal_value(),
-                **self.input_parameters
+                nominal_value=self._nominal_value(), **self.input_parameters
             )
             fo = Flow(
                 nominal_value=self._nominal_value(),
@@ -1454,8 +1441,7 @@ class Link(Link, Facade):
     limit_direction: bool = False
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         investment = self._investment()
 
         self.inputs.update({self.from_bus: Flow(), self.to_bus: Flow()})
@@ -1485,7 +1471,7 @@ class Link(Link, Facade):
 
 @dataclass_facade
 class Commodity(Source, Facade):
-    r""" Commodity element with one output for example a biomass commodity
+    r"""Commodity element with one output for example a biomass commodity
 
     Parameters
     ----------
@@ -1534,8 +1520,7 @@ class Commodity(Source, Facade):
     output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
 
         f = Flow(
             nominal_value=self.amount,
@@ -1549,8 +1534,7 @@ class Commodity(Source, Facade):
 
 @dataclass_facade
 class Excess(Sink, Facade):
-    """
-    """
+    """ """
 
     bus: Bus
 
@@ -1569,29 +1553,26 @@ class Excess(Sink, Facade):
     input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
             investment=self._investment(),
-            **self.input_parameters
+            **self.input_parameters,
         )
 
         self.inputs.update({self.bus: f})
 
 
 class Shortage(Dispatchable):
-    """
-    """
+    """ """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
 class Generator(Dispatchable):
-    """
-    """
+    """ """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

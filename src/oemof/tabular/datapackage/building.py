@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from ftplib import FTP
-from urllib.parse import urlparse
 import errno
 import os
 import pathlib
@@ -9,17 +7,19 @@ import sys
 import tarfile
 import urllib.request
 import zipfile
+from ftplib import FTP
+from urllib.parse import urlparse
 
-from datapackage import Package, Resource
 import pandas as pd
 import paramiko
 import toml
+from datapackage import Package, Resource
 
 from oemof.tabular.config import config
 
 
 def infer_resources(directory="data/elements"):
-    """ Method looks at all files in `directory` and creates
+    """Method looks at all files in `directory` and creates
     datapackage.Resource object that will be stored
 
     Parameters
@@ -39,8 +39,7 @@ def infer_resources(directory="data/elements"):
 
 
 def update_package_descriptor():
-    """
-    """
+    """ """
     p = Package("datapackage.json")
 
     for f in os.listdir("resources"):
@@ -65,7 +64,7 @@ def infer_metadata(
     foreign_keys=None,
     path=None,
 ):
-    """ Add basic meta data for a datapackage
+    """Add basic meta data for a datapackage
 
     Parameters
     ----------
@@ -105,8 +104,9 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/elements"):
-            r = Resource({"path": str(pathlib.PurePosixPath(
-                "data", "elements", f))})
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "elements", f))}
+            )
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
@@ -140,8 +140,9 @@ def infer_metadata(
                         )
 
             r.commit()
-            r.save(pathlib.PurePosixPath("resources", f.replace(
-                ".csv", ".json")))
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
             p.add_resource(r.descriptor)
 
     # create meta data resources sequences
@@ -153,12 +154,14 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/sequences"):
-            r = Resource({"path": str(pathlib.PurePosixPath(
-                "data", "sequences", f))})
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "sequences", f))}
+            )
             r.infer()
             r.commit()
-            r.save(pathlib.PurePosixPath("resources", f.replace(
-                ".csv", ".json")))
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
             p.add_resource(r.descriptor)
 
     if not os.path.exists("data/geometries"):
@@ -169,12 +172,14 @@ def infer_metadata(
         )
     else:
         for f in os.listdir("data/geometries"):
-            r = Resource({"path": str(pathlib.PurePosixPath(
-                "data", "geometries", f))})
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "geometries", f))}
+            )
             r.infer()
             r.commit()
-            r.save(pathlib.PurePosixPath("resources", f.replace(
-                ".csv", ".json")))
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
             p.add_resource(r.descriptor)
 
     p.commit()
@@ -187,7 +192,7 @@ def infer_metadata(
 
 
 def package_from_resources(resource_path, output_path, clean=True):
-    """ Collects resource descriptors and merges them in a datapackage.json
+    """Collects resource descriptors and merges them in a datapackage.json
 
     Parameters
     ----------
@@ -222,7 +227,7 @@ def package_from_resources(resource_path, output_path, clean=True):
 
 
 def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
-    """ Download data with FTP
+    """Download data with FTP
 
     Parameters
     ----------
@@ -254,7 +259,7 @@ def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
 def _sftp(
     remotepath, localpath, hostname="", username="rutherford", password=""
 ):
-    """ Download data with SFTP
+    """Download data with SFTP
 
     Parameters
     ----------
@@ -283,7 +288,7 @@ def _sftp(
 
 
 def _http(url, path):
-    """ Download data with HTTP
+    """Download data with HTTP
 
     Parameters
     ----------
@@ -395,7 +400,7 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
 
 
 def timeindex(year, periods=8760, freq="H"):
-    """ Create pandas datetimeindex.
+    """Create pandas datetimeindex.
 
     Parameters
     ----------
@@ -413,7 +418,7 @@ def timeindex(year, periods=8760, freq="H"):
 
 
 def initialize(config, directory="."):
-    """ Initialize datapackage by reading config file and creating required
+    """Initialize datapackage by reading config file and creating required
     directories (data/elements, data/sequences etc.) if directories are
     not specified in the config file, the default directory setup up
     will be used.
@@ -452,8 +457,7 @@ def initialize(config, directory="."):
 
 
 def input_filepath(file, directory="archive/"):
-    """
-    """
+    """ """
     file_path = os.path.join(directory, file)
 
     if not os.path.exists(file_path):
@@ -475,7 +479,7 @@ def input_filepath(file, directory="archive/"):
 
 
 def read_build_config(file="build.toml"):
-    """ Read config build file in toml format
+    """Read config build file in toml format
 
     Parameters
     ----------
@@ -501,7 +505,7 @@ def read_build_config(file="build.toml"):
 
 
 def read_sequences(filename, directory="data/sequences"):
-    """ Reads sequence resources from the datapackage
+    """Reads sequence resources from the datapackage
 
     Parameters
     ----------
@@ -558,7 +562,7 @@ def write_elements(
     overwrite=False,
     create_dir=True,
 ):
-    """ Writes elements to filesystem.
+    """Writes elements to filesystem.
 
     Parameters
     ----------
@@ -616,7 +620,7 @@ def write_sequences(
     replace=False,
     create_dir=True,
 ):
-    """ Writes sequences to filesystem.
+    """Writes sequences to filesystem.
 
     Parameters
     ----------
