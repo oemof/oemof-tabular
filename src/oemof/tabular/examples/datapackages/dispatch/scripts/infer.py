@@ -5,6 +5,11 @@ or create meta data.
 from oemof.tabular.datapackage import building
 
 
+# This part is for testing only: It allows to pass
+# the filename of inferred metadata other than the default.
+if not "kwargs" in locals():
+    kwargs = {}
+
 building.infer_metadata(
     package_name="oemof-tabular-dispatch-example",
     foreign_keys={
@@ -13,4 +18,5 @@ building.infer_metadata(
         "from_to_bus": ["link"],
         "chp": [],
     },
+    **kwargs,
 )
