@@ -314,13 +314,13 @@ class Reservoir(GenericStorage, Facade):
 
     tech: str
 
-    storage_capacity: float = None
-
-    capacity: float = None
-
     efficiency: float
 
     profile: Union[float, Sequence[float]]
+
+    storage_capacity: float = None
+
+    capacity: float = None
 
     output_parameters: dict = field(default_factory=dict)
 
