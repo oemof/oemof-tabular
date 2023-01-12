@@ -1,8 +1,11 @@
 import importlib
 import pathlib
+
 import pkg_resources as pkg
 
 from oemof.network.energy_system import EnergySystem as ES
+from oemof.solph import helpers
+
 from oemof.tabular.facades import TYPEMAP
 # The import below is only used to monkey patch `EnergySystem`.
 # Hence the `noqa` because otherwise, style checkers would complain about an
@@ -10,6 +13,40 @@ from oemof.tabular.facades import TYPEMAP
 import oemof.tabular.datapackage  # noqa: F401
 
 ROOT_DIR = pathlib.Path(__file__).parent.parent
+
+
+from difflib import unified_diff
+import os
+import re
+
+
+def chop_trailing_whitespace(lines):
+    return [re.sub(r"\s*$", "", line) for line in lines]
+
+
+def remove(pattern, lines):
+    if not pattern:
+        return lines
+    return re.subn(pattern, "", "\n".join(lines))[0].split("\n")
+
+
+def compare_json_files(file_1, file_2, ignored=None):
+    lines_1 = remove(ignored, chop_trailing_whitespace(file_1.readlines()))
+    lines_2 = remove(ignored, chop_trailing_whitespace(file_2.readlines()))
+
+    if not lines_1 == lines_2:
+        raise AssertionError(
+            "Failed matching lp_file_1 with lp_file_2:\n"
+            + "\n".join(
+                unified_diff(
+                    lines_1,
+                    lines_2,
+                    fromfile=os.path.relpath(file_1.name),
+                    tofile=os.path.basename(file_2.name),
+                    lineterm="",
+                )
+            )
+        )
 
 
 def test_example_datapackage_readability():
@@ -67,10 +104,25 @@ def test_examples_datapackages_scripts_infer():
             exec(
                 "kwargs = {} \n"
                 f"kwargs['path'] = '{datapackage_path}' \n" +
-                "kwargs['metadata_filename'] = 'datapackage_test.json' \n" +
+                f"kwargs['metadata_filename'] = 'datapackage_{example_datapackage}.json' \n" +
                 open(
                     script_path
                 ).read(),
+            )
+
+            # Move metadata string to .oemof directory
+            test_filepath = datapackage_path / f"datapackage_{example_datapackage}.json"
+            new_filepath = pathlib.PosixPath(helpers.extend_basic_path("metadata")) / f"datapackage_{example_datapackage}.json"
+            os.rename(test_filepath, new_filepath)
+
+            ref_filepath = datapackage_path / "datapackage_test.json"
+
+            with open(new_filepath) as new_file:
+                with open(ref_filepath) as ref_file:
+                    compare_json_files(new_file, ref_file)
+
+            compare_json_files(
+                new_file, ref_file
             )
 
 
