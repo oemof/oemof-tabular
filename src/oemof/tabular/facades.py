@@ -107,13 +107,7 @@ def add_subnodes(n, **kwargs):
 
 class Facade(Node):
     """
-    Parameters
-    ----------
-    _facade_requires_ : list of str
-        A list of required attributes. The constructor checks whether these are
-        present as keywort arguments or whether they are already present on
-        self (which means they have been set by constructors of subclasses) and
-        raises an error if he doesn't find them.
+    Parent class for oemof.tabular facades.
     """
 
     def __init__(self, *args, **kwargs):
@@ -123,25 +117,12 @@ class Facade(Node):
 
         self.type = kwargs.get("type")
 
-        required = kwargs.pop("_facade_requires_", [])
-
         super().__init__(*args, **kwargs)
 
         self.subnodes = []
         EnergySystem.signals[EnergySystem.add].connect(
             add_subnodes, sender=self
         )
-
-        for r in required:
-            if r in kwargs:
-                setattr(self, r, kwargs[r])
-            elif not hasattr(self, r):
-                raise AttributeError(
-                    (
-                        "Missing required attribute `{}` for `{}` "
-                        "object with name/label `{!r}`."
-                    ).format(r, type(self).__name__, self.label)
-                )
 
     def _nominal_value(self):
         """Returns None if self.expandable ist True otherwise it returns
