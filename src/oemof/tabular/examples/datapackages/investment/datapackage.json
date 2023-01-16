@@ -30,7 +30,8 @@
                 "missingValues": [
                     ""
                 ],
-                "primaryKey": "name"
+                "primaryKey": "name",
+                "foreignKeys": []
             }
         },
         {
