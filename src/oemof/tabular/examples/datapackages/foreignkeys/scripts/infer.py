@@ -16,6 +16,7 @@ building.infer_metadata(
         "profile": ["component"],
         "from_to_bus": [],
         "chp": [],
+        "marginal_cost": ["component"],
     },
     **kwargs,
 )
