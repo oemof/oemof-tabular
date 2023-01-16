@@ -142,6 +142,11 @@ def infer_metadata(
                             }
                         )
 
+            # sort foreign_key entries by alphabetically by fields
+            r.descriptor["schema"]["foreignKeys"].sort(
+                key=lambda x: x["fields"]
+            )
+
             r.commit()
             r.save(
                 pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
