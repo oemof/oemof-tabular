@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import dataclasses
 import errno
+import itertools
 import os
 import pathlib
 import shutil
@@ -15,6 +17,7 @@ import paramiko
 import toml
 from datapackage import Package, Resource
 
+import oemof.tabular.facades
 from oemof.tabular.config import config
 
 
@@ -670,3 +673,91 @@ def write_sequences(
     sequences.to_csv(path, sep=";", date_format="%Y-%m-%dT%H:%M:%SZ")
 
     return path
+
+
+def get_facade_fields():
+
+    facade_fields = {
+        name: dataclasses.fields(facade)
+        for name, facade in oemof.tabular.facades.TYPEMAP.items()
+        if dataclasses.is_dataclass(facade)
+    }
+
+    return facade_fields
+
+
+class DataFramePackage:
+    elements_subdir = "elements"
+    sequences_subdir = "sequences"
+
+    def __init__(self, data=None, facade_attrs=None):
+        if data is None:
+            self.data = {
+                self.elements_subdir: {},
+                self.sequences_subdir: {},
+            }
+
+        if facade_attrs is None:
+            self.facade_fields = get_facade_fields()
+
+    def add_component(self, facade_type, **kwargs):
+        fields = self.facade_fields[facade_type]
+
+        columns = [field.name for field in fields]
+
+        # create resource
+        r = pd.DataFrame(columns=columns, index=[])
+
+        r = populate_df(r, **kwargs)
+
+        if type not in self.data[self.elements_subdir]:
+            self.data[self.elements_subdir][facade_type] = r
+        else:
+            self.data[self.elements_subdir][facade_type] = pd.concat(
+                [self.data[self.elements_subdir][type], r]
+            )
+
+
+def populate_df(df, **kwargs):
+    undefined_keys = [key for key in kwargs if key not in df.columns]
+
+    if any(undefined_keys):
+        raise ValueError(f"There are undefined keys: {undefined_keys}")
+
+    # perform cartesian product if lists are given
+    given_values = {
+        k: v if isinstance(v, list) else [v] for k, v in kwargs.items()
+    }
+
+    cartesian_product = pd.DataFrame(
+        itertools.product(*given_values.values()), columns=given_values.keys()
+    )
+
+    # populate dataframe
+    for col in cartesian_product.columns:
+        df[col] = cartesian_product[col]
+
+    return df
+
+
+def create_default_datapackage(
+    name,
+    basepath,
+    datetimeindex,
+    components,
+    busses,
+    regions,
+    links,
+    dummy_sequences=False,
+    bus_attrs=None,
+    component_attrs=None,
+    facade_attrs=None,
+):
+    dfp = DataFramePackage(facade_attrs=facade_attrs)
+
+    for component, attrs in components.items():
+        type = attrs.pop("type")
+        dfp.add_component(type, **attrs)
+
+    for element in dfp.data["elements"].values():
+        print(element)
