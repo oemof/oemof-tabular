@@ -143,8 +143,6 @@ def test_examples_datapackages_scripts_infer():
                 with open(ref_filepath) as ref_file:
                     compare_json_files(new_file, ref_file)
 
-            compare_json_files(new_file, ref_file)
-
 
 def test_custom_foreign_keys(monkeypatch):
     """
