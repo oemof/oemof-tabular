@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 import abc
+from dataclasses import dataclass
 
 from oemof.solph.constraints.integral_limit import generic_integral_limit
 
@@ -11,8 +11,8 @@ class ConstraintFacade(abc.ABC):
 
 @dataclass
 class EmissionConstraint(ConstraintFacade):
-    name : str
-    type : str
+    name: str
+    type: str
     emission_max: float
     keyword: str = "emission_factor"
 
@@ -35,13 +35,8 @@ class EmissionConstraint(ConstraintFacade):
 
         # add constraint to the model
         generic_integral_limit(
-            model,
-            keyword=self.keyword,
-            flows=flows,
-            limit=self.emission_max
+            model, keyword=self.keyword, flows=flows, limit=self.emission_max
         )
 
 
-CONSTRAINT_TYPE_MAP = {
-    "emission_constraint": EmissionConstraint
-}
+CONSTRAINT_TYPE_MAP = {"emission_constraint": EmissionConstraint}

@@ -8,7 +8,7 @@ import types
 
 
 class HSN(types.SimpleNamespace):
-    """ A hashable variant of `types.Simplenamespace`.
+    """A hashable variant of `types.Simplenamespace`.
 
     By making it hashable, we can use the instances as dictionary keys, which
     is necessary, as this is the default type for flows.
@@ -19,8 +19,7 @@ class HSN(types.SimpleNamespace):
 
 
 def raisestatement(exception, message=""):
-    """ A version of `raise` that can be used as a statement.
-    """
+    """A version of `raise` that can be used as a statement."""
     if message:
         raise exception(message)
     else:
@@ -28,7 +27,7 @@ def raisestatement(exception, message=""):
 
 
 def remap(mapping, renamings, selection):
-    """ Change `mapping`'s keys according to the `selection` in `renamings`.
+    """Change `mapping`'s keys according to the `selection` in `renamings`.
 
     The `renaming` found under `selection` in `renamings` is used to rename the
     keys found in `mapping`. I.e., return a copy of `mapping` with every `key`
