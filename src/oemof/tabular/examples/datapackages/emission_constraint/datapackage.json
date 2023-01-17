@@ -421,7 +421,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "emission_max",
+                        "name": "limit",
                         "type": "integer",
                         "format": "default"
                     },

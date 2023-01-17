@@ -1,2 +1,2 @@
-name;type;emission_max;keyword
-constraint0;emission_constraint;1000;emission_factor
+name;type;limit;keyword
+constraint0;generic_integral_limit;1000;emission_factor
