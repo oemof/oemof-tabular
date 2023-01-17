@@ -3,6 +3,38 @@
     "name": "oemof-tabular-foreignkeys-examples",
     "resources": [
         {
+            "path": "data/elements/bus.csv",
+            "profile": "tabular-data-resource",
+            "name": "bus",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "balanced",
+                        "type": "boolean",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ],
+                "primaryKey": "name",
+                "foreignKeys": []
+            }
+        },
+        {
             "path": "data/elements/component.csv",
             "profile": "tabular-data-resource",
             "name": "component",
@@ -95,63 +127,6 @@
             }
         },
         {
-            "path": "data/elements/bus.csv",
-            "profile": "tabular-data-resource",
-            "name": "bus",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "name",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "type",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "balanced",
-                        "type": "boolean",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ],
-                "primaryKey": "name",
-                "foreignKeys": []
-            }
-        },
-        {
-            "path": "data/sequences/marginal_cost_profile.csv",
-            "profile": "tabular-data-resource",
-            "name": "marginal_cost_profile",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "timeindex",
-                        "type": "datetime",
-                        "format": "default"
-                    },
-                    {
-                        "name": "marginal-cost-coal",
-                        "type": "integer",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            }
-        },
-        {
             "path": "data/sequences/component_profile.csv",
             "profile": "tabular-data-resource",
             "name": "component_profile",
@@ -172,6 +147,31 @@
                     },
                     {
                         "name": "dispatchable-profile",
+                        "type": "integer",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ]
+            }
+        },
+        {
+            "path": "data/sequences/marginal_cost_profile.csv",
+            "profile": "tabular-data-resource",
+            "name": "marginal_cost_profile",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "timeindex",
+                        "type": "datetime",
+                        "format": "default"
+                    },
+                    {
+                        "name": "marginal-cost-coal",
                         "type": "integer",
                         "format": "default"
                     }

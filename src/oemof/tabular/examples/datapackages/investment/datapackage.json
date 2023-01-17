@@ -3,9 +3,41 @@
     "name": "renpass-invest-example",
     "resources": [
         {
-            "path": "data/elements/source.csv",
+            "path": "data/elements/bus.csv",
             "profile": "tabular-data-resource",
-            "name": "source",
+            "name": "bus",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "balanced",
+                        "type": "boolean",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ],
+                "primaryKey": "name",
+                "foreignKeys": []
+            }
+        },
+        {
+            "path": "data/elements/chp.csv",
+            "profile": "tabular-data-resource",
+            "name": "chp",
             "format": "csv",
             "mediatype": "text/csv",
             "encoding": "utf-8",
@@ -33,16 +65,6 @@
                     },
                     {
                         "name": "capacity",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
-                        "name": "capacity_cost",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
-                        "name": "bus",
                         "type": "string",
                         "format": "default"
                     },
@@ -52,74 +74,38 @@
                         "format": "default"
                     },
                     {
-                        "name": "profile",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "output_parameters",
-                        "type": "object",
-                        "format": "default"
-                    },
-                    {
-                        "name": "expandable",
-                        "type": "boolean",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ],
-                "primaryKey": "name",
-                "foreignKeys": [
-                    {
-                        "fields": "bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"
-                        }
-                    },
-                    {
-                        "fields": "profile",
-                        "reference": {
-                            "resource": "source_profile"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "path": "data/elements/load.csv",
-            "profile": "tabular-data-resource",
-            "name": "load",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "name",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "amount",
+                        "name": "capacity_cost",
                         "type": "integer",
                         "format": "default"
                     },
                     {
-                        "name": "profile",
+                        "name": "electricity_bus",
                         "type": "string",
                         "format": "default"
                     },
                     {
-                        "name": "type",
+                        "name": "heat_bus",
                         "type": "string",
                         "format": "default"
                     },
                     {
-                        "name": "bus",
+                        "name": "fuel_bus",
                         "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "electric_efficiency",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "thermal_efficiency",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "condensing_efficiency",
+                        "type": "number",
                         "format": "default"
                     }
                 ],
@@ -129,16 +115,24 @@
                 "primaryKey": "name",
                 "foreignKeys": [
                     {
-                        "fields": "bus",
+                        "fields": "electricity_bus",
                         "reference": {
                             "resource": "bus",
                             "fields": "name"
                         }
                     },
                     {
-                        "fields": "profile",
+                        "fields": "fuel_bus",
                         "reference": {
-                            "resource": "load_profile"
+                            "resource": "bus",
+                            "fields": "name"
+                        }
+                    },
+                    {
+                        "fields": "heat_bus",
+                        "reference": {
+                            "resource": "bus",
+                            "fields": "name"
                         }
                     }
                 ]
@@ -227,9 +221,132 @@
             }
         },
         {
-            "path": "data/elements/chp.csv",
+            "path": "data/elements/link.csv",
             "profile": "tabular-data-resource",
-            "name": "chp",
+            "name": "link",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "capacity",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "capacity_cost",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "loss",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "from_bus",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "to_bus",
+                        "type": "string",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ],
+                "primaryKey": "name",
+                "foreignKeys": [
+                    {
+                        "fields": "from_bus",
+                        "reference": {
+                            "resource": "bus",
+                            "fields": "name"
+                        }
+                    },
+                    {
+                        "fields": "to_bus",
+                        "reference": {
+                            "resource": "bus",
+                            "fields": "name"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "path": "data/elements/load.csv",
+            "profile": "tabular-data-resource",
+            "name": "load",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "profile",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "bus",
+                        "type": "string",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ],
+                "primaryKey": "name",
+                "foreignKeys": [
+                    {
+                        "fields": "bus",
+                        "reference": {
+                            "resource": "bus",
+                            "fields": "name"
+                        }
+                    },
+                    {
+                        "fields": "profile",
+                        "reference": {
+                            "resource": "load_profile"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "path": "data/elements/source.csv",
+            "profile": "tabular-data-resource",
+            "name": "source",
             "format": "csv",
             "mediatype": "text/csv",
             "encoding": "utf-8",
@@ -257,11 +374,6 @@
                     },
                     {
                         "name": "capacity",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "marginal_cost",
                         "type": "integer",
                         "format": "default"
                     },
@@ -271,33 +383,28 @@
                         "format": "default"
                     },
                     {
-                        "name": "electricity_bus",
+                        "name": "bus",
                         "type": "string",
                         "format": "default"
                     },
                     {
-                        "name": "heat_bus",
+                        "name": "marginal_cost",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "profile",
                         "type": "string",
                         "format": "default"
                     },
                     {
-                        "name": "fuel_bus",
-                        "type": "string",
+                        "name": "output_parameters",
+                        "type": "object",
                         "format": "default"
                     },
                     {
-                        "name": "electric_efficiency",
-                        "type": "number",
-                        "format": "default"
-                    },
-                    {
-                        "name": "thermal_efficiency",
-                        "type": "number",
-                        "format": "default"
-                    },
-                    {
-                        "name": "condensing_efficiency",
-                        "type": "number",
+                        "name": "expandable",
+                        "type": "boolean",
                         "format": "default"
                     }
                 ],
@@ -307,24 +414,16 @@
                 "primaryKey": "name",
                 "foreignKeys": [
                     {
-                        "fields": "fuel_bus",
+                        "fields": "bus",
                         "reference": {
                             "resource": "bus",
                             "fields": "name"
                         }
                     },
                     {
-                        "fields": "electricity_bus",
+                        "fields": "profile",
                         "reference": {
-                            "resource": "bus",
-                            "fields": "name"
-                        }
-                    },
-                    {
-                        "fields": "heat_bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"
+                            "resource": "source_profile"
                         }
                     }
                 ]
@@ -407,104 +506,6 @@
                 "foreignKeys": [
                     {
                         "fields": "bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "path": "data/elements/bus.csv",
-            "profile": "tabular-data-resource",
-            "name": "bus",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "name",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "type",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "balanced",
-                        "type": "boolean",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ],
-                "primaryKey": "name"
-            }
-        },
-        {
-            "path": "data/elements/link.csv",
-            "profile": "tabular-data-resource",
-            "name": "link",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "name",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "type",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "capacity",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "capacity_cost",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
-                        "name": "loss",
-                        "type": "number",
-                        "format": "default"
-                    },
-                    {
-                        "name": "from_bus",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "to_bus",
-                        "type": "string",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ],
-                "primaryKey": "name",
-                "foreignKeys": [
-                    {
-                        "fields": "from_bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"
-                        }
-                    },
-                    {
-                        "fields": "to_bus",
                         "reference": {
                             "resource": "bus",
                             "fields": "name"
