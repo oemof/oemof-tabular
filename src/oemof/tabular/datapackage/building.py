@@ -15,6 +15,7 @@ import paramiko
 import toml
 from datapackage import Package, Resource
 
+from oemof.tabular import __version__ as oemof_tabular_version
 from oemof.tabular.config import config
 
 
@@ -94,6 +95,7 @@ def infer_metadata(
     p = Package()
     p.descriptor["name"] = package_name
     p.descriptor["profile"] = "tabular-data-package"
+    p.descriptor["oemof_tabular_version"] = oemof_tabular_version
     p.commit()
     if not os.path.exists("resources"):
         os.makedirs("resources")

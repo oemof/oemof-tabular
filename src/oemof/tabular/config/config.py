@@ -17,3 +17,5 @@ FOREIGN_KEY_DESCRIPTORS_FILE = os.environ.get(
 )
 with open(FOREIGN_KEY_DESCRIPTORS_FILE, "r") as fk_descriptors_file:
     FOREIGN_KEY_DESCRIPTORS = json.load(fk_descriptors_file)
+
+supported_oemof_tabular_versions = [None, "0.0.1", "0.0.2", "0.0.3"]

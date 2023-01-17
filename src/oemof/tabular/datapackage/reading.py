@@ -13,12 +13,15 @@ along with how to use the functions in this module.
 import collections.abc as cabc
 import json
 import re
+import warnings
 from decimal import Decimal
 from itertools import chain, groupby, repeat
 
 import datapackage as dp
 import pandas as pd
 from oemof.network.network import Bus, Component
+
+from oemof.tabular.config.config import supported_oemof_tabular_versions
 
 from ..tools import HSN, raisestatement, remap
 
@@ -135,6 +138,16 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     empty = HSN()
     empty.read = lambda *xs, **ks: ()
     empty.headers = ()
+
+    # check version that was used to create metadata
+    oemof_tabular_version = package.descriptor.get("oemof_tabular_version")
+
+    if oemof_tabular_version not in supported_oemof_tabular_versions:
+        warnings.warn(
+            f"Version of datapackage '{oemof_tabular_version}' is not "
+            f"supported. These versions are supported: "
+            f"{supported_oemof_tabular_versions}"
+        )
 
     def parse(s):
         return json.loads(s) if s else {}

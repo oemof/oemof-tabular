@@ -33,7 +33,7 @@ def compare_json_files(file_1, file_2, ignored=None):
 
     if not lines_1 == lines_2:
         raise AssertionError(
-            "Failed matching lp_file_1 with lp_file_2:\n"
+            "Failed matching json_file_1 with json_file_2:\n"
             + "\n".join(
                 unified_diff(
                     lines_1,
