@@ -10,10 +10,10 @@ class ConstraintFacade(abc.ABC):
 
 
 @dataclass
-class EmissionConstraint(ConstraintFacade):
+class GenericIntegralLimit(ConstraintFacade):
     name: str
     type: str
-    emission_max: float
+    limit: float
     keyword: str = "emission_factor"
 
     def build_constraint(self, model):
@@ -35,8 +35,8 @@ class EmissionConstraint(ConstraintFacade):
 
         # add constraint to the model
         generic_integral_limit(
-            model, keyword=self.keyword, flows=flows, limit=self.emission_max
+            model, keyword=self.keyword, flows=flows, limit=self.limit
         )
 
 
-CONSTRAINT_TYPE_MAP = {"emission_constraint": EmissionConstraint}
+CONSTRAINT_TYPE_MAP = {"generic_integral_limit": GenericIntegralLimit}

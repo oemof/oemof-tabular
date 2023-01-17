@@ -7,7 +7,7 @@ import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
-from oemof.tabular.constraint_facades import EmissionConstraint
+from oemof.tabular.constraint_facades import GenericIntegralLimit
 from oemof.tabular.facades import (
     BackpressureTurbine,
     Commodity,
@@ -471,10 +471,10 @@ class TestConstraints:
             output_parameters={"emission_factor": 2.5},
         )
 
-        emission_constraint = EmissionConstraint(
+        emission_constraint = GenericIntegralLimit(
             name="emission_constraint",
             type="e",
-            emission_max=1000,
+            limit=1000,
         )
 
         self.energysystem.add(bus, dispatchable)
