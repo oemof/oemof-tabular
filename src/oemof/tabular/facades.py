@@ -19,6 +19,7 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 import dataclasses
+import inspect
 import warnings
 from collections import deque
 from dataclasses import dataclass, field
@@ -30,8 +31,13 @@ from oemof.solph import Investment
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
 from oemof.solph.buses.experimental import ElectricalBus
-from oemof.solph.components import (ExtractionTurbineCHP, GenericStorage, Sink,
-                                    Source, Transformer)
+from oemof.solph.components import (
+    ExtractionTurbineCHP,
+    GenericStorage,
+    Sink,
+    Source,
+    Transformer,
+)
 from oemof.solph.components.experimental import Link
 from oemof.solph.flows import Flow
 from oemof.solph.flows.experimental import ElectricalLine
@@ -71,7 +77,27 @@ def kwargs_to_parent(cls):
         # TODO: Could move the following lines to a __post_init__
         kwargs.update(dataclasses.asdict(self))
 
-        super(cls, self).__init__(*args, **kwargs)
+        # Pass only those arguments ot solph component's __init__ that
+        # are expected.
+        init_expected_args = list(
+            inspect.signature(super(cls, self).__init__).parameters
+        )
+
+        init_args = {
+            key: value
+            for key, value in kwargs.items()
+            if key in init_expected_args
+        }
+
+        custom_attributes = {
+            key: value
+            for key, value in kwargs.items()
+            if key not in init_expected_args
+        }
+
+        super(cls, self).__init__(
+            **init_args, custom_attributes=custom_attributes
+        )
 
         self.build_solph_components()
 
@@ -1512,7 +1538,7 @@ class Commodity(Source, Facade):
             nominal_value=self.amount,
             variable_costs=self.marginal_cost,
             full_load_time_max=1,
-            **self.output_parameters
+            **self.output_parameters,
         )
 
         self.outputs.update({self.bus: f})
