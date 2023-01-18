@@ -1,27 +1,24 @@
+import oemof.solph
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Bus
-import oemof.solph
 
-from oemof.tabular.facades import Reservoir
 import oemof.tabular
+from oemof.tabular.facades import Reservoir
 
 
 def test_version_specification():
-    """ `oemof.tabular`'s version specification is importable and a string.
-    """
+    """`oemof.tabular`'s version specification is importable and a string."""
     assert isinstance(oemof.tabular.__version__, str)
     assert isinstance(oemof.solph.__version__, str)
 
 
 def test_project_name():
-    """ `oemof.tabular`'s project name is importable and correct.
-    """
+    """`oemof.tabular`'s project name is importable and correct."""
     assert oemof.tabular.__project__ == "oemof.tabular"
 
 
 def test_adding_subnodes():
-    """ `Facade` subclasses correctly `connect` to and handle `add`.
-    """
+    """`Facade` subclasses correctly `connect` to and handle `add`."""
     es = EnergySystem()
     reservoir = Reservoir(
         label="r",
