@@ -1246,7 +1246,7 @@ class Storage(GenericStorage, Facade):
         x^{level}(t) =
         x^{level}(t-1) \cdot (1 - c^{loss\_rate})
         + \sqrt{c^{efficiency}(t)}  x^{flow, in}(t)
-        - \frac{x^{flow, out}(t)}{\sqrt{c^{efficiency}(t)}}
+        - \frac{x^{flow, out}(t)}{\sqrt{c^{efficiency}(t)}}\\
         \qquad \forall t \in T
 
     .. math::
