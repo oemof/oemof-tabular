@@ -1211,7 +1211,7 @@ class Load(Sink, Facade):
                 self.bus: Flow(
                     nominal_value=self.amount,
                     fix=self.profile,
-                    variable_cost=self.marginal_utility,
+                    variable_costs=self.marginal_utility,
                     **self.input_parameters,
                 )
             }
