@@ -77,7 +77,7 @@ def kwargs_to_parent(cls):
         # TODO: Could move the following lines to a __post_init__
         kwargs.update(dataclasses.asdict(self))
 
-        # Pass only those arguments ot solph component's __init__ that
+        # Pass only those arguments to solph component's __init__ that
         # are expected.
         init_expected_args = list(
             inspect.signature(super(cls, self).__init__).parameters
@@ -89,14 +89,15 @@ def kwargs_to_parent(cls):
             if key in init_expected_args
         }
 
-        custom_attributes = {
-            key: value
-            for key, value in kwargs.items()
-            if key not in init_expected_args
-        }
+        if "custom_attributes" in init_expected_args:
+            init_args["custom_attributes"] = {
+                key: value
+                for key, value in kwargs.items()
+                if key not in init_expected_args
+            }
 
         super(cls, self).__init__(
-            **init_args, custom_attributes=custom_attributes
+            **init_args,
         )
 
         self.build_solph_components()
