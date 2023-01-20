@@ -17,12 +17,12 @@ import pandas as pd
 import numpy as np
 
 # offline.init_notebook_mode()
-from oemof.tabular.config.colors import CARRIER_COLER_MAP, TECH_COLOR_MAP
+from oemof.tabular.config.colors import CARRIER_COLOR_MAP, TECH_COLOR_MAP
 
-color = dict(TECH_COLOR_MAP, **CARRIER_COLER_MAP)
+color = dict(TECH_COLOR_MAP, **CARRIER_COLOR_MAP)
 
 for t in TECH_COLOR_MAP:
-    for c in CARRIER_COLER_MAP:
+    for c in CARRIER_COLOR_MAP:
         color["-".join([c, t])] = TECH_COLOR_MAP[t]
 
 color_dict = {name: colors.to_hex(color) for name, color in color.items()}

@@ -1,0 +1,23 @@
+{
+    "acaes": "brown",
+    "battery": "lightsalmon",
+    "biomass": "olivedrab",
+    "ccgt": "lightgray",
+    "ce": "olivedrab",
+    "electro-boiler": "darkblue",
+    "extraction-turbine": "orange",
+    "heat-pump": "skyblue",
+    "heat-storage": "lightsalmon",
+    "hp": "lightsalmon",
+    "import": "crimson",
+    "motoric-chp": "gray",
+    "ocgt": "gray",
+    "offshore": "darkblue",
+    "onshore": "skyblue",
+    "phs": "darkblue",
+    "pv": "gold",
+    "reservoir": "slateblue",
+    "ror": "aqua",
+    "st": "darkgray",
+    "storage": "lightsalmon"
+}

@@ -1,41 +1,10 @@
+import pathlib
+import json
 
-TECH_COLOR_MAP = {
-    "acaes": "brown",
-    "ocgt": "gray",
-    "st": "darkgray",
-    "ccgt": "lightgray",
-    "heat-storage": "lightsalmon",
-    "extraction-turbine": "orange",
-    "heat-pump": "skyblue",
-    "motoric-chp": "gray",
-    "electro-boiler": "darkblue",
-    "pv": "gold",
-    "onshore": "skyblue",
-    "offshore": "darkblue",
-    "ce": "olivedrab",
-    "hp": "lightsalmon",
-    "battery": "lightsalmon",
-    "ror": "aqua",
-    "phs": "darkblue",
-    "reservoir": "slateblue",
-    "biomass": "olivedrab",
-    "storage": "lightsalmon",
-    "battery": "lightsalmon",
-    "import": "crimson",
-}
+CONFIG_FOLDER = pathlib.PurePath(__file__).parent
 
-CARRIER_COLER_MAP = {
-    "biomass": "olivedrab",
-    "lithium": "lightsalmon",
-    "electricity": "darkred",
-    "hydro": "aqua",
-    "hydrogen": "magenta",
-    "uranium": "yellow",
-    "wind": "skyblue",
-    "solar": "gold",
-    "gas": "lightgray",
-    "lignite": "chocolate",
-    "coal": "darkgray",
-    "waste": "yellowgreen",
-    "oil": "black",
-}
+with open(CONFIG_FOLDER / "colors" / "TECH_COLOR_MAP.json", "r") as file:
+    TECH_COLOR_MAP = json.load(file)
+
+with open(CONFIG_FOLDER / "colors" / "CARRIER_COLOR_MAP.json", "r") as file:
+    CARRIER_COLOR_MAP = json.load(file)
