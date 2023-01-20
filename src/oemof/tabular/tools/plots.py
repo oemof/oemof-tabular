@@ -17,7 +17,7 @@ import pandas as pd
 import numpy as np
 
 # offline.init_notebook_mode()
-from oemof.tabular.facades import CARRIER_COLER_MAP, TECH_COLOR_MAP
+from oemof.tabular.config.colors import CARRIER_COLER_MAP, TECH_COLOR_MAP
 
 color = dict(TECH_COLOR_MAP, **CARRIER_COLER_MAP)
 
