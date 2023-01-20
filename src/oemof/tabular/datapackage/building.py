@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import errno
-import itertools
 import os
 import pathlib
 import shutil
@@ -12,7 +11,6 @@ import zipfile
 from ftplib import FTP
 from urllib.parse import urlparse
 
-import addict
 import pandas as pd
 import paramiko
 import toml
@@ -20,9 +18,9 @@ from datapackage import Package, Resource
 
 from oemof.tabular.config import config
 from oemof.tabular.datapackage.utils import (
+    Data,
     get_facade_fields,
-    nest_dict_from_lst,
-    tuple_keys,
+    populate_df,
 )
 
 
@@ -680,30 +678,6 @@ def write_sequences(
     return path
 
 
-class Data:
-    """
-    Implements the hierarchical data as in the filetree.
-
-    data[][][] = resource
-    """
-
-    def __init__(self):
-        self.data = addict.Dict()
-
-    def set_resource(self, location, resource):
-        d = nest_dict_from_lst(location, resource)
-        self.data.update(d)
-
-    def get_resource(self, location):
-        result = self.data
-        for item in location:
-            result = result[item]
-        return result
-
-    def to_tuple_dict(self):
-        return tuple_keys(self.data)
-
-
 class DataFramePackage:
     def __init__(self, name, data=None, facade_fields=None):
         if data is None:
@@ -758,28 +732,6 @@ class DataFramePackage:
                 os.makedirs(path)
 
             resource.to_csv(os.path.join(path, filename))
-
-
-def populate_df(df, **kwargs):
-    undefined_keys = [key for key in kwargs if key not in df.columns]
-
-    if any(undefined_keys):
-        warnings.warn(f"There are undefined keys: {undefined_keys}")
-
-    # perform cartesian product if lists are given
-    given_values = {
-        k: v if isinstance(v, list) else [v] for k, v in kwargs.items()
-    }
-
-    cartesian_product = pd.DataFrame(
-        itertools.product(*given_values.values()), columns=given_values.keys()
-    )
-
-    # populate dataframe
-    for col in cartesian_product.columns:
-        df[col] = cartesian_product[col]
-
-    return df
 
 
 def create_default_datapackage(
