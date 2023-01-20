@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dataclasses
 import errno
 import itertools
 import os
@@ -8,17 +7,23 @@ import shutil
 import sys
 import tarfile
 import urllib.request
+import warnings
 import zipfile
 from ftplib import FTP
 from urllib.parse import urlparse
 
+import addict
 import pandas as pd
 import paramiko
 import toml
 from datapackage import Package, Resource
 
-import oemof.tabular.facades
 from oemof.tabular.config import config
+from oemof.tabular.datapackage.utils import (
+    get_facade_fields,
+    nest_dict_from_lst,
+    tuple_keys,
+)
 
 
 def infer_resources(directory="data/elements"):
@@ -675,29 +680,40 @@ def write_sequences(
     return path
 
 
-def get_facade_fields():
+class Data:
+    """
+    Implements the hierarchical data as in the filetree.
 
-    facade_fields = {
-        name: dataclasses.fields(facade)
-        for name, facade in oemof.tabular.facades.TYPEMAP.items()
-        if dataclasses.is_dataclass(facade)
-    }
+    data[][][] = resource
+    """
 
-    return facade_fields
+    def __init__(self):
+        self.data = addict.Dict()
+
+    def set_resource(self, location, resource):
+        d = nest_dict_from_lst(location, resource)
+        self.data.update(d)
+
+    def get_resource(self, location):
+        result = self.data
+        for item in location:
+            result = result[item]
+        return result
+
+    def to_tuple_dict(self):
+        return tuple_keys(self.data)
 
 
 class DataFramePackage:
-    elements_subdir = "elements"
-    sequences_subdir = "sequences"
-
-    def __init__(self, data=None, facade_attrs=None):
+    def __init__(self, name, data=None, facade_fields=None):
         if data is None:
-            self.data = {
-                self.elements_subdir: {},
-                self.sequences_subdir: {},
-            }
+            data = Data()
 
-        if facade_attrs is None:
+        self.data = data
+
+        self.name = name
+
+        if facade_fields is None:
             self.facade_fields = get_facade_fields()
 
     def add_component(self, facade_type, **kwargs):
@@ -710,19 +726,45 @@ class DataFramePackage:
 
         r = populate_df(r, **kwargs)
 
-        if type not in self.data[self.elements_subdir]:
-            self.data[self.elements_subdir][facade_type] = r
-        else:
-            self.data[self.elements_subdir][facade_type] = pd.concat(
-                [self.data[self.elements_subdir][type], r]
-            )
+        self.data.set_resource(["data", "elements", facade_type], r)
+
+    def to_csvs(self, destination, overwrite=False):
+        # check if directory exist and check if it is empty
+        destination_exists = os.path.exists(destination)
+        if destination_exists and os.listdir(destination):
+            # If overwrite is False, throw a warning
+            if not overwrite:
+                warnings.warn(
+                    "The path is not empty. Might overwrite existing data. "
+                    "Pass 'overwrite=True' to delete all contents in "
+                    "directory before saving."
+                )
+                return
+
+            # If overwrite is True delete any contents
+            else:
+                import shutil
+
+                shutil.rmtree(destination)
+
+        # get file tree info self.data
+        # save Resource.to_csv(
+        # Check if path exists and is non-empty
+        for location, resource in self.data.to_tuple_dict().items():
+            path = os.path.join(destination, *location[:-1])
+            filename = location[-1] + ".csv"
+
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            resource.to_csv(os.path.join(path, filename))
 
 
 def populate_df(df, **kwargs):
     undefined_keys = [key for key in kwargs if key not in df.columns]
 
     if any(undefined_keys):
-        raise ValueError(f"There are undefined keys: {undefined_keys}")
+        warnings.warn(f"There are undefined keys: {undefined_keys}")
 
     # perform cartesian product if lists are given
     given_values = {
@@ -751,13 +793,19 @@ def create_default_datapackage(
     dummy_sequences=False,
     bus_attrs=None,
     component_attrs=None,
-    facade_attrs=None,
+    facade_fields=None,
 ):
-    dfp = DataFramePackage(facade_attrs=facade_attrs)
+    dfp = DataFramePackage(name, facade_fields=facade_fields)
+    for component in components:
+        try:
+            attrs = component_attrs[component]
+        except KeyError:
+            raise KeyError("Component not described in component_attrs")
 
-    for component, attrs in components.items():
-        type = attrs.pop("type")
-        dfp.add_component(type, **attrs)
+        facade_type = attrs.pop("type")
 
-    for element in dfp.data["elements"].values():
-        print(element)
+        attrs.update({"region": regions})
+
+        dfp.add_component(facade_type, **attrs)
+
+    dfp.to_csvs(os.path.join(basepath, name))
