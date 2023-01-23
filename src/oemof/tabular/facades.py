@@ -364,7 +364,7 @@ class Dispatchable(Source, Facade):
 
             x^{capacity} \leq c^{capacity\_potential}
 
-    **Ojective expression** for operation:
+    **Objective expression** for operation:
 
     .. math::
 
@@ -490,7 +490,7 @@ class Volatile(Source, Facade):
 
             x_{volatile}^{capacity} \leq c_{volatile}^{capacity\_potential}
 
-    **Ojective expression** for operation:
+    **Objective expression** for operation:
 
     .. math::
 
@@ -612,7 +612,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         c^{electrical\_efficiency(t)}}{c^{thermal\_efficiency}(t)}
         \qquad \forall t \in T
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
@@ -772,7 +772,7 @@ class BackpressureTurbine(Transformer, Facade):
         \frac{c^{electrical\:efficiency}(t)}{c^{thermal\:efficiency}(t)}
         \qquad \forall t \in T
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
@@ -908,7 +908,7 @@ class Conversion(Transformer, Facade):
         x^{flow, from}(t) \cdot c^{efficiency}(t) = x^{flow, to}(t)
         \qquad \forall t \in T
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
@@ -1041,7 +1041,7 @@ class HeatPump(Transformer, Facade):
         x_{low\_temperature\_source, low\_temperature\_bus}^{flow} =
         x_{hp, high\_temperature\_bus}^{flow} \frac{c^{COP} -1}{c^{COP}}
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
