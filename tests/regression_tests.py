@@ -4,7 +4,7 @@ import oemof.tabular.datapackage.building as otdb
 
 
 def test_how_initialize_loads_the_default_configuration():
-    """ Test how `initialize` handles a `False`y first argument.
+    """Test how `initialize` handles a `False`y first argument.
 
     If `initialize <oemof.tabular.datapackage.building.initialize>` is
     called with a first argument that evaluates to `False` when

@@ -6,16 +6,20 @@ Module used for aggregation sequences and elements.
 import os
 import re
 
-from datapackage import Package, Resource
 import pandas as pd
-import tsam.timeseriesaggregation as tsam
+from datapackage import Package, Resource
+
+try:
+    import tsam.timeseriesaggregation as tsam
+except ImportError:
+    raise ImportError("Need to install tsam to use aggregation!")
 
 from .building import write_sequences
 from .processing import copy_datapackage
 
 
 def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
-    """ Creates a new datapackage by aggregating sequences inside the
+    """Creates a new datapackage by aggregating sequences inside the
     `sequence` folder of the specified datapackage by skipping `n` timesteps
 
     Parameters
@@ -102,7 +106,7 @@ def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
 
 
 def temporal_clustering(datapackage, n, path="/tmp", how="daily"):
-    """ Creates a new datapackage by aggregating sequences inside the
+    """Creates a new datapackage by aggregating sequences inside the
     `sequence` folder of the specified datapackage by clustering `n` timesteps
 
     Parameters

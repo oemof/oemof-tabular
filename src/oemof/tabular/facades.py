@@ -18,8 +18,11 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 
 SPDX-License-Identifier: BSD-3-Clause
 """
-from collections import deque
+import dataclasses
 import warnings
+from collections import deque
+from dataclasses import dataclass, field
+from typing import Sequence, Union
 
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Node
@@ -29,9 +32,73 @@ from oemof.solph.custom import ElectricalBus, ElectricalLine, Link
 from oemof.solph.plumbing import sequence
 from oemof.tools.debugging import SuspiciousUsageWarning
 
-
 # Switch off SuspiciousUsageWarning
 warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
+
+
+def kwargs_to_parent(cls):
+    r"""
+    Decorates the __init__ of a given class by first
+    passing args and kwargs to the __init__ of the parent
+    class.
+
+    Parameters
+    ----------
+    cls : Class with an __init__ to decorate
+
+    Returns
+    -------
+    cls : Class with decorated __init__
+    """
+    original_init = cls.__init__
+
+    def new_init(self, *args, **kwargs):
+
+        # pass only those kwargs to the dataclass which are expected
+        dataclass_kwargs = {
+            key: value
+            for key, value in kwargs.items()
+            if key in [f.name for f in dataclasses.fields(cls)]
+        }
+
+        original_init(self, **dataclass_kwargs)
+
+        # TODO: Could move the following lines to a __post_init__
+        kwargs.update(dataclasses.asdict(self))
+
+        super(cls, self).__init__(*args, **kwargs)
+
+        self.build_solph_components()
+
+    cls.__init__ = new_init
+    return cls
+
+
+def dataclass_facade(cls):
+    r"""
+    Decorates a facade class by first as a
+    dataclass, taking care of args and kwargs
+    in the __init__
+
+    Parameters
+    ----------
+    cls : facade class
+
+    Returns
+    -------
+    cls : facade class
+    """
+    assert issubclass(cls, Facade)
+
+    # First, decorate as dataclass.
+    # The settings are important to not override the __hash__ method
+    # defined in oemof.network.Node
+    cls = dataclass(cls, unsafe_hash=False, frozen=False, eq=False)
+
+    # Second, decorate to handle kwargs in __init__
+    cls = kwargs_to_parent(cls)
+
+    return cls
 
 
 def add_subnodes(n, **kwargs):
@@ -40,24 +107,15 @@ def add_subnodes(n, **kwargs):
 
 class Facade(Node):
     """
-    Parameters
-    ----------
-    _facade_requires_ : list of str
-        A list of required attributes. The constructor checks whether these are
-        present as keywort arguments or whether they are already present on
-        self (which means they have been set by constructors of subclasses) and
-        raises an error if he doesn't find them.
+    Parent class for oemof.tabular facades.
     """
 
     def __init__(self, *args, **kwargs):
-        """
-        """
+        """ """
 
         self.mapped_type = type(self)
 
         self.type = kwargs.get("type")
-
-        required = kwargs.pop("_facade_requires_", [])
 
         super().__init__(*args, **kwargs)
 
@@ -66,26 +124,13 @@ class Facade(Node):
             add_subnodes, sender=self
         )
 
-        for r in required:
-            if r in kwargs:
-                setattr(self, r, kwargs[r])
-            elif not hasattr(self, r):
-                raise AttributeError(
-                    (
-                        "Missing required attribute `{}` for `{}` "
-                        "object with name/label `{!r}`."
-                    ).format(r, type(self).__name__, self.label)
-                )
-
     def _nominal_value(self):
-        """ Returns None if self.expandable ist True otherwise it returns
+        """Returns None if self.expandable ist True otherwise it returns
         the capacity
         """
         if self.expandable is True:
             if isinstance(self, Link):
-                return {
-                    "from_to": None,
-                    "to_from": None}
+                return {"from_to": None, "to_from": None}
             else:
                 return None
 
@@ -93,7 +138,8 @@ class Facade(Node):
             if isinstance(self, Link):
                 return {
                     "from_to": self.from_to_capacity,
-                    "to_from": self.to_from_capacity}
+                    "to_from": self.to_from_capacity,
+                }
             else:
                 return self.capacity
 
@@ -114,9 +160,7 @@ class Facade(Node):
                     maximum=self._get_maximum_additional_invest(
                         "storage_capacity_potential", "storage_capacity"
                     ),
-                    minimum=getattr(
-                        self, "minimum_storage_capacity", 0
-                    ),
+                    minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
                 )
             else:
@@ -124,9 +168,7 @@ class Facade(Node):
                     maximum=self._get_maximum_additional_invest(
                         "storage_capacity_potential", "storage_capacity"
                     ),
-                    minimum=getattr(
-                        self, "minimum_storage_capacity", 0
-                    ),
+                    minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
                 )
         else:
@@ -135,9 +177,7 @@ class Facade(Node):
                 maximum=self._get_maximum_additional_invest(
                     "capacity_potential", "capacity"
                 ),
-                minimum=getattr(
-                    self, "capacity_minimum", 0
-                ),
+                minimum=getattr(self, "capacity_minimum", 0),
                 existing=getattr(self, "capacity", 0),
             )
         return self.investment
@@ -149,16 +189,8 @@ class Facade(Node):
 
         Throws an error if existing is larger than potential.
         """
-        _potential = getattr(
-            self,
-            attr_potential,
-            float("+inf"),
-        )
-        _existing = getattr(
-            self,
-            attr_existing,
-            0,
-        )
+        _potential = getattr(self, attr_potential, float("+inf"))
+        _existing = getattr(self, attr_existing, 0)
 
         if _existing is None:
             _existing = 0
@@ -171,7 +203,8 @@ class Facade(Node):
         if maximum < 0:
             raise ValueError(
                 f"Existing {attr_existing}={_existing} is larger"
-                f" than {attr_potential}={_potential}.")
+                f" than {attr_potential}={_potential}."
+            )
 
         return maximum
 
@@ -179,8 +212,9 @@ class Facade(Node):
         self.build_solph_components()
 
 
+@dataclass_facade
 class Reservoir(GenericStorage, Facade):
-    r""" A Reservoir storage unit, that is initially half full.
+    r"""A Reservoir storage unit, that is initially half full.
 
     Note that the investment option is not available for this facade at
     the current development state.
@@ -199,11 +233,9 @@ class Reservoir(GenericStorage, Facade):
         production, default: 1
     profile: array-like
         Absolute inflow profile of inflow into the storage
-    input_parameters: dict
-        Dictionary to specifiy parameters on the input edge. You can use
-        all keys that are available for the  oemof.solph.network.Flow class.
     output_parameters: dict
-        see: input_parameters
+        Dictionary to specifiy parameters on the output edge. You can use
+        all keys that are available for the  oemof.solph.network.Flow class.
 
 
     The reservoir is modelled as a storage with a constant inflow:
@@ -257,41 +289,26 @@ class Reservoir(GenericStorage, Facade):
     ...     efficiency=0.93)
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
+    carrier: str
 
-        kwargs.update(
-            {
-                "_facade_requires_": [
-                    "bus",
-                    "carrier",
-                    "tech",
-                    "profile",
-                    "efficiency",
-                ]
-            }
-        )
-        super().__init__(*args, **kwargs)
+    tech: str
 
-        self.storage_capacity = kwargs.get("storage_capacity")
+    efficiency: float
 
-        self.capacity = kwargs.get("capacity")
+    profile: Union[float, Sequence[float]]
 
-        self.efficiency = kwargs.get("efficiency", 1)
+    storage_capacity: float = None
 
-        self.profile = kwargs.get("profile")
+    capacity: float = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    output_parameters: dict = field(default_factory=dict)
 
-        self.output_parameters = kwargs.get("output_parameters", {})
-
-        self.expandable = bool(kwargs.get("expandable", False))
-
-        self.build_solph_components()
+    expandable: bool = False
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.nominal_storage_capacity = self.storage_capacity
 
         self.outflow_conversion_factor = sequence(self.efficiency)
@@ -303,9 +320,7 @@ class Reservoir(GenericStorage, Facade):
 
         inflow = Source(
             label=self.label + "-inflow",
-            outputs={
-                self: Flow(nominal_value=1, max=self.profile)
-            },
+            outputs={self: Flow(nominal_value=1, max=self.profile)},
         )
 
         self.outputs.update(
@@ -319,6 +334,7 @@ class Reservoir(GenericStorage, Facade):
         self.subnodes = (inflow,)
 
 
+@dataclass_facade
 class Dispatchable(Source, Facade):
     r""" Dispatchable element with one output for example a gas-turbine
 
@@ -402,34 +418,30 @@ class Dispatchable(Source, Facade):
     ...         'min': 0.2})
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "tech"]})
-        super().__init__(*args, **kwargs)
+    carrier: str
 
-        self.profile = kwargs.get("profile", 1)
+    tech: str
 
-        self.capacity = kwargs.get("capacity")
+    profile: Union[float, Sequence[float]] = 1
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential", float("+inf")
-        )
+    capacity: float = None
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    capacity_potential: float = float("+inf")
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = 0
 
-        self.capacity_minimum = kwargs.get("capacity_minimum")
+    capacity_cost: float = None
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity_minimum: float = None
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    expandable: bool = False
 
-        self.build_solph_components()
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
 
         if self.profile is None:
             self.profile = 1
@@ -439,12 +451,13 @@ class Dispatchable(Source, Facade):
             variable_costs=self.marginal_cost,
             max=self.profile,
             investment=self._investment(),
-            **self.output_parameters
+            **self.output_parameters,
         )
 
         self.outputs.update({self.bus: f})
 
 
+@dataclass_facade
 class Volatile(Source, Facade):
     r"""Volatile element with one output. This class can be used to model
     PV oder Wind power plants.
@@ -524,48 +537,42 @@ class Volatile(Source, Facade):
     ...     profile=[0.25, 0.1, 0.3])
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update(
-            {"_facade_requires_": ["bus", "carrier", "tech", "profile"]}
-        )
-        super().__init__(*args, **kwargs)
+    carrier: str
 
-        self.profile = kwargs.get("profile")
+    tech: str
 
-        self.capacity = kwargs.get("capacity")
+    profile: Union[float, Sequence[float]]
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential",
-            float("+inf")
-        )
+    capacity: float = None
 
-        self.capacity_minimum = kwargs.get("capacity_minimum")
+    capacity_potential: float = float("+inf")
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity_minimum: float = None
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    expandable: bool = False
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = 0
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    capacity_cost: float = None
 
-        self.build_solph_components()
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         f = Flow(
             nominal_value=self._nominal_value(),
             variable_costs=self.marginal_cost,
             fix=self.profile,
             investment=self._investment(),
-            **self.output_parameters
+            **self.output_parameters,
         )
 
         self.outputs.update({self.bus: f})
 
 
+@dataclass_facade
 class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     r""" Combined Heat and Power (extraction) unit with one input and
     two outputs.
@@ -657,53 +664,38 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     ...     thermal_efficiency=0.35)
 
     """
+    carrier: str
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update(
-            {
-                "_facade_requires_": [
-                    "fuel_bus",
-                    "carrier",
-                    "tech",
-                    "electricity_bus",
-                    "heat_bus",
-                    "thermal_efficiency",
-                    "electric_efficiency",
-                    "condensing_efficiency",
-                ]
-            }
-        )
-        super().__init__(
-            conversion_factor_full_condensation={}, *args, **kwargs
-        )
+    tech: str
 
-        self.fuel_bus = kwargs.get("fuel_bus")
+    electricity_bus: Bus
 
-        self.electricity_bus = kwargs.get("electricity_bus")
+    heat_bus: Bus
 
-        self.heat_bus = kwargs.get("heat_bus")
+    fuel_bus: Bus
 
-        self.carrier = kwargs.get("carrier")
+    condensing_efficiency: Union[float, Sequence[float]]
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    electric_efficiency: Union[float, Sequence[float]]
 
-        self.capacity = kwargs.get("capacity")
+    thermal_efficiency: Union[float, Sequence[float]]
 
-        self.condensing_efficiency = sequence(self.condensing_efficiency)
+    capacity: float = None
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    carrier_cost: float = 0
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = 0
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity_cost: float = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    expandable: bool = False
 
-        self.build_solph_components()
+    input_parameters: dict = field(default_factory=dict)
+
+    conversion_factor_full_condensation: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.fuel_bus: sequence(1),
@@ -732,10 +724,11 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         )
 
         self.conversion_factor_full_condensation.update(
-            {self.electricity_bus: self.condensing_efficiency}
+            {self.electricity_bus: sequence(self.condensing_efficiency)}
         )
 
 
+@dataclass_facade
 class BackpressureTurbine(Transformer, Facade):
     r""" Combined Heat and Power (backpressure) unit with one input and
     two outputs.
@@ -818,45 +811,34 @@ class BackpressureTurbine(Transformer, Facade):
 
 
     """
+    fuel_bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=[
-                "carrier",
-                "tech",
-                "electricity_bus",
-                "heat_bus",
-                "fuel_bus",
-                "thermal_efficiency",
-                "electric_efficiency",
-            ],
-            *args,
-            **kwargs
-        )
+    heat_bus: Bus
 
-        self.electricity_bus = kwargs.get("electricity_bus")
+    electricity_bus: Bus
 
-        self.heat_bus = kwargs.get("heat_bus")
+    carrier: str
 
-        self.fuel_bus = kwargs.get("fuel_bus")
+    tech: str
 
-        self.capacity = kwargs.get("capacity")
+    electric_efficiency: Union[float, Sequence[float]]
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    thermal_efficiency: Union[float, Sequence[float]]
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    capacity: float = None
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    capacity_cost: float = None
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    carrier_cost: float = 0
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    marginal_cost: float = 0
 
-        self.build_solph_components()
+    expandable: bool = False
+
+    input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.fuel_bus: sequence(1),
@@ -884,8 +866,9 @@ class BackpressureTurbine(Transformer, Facade):
         )
 
 
+@dataclass_facade
 class Conversion(Transformer, Facade):
-    r""" Conversion unit with one input and one output.
+    r"""Conversion unit with one input and one output.
 
     Parameters
     ----------
@@ -951,44 +934,36 @@ class Conversion(Transformer, Facade):
     ...     efficiency=0.4)
 
     """
+    from_bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=["from_bus", "to_bus", "carrier", "tech"],
-            *args,
-            **kwargs
-        )
+    to_bus: Bus
 
-        self.capacity = kwargs.get("capacity")
+    carrier: str
 
-        self.efficiency = kwargs.get("efficiency", 1)
+    tech: str
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    capacity: float = None
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    efficiency: float = 1
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    marginal_cost: float = 0
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    carrier_cost: float = 0
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    capacity_cost: float = None
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential",
-            float("+inf")
-        )
+    expandable: bool = False
 
-        self.capacity_minimum = kwargs.get("capacity_minimum")
+    capacity_potential: float = float("+inf")
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    capacity_minimum: float = None
 
-        self.output_parameters = kwargs.get("output_parameters", {})
+    input_parameters: dict = field(default_factory=dict)
 
-        self.build_solph_components()
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.from_bus: sequence(1),
@@ -1010,14 +985,15 @@ class Conversion(Transformer, Facade):
                     nominal_value=self._nominal_value(),
                     variable_costs=self.marginal_cost,
                     investment=self._investment(),
-                    **self.output_parameters
+                    **self.output_parameters,
                 )
             }
         )
 
 
+@dataclass_facade
 class HeatPump(Transformer, Facade):
-    r""" HeatPump unit with two inputs and one output.
+    r"""HeatPump unit with two inputs and one output.
 
     Parameters
     ----------
@@ -1088,51 +1064,38 @@ class HeatPump(Transformer, Facade):
     ...     low_temperature_bus=heat_bus_low)
 
     """
+    electricity_bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=[
-                "low_temperature_bus",
-                "high_temperature_bus",
-                "electricity_bus",
-                "cop",
-                "carrier",
-                "tech",
-            ],
-            *args,
-            **kwargs
-        )
+    high_temperature_bus: Bus
 
-        self.capacity = kwargs.get("capacity")
+    low_temperature_bus: Bus
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    carrier: str
 
-        self.carrier_cost = kwargs.get("carrier_cost", 0)
+    tech: str
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    cop: float
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    capacity: float = None
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential",
-            float("+inf")
-        )
+    marginal_cost: float = 0
 
-        self.low_temperature_parameters = kwargs.get(
-            "low_temperature_parameters", {}
-        )
+    carrier_cost: float = 0
 
-        self.high_temperature_parameters = kwargs.get(
-            "high_temperature_parameters", {}
-        )
+    capacity_cost: float = None
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    expandable: bool = False
 
-        self.build_solph_components()
+    capacity_potential: float = float("+inf")
+
+    low_temperature_parameters: dict = field(default_factory=dict)
+
+    high_temperature_parameters: dict = field(default_factory=dict)
+
+    input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.conversion_factors.update(
             {
                 self.electricity_bus: sequence(1 / self.cop),
@@ -1158,14 +1121,15 @@ class HeatPump(Transformer, Facade):
                     nominal_value=self._nominal_value(),
                     variable_costs=self.marginal_cost,
                     investment=self._investment(),
-                    **self.high_temperature_parameters
+                    **self.high_temperature_parameters,
                 )
             }
         )
 
 
+@dataclass_facade
 class Load(Sink, Facade):
-    r""" Load object with one input
+    r"""Load object with one input
 
     Parameters
     ----------
@@ -1199,39 +1163,33 @@ class Load(Sink, Facade):
     ...     amount=100,
     ...     profile=[0.3, 0.2, 0.5])
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=["bus", "amount", "profile"], *args, **kwargs
-        )
+    amount: float
 
-        self.amount = kwargs.get("amount")
+    profile: Union[float, Sequence[float]]
 
-        self.profile = kwargs.get("profile")
+    marginal_utility: float = 0
 
-        self.input_parameters = kwargs.get("input_parameters", {})
-
-        self.marginal_utility = kwargs.get("marginal_utility", 0)
-
-        self.build_solph_components()
+    input_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.inputs.update(
             {
                 self.bus: Flow(
                     nominal_value=self.amount,
                     fix=self.profile,
                     variable_cost=self.marginal_utility,
-                    **self.input_parameters
+                    **self.input_parameters,
                 )
             }
         )
 
 
+@dataclass_facade
 class Storage(GenericStorage, Facade):
-    r""" Storage unit
+    r"""Storage unit
 
     Parameters
     ----------
@@ -1306,44 +1264,36 @@ class Storage(GenericStorage, Facade):
     ...        max_storage_level=[0.9, 0.95, 0.8])) # oemof.solph argument
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
+    carrier: str
 
-        super().__init__(
-            _facade_requires_=["bus", "carrier", "tech"], *args, **kwargs
-        )
+    tech: str
 
-        self.storage_capacity = kwargs.get("storage_capacity", 0)
+    storage_capacity: float = 0
 
-        self.capacity = kwargs.get("capacity", 0)
+    capacity: float = 0
 
-        self.capacity_cost = kwargs.get("capacity_cost", 0)
+    capacity_cost: float = 0
 
-        self.storage_capacity_cost = kwargs.get("storage_capacity_cost")
+    storage_capacity_cost: float = None
 
-        self.storage_capacity_potential = kwargs.get(
-            "storage_capacity_potential", float("+inf")
-        )
+    storage_capacity_potential: float = float("+inf")
 
-        self.capacity_potential = kwargs.get(
-            "capacity_potential", float("+inf")
-        )
+    capacity_potential: float = float("+inf")
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    expandable: bool = False
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    marginal_cost: float = 0
 
-        self.efficiency = kwargs.get("efficiency", 1)
+    efficiency: float = 1
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    input_parameters: dict = field(default_factory=dict)
 
-        self.output_parameters = kwargs.get("output_parameters", {})
-
-        self.build_solph_components()
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         self.nominal_storage_capacity = self.storage_capacity
 
         self.inflow_conversion_factor = sequence(self.efficiency)
@@ -1373,13 +1323,13 @@ class Storage(GenericStorage, Facade):
                     ),
                     existing=self.capacity,
                 ),
-                **self.input_parameters
+                **self.input_parameters,
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
                 investment=Investment(existing=self.capacity),
                 variable_costs=self.marginal_cost,
-                **self.output_parameters
+                **self.output_parameters,
             )
             # required for correct grouping in oemof.solph.components
             self._invest_group = True
@@ -1390,7 +1340,7 @@ class Storage(GenericStorage, Facade):
             fo = Flow(
                 nominal_value=self._nominal_value(),
                 variable_costs=self.marginal_cost,
-                **self.output_parameters
+                **self.output_parameters,
             )
 
         self.inputs.update({self.bus: fi})
@@ -1400,6 +1350,7 @@ class Storage(GenericStorage, Facade):
         self._set_flows()
 
 
+@dataclass_facade
 class Link(Link, Facade):
     """Bidirectional link for two buses, e.g. to model transshipment.
 
@@ -1452,30 +1403,26 @@ class Link(Link, Facade):
     ...     loss=0.04)
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            _facade_requires_=["from_bus", "to_bus"], *args, **kwargs
-        )
+    from_bus: Bus
 
-        self.from_to_capacity = kwargs.get("from_to_capacity")
+    to_bus: Bus
 
-        self.to_from_capacity = kwargs.get("to_from_capacity")
+    from_to_capacity: float = None
 
-        self.loss = kwargs.get("loss", 0)
+    to_from_capacity: float = None
 
-        self.capacity_cost = kwargs.get("capacity_cost")
+    loss: float = 0
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    capacity_cost: float = None
 
-        self.expandable = bool(kwargs.get("expandable", False))
+    marginal_cost: float = 0
 
-        self.limit_direction = bool(kwargs.get("limit_direction", False))
+    expandable: bool = False
 
-        self.build_solph_components()
+    limit_direction: bool = False
 
     def build_solph_components(self):
-        """
-        """
+        """ """
         investment = self._investment()
 
         self.inputs.update({self.from_bus: Flow(), self.to_bus: Flow()})
@@ -1490,7 +1437,7 @@ class Link(Link, Facade):
                 self.to_bus: Flow(
                     variable_costs=self.marginal_cost,
                     nominal_value=self._nominal_value()["from_to"],
-                    investment=investment
+                    investment=investment,
                 ),
             }
         )
@@ -1503,8 +1450,9 @@ class Link(Link, Facade):
         )
 
 
+@dataclass_facade
 class Commodity(Source, Facade):
-    r""" Commodity element with one output for example a biomass commodity
+    r"""Commodity element with one output for example a biomass commodity
 
     Parameters
     ----------
@@ -1542,58 +1490,70 @@ class Commodity(Source, Facade):
     ...         'max': [0.9, 0.5, 0.4]})
 
     """
+    bus: Bus
 
-    def __init__(self, *args, **kwargs):
-        kwargs.update({"_facade_requires_": ["bus", "carrier", "amount"]})
-        super().__init__(*args, **kwargs)
+    carrier: str
 
-        self.amount = kwargs.get("amount")
+    amount: float
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    marginal_cost: float = 0
 
-        self.output_parameters = kwargs.get("output_parameters", {})
-
-        self.build_solph_components()
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
-        """
-        """
+        """ """
 
         f = Flow(
             nominal_value=self.amount,
             variable_costs=self.marginal_cost,
             summed_max=1,
-            **self.output_parameters
+            **self.output_parameters,
         )
 
         self.outputs.update({self.bus: f})
 
 
+@dataclass_facade
 class Excess(Sink, Facade):
-    """
-    """
+    """ """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(_facade_requires_=["bus"], *args, **kwargs)
+    bus: Bus
 
-        self.bus = kwargs.get("bus")
+    marginal_cost: float = 0
 
-        self.marginal_cost = kwargs.get("marginal_cost")
+    capacity: float = None
 
-        self.inputs.update({self.bus: Flow(variable_costs=self.marginal_cost)})
+    capacity_potential: float = float("+inf")
+
+    capacity_cost: float = None
+
+    capacity_minimum: float = None
+
+    expandable: bool = False
+
+    input_parameters: dict = field(default_factory=dict)
+
+    def build_solph_components(self):
+        """ """
+        f = Flow(
+            nominal_value=self._nominal_value(),
+            variable_costs=self.marginal_cost,
+            investment=self._investment(),
+            **self.input_parameters,
+        )
+
+        self.inputs.update({self.bus: f})
 
 
 class Shortage(Dispatchable):
-    """
-    """
+    """ """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
 class Generator(Dispatchable):
-    """
-    """
+    """ """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

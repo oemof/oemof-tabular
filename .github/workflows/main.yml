@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ 3.7 ]
+        python-version: [ 3.7, 3.8 ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -43,8 +43,8 @@ jobs:
       - name: Install dependencies via pip
         run: |
           python -m pip install --upgrade pip
-          python -m pip install .
-          python -m pip install pytest coverage docutils check-manifest flake8 readme-renderer pygments isort
+          python -m pip install .[aggregation]  # install extra requirement to pass all tests
+          python -m pip install pytest coverage docutils check-manifest flake8 readme-renderer pygments isort black
 
       - name: Test with pytest
         run: |
@@ -54,5 +54,6 @@ jobs:
         run: |
           python setup.py check --strict --metadata --restructuredtext
           check-manifest .
+          black --check .
           flake8 src tests
           isort --verbose --check-only --diff src tests

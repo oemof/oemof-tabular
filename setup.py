@@ -20,7 +20,7 @@ def read(*names, **kwargs):
 
 setup(
     name="oemof.tabular",
-    version="0.0.2dev",
+    version="0.0.3",
     license="BSD 3-Clause License",
     description="Load oemof energy systems from tabular data sources.",
     long_description="%s\n%s"
@@ -51,9 +51,8 @@ setup(
         "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
         # uncomment if you test on these interpreters:
         # 'Programming Language :: Python :: Implementation :: IronPython',
@@ -66,27 +65,17 @@ setup(
     ],
     install_requires=[
         "datapackage==1.5.1",
-        "tableschema==1.3.0",
-        "geojson",
+        "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
         "oemof.solph @ git+https://git@github.com/oemof/oemof-solph@v0.4#egg=oemof.solph",
         "pandas>=0.22",
-        "seaborn",
         "paramiko",
-        "pyproj",
-        "pyshp",
-        "scipy",
-        "shapely",
-        "tsam",
-        "ipython",
-        "click",
         "toml",
-        "plotly",
-        "matplotlib"
     ],
     extras_require={
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
+        "cli": ["click"],
+        "plots": ["plotly", "matplotlib"],
+        "aggregation": ["tsam"],
+        "geometry": ["shapely", "scipy", "pyproj", "geojson", "pyshp"],
     },
     entry_points={"console_scripts": ["ota = oemof.tabular.cli:main"]},
 )

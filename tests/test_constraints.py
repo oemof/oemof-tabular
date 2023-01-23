@@ -1,17 +1,25 @@
-from difflib import unified_diff
 import logging
 import os
 import re
+from difflib import unified_diff
 
 import pandas as pd
-
-from oemof.network.network import Node
 from oemof.solph import helpers
-import oemof.solph as solph
 
-from oemof.tabular.facades import (BackpressureTurbine, Commodity, Conversion,
-                                   Dispatchable, ExtractionTurbine, Link, Load,
-                                   Reservoir, Storage, Volatile)
+from oemof import solph
+from oemof.tabular.facades import (
+    BackpressureTurbine,
+    Commodity,
+    Conversion,
+    Dispatchable,
+    Excess,
+    ExtractionTurbine,
+    Link,
+    Load,
+    Reservoir,
+    Storage,
+    Volatile,
+)
 
 
 def chop_trailing_whitespace(lines):
@@ -29,10 +37,8 @@ def normalize_to_positive_results(lines):
         n for n, line in enumerate(lines) if re.match("^= -", line)
     ]
     equation_start_indices = [
-        [
-            n for n in reversed(range(0, nri))
-            if re.match(".*:$", lines[n])
-        ][0] + 1
+        [n for n in reversed(range(0, nri)) if re.match(".*:$", lines[n])][0]
+        + 1
         for nri in negative_result_indices
     ]
     for (start, end) in zip(equation_start_indices, negative_result_indices):
@@ -87,12 +93,10 @@ class TestConstraints:
         cls.energysystem = solph.EnergySystem(
             groupings=solph.GROUPINGS, timeindex=cls.date_time_index
         )
-        Node.registry = cls.energysystem
 
     def get_om(self):
         return solph.Model(
-            self.energysystem,
-            timeindex=self.energysystem.timeindex
+            self.energysystem, timeindex=self.energysystem.timeindex
         )
 
     def compare_to_reference_lp(self, ref_filename, my_om=None):
@@ -167,7 +171,7 @@ class TestConstraints:
         """
         el_bus = solph.Bus(label="electricity")
 
-        Storage(
+        storage = Storage(
             label="storage",
             carrier="electricity",
             tech="storage",
@@ -181,6 +185,7 @@ class TestConstraints:
             capacity_cost=240,
             capacity_potential=3,
         )
+        self.energysystem.add(el_bus, storage)
 
         self.compare_to_reference_lp("storage_investment_green_field.lp")
 
@@ -190,7 +195,7 @@ class TestConstraints:
         """
         bus_el = solph.Bus(label="electricity")
 
-        Storage(
+        storage = Storage(
             label="storage",
             carrier="electricity",
             tech="storage",
@@ -204,6 +209,7 @@ class TestConstraints:
             capacity_cost=240,
             capacity_potential=5,
         )
+        self.energysystem.add(bus_el, storage)
 
         self.compare_to_reference_lp("storage_investment_brown_field.lp")
 
@@ -214,7 +220,7 @@ class TestConstraints:
         """
         bus_el = solph.Bus(label="electricity")
 
-        Storage(
+        storage = Storage(
             label="storage",
             carrier="electricity",
             tech="storage",
@@ -227,6 +233,7 @@ class TestConstraints:
             capacity_cost=240,
             capacity_potential=5,
         )
+        self.energysystem.add(bus_el, storage)
 
         self.compare_to_reference_lp(
             "storage_investment_brown_field_no_storage_capacity_cost.lp"
@@ -240,10 +247,10 @@ class TestConstraints:
         bus_el = solph.Bus(label="electricity")
         bus_heat = solph.Bus(label="heat")
 
-        BackpressureTurbine(
-            label='backpressure',
-            carrier='gas',
-            tech='bp',
+        bpchp = BackpressureTurbine(
+            label="backpressure",
+            carrier="gas",
+            tech="bp",
             fuel_bus=bus_fuel,
             heat_bus=bus_heat,
             electricity_bus=bus_el,
@@ -254,6 +261,7 @@ class TestConstraints:
             thermal_efficiency=0.35,
             expandable=True,
         )
+        self.energysystem.add(bus_el, bus_fuel, bus_heat, bpchp)
 
         self.compare_to_reference_lp("backpressure_investment_green_field.lp")
 
@@ -265,10 +273,10 @@ class TestConstraints:
         bus_el = solph.Bus(label="electricity")
         bus_heat = solph.Bus(label="heat")
 
-        BackpressureTurbine(
-            label='backpressure',
-            carrier='gas',
-            tech='bp',
+        bpchp = BackpressureTurbine(
+            label="backpressure",
+            carrier="gas",
+            tech="bp",
             fuel_bus=bus_fuel,
             heat_bus=bus_heat,
             electricity_bus=bus_el,
@@ -279,6 +287,7 @@ class TestConstraints:
             thermal_efficiency=0.35,
             expandable=True,
         )
+        self.energysystem.add(bus_el, bus_fuel, bus_heat, bpchp)
 
         self.compare_to_reference_lp("backpressure_investment_brown_field.lp")
 
@@ -290,9 +299,9 @@ class TestConstraints:
         bus_el = solph.Bus(label="electricity")
         bus_heat = solph.Bus(label="heat")
 
-        ExtractionTurbine(
-            label='extraction',
-            carrier='gas',
+        extchp = ExtractionTurbine(
+            label="extraction",
+            carrier="gas",
             tech="extraction",
             fuel_bus=bus_fuel,
             heat_bus=bus_heat,
@@ -305,6 +314,7 @@ class TestConstraints:
             thermal_efficiency=0.35,
             expandable=True,
         )
+        self.energysystem.add(bus_el, bus_fuel, bus_heat, extchp)
 
         self.compare_to_reference_lp("extraction_investment_green_field.lp")
 
@@ -316,9 +326,9 @@ class TestConstraints:
         bus_el = solph.Bus(label="electricity")
         bus_heat = solph.Bus(label="heat")
 
-        ExtractionTurbine(
-            label='extraction',
-            carrier='gas',
+        extchp = ExtractionTurbine(
+            label="extraction",
+            carrier="gas",
             tech="extraction",
             fuel_bus=bus_fuel,
             heat_bus=bus_heat,
@@ -331,67 +341,83 @@ class TestConstraints:
             thermal_efficiency=0.35,
             expandable=True,
         )
+        self.energysystem.add(bus_el, bus_fuel, bus_heat, extchp)
 
         self.compare_to_reference_lp("extraction_investment_brown_field.lp")
 
     def test_commodity(self):
-        r"""
-        """
+        r""" """
         bus_biomass = solph.Bus("biomass")
 
-        Commodity(
-            label='biomass-commodity',
+        commodity = Commodity(
+            label="biomass-commodity",
             bus=bus_biomass,
-            carrier='biomass',
+            carrier="biomass",
             amount=1000,
             marginal_cost=10,
-            output_parameters={'max': [0.9, 0.5, 0.4]}
+            output_parameters={"max": [0.9, 0.5, 0.4]},
         )
+        self.energysystem.add(bus_biomass, commodity)
 
         self.compare_to_reference_lp("commodity.lp")
 
     def test_conversion(self):
-        r"""
-        """
+        r""" """
         bus_biomass = solph.Bus("biomass")
         bus_heat = solph.Bus("heat")
 
-        Conversion(
-            label='biomass_plant',
-            carrier='biomass',
-            tech='st',
+        conversion = Conversion(
+            label="biomass_plant",
+            carrier="biomass",
+            tech="st",
             from_bus=bus_biomass,
             to_bus=bus_heat,
             capacity=100,
-            efficiency=0.4
+            efficiency=0.4,
         )
+        self.energysystem.add(bus_heat, bus_biomass, conversion)
 
         self.compare_to_reference_lp("conversion.lp")
 
     def test_dispatchable(self):
         bus = solph.Bus("electricity")
 
-        Dispatchable(
-            label='gt',
+        dispatchable = Dispatchable(
+            label="gt",
             bus=bus,
-            carrier='gas',
-            tech='ccgt',
+            carrier="gas",
+            tech="ccgt",
             capacity=1000,
             marginal_cost=10,
-            output_parameters={'min': 0.2},
+            output_parameters={"min": 0.2},
         )
+        self.energysystem.add(bus, dispatchable)
 
         self.compare_to_reference_lp("dispatchable.lp")
 
+    def test_excess(self):
+        bus = solph.Bus("electricity")
+
+        excess = Excess(
+            label="excess",
+            bus=bus,
+            carrier="electricity",
+            tech="excess",
+            capacity=1000,
+            marginal_cost=10,
+        )
+        self.energysystem.add(bus, excess)
+
+        self.compare_to_reference_lp("excess.lp")
+
     def test_link(self):
-        r"""
-        """
+        r""" """
         bus1 = solph.Bus("bus1")
         bus2 = solph.Bus("bus2")
 
-        Link(
-            label='link',
-            carrier='electricity',
+        link = Link(
+            label="link",
+            carrier="electricity",
             from_bus=bus1,
             to_bus=bus2,
             from_to_capacity=100,
@@ -399,34 +425,34 @@ class TestConstraints:
             loss=0.25,
             marginal_cost=4,
         )
+        self.energysystem.add(bus1, bus2, link)
 
         self.compare_to_reference_lp("link.lp")
 
     def test_load(self):
-        r"""
-        """
+        r""" """
         bus = solph.Bus("electricity")
 
-        Load(
-            label='load',
-            carrier='electricity',
+        load = Load(
+            label="load",
+            carrier="electricity",
             bus=bus,
             amount=100,
-            profile=[0.3, 0.2, 0.5]
+            profile=[0.3, 0.2, 0.5],
         )
+        self.energysystem.add(bus, load)
 
         self.compare_to_reference_lp("load.lp")
 
     def test_reservoir(self):
-        r"""
-        """
+        r""" """
         bus = solph.Bus("electricity")
 
-        Reservoir(
-            label='reservoir',
+        reservoir = Reservoir(
+            label="reservoir",
             bus=bus,
-            carrier='water',
-            tech='reservoir',
+            carrier="water",
+            tech="reservoir",
             storage_capacity=1000,
             capacity=50,
             profile=[1, 2, 6],
@@ -435,15 +461,15 @@ class TestConstraints:
             max_storage_level=0.75,
             efficiency=0.8,
         )
+        self.energysystem.add(bus, reservoir)
 
         self.compare_to_reference_lp("reservoir.lp")
 
     def test_storage(self):
-        r"""
-        """
+        r""" """
         bus = solph.Bus("electricity")
 
-        Storage(
+        storage = Storage(
             label="storage",
             bus=bus,
             carrier="lithium",
@@ -456,24 +482,25 @@ class TestConstraints:
             max_storage_level=[0.75, 0.5, 0.25],
             expandable=True,
         )
+        self.energysystem.add(bus, storage)
 
         self.compare_to_reference_lp("storage.lp")
 
     def test_volatile(self):
-        r"""
-        """
+        r""" """
         bus = solph.Bus("electricity")
 
-        Volatile(
-            label='wind',
+        volatile = Volatile(
+            label="wind",
             bus=bus,
-            carrier='wind',
-            tech='onshore',
+            carrier="wind",
+            tech="onshore",
             capacity=10,
             capacity_cost=150,
             expandable=True,
             capacity_potential=100,
             profile=[0.25, 0.1, 0.3],
         )
+        self.energysystem.add(bus, volatile)
 
         self.compare_to_reference_lp("volatile.lp")

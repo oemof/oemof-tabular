@@ -1,9 +1,17 @@
 import os
 
 # import plotly.offline as offline
-from matplotlib import colors
+try:
+    from matplotlib import colors
+except ImportError:
+    raise ImportError("Need to install matplotlib to use plots!")
+
+try:
+    import plotly.graph_objs as go
+except ImportError:
+    raise ImportError("Need to install plotly to use plots!")
+
 import pandas as pd
-import plotly.graph_objs as go
 
 # offline.init_notebook_mode()
 from oemof.tabular.facades import CARRIER_COLER_MAP, TECH_COLOR_MAP
@@ -43,8 +51,7 @@ def hourly_plot(
     daily=False,
     plot_filling_levels=True,
 ):
-    """
-    """
+    """ """
     if scenario.endswith(".csv"):
         df = pd.read_csv(scenario, index_col=[0], parse_dates=True)
     else:
@@ -162,8 +169,7 @@ def hourly_plot(
 
 
 def stacked_plot(scenario, datapath=None):
-    """
-    """
+    """ """
 
     df = pd.read_csv(
         os.path.join(datapath, scenario, "output", "capacities.csv"),
