@@ -68,7 +68,8 @@ def kwargs_to_parent(cls):
 
         super(cls, self).__init__(*args, **kwargs)
 
-        self.build_solph_components()
+        if not kwargs.get("build_solph_components") is False:
+            self.build_solph_components()
 
     cls.__init__ = new_init
     return cls
