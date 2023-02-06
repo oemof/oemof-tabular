@@ -42,7 +42,7 @@ def normalize_to_positive_results(lines):
         + 1
         for nri in negative_result_indices
     ]
-    for (start, end) in zip(equation_start_indices, negative_result_indices):
+    for start, end in zip(equation_start_indices, negative_result_indices):
         for n in range(start, end):
             lines[n] = (
                 "-"
@@ -468,7 +468,7 @@ class TestConstraints:
             bus=bus,
             carrier="ch4",
             tech="import",
-            output_parameters={"emission_factor": 2.5},
+            output_parameters={"custom_attributes": {"emission_factor": 2.5}},
         )
 
         emission_constraint = GenericIntegralLimit(
