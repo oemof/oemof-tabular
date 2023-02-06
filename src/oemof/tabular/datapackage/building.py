@@ -15,6 +15,7 @@ import paramiko
 import toml
 from datapackage import Package, Resource
 
+from oemof.tabular import __version__ as oemof_tabular_version
 from oemof.tabular.config import config
 
 
@@ -32,7 +33,7 @@ def infer_resources(directory="data/elements"):
         os.makedirs("resources")
 
     # create meta data resources
-    for f in os.listdir(directory):
+    for f in sorted(os.listdir(directory)):
         r = Resource({"path": os.path.join(directory, f)})
         r.infer()
         r.save(os.path.join("resources", f.replace(".csv", ".json")))
@@ -42,7 +43,7 @@ def update_package_descriptor():
     """ """
     p = Package("datapackage.json")
 
-    for f in os.listdir("resources"):
+    for f in sorted(os.listdir("resources")):
         path = os.path.join("resources", f)
 
         r = Resource(path)
@@ -63,6 +64,7 @@ def infer_metadata(
     keep_resources=False,
     foreign_keys=None,
     path=None,
+    metadata_filename="datapackage.json",
 ):
     """Add basic meta data for a datapackage
 
@@ -80,6 +82,8 @@ def infer_metadata(
         strings with the name of the resources
     path: string
         Absolute path to root-folder of the datapackage
+    metadata_filename: basestring
+        Name of the inferred metadata string.
     """
     foreign_keys = foreign_keys or config.FOREIGN_KEYS
 
@@ -91,6 +95,7 @@ def infer_metadata(
     p = Package()
     p.descriptor["name"] = package_name
     p.descriptor["profile"] = "tabular-data-package"
+    p.descriptor["oemof_tabular_version"] = oemof_tabular_version
     p.commit()
     if not os.path.exists("resources"):
         os.makedirs("resources")
@@ -103,7 +108,7 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/elements"):
+        for f in sorted(os.listdir("data/elements")):
             r = Resource(
                 {"path": str(pathlib.PurePosixPath("data", "elements", f))}
             )
@@ -139,6 +144,11 @@ def infer_metadata(
                             }
                         )
 
+            # sort foreign_key entries by alphabetically by fields
+            r.descriptor["schema"]["foreignKeys"].sort(
+                key=lambda x: x["fields"]
+            )
+
             r.commit()
             r.save(
                 pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
@@ -153,7 +163,7 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/sequences"):
+        for f in sorted(os.listdir("data/sequences")):
             r = Resource(
                 {"path": str(pathlib.PurePosixPath("data", "sequences", f))}
             )
@@ -172,7 +182,7 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/geometries"):
+        for f in sorted(os.listdir("data/geometries")):
             r = Resource(
                 {"path": str(pathlib.PurePosixPath("data", "geometries", f))}
             )
@@ -203,7 +213,7 @@ def infer_metadata(
             p.add_resource(r.descriptor)
 
     p.commit()
-    p.save("datapackage.json")
+    p.save(metadata_filename)
 
     if not keep_resources:
         shutil.rmtree("resources")
@@ -229,7 +239,7 @@ def package_from_resources(resource_path, output_path, clean=True):
     p.descriptor["profile"] = "tabular-data-package"
     p.commit()
 
-    for f in os.listdir(resource_path):
+    for f in sorted(os.listdir(resource_path)):
         path = os.path.join(resource_path, f)
 
         r = Resource(path)
