@@ -7,6 +7,7 @@ import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
+from oemof.tabular.constraint_facades import GenericIntegralLimit
 from oemof.tabular.facades import (
     BackpressureTurbine,
     Commodity,
@@ -458,3 +459,28 @@ class TestConstraints:
         self.energysystem.add(bus, volatile)
 
         self.compare_to_reference_lp("volatile.lp")
+
+    def test_emission_constraint(self):
+        bus = solph.Bus("ch4")
+
+        dispatchable = Dispatchable(
+            label="ch4-import",
+            bus=bus,
+            carrier="ch4",
+            tech="import",
+            output_parameters={"emission_factor": 2.5},
+        )
+
+        emission_constraint = GenericIntegralLimit(
+            name="emission_constraint",
+            type="e",
+            limit=1000,
+        )
+
+        self.energysystem.add(bus, dispatchable)
+
+        model = solph.Model(self.energysystem)
+
+        emission_constraint.build_constraint(model)
+
+        self.compare_to_reference_lp("emission_constraint.lp", my_om=model)
