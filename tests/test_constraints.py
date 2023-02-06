@@ -424,6 +424,7 @@ class TestConstraints:
             loss=0.04,
             marginal_cost=22,
             capacity_cost=540,
+            expandable=True,
         )
         self.energysystem.add(bus1, bus2, link)
 
