@@ -108,7 +108,8 @@ def kwargs_to_parent(cls):
             **kwargs_expected,
         )
 
-        self.build_solph_components()
+        if not kwargs.get("build_solph_components") is False:
+            self.build_solph_components()
 
     cls.__init__ = new_init
     return cls
@@ -406,7 +407,8 @@ class Dispatchable(Source, Facade):
     capacity_minimum: numeric
         Minimum install capacity if capacity is to be expanded
 
-    The mathematical representations for this components are dependent on the
+
+    The mathematical representations for these components are dependent on the
     user defined attributes. If the capacity is fixed before
     (**dispatch mode**) the following equation holds:
 
@@ -432,7 +434,7 @@ class Dispatchable(Source, Facade):
 
             x^{capacity} \leq c^{capacity\_potential}
 
-    **Ojective expression** for operation:
+    **Objective expression** for operation:
 
     .. math::
 
@@ -556,7 +558,7 @@ class Volatile(Source, Facade):
 
             x_{volatile}^{capacity} \leq c_{volatile}^{capacity\_potential}
 
-    **Ojective expression** for operation:
+    **Objective expression** for operation:
 
     .. math::
 
@@ -674,7 +676,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         c^{electrical\_efficiency(t)}}{c^{thermal\_efficiency}(t)}
         \qquad \forall t \in T
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
@@ -812,7 +814,7 @@ class BackpressureTurbine(Transformer, Facade):
 
         x^{flow, carrier}(t) =
         \frac{x^{flow, electricity}(t) + x^{flow, heat}(t)}\
-        {c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)}
+        {c^{thermal\:efficiency}(t) + c^{electrical\:efficiency}(t)} \\
         \qquad \forall t \in T
 
     .. math::
@@ -821,7 +823,7 @@ class BackpressureTurbine(Transformer, Facade):
         \frac{c^{electrical\:efficiency}(t)}{c^{thermal\:efficiency}(t)}
         \qquad \forall t \in T
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
@@ -948,7 +950,7 @@ class Conversion(Transformer, Facade):
         x^{flow, from}(t) \cdot c^{efficiency}(t) = x^{flow, to}(t)
         \qquad \forall t \in T
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
@@ -1076,7 +1078,7 @@ class HeatPump(Transformer, Facade):
         x_{low\_temperature\_source, low\_temperature\_bus}^{flow} =
         x_{hp, high\_temperature\_bus}^{flow} \frac{c^{COP} -1}{c^{COP}}
 
-    **Ojective expression** for operation includes marginal cost and/or
+    **Objective expression** for operation includes marginal cost and/or
     carrier costs:
 
         .. math::
@@ -1266,7 +1268,7 @@ class Storage(GenericStorage, Facade):
         x^{level}(t) =
         x^{level}(t-1) \cdot (1 - c^{loss\_rate})
         + \sqrt{c^{efficiency}(t)}  x^{flow, in}(t)
-        - \frac{x^{flow, out}(t)}{\sqrt{c^{efficiency}(t)}}
+        - \frac{x^{flow, out}(t)}{\sqrt{c^{efficiency}(t)}}\\
         \qquad \forall t \in T
 
     .. math::
