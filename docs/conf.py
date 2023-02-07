@@ -11,7 +11,7 @@ from get_facade_attributes import get_facade_attrs, write_table_rst
 facade_attrs = get_facade_attrs(TYPEMAP)
 for facade, attrs in facade_attrs.items():
     attrs.to_csv(os.path.join("facade_attributes", facade + ".csv"))
-write_table_rst("facades.rst")
+write_table_rst("facade_attributes", "facades.rst")
 
 extensions = [
     'sphinx.ext.autodoc',
