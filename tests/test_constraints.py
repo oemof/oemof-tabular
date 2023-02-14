@@ -21,6 +21,7 @@ from oemof.tabular.facades import (
     Storage,
     Volatile,
 )
+from oemof.tabular.facades.experimental.battery_electric_vehicle import Bev
 
 
 def chop_trailing_whitespace(lines):
@@ -484,3 +485,27 @@ class TestConstraints:
         emission_constraint.build_constraint(model)
 
         self.compare_to_reference_lp("emission_constraint.lp", my_om=model)
+
+    def test_bev(self):
+        bus = solph.Bus("my_bus")
+
+        bev = Bev(
+            name="my_bev",
+            bus=bus,
+            carrier="electricity",
+            tech="bev",
+            storage_capacity=1000,
+            capacity=50,
+            availability=[0.8, 0.7, 0.6],
+            drive_power=[0.3, 0.2, 0.5],
+            amount=450,
+            loss_rate=0.01,
+            initial_storage_level=0,
+            min_storage_level=[0.1, 0.2, 0.15],
+            max_storage_level=[0.9, 0.95, 0.92],
+            efficiency=0.93,
+        )
+
+        self.energysystem.add(bus, bev)
+
+        self.compare_to_reference_lp("bev.lp")
