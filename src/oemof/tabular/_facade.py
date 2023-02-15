@@ -51,7 +51,6 @@ def kwargs_to_parent(cls):
     original_init = cls.__init__
 
     def new_init(self, *args, **kwargs):
-
         # pass only those kwargs to the dataclass which are expected
         dataclass_kwargs = {
             key: value

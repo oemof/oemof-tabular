@@ -261,7 +261,6 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 and key in data
                 and source[key] in data[key]
             ):
-
                 source[key] = data[key][source[key]]
 
             if isinstance(source[key], cabc.MutableMapping):
@@ -504,7 +503,6 @@ def deserialize_constraints(model, path, constraint_type_map=None):
             resources.append(r)
 
     for resource in resources:
-
         resource_data = resource.read(keyed=True, relations=True)
 
         for rw in resource_data:
