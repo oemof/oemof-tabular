@@ -10,16 +10,18 @@ along with how to use the functions in this module.
 
 """
 
-from decimal import Decimal
-from itertools import chain, groupby, repeat
 import collections.abc as cabc
 import json
 import re
+import warnings
+from decimal import Decimal
+from itertools import chain, groupby, repeat
 
 import datapackage as dp
 import pandas as pd
-
 from oemof.network.network import Bus, Component
+
+from oemof.tabular.config.config import supported_oemof_tabular_versions
 
 from ..tools import HSN, raisestatement, remap
 
@@ -28,8 +30,7 @@ FLOW_TYPE = object()
 
 
 def sequences(r, timeindices=None):
-    """ Parses the resource `r` as a sequence.
-    """
+    """Parses the resource `r` as a sequence."""
     result = {
         name: [
             float(s[name]) if isinstance(s[name], Decimal) else s[name]
@@ -54,8 +55,7 @@ def read_facade(
     fks,
     resources,
 ):
-    """ Parse the resource `r` as a facade.
-    """
+    """Parse the resource `r` as a facade."""
     # TODO: Generate better error messages, if keys which are assumed to be
     # present, e.g. because they are used as foreign keys or because our
     # way of reading data packages needs them, are missing.
@@ -138,6 +138,16 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     empty = HSN()
     empty.read = lambda *xs, **ks: ()
     empty.headers = ()
+
+    # check version that was used to create metadata
+    oemof_tabular_version = package.descriptor.get("oemof_tabular_version")
+
+    if oemof_tabular_version not in supported_oemof_tabular_versions:
+        warnings.warn(
+            f"Version of datapackage '{oemof_tabular_version}' is not "
+            f"supported. These versions are supported: "
+            f"{supported_oemof_tabular_versions}"
+        )
 
     def parse(s):
         return json.loads(s) if s else {}
@@ -226,7 +236,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     }
 
     def resolve_foreign_keys(source):
-        """ Check whether any key in `source` is a FK and follow it.
+        """Check whether any key in `source` is a FK and follow it.
 
         The `source` dictionary is checked for whether any of
         its keys is a foreign key. A key is considered a
@@ -251,7 +261,6 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 and key in data
                 and source[key] in data[key]
             ):
-
                 source[key] = data[key][source[key]]
 
             if isinstance(source[key], cabc.MutableMapping):
@@ -282,8 +291,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     objects = {}
 
     def create(cls, init, attributes):
-        """ Creates an instance of `cls` and sets `attributes`.
-        """
+        """Creates an instance of `cls` and sets `attributes`."""
         init.update(attributes)
         instance = cls(**remap(init, attributemap, cls))
         for k, v in remap(attributes, attributemap, cls).items():
@@ -472,3 +480,39 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
     else:
         raise ValueError("Timeindices in resources differ!")
+
+
+def deserialize_constraints(model, path, constraint_type_map=None):
+    if constraint_type_map is None:
+        constraint_type_map = {}
+
+    def listify(x, n=None):
+        return (
+            x if isinstance(x, list) else repeat(x) if not n else repeat(x, n)
+        )
+
+    package = dp.Package(path)
+
+    # read all resources in data/constraints
+    resources = []
+    for r in package.resources:
+        if all(
+            re.match(r"^data/constraints/.*$", p)
+            for p in listify(r.descriptor["path"], 1)
+        ):
+            resources.append(r)
+
+    for resource in resources:
+        resource_data = resource.read(keyed=True, relations=True)
+
+        for rw in resource_data:
+            constraint_type = rw["type"]
+
+            constraint_facade = constraint_type_map[constraint_type]
+
+            constraint = constraint_facade(**rw)
+
+            # build constraint for each facade
+            constraint.build_constraint(model)
+
+    # return model

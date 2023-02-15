@@ -43,6 +43,7 @@ def hourly_plot(
     if title is None:
         title = "Hourly supply and demand in {} for model/scenario {}".format(
             bus, scenario
+
         )
     if flexibility is None:
         flexibility = [
@@ -318,8 +319,7 @@ def lineplot(ax, df, colors_odict, linewidth=1):
 
 
 def stacked_plot(scenario, datapath=None):
-    """
-    """
+    """ """
 
     df = pd.read_csv(
         os.path.join(datapath, scenario, "output", "capacities.csv"),

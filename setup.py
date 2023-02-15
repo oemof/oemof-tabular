@@ -20,7 +20,7 @@ def read(*names, **kwargs):
 
 setup(
     name="oemof.tabular",
-    version="0.0.3",
+    version="0.0.4dev",
     license="BSD 3-Clause License",
     description="Load oemof energy systems from tabular data sources.",
     long_description="%s\n%s"
@@ -53,6 +53,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: Implementation :: CPython",
         # uncomment if you test on these interpreters:
         # 'Programming Language :: Python :: Implementation :: IronPython',
@@ -66,16 +67,16 @@ setup(
     install_requires=[
         "datapackage==1.5.1",
         "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
-        "oemof.solph @ git+https://git@github.com/oemof/oemof-solph@v0.4#egg=oemof.solph",
+        "oemof.solph==0.4.5",
         "pandas>=0.22",
         "paramiko",
         "toml",
     ],
     extras_require={
-        'cli': ['click'],
-        'plots': ['plotly', 'matplotlib'],
-        'aggregation': ['tsam'],
-        'geometry': ['shapely', 'scipy', 'pyproj', 'geojson', 'pyshp'],
+        "cli": ["click"],
+        "plots": ["plotly", "matplotlib"],
+        "aggregation": ["tsam"],
+        "geometry": ["shapely", "scipy", "pyproj", "geojson", "pyshp"],
     },
     entry_points={"console_scripts": ["ota = oemof.tabular.cli:main"]},
 )

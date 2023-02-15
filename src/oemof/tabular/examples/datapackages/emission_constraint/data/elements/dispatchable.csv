@@ -1,0 +1,4 @@
+name;type;carrier;tech;capacity;bus;marginal_cost;profile;output_parameters
+gas;dispatchable;gas;gt;1000;bus-electricity;40;1;{"emission_factor": 10}
+coal;dispatchable;coal;st;1000;bus-electricity;40;1;{"emission_factor": 20}
+lignite;dispatchable;lignite;st;500;bus-electricity;20;1;{"emission_factor": 30}

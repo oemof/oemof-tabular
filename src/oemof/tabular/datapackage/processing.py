@@ -25,7 +25,7 @@ def copy_datapackage(source, destination, subset=None):
     only_data: str
         Name of directory to only copy subset of datapackage (for example
         only the 'data' directory)
-   """
+    """
     if source.endswith(".json"):
         package_root = os.path.dirname(os.path.realpath(source))
         sp = Package(
@@ -89,8 +89,7 @@ def clean(path=None, directories=["data", "cache", "resources"]):
 
 
 def to_dict(value):
-    """ Convert value from e.g. csv-reader to valid json / dict
-    """
+    """Convert value from e.g. csv-reader to valid json / dict"""
     if value == "":
         return {}
     else:

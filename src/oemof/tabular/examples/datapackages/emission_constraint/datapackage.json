@@ -106,9 +106,9 @@
             }
         },
         {
-            "path": "data/elements/link.csv",
+            "path": "data/elements/excess.csv",
             "profile": "tabular-data-resource",
-            "name": "link",
+            "name": "excess",
             "format": "csv",
             "mediatype": "text/csv",
             "encoding": "utf-8",
@@ -125,27 +125,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "capacity",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
-                        "name": "capacity_cost",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
-                        "name": "loss",
-                        "type": "number",
-                        "format": "default"
-                    },
-                    {
-                        "name": "from_bus",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
-                        "name": "to_bus",
+                        "name": "bus",
                         "type": "string",
                         "format": "default"
                     }
@@ -156,14 +136,7 @@
                 "primaryKey": "name",
                 "foreignKeys": [
                     {
-                        "fields": "from_bus",
-                        "reference": {
-                            "resource": "bus",
-                            "fields": "name"
-                        }
-                    },
-                    {
-                        "fields": "to_bus",
+                        "fields": "bus",
                         "reference": {
                             "resource": "bus",
                             "fields": "name"
@@ -422,10 +395,40 @@
                         "name": "wind-profile",
                         "type": "number",
                         "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ]
+            }
+        },
+        {
+            "path": "data/constraints/emission_constraint.csv",
+            "profile": "tabular-data-resource",
+            "name": "emission_constraint",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "format": "default"
                     },
                     {
-                        "name": "pv-profile",
+                        "name": "type",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "limit",
                         "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "keyword",
+                        "type": "string",
                         "format": "default"
                     }
                 ],

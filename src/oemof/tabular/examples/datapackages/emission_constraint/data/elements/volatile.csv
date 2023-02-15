@@ -1,0 +1,2 @@
+name;type;carrier;tech;capacity;capacity_cost;bus;marginal_cost;profile;output_parameters
+wind;volatile;wind;onshore;50;;bus-electricity;0;wind-profile;{}

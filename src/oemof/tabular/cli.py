@@ -33,9 +33,7 @@ scenarios = {}
 class Scenario(dict):
     @classmethod
     def from_path(cls, path):
-        scenarios[path] = cls(
-            building.read_build_config(path)
-        )
+        scenarios[path] = cls(building.read_build_config(path))
         if "name" in scenarios[path]:
             name = scenarios[path]["name"]
             scenarios[name] = scenarios[path]
@@ -58,8 +56,7 @@ class Scenario(dict):
 
 
 def _test(ctx, package):
-    """
-    """
+    """ """
     p = Package(package)
     for r in p.resources:
         try:

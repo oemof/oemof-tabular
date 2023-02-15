@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from ftplib import FTP
-from urllib.parse import urlparse
 import errno
 import os
 import pathlib
@@ -9,17 +7,20 @@ import sys
 import tarfile
 import urllib.request
 import zipfile
+from ftplib import FTP
+from urllib.parse import urlparse
 
-from datapackage import Package, Resource
 import pandas as pd
 import paramiko
 import toml
+from datapackage import Package, Resource
 
+from oemof.tabular import __version__ as oemof_tabular_version
 from oemof.tabular.config import config
 
 
 def infer_resources(directory="data/elements"):
-    """ Method looks at all files in `directory` and creates
+    """Method looks at all files in `directory` and creates
     datapackage.Resource object that will be stored
 
     Parameters
@@ -32,18 +33,17 @@ def infer_resources(directory="data/elements"):
         os.makedirs("resources")
 
     # create meta data resources
-    for f in os.listdir(directory):
+    for f in sorted(os.listdir(directory)):
         r = Resource({"path": os.path.join(directory, f)})
         r.infer()
         r.save(os.path.join("resources", f.replace(".csv", ".json")))
 
 
 def update_package_descriptor():
-    """
-    """
+    """ """
     p = Package("datapackage.json")
 
-    for f in os.listdir("resources"):
+    for f in sorted(os.listdir("resources")):
         path = os.path.join("resources", f)
 
         r = Resource(path)
@@ -64,8 +64,9 @@ def infer_metadata(
     keep_resources=False,
     foreign_keys=None,
     path=None,
+    metadata_filename="datapackage.json",
 ):
-    """ Add basic meta data for a datapackage
+    """Add basic meta data for a datapackage
 
     Parameters
     ----------
@@ -81,6 +82,8 @@ def infer_metadata(
         strings with the name of the resources
     path: string
         Absolute path to root-folder of the datapackage
+    metadata_filename: basestring
+        Name of the inferred metadata string.
     """
     foreign_keys = foreign_keys or config.FOREIGN_KEYS
 
@@ -92,6 +95,7 @@ def infer_metadata(
     p = Package()
     p.descriptor["name"] = package_name
     p.descriptor["profile"] = "tabular-data-package"
+    p.descriptor["oemof_tabular_version"] = oemof_tabular_version
     p.commit()
     if not os.path.exists("resources"):
         os.makedirs("resources")
@@ -104,9 +108,10 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/elements"):
-            r = Resource({"path": str(pathlib.PurePosixPath(
-                "data", "elements", f))})
+        for f in sorted(os.listdir("data/elements")):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "elements", f))}
+            )
             r.infer()
             r.descriptor["schema"]["primaryKey"] = "name"
 
@@ -139,9 +144,15 @@ def infer_metadata(
                             }
                         )
 
+            # sort foreign_key entries by alphabetically by fields
+            r.descriptor["schema"]["foreignKeys"].sort(
+                key=lambda x: x["fields"]
+            )
+
             r.commit()
-            r.save(pathlib.PurePosixPath("resources", f.replace(
-                ".csv", ".json")))
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
             p.add_resource(r.descriptor)
 
     # create meta data resources sequences
@@ -152,15 +163,18 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/sequences"):
-            r = Resource({"path": str(pathlib.PurePosixPath(
-                "data", "sequences", f))})
+        for f in sorted(os.listdir("data/sequences")):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "sequences", f))}
+            )
             r.infer()
             r.commit()
-            r.save(pathlib.PurePosixPath("resources", f.replace(
-                ".csv", ".json")))
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
             p.add_resource(r.descriptor)
 
+    # create meta data resources geometries
     if not os.path.exists("data/geometries"):
         print(
             "No geometries path found in directory {}. Skipping...".format(
@@ -168,17 +182,38 @@ def infer_metadata(
             )
         )
     else:
-        for f in os.listdir("data/geometries"):
-            r = Resource({"path": str(pathlib.PurePosixPath(
-                "data", "geometries", f))})
+        for f in sorted(os.listdir("data/geometries")):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "geometries", f))}
+            )
             r.infer()
             r.commit()
-            r.save(pathlib.PurePosixPath("resources", f.replace(
-                ".csv", ".json")))
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
+            p.add_resource(r.descriptor)
+
+    # create meta data resources constraints
+    if not os.path.exists("data/constraints"):
+        print(
+            "No constraints path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in os.listdir("data/constraints"):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "constraints", f))}
+            )
+            r.infer()
+            r.commit()
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
             p.add_resource(r.descriptor)
 
     p.commit()
-    p.save("datapackage.json")
+    p.save(metadata_filename)
 
     if not keep_resources:
         shutil.rmtree("resources")
@@ -187,7 +222,7 @@ def infer_metadata(
 
 
 def package_from_resources(resource_path, output_path, clean=True):
-    """ Collects resource descriptors and merges them in a datapackage.json
+    """Collects resource descriptors and merges them in a datapackage.json
 
     Parameters
     ----------
@@ -204,7 +239,7 @@ def package_from_resources(resource_path, output_path, clean=True):
     p.descriptor["profile"] = "tabular-data-package"
     p.commit()
 
-    for f in os.listdir(resource_path):
+    for f in sorted(os.listdir(resource_path)):
         path = os.path.join(resource_path, f)
 
         r = Resource(path)
@@ -222,7 +257,7 @@ def package_from_resources(resource_path, output_path, clean=True):
 
 
 def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
-    """ Download data with FTP
+    """Download data with FTP
 
     Parameters
     ----------
@@ -254,7 +289,7 @@ def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
 def _sftp(
     remotepath, localpath, hostname="", username="rutherford", password=""
 ):
-    """ Download data with SFTP
+    """Download data with SFTP
 
     Parameters
     ----------
@@ -283,7 +318,7 @@ def _sftp(
 
 
 def _http(url, path):
-    """ Download data with HTTP
+    """Download data with HTTP
 
     Parameters
     ----------
@@ -339,7 +374,6 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
         return filepath
 
     else:
-
         if scheme in ["http", "https"]:
             _http(url, copypath)
 
@@ -395,7 +429,7 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
 
 
 def timeindex(year, periods=8760, freq="H"):
-    """ Create pandas datetimeindex.
+    """Create pandas datetimeindex.
 
     Parameters
     ----------
@@ -413,7 +447,7 @@ def timeindex(year, periods=8760, freq="H"):
 
 
 def initialize(config, directory="."):
-    """ Initialize datapackage by reading config file and creating required
+    """Initialize datapackage by reading config file and creating required
     directories (data/elements, data/sequences etc.) if directories are
     not specified in the config file, the default directory setup up
     will be used.
@@ -452,8 +486,7 @@ def initialize(config, directory="."):
 
 
 def input_filepath(file, directory="archive/"):
-    """
-    """
+    """ """
     file_path = os.path.join(directory, file)
 
     if not os.path.exists(file_path):
@@ -475,7 +508,7 @@ def input_filepath(file, directory="archive/"):
 
 
 def read_build_config(file="build.toml"):
-    """ Read config build file in toml format
+    """Read config build file in toml format
 
     Parameters
     ----------
@@ -501,7 +534,7 @@ def read_build_config(file="build.toml"):
 
 
 def read_sequences(filename, directory="data/sequences"):
-    """ Reads sequence resources from the datapackage
+    """Reads sequence resources from the datapackage
 
     Parameters
     ----------
@@ -558,7 +591,7 @@ def write_elements(
     overwrite=False,
     create_dir=True,
 ):
-    """ Writes elements to filesystem.
+    """Writes elements to filesystem.
 
     Parameters
     ----------
@@ -616,7 +649,7 @@ def write_sequences(
     replace=False,
     create_dir=True,
 ):
-    """ Writes sequences to filesystem.
+    """Writes sequences to filesystem.
 
     Parameters
     ----------
