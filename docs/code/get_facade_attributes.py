@@ -15,7 +15,7 @@ def get_facade_attrs(TYPEMAP):
                 {
                     "name": [field.name for field in fields],
                     "type": [field.type.__name__ if hasattr(field.type, "__name__") else field.type for field in fields ],
-                    "default": [None if isinstance(field.default, dataclasses._MISSING_TYPE) else None for field in fields],
+                    "default": [None if isinstance(field.default, dataclasses._MISSING_TYPE) else field.default for field in fields],
                 },
             )
             df = df.set_index("name")
