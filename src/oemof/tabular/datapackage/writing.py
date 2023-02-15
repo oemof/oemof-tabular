@@ -6,6 +6,7 @@ exclude_none = True
 
 
 def move_undetected_scalars(com):
+    # copied from oemof.solph.processing
     for ckey, value in list(com["sequences"].items()):
         if isinstance(value, str):
             com["scalars"][ckey] = value
@@ -26,6 +27,7 @@ def move_undetected_scalars(com):
 
 
 def remove_nones(com):
+    # copied from oemof.solph.processing
     for ckey, value in list(com["scalars"].items()):
         if value is None:
             del com["scalars"][ckey]
@@ -35,6 +37,7 @@ def remove_nones(com):
 
 
 def detect_scalars_and_sequences(com):
+    # copied from oemof.solph.processing
     com_data = {"scalars": {}, "sequences": {}}
 
     default_exclusions = [
