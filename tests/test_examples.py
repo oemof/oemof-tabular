@@ -4,7 +4,7 @@ import pathlib
 import re
 from difflib import unified_diff
 
-import pkg_resources as pkg
+from importlib.resources import files
 from oemof.network.energy_system import EnergySystem as ES
 from oemof.solph import helpers
 
@@ -50,18 +50,12 @@ def test_example_datapackage_readability():
     """The example datapackages can be read and loaded."""
 
     systems = []
-    for example in pkg.resource_listdir(
-        "oemof.tabular", "examples/datapackages"
-    ):
+    datapackage_dir = os.path.join(files("oemof.tabular"), "examples/datapackages")
+    for example in os.listdir(datapackage_dir):
         print("Runnig reading datapackage example {} ...".format(example))
         systems.append(
             ES.from_datapackage(
-                pkg.resource_filename(
-                    "oemof.tabular",
-                    "examples/datapackages/{}/datapackage.json".format(
-                        example
-                    ),
-                ),
+                os.path.join(datapackage_dir, example, "datapackage.json"),
                 typemap=TYPEMAP,
             )
         )
@@ -74,23 +68,18 @@ def test_scripting_examples():
     """ """
 
     exclude = ["plotting.py", "__pycache__"]
-    for example in pkg.resource_listdir("oemof.tabular", "examples/scripting"):
+    examples_dir = os.path.join(files("oemof.tabular"), "examples/scripting")
+    for example in os.listdir(examples_dir):
         if not example.endswith(".ipynb") and example not in exclude:
             print("Runnig scripting example {} ...".format(example))
-            exec(
-                open(
-                    pkg.resource_filename(
-                        "oemof.tabular",
-                        "examples/scripting/{}".format(example),
-                    )
-                ).read()
-            )
+            exec(open(os.path.join(examples_dir, example)).read())
 
 
 def test_examples_datapackages_scripts_infer():
     """ """
     script = "infer.py"
 
+    import pkg_resources as pkg
     for example_datapackage in pkg.resource_listdir(
         "oemof.tabular", "examples/datapackages/"
     ):

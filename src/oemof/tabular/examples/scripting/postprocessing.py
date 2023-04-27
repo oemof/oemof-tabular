@@ -1,4 +1,5 @@
-import pkg_resources as pkg
+from importlib.resources import files
+import os
 from oemof.solph import EnergySystem, Model, views
 
 import oemof.tabular.datapackage  # noqa
@@ -9,10 +10,7 @@ examples = ["dispatch", "investment", "foreignkeys"]
 for example in examples:
     print("Runnig postprocessing example with datapackage {}".format(example))
     es = EnergySystem.from_datapackage(
-        pkg.resource_filename(
-            "oemof.tabular",
-            "examples/datapackages/{}/datapackage.json".format(example),
-        ),
+        os.path.join(files("oemof.tabular"), "examples/datapackages/{}/datapackage.json".format(example)),
         attributemap={},
         typemap=TYPEMAP,
     )
