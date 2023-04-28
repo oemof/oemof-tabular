@@ -1,8 +1,8 @@
 """
 """
+import importlib.resources
 import os
 
-from importlib.resources import files
 from oemof.solph import EnergySystem, Model
 
 import oemof.tabular.tools.postprocessing as pp
@@ -17,7 +17,10 @@ for example in examples:
     print("Running compute example with datapackage {}".format(example))
 
     # path to directory with datapackage to load
-    datapackage_dir = os.path.join(files("oemof.tabular"), "examples/datapackages/{}".format(example))
+    datapackage_dir = os.path.join(
+        importlib.resources.files("oemof.tabular"),
+        "examples/datapackages/{}".format(example)
+    )
 
     # create  path for results (we use the datapackage_dir to store results)
     results_path = os.path.join(
