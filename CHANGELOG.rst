@@ -9,7 +9,7 @@ Unreleased
 Features
 ########
 
-* Add postprocessing module
+* Add postprocessing module `#102 <https://github.com/oemof/oemof-tabular/pull/102>`_
 
 0.0.3 (2022-01-26)
 ------------------
