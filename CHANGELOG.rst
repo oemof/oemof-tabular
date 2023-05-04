@@ -7,14 +7,12 @@ Changelog
 Unreleased
 ------------------
 Features
-########
 
 * Add postprocessing module `#102 <https://github.com/oemof/oemof-tabular/pull/102>`_
 
 0.0.3 (2022-01-26)
 ------------------
 Fixes
-#####
 
 * Fix link by not setting constraints that limit direction `#38 <https://github.com/oemof/oemof-tabular/pull/38>`_
 * Fix storage investment `#33 <https://github.com/oemof/oemof-tabular/pull/33>`_
@@ -23,7 +21,6 @@ Fixes
 * Marginal cost `#23 <https://github.com/oemof/oemof-tabular/pull/23>`_
 
 Features
-########
 
 * Adjust to new oemof.solph structure `#21 <https://github.com/oemof/oemof-tabular/pull/21>`_
 * Allow to define custom foreign keys `#39 <https://github.com/oemof/oemof-tabular/pull/39>`_
