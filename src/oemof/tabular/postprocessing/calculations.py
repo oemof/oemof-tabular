@@ -1,9 +1,10 @@
-import pandas as pd
-import numpy as np
 from abc import abstractmethod
 from typing import List
 
-from . import core, naming, helper
+import numpy as np
+import pandas as pd
+
+from . import core, helper, naming
 
 
 class AggregatedFlows(core.Calculation):
@@ -17,9 +18,15 @@ class AggregatedFlows(core.Calculation):
         resample_mode: str = None,
         drop_component_to_component: bool = True,
     ):
-        if from_nodes and to_nodes and len(from_nodes) > 1 and len(to_nodes) > 1:
+        if (
+            from_nodes
+            and to_nodes
+            and len(from_nodes) > 1
+            and len(to_nodes) > 1
+        ):
             raise core.CalculationError(
-                "Either 'from_nodes' or 'to_nodes' must contain a single source/sink."
+                "Either 'from_nodes' or 'to_nodes' must contain a single "
+                "source/sink."
             )
         self.from_nodes = from_nodes
         self.to_nodes = to_nodes
@@ -118,7 +125,9 @@ class EPCosts(core.Calculation):
     name = "ep_costs"
 
     def calculate_result(self):
-        ep_costs = helper.filter_by_var_name(self.scalar_params, "investment_ep_costs")
+        ep_costs = helper.filter_by_var_name(
+            self.scalar_params, "investment_ep_costs"
+        )
         try:
             return ep_costs.unstack(2)["investment_ep_costs"]
         except KeyError:
@@ -168,8 +177,10 @@ class InvestedCapacityCosts(core.Calculation):
         )
         if invested_capacity_costs.empty:
             return pd.Series(dtype="object")
-        invested_capacity_costs.index = invested_capacity_costs.index.set_levels(
-            invested_capacity_costs.index.levels[2] + "_costs", level=2
+        invested_capacity_costs.index = (
+            invested_capacity_costs.index.set_levels(
+                invested_capacity_costs.index.levels[2] + "_costs", level=2
+            )
         )
         return invested_capacity_costs
 
@@ -183,13 +194,15 @@ class InvestedStorageCapacityCosts(core.Calculation):
 
     def calculate_result(self):
         invested_storage_capacity_costs = helper.multiply_var_with_param(
-            self.dependency("invested_storage_capacity"), self.dependency("ep_costs")
+            self.dependency("invested_storage_capacity"),
+            self.dependency("ep_costs"),
         )
         if invested_storage_capacity_costs.empty:
             return pd.Series(dtype="object")
         invested_storage_capacity_costs.index = (
             invested_storage_capacity_costs.index.set_levels(
-                invested_storage_capacity_costs.index.levels[2] + "_costs", level=2
+                invested_storage_capacity_costs.index.levels[2] + "_costs",
+                level=2,
             )
         )
         return invested_storage_capacity_costs
@@ -204,13 +217,17 @@ class SummedVariableCosts(core.Calculation):
             self.scalar_params, "variable_costs"
         ).unstack(2)["variable_costs"]
         variable_costs = variable_costs.loc[variable_costs != 0]
-        aggregated_flows = self.dependency("aggregated_flows").unstack(2).loc[:, "flow"]
+        aggregated_flows = (
+            self.dependency("aggregated_flows").unstack(2).loc[:, "flow"]
+        )
 
         summed_variable_costs = helper.multiply_var_with_param(
             aggregated_flows, variable_costs
         )
         summed_variable_costs = helper.set_index_level(
-            summed_variable_costs, level="var_name", value="summed_variable_costs"
+            summed_variable_costs,
+            level="var_name",
+            value="summed_variable_costs",
         )
         return summed_variable_costs
 
@@ -219,28 +236,34 @@ class SummedCarrierCosts(core.Calculation):
     """
     Calculates summed carrier costs
 
-    An `oemof.tabular` convention: Carrier costs are on inputs, marginal costs on output
+    An `oemof.tabular` convention: Carrier costs are on inputs,
+    marginal costs on output
     """
 
     name = "summed_carrier_costs"
     depends_on = {"summed_variable_costs": SummedVariableCosts}
 
     def calculate_result(self):
-        return helper.get_inputs(self.dependency("summed_variable_costs"), self.busses)
+        return helper.get_inputs(
+            self.dependency("summed_variable_costs"), self.busses
+        )
 
 
 class SummedMarginalCosts(core.Calculation):
     """
     Calculates summed marginal costs
 
-    An `oemof.tabular` convention: Carrier costs are on inputs, marginal costs on output
+    An `oemof.tabular` convention: Carrier costs are on inputs,
+    marginal costs on output
     """
 
     name = "summed_marginal_costs"
     depends_on = {"summed_variable_costs": SummedVariableCosts}
 
     def calculate_result(self):
-        return helper.get_outputs(self.dependency("summed_variable_costs"), self.busses)
+        return helper.get_outputs(
+            self.dependency("summed_variable_costs"), self.busses
+        )
 
 
 class TotalSystemCosts(core.Calculation):
@@ -262,7 +285,9 @@ class TotalSystemCosts(core.Calculation):
             ]
         )
         index = pd.MultiIndex.from_tuples([("system", "total_system_cost")])
-        total_system_cost = pd.DataFrame({"var_value": [all_costs.sum()]}, index=index)
+        total_system_cost = pd.DataFrame(
+            {"var_value": [all_costs.sum()]}, index=index
+        )
         return total_system_cost
 
 
@@ -276,7 +301,9 @@ def run_postprocessing(es):
     invested_capacity = InvestedCapacity(calculator).result
     invested_storage_capacity = InvestedStorageCapacity(calculator).result
     invested_capacity_costs = InvestedCapacityCosts(calculator).result
-    invested_storage_capacity_costs = InvestedStorageCapacityCosts(calculator).result
+    invested_storage_capacity_costs = InvestedStorageCapacityCosts(
+        calculator
+    ).result
     summed_carrier_costs = SummedCarrierCosts(calculator).result
     summed_marginal_costs = SummedMarginalCosts(calculator).result
     total_system_costs = TotalSystemCosts(calculator).result
@@ -295,9 +322,14 @@ def run_postprocessing(es):
     ]
     all_scalars = pd.concat(all_scalars, 0)
     all_scalars = naming.map_var_names(
-        all_scalars, calculator.scalar_params, calculator.busses, calculator.links
+        all_scalars,
+        calculator.scalar_params,
+        calculator.busses,
+        calculator.links,
     )
-    all_scalars = naming.add_component_info(all_scalars, calculator.scalar_params)
+    all_scalars = naming.add_component_info(
+        all_scalars, calculator.scalar_params
+    )
     all_scalars = pd.concat([all_scalars, total_system_costs], axis=0)
     all_scalars = all_scalars.sort_values(by=["carrier", "tech", "var_name"])
 

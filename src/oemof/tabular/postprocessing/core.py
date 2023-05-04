@@ -1,10 +1,10 @@
 import abc
-import logging
 import inspect
+import logging
 from dataclasses import dataclass
+from typing import Dict, Optional, Type, Union
 
 import pandas as pd
-from typing import Dict, Union, Optional, Type
 
 
 class CalculationError(Exception):
@@ -18,7 +18,9 @@ class ParametrizedCalculation:
 
 
 def get_dependency_name(
-    calculation: Union["Calculation", Type["Calculation"], ParametrizedCalculation]
+    calculation: Union[
+        "Calculation", Type["Calculation"], ParametrizedCalculation
+    ]
 ):
     if isinstance(calculation, Calculation):
         # Get name from instance
@@ -83,7 +85,9 @@ class Calculator:
                 else (
                     pd.Series(value[data_type], dtype="object")
                     if data_type == "scalars"
-                    else pd.DataFrame.from_dict(value[data_type], dtype="object")
+                    else pd.DataFrame.from_dict(
+                        value[data_type], dtype="object"
+                    )
                 )
             )
             for key, value in oemof_data.items()
@@ -96,7 +100,9 @@ class Calculator:
                 [
                     (*key, entry)
                     for entry in (
-                        series.index if data_type == "scalars" else series.columns
+                        series.index
+                        if data_type == "scalars"
+                        else series.columns
                     )
                 ],
                 names=["source", "target", "var_name"],
@@ -107,7 +113,9 @@ class Calculator:
                 series.columns = mindex
             results.append(series)
         if results:
-            return pd.concat(results, axis=(0 if data_type == "scalars" else 1))
+            return pd.concat(
+                results, axis=(0 if data_type == "scalars" else 1)
+            )
         return (
             pd.Series(dtype="object")
             if data_type == "scalars"
@@ -123,14 +131,17 @@ class Calculator:
 
     def add(
         self,
-        calculation: Union["Calculation", Type["Calculation"], ParametrizedCalculation],
+        calculation: Union[
+            "Calculation", Type["Calculation"], ParametrizedCalculation
+        ],
     ):
         """Adds calculation to calculations 'tree' if not yet present"""
         dependency_name = get_dependency_name(calculation)
         if isinstance(calculation, Calculation):
             if dependency_name in self.calculations:
                 raise CalculationError(
-                    f"Calculation '{calculation.__class__.__name__}' already exists in calculator"
+                    f"Calculation '{calculation.__class__.__name__}' "
+                    f"already exists in calculator"
                 )
             self.calculations[dependency_name] = calculation
             return
@@ -142,7 +153,9 @@ class Calculator:
                     self, **calculation.parameters
                 )
             else:
-                self.calculations[dependency_name] = calculation.calculation(self)
+                self.calculations[dependency_name] = calculation.calculation(
+                    self
+                )
             return
         if issubclass(calculation, Calculation):
             self.calculations[dependency_name] = calculation(self)
@@ -152,7 +165,9 @@ class Calculator:
     def get_result(self, dependency_name):
         """Returns result of given dependency"""
         if dependency_name not in self.calculations:
-            raise KeyError(f"Could not find calculation named '{dependency_name}'.")
+            raise KeyError(
+                f"Could not find calculation named '{dependency_name}'."
+            )
         return self.calculations[dependency_name].result
 
 

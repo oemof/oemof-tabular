@@ -1,12 +1,11 @@
-import pandas
 import pathlib
-
 from unittest import mock
 
+import pandas
 import pytest
-from oemof.tabular import datapackage  # noqa: F401
-from oemof.tabular.postprocessing import core, calculations
 
+from oemof.tabular import datapackage  # noqa: F401
+from oemof.tabular.postprocessing import calculations, core
 
 TEST_FILES_DIR = pathlib.Path(__file__).parent / "_files"
 
@@ -39,7 +38,9 @@ def test_dependency_name():
         "resample_mode=None_drop_component_to_component=True"
     )
 
-    name = core.get_dependency_name(ParametrizedCalculation(calculator, a=2, b=2))
+    name = core.get_dependency_name(
+        ParametrizedCalculation(calculator, a=2, b=2)
+    )
     assert name == "pc_a=2_b=2"
 
     name = core.get_dependency_name(ParametrizedCalculation(calculator, a=2))
@@ -49,7 +50,9 @@ def test_dependency_name():
     with pytest.raises(core.CalculationError):
         core.get_dependency_name(dep)
 
-    dep = core.ParametrizedCalculation(ParametrizedCalculation, {"a": 2, "b": 6})
+    dep = core.ParametrizedCalculation(
+        ParametrizedCalculation, {"a": 2, "b": 6}
+    )
     name = core.get_dependency_name(dep)
     assert name == "pc_a=2_b=6"
 
