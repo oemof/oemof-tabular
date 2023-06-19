@@ -59,12 +59,41 @@ def kwargs_to_parent(cls):
             if key in [f.name for f in dataclasses.fields(cls)]
         }
 
-        original_init(self, **dataclass_kwargs)
+        # pass args and kwargs to the dataclasses' __init_
+        original_init(self, *args, **dataclass_kwargs)
 
-        # TODO: Could move the following lines to a __post_init__
+        # update kwargs with default arguments
         kwargs.update(dataclasses.asdict(self))
 
-        super(cls, self).__init__(*args, **kwargs)
+        # Pass only those arguments to solph component's __init__ that
+        # are expected.
+        init_expected_args = list(
+            inspect.signature(super(cls, self).__init__).parameters
+        )
+
+        kwargs_expected = {
+            key: value
+            for key, value in kwargs.items()
+            if key in init_expected_args
+        }
+
+        kwargs_unexpected = {
+            key: value
+            for key, value in kwargs.items()
+            if key not in init_expected_args
+        }
+
+        if "custom_attributes" in init_expected_args:
+            kwargs_expected["custom_attributes"] = kwargs_unexpected
+
+        if kwargs_unexpected and "custom_attributes" not in init_expected_args:
+            warnings.warn(
+                f"No custom_attributes in parent class {cls.__mro__[1]}"
+            )
+
+        super(cls, self).__init__(
+            **kwargs_expected,
+        )
 
         if not kwargs.get("build_solph_components") is False:
             self.build_solph_components()
