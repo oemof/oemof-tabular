@@ -21,7 +21,7 @@ class GenericIntegralLimit(ConstraintFacade):
 
         # check if there are flows with key
         flows = {}
-        for (i, o) in model.flows:
+        for i, o in model.flows:
             if hasattr(model.flows[i, o], self.keyword):
                 flows[(i, o)] = model.flows[i, o]
 

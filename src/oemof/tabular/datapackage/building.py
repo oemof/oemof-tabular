@@ -374,7 +374,6 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
         return filepath
 
     else:
-
         if scheme in ["http", "https"]:
             _http(url, copypath)
 

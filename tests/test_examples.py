@@ -53,7 +53,6 @@ def test_example_datapackage_readability():
     for example in pkg.resource_listdir(
         "oemof.tabular", "examples/datapackages"
     ):
-
         print("Runnig reading datapackage example {} ...".format(example))
         systems.append(
             ES.from_datapackage(
