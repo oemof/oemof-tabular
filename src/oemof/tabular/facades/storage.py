@@ -2,7 +2,7 @@ from dataclasses import field
 
 from oemof.solph import Bus, Flow, Investment
 from oemof.solph.components import GenericStorage
-from oemof.solph.plumbing import sequence
+from oemof.solph._plumbing import sequence
 
 from oemof.tabular._facade import Facade, dataclass_facade
 

@@ -1,5 +1,6 @@
 from oemof.solph import Bus
-from oemof.solph.custom import ElectricalBus, ElectricalLine
+from oemof.solph.buses.experimental import ElectricalBus
+from oemof.solph.flows.experimental import ElectricalLine
 
 from .backpressure_turbine import BackpressureTurbine
 from .commodity import Commodity
