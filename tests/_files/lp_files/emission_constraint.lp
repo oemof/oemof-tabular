@@ -24,9 +24,6 @@ c_e_Bus_balance(ch4_2)_:
 +1 flow(ch4_import_ch4_2)
 = 0
 
-c_e_ONE_VAR_CONSTANT:
-ONE_VAR_CONSTANT = 1.0
-
 bounds
    0 <= flow(ch4_import_ch4_0) <= +inf
    0 <= flow(ch4_import_ch4_1) <= +inf

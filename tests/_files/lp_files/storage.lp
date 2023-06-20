@@ -110,9 +110,6 @@ c_u_GenericInvestmentStorageBlock_max_storage_content(storage_2)_:
 +1 GenericInvestmentStorageBlock_storage_content(storage_2)
 <= 0
 
-c_e_ONE_VAR_CONSTANT:
-ONE_VAR_CONSTANT = 1.0
-
 bounds
    0 <= flow(electricity_storage_0) <= +inf
    0 <= flow(electricity_storage_1) <= +inf

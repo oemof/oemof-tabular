@@ -20,9 +20,6 @@ c_e_BusBlock_balance(electricity_2)_:
 +1 flow(electricity_excess_2)
 = 0
 
-c_e_ONE_VAR_CONSTANT:
-ONE_VAR_CONSTANT = 1.0
-
 bounds
    0 <= flow(electricity_excess_0) <= 1000
    0 <= flow(electricity_excess_1) <= 1000

@@ -24,17 +24,14 @@ c_e_InvestmentFlowBlock_fixed(wind_electricity_0)_:
 = 2.5
 
 c_e_InvestmentFlowBlock_fixed(wind_electricity_1)_:
--0.10000000000000001 InvestmentFlowBlock_invest(wind_electricity)
+-0.1 InvestmentFlowBlock_invest(wind_electricity)
 +1 flow(wind_electricity_1)
-= 1
+= 1.0
 
 c_e_InvestmentFlowBlock_fixed(wind_electricity_2)_:
--0.29999999999999999 InvestmentFlowBlock_invest(wind_electricity)
+-0.3 InvestmentFlowBlock_invest(wind_electricity)
 +1 flow(wind_electricity_2)
-= 3
-
-c_e_ONE_VAR_CONSTANT:
-ONE_VAR_CONSTANT = 1.0
+= 3.0
 
 bounds
    0 <= flow(wind_electricity_0) <= +inf

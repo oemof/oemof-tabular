@@ -26,11 +26,8 @@ c_u_SimpleFlowBlock_full_load_time_max_constr(biomass_commodity_biomass)_:
 +1 flow(biomass_commodity_biomass_2)
 <= 1000
 
-c_e_ONE_VAR_CONSTANT:
-ONE_VAR_CONSTANT = 1.0
-
 bounds
-   0 <= flow(biomass_commodity_biomass_0) <= 900
-   0 <= flow(biomass_commodity_biomass_1) <= 500
-   0 <= flow(biomass_commodity_biomass_2) <= 400
+   0 <= flow(biomass_commodity_biomass_0) <= 900.0
+   0 <= flow(biomass_commodity_biomass_1) <= 500.0
+   0 <= flow(biomass_commodity_biomass_2) <= 400.0
 end

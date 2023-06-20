@@ -71,9 +71,6 @@ c_e_LinkBlock_relation(link_bus2_bus1_2)_:
 +1 flow(link_bus1_2)
 = 0
 
-c_e_ONE_VAR_CONSTANT:
-ONE_VAR_CONSTANT = 1.0
-
 bounds
    0 <= flow(bus1_link_0) <= +inf
    0 <= flow(bus1_link_1) <= +inf
