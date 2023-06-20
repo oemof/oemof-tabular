@@ -65,6 +65,8 @@ def compare_lp_files(lp_file_1, lp_file_2, ignored=None):
     lines_1 = sorted(lines_1)
     lines_2 = sorted(lines_2)
 
+    assert len(lines_1) == len(lines_2)
+
     if not lines_1 == lines_2:
         raise AssertionError(
             "Failed matching lp_file_1 with lp_file_2:\n"
