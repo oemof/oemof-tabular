@@ -76,7 +76,7 @@ def test_scripting_examples():
     exclude = ["plotting.py", "__pycache__"]
     for example in pkg.resource_listdir("oemof.tabular", "examples/scripting"):
         if not example.endswith(".ipynb") and example not in exclude:
-            print("Runnig scripting example {} ...".format(example))
+            print("Running scripting example {} ...".format(example))
             exec(
                 open(
                     pkg.resource_filename(
