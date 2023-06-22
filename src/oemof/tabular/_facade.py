@@ -19,10 +19,10 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 import dataclasses
+import inspect
 import warnings
 from collections import deque
 from dataclasses import dataclass
-import inspect
 
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Node

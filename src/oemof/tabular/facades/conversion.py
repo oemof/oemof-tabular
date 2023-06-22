@@ -1,9 +1,9 @@
 from dataclasses import field
 
+from oemof.solph._plumbing import sequence
+from oemof.solph.buses import Bus
 from oemof.solph.components import Transformer
 from oemof.solph.flows import Flow
-from oemof.solph.buses import Bus
-from oemof.solph._plumbing import sequence
 
 from oemof.tabular._facade import Facade, dataclass_facade
 

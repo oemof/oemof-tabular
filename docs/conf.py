@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
+
 from oemof.tabular.facades import TYPEMAP
 
 sys.path.append("code")
