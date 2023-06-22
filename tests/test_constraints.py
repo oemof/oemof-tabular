@@ -473,6 +473,7 @@ class TestConstraints:
             bus=bus,
             carrier="ch4",
             tech="import",
+            capacity=1000,
             output_parameters={"custom_attributes": {"emission_factor": 2.5}},
         )
 
