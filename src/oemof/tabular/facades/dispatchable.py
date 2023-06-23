@@ -1,7 +1,9 @@
 from dataclasses import field
 from typing import Sequence, Union
 
-from oemof.solph import Bus, Flow, Source
+from oemof.solph.buses import Bus
+from oemof.solph.components import Source
+from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
 

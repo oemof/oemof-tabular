@@ -1,7 +1,9 @@
 from dataclasses import field
 from typing import Sequence, Union
 
-from oemof.solph import Bus, Flow, Sink
+from oemof.solph.buses import Bus
+from oemof.solph.components import Sink
+from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
 
@@ -59,7 +61,7 @@ class Load(Sink, Facade):
                 self.bus: Flow(
                     nominal_value=self.amount,
                     fix=self.profile,
-                    variable_cost=self.marginal_utility,
+                    variable_costs=self.marginal_utility,
                     **self.input_parameters,
                 )
             }

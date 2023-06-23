@@ -1,6 +1,8 @@
 from dataclasses import field
 
-from oemof.solph import Bus, Flow, Source
+from oemof.solph.buses import Bus
+from oemof.solph.components import Source
+from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
 
@@ -61,7 +63,7 @@ class Commodity(Source, Facade):
         f = Flow(
             nominal_value=self.amount,
             variable_costs=self.marginal_cost,
-            summed_max=1,
+            full_load_time_max=1,
             **self.output_parameters,
         )
 

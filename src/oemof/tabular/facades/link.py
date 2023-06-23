@@ -1,6 +1,7 @@
-from oemof.solph import Bus, Flow
-from oemof.solph.custom import Link
-from oemof.solph.plumbing import sequence
+from oemof.solph._plumbing import sequence
+from oemof.solph.buses import Bus
+from oemof.solph.components.experimental import Link
+from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
 
