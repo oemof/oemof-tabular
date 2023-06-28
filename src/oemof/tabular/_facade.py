@@ -28,7 +28,8 @@ from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Node
 from oemof.solph import Investment
 from oemof.solph.components import GenericStorage
-from oemof.solph.components.experimental import Link
+from oemof.solph.components import Link
+
 from oemof.tools.debugging import SuspiciousUsageWarning
 
 # Switch off SuspiciousUsageWarning
