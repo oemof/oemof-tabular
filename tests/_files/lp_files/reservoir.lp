@@ -48,6 +48,9 @@ bounds
    0 <= flow(reservoir_electricity_0_1) <= 50
    0 <= flow(reservoir_electricity_0_2) <= 50
    0 <= GenericStorageBlock_storage_content(reservoir_1) <= 750.0
+   0 <= flow(reservoir_inflow_reservoir_0_0) <= 1
    0 <= GenericStorageBlock_storage_content(reservoir_2) <= 750.0
+   0 <= flow(reservoir_inflow_reservoir_0_1) <= 2
    0 <= GenericStorageBlock_storage_content(reservoir_3) <= 750.0
+   0 <= flow(reservoir_inflow_reservoir_0_2) <= 6
 end
