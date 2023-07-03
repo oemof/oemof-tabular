@@ -1,6 +1,6 @@
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
-from oemof.solph.components.experimental import Link
+from oemof.solph.components import Link
 from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade

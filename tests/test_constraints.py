@@ -4,7 +4,6 @@ import re
 from difflib import unified_diff
 
 import pandas as pd
-import pytest
 from oemof.solph import helpers
 
 from oemof import solph
@@ -371,7 +370,6 @@ class TestConstraints:
 
         self.compare_to_reference_lp("excess.lp")
 
-    @pytest.mark.skip(reason="Will be fixed with `oemof-solph 0.5.1`")
     def test_link(self):
         r""" """
         bus1 = solph.Bus("bus1")
