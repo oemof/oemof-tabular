@@ -189,6 +189,7 @@ class Facade(Node):
                     ),
                     minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
+                    lifetime=getattr(self, "lifetime", None),
                 )
             else:
                 self.investment = Investment(
@@ -197,6 +198,7 @@ class Facade(Node):
                     ),
                     minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
+                    lifetime=getattr(self, "lifetime", None),
                 )
         else:
             self.investment = Investment(
