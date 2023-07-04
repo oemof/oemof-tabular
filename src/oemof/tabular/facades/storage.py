@@ -37,7 +37,7 @@ class Storage(GenericStorage, Facade):
     input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
-    ouput_parameters: dict (optional)
+    output_parameters: dict (optional)
         Set parameters on the output edge of the storage (see oemof.solph for
         more information on possible parameters)
 
