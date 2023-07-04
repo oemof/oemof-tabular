@@ -1,12 +1,10 @@
-import pandas as pd
-from oemof.solph import EnergySystem, components, buses, flows
-import inspect
 import logging
 import os
 import re
 from difflib import unified_diff
 
-from oemof.solph import helpers
+import pandas as pd
+from oemof.solph import buses, helpers
 
 from oemof import solph
 from oemof.tabular.constraint_facades import GenericIntegralLimit
