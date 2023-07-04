@@ -40,6 +40,9 @@ class Volatile(Source, Facade):
         Minimum install capacity if investment
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization. Default: None.
 
 
     The mathematical representations for this components are dependent on the
@@ -107,6 +110,8 @@ class Volatile(Source, Facade):
     marginal_cost: float = 0
 
     capacity_cost: float = None
+
+    lifetime: int = None
 
     output_parameters: dict = field(default_factory=dict)
 

@@ -206,6 +206,7 @@ class Facade(Node):
                 ),
                 minimum=getattr(self, "capacity_minimum", 0),
                 existing=getattr(self, "capacity", 0),
+                lifetime=getattr(self, "lifetime", None),
             )
         return self.investment
 
