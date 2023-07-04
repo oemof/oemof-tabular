@@ -27,6 +27,9 @@ class Storage(GenericStorage, Facade):
         Investment costs for the storage unit e.g in €/MW-capacity
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization. Default: None.
     storage_capacity_potential: numeric
         Potential of the investment for storage capacity in MWh. Default: +inf.
     capacity_potential: numeric
@@ -104,6 +107,8 @@ class Storage(GenericStorage, Facade):
 
     expandable: bool = False
 
+    lifetime: int = None
+
     marginal_cost: float = 0
 
     efficiency: float = 1
@@ -142,12 +147,15 @@ class Storage(GenericStorage, Facade):
                         "capacity_potential", "capacity"
                     ),
                     existing=self.capacity,
+                    lifetime=getattr(self, "lifetime", None),
                 ),
                 **self.input_parameters,
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
-                investment=Investment(existing=self.capacity),
+                investment=Investment(existing=self.capacity,
+                                      lifetime=getattr(self, "lifetime", None),
+                                      ),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters,
             )

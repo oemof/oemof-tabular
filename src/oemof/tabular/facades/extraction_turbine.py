@@ -46,6 +46,9 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         chp capacity.
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization. Default: None.
 
 
     The mathematical description is derived from the oemof base class
@@ -125,6 +128,8 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     capacity_cost: float = None
 
     expandable: bool = False
+
+    lifetime: int = None
 
     input_parameters: dict = field(default_factory=dict)
 
