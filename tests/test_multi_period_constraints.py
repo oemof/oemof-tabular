@@ -251,7 +251,8 @@ class TestMultiPeriodConstraints:
         )
         self.energysystem.add(bus_el, storage)
         self.compare_to_reference_lp(
-            "storage_investment_brown_field_no_storage_capacity_cost_multi_period.lp"
+            "storage_investment_brown_field_no_storage_capacity_cost"
+            "_multi_period.lp"
         )
 
     def test_backpressure_investment_green_field(self):
