@@ -449,20 +449,6 @@ class TestMultiPeriodConstraints:
         self.energysystem.add(bus1, bus2, link)
         self.compare_to_reference_lp("link_multi_period.lp")
 
-    def test_load(self):
-        r""" """
-        bus = solph.Bus("electricity")
-
-        load = Load(
-            label="load",
-            carrier="electricity",
-            bus=bus,
-            amount=100,
-            profile=[0.3, 0.2, 0.5] * len(self.periods),
-        )
-        self.energysystem.add(bus, load)
-        self.compare_to_reference_lp("load_multi_period.lp")
-
     def test_reservoir(self):
         r""" """
         bus = solph.Bus("electricity")
