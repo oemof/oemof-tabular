@@ -190,6 +190,8 @@ class TestMultiPeriodConstraints:
             efficiency=0.9,
             expandable=True,
             lifetime=20,
+            age=0,
+            fixed_costs=30,
             storage_capacity=0,  # No initial storage capacity
             storage_capacity_potential=10,
             storage_capacity_cost=1300,
@@ -216,6 +218,8 @@ class TestMultiPeriodConstraints:
             efficiency=0.9,
             expandable=True,
             lifetime=20,
+            age=5,
+            fixed_costs=30,
             storage_capacity=2,  # Existing initial storage capacity
             storage_capacity_potential=10,
             storage_capacity_cost=1300,
@@ -243,6 +247,8 @@ class TestMultiPeriodConstraints:
             efficiency=0.9,
             expandable=True,
             lifetime=20,
+            age=5,
+            fixed_costs=30,
             storage_capacity=2,  # Existing initial storage capacity
             storage_capacity_potential=10,
             capacity=1,  # Existing capacity
@@ -277,6 +283,8 @@ class TestMultiPeriodConstraints:
             thermal_efficiency=0.35,
             expandable=True,
             lifetime=20,
+            age=0,
+            fixed_costs=30,
         )
         self.energysystem.add(bus_el, bus_fuel, bus_heat, bpchp)
         self.compare_to_reference_lp(
@@ -305,6 +313,8 @@ class TestMultiPeriodConstraints:
             thermal_efficiency=0.35,
             expandable=True,
             lifetime=20,
+            age=5,
+            fixed_costs=30,
         )
         self.energysystem.add(bus_el, bus_fuel, bus_heat, bpchp)
         self.compare_to_reference_lp(
@@ -334,6 +344,8 @@ class TestMultiPeriodConstraints:
             thermal_efficiency=0.35,
             expandable=True,
             lifetime=20,
+            age=0,
+            fixed_costs=30,
         )
         self.energysystem.add(bus_el, bus_fuel, bus_heat, extchp)
         self.compare_to_reference_lp(
@@ -363,6 +375,8 @@ class TestMultiPeriodConstraints:
             thermal_efficiency=0.35,
             expandable=True,
             lifetime=20,
+            age=5,
+            fixed_costs=30,
         )
         self.energysystem.add(bus_el, bus_fuel, bus_heat, extchp)
         self.compare_to_reference_lp(
@@ -486,6 +500,8 @@ class TestMultiPeriodConstraints:
             max_storage_level=[0.75, 0.5, 0.25] * len(self.periods),
             expandable=True,
             lifetime=20,
+            age=5,
+            fixed_costs=30,
         )
         self.energysystem.add(bus, storage)
         self.compare_to_reference_lp("storage_multi_period.lp")
@@ -505,7 +521,9 @@ class TestMultiPeriodConstraints:
             expandable=True,
             capacity_potential=100,
             profile=[0.25, 0.1, 0.3] * len(self.periods),
-            lifetime=5,
+            lifetime=20,
+            age=5,
+            fixed_costs=30,
         )
 
         self.energysystem.add(bus_el, volatile)
