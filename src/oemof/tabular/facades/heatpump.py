@@ -1,4 +1,5 @@
 from dataclasses import field
+from typing import Sequence, Union
 
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
@@ -32,6 +33,18 @@ class HeatPump(Transformer, Facade):
         conversion output capacity.
     expandable: boolean or numeric (binary)
         True, if capacity can be expanded within optimization. Default: False.
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization.
+        Note: Only applicable for a multi-period model. Default: None.
+    age : int (optional)
+        The initial age of a flow (usually given in years);
+        once it reaches its lifetime (considering also
+        an initial age), the flow is forced to 0.
+        Note: Only applicable for a multi-period model. Default: None.
+    fixed_costs : numeric (iterable or scalar) (optional)
+        The fixed costs associated with a flow.
+        Note: Only applicable for a multi-period model. Default: None.
     capacity_potential: numeric
         Maximum invest capacity in unit of output capacity. Default: +inf.
     low_temperature_parameters: dict (optional)
@@ -103,6 +116,11 @@ class HeatPump(Transformer, Facade):
 
     expandable: bool = False
 
+    lifetime: int = None
+
+    age: int = None
+
+    fixed_costs: Union[float, Sequence[float]] = None
     capacity_potential: float = float("+inf")
 
     low_temperature_parameters: dict = field(default_factory=dict)

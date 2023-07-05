@@ -1,4 +1,5 @@
 from dataclasses import field
+from typing import Sequence, Union
 
 from oemof.solph import Bus, Flow, Investment
 from oemof.solph._plumbing import sequence
@@ -29,7 +30,16 @@ class Storage(GenericStorage, Facade):
         True, if capacity can be expanded within optimization. Default: False.
     lifetime: int (optional)
         Lifetime of the component in years. Necessary for multi-period
-        investment optimization. Default: None.
+        investment optimization.
+        Note: Only applicable for a multi-period model. Default: None.
+    age : int (optional)
+        The initial age of a flow (usually given in years);
+        once it reaches its lifetime (considering also
+        an initial age), the flow is forced to 0.
+        Note: Only applicable for a multi-period model. Default: None.
+    fixed_costs : numeric (iterable or scalar) (optional)
+        The fixed costs associated with a flow.
+        Note: Only applicable for a multi-period model. Default: None.
     storage_capacity_potential: numeric
         Potential of the investment for storage capacity in MWh. Default: +inf.
     capacity_potential: numeric
@@ -109,6 +119,10 @@ class Storage(GenericStorage, Facade):
 
     lifetime: int = None
 
+    age: int = 0
+
+    fixed_costs: Union[float, Sequence[float]] = 0
+
     marginal_cost: float = 0
 
     efficiency: float = 1
@@ -148,6 +162,8 @@ class Storage(GenericStorage, Facade):
                     ),
                     existing=self.capacity,
                     lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", None),
+                    fixed_costs=getattr(self, "fixed_costs", None),
                 ),
                 **self.input_parameters,
             )
@@ -156,6 +172,7 @@ class Storage(GenericStorage, Facade):
                 investment=Investment(
                     existing=self.capacity,
                     lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", None),
                 ),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters,

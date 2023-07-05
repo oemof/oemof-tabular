@@ -48,7 +48,16 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         True, if capacity can be expanded within optimization. Default: False.
     lifetime: int (optional)
         Lifetime of the component in years. Necessary for multi-period
-        investment optimization. Default: None.
+        investment optimization.
+        Note: Only applicable for a multi-period model. Default: None.
+    age : int (optional)
+        The initial age of a flow (usually given in years);
+        once it reaches its lifetime (considering also
+        an initial age), the flow is forced to 0.
+        Note: Only applicable for a multi-period model. Default: None.
+    fixed_costs : numeric (iterable or scalar) (optional)
+        The fixed costs associated with a flow.
+        Note: Only applicable for a multi-period model. Default: None.
 
 
     The mathematical description is derived from the oemof base class
@@ -130,6 +139,10 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     expandable: bool = False
 
     lifetime: int = None
+
+    age: int = None
+
+    fixed_costs: Union[float, Sequence[float]] = None
 
     input_parameters: dict = field(default_factory=dict)
 
