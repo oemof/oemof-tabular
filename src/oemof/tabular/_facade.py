@@ -180,7 +180,9 @@ class Facade(Node):
                 "attribute `capacity_cost` of component {}!"
             )
             raise ValueError(msg.format(self.label))
+        # If storage component
         if isinstance(self, GenericStorage):
+            # If invest costs/MWH are given
             if self.storage_capacity_cost is not None:
                 self.investment = Investment(
                     ep_costs=self.storage_capacity_cost,
@@ -191,6 +193,7 @@ class Facade(Node):
                     existing=getattr(self, "storage_capacity", 0),
                     lifetime=getattr(self, "lifetime", None),
                 )
+            # If invest costs/MWh are not given
             else:
                 self.investment = Investment(
                     maximum=self._get_maximum_additional_invest(
@@ -200,6 +203,7 @@ class Facade(Node):
                     existing=getattr(self, "storage_capacity", 0),
                     lifetime=getattr(self, "lifetime", None),
                 )
+        # If other component than storage
         else:
             self.investment = Investment(
                 ep_costs=self.capacity_cost,
