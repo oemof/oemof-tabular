@@ -2,12 +2,13 @@
 
 min 
 objective:
-+293.55224700139365 InvestmentFlowBlock_invest(bus_el_storage_0)
-+240.8150867521249 InvestmentFlowBlock_invest(bus_el_storage_1)
-+197.55224700139365 InvestmentFlowBlock_invest(bus_el_storage_2)
-+1590.0746712575487 GenericInvestmentStorageBlock_invest(storage_0)
-+1304.4150532406763 GenericInvestmentStorageBlock_invest(storage_1)
-+1070.0746712575487 GenericInvestmentStorageBlock_invest(storage_2)
++1179.5623893526972 ONE_VAR_CONSTANT
++793.9061073460653 InvestmentFlowBlock_invest(bus_el_storage_0)
++577.5388911740415 InvestmentFlowBlock_invest(bus_el_storage_1)
++424.1577145524276 InvestmentFlowBlock_invest(bus_el_storage_2)
++2090.42853160222 GenericInvestmentStorageBlock_invest(storage_0)
++1641.138857662593 GenericInvestmentStorageBlock_invest(storage_1)
++1296.6801388085826 GenericInvestmentStorageBlock_invest(storage_2)
 
 s.t.
 
@@ -449,6 +450,7 @@ c_u_GenericInvestmentStorageBlock_max_storage_content(storage_2_8)_:
 <= 0
 
 bounds
+   1 <= ONE_VAR_CONSTANT <= 1
    0 <= InvestmentFlowBlock_invest(bus_el_storage_0) <= 4
    0 <= InvestmentFlowBlock_invest(bus_el_storage_1) <= 4
    0 <= InvestmentFlowBlock_invest(bus_el_storage_2) <= 4

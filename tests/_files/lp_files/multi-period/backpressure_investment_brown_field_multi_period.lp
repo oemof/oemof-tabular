@@ -2,9 +2,10 @@
 
 min 
 objective:
-+61.15671812529034 InvestmentFlowBlock_invest(backpressure_electricity_0)
-+50.16980974002601 InvestmentFlowBlock_invest(backpressure_electricity_1)
-+41.15671812529034 InvestmentFlowBlock_invest(backpressure_electricity_2)
++393187.4631175658 ONE_VAR_CONSTANT
++561.5105784699618 InvestmentFlowBlock_invest(backpressure_electricity_0)
++386.89361416194254 InvestmentFlowBlock_invest(backpressure_electricity_1)
++267.76218567632424 InvestmentFlowBlock_invest(backpressure_electricity_2)
 +0.6 flow(fuel_backpressure_0_0)
 +0.6 flow(fuel_backpressure_0_1)
 +0.6 flow(fuel_backpressure_0_2)
@@ -16,42 +17,6 @@ objective:
 +0.40378279986483445 flow(fuel_backpressure_2_8)
 
 s.t.
-
-c_e_BusBlock_balance(fuel_0_0)_:
-+1 flow(fuel_backpressure_0_0)
-= 0
-
-c_e_BusBlock_balance(fuel_0_1)_:
-+1 flow(fuel_backpressure_0_1)
-= 0
-
-c_e_BusBlock_balance(fuel_0_2)_:
-+1 flow(fuel_backpressure_0_2)
-= 0
-
-c_e_BusBlock_balance(fuel_1_3)_:
-+1 flow(fuel_backpressure_1_3)
-= 0
-
-c_e_BusBlock_balance(fuel_1_4)_:
-+1 flow(fuel_backpressure_1_4)
-= 0
-
-c_e_BusBlock_balance(fuel_1_5)_:
-+1 flow(fuel_backpressure_1_5)
-= 0
-
-c_e_BusBlock_balance(fuel_2_6)_:
-+1 flow(fuel_backpressure_2_6)
-= 0
-
-c_e_BusBlock_balance(fuel_2_7)_:
-+1 flow(fuel_backpressure_2_7)
-= 0
-
-c_e_BusBlock_balance(fuel_2_8)_:
-+1 flow(fuel_backpressure_2_8)
-= 0
 
 c_e_BusBlock_balance(heat_0_0)_:
 +1 flow(backpressure_heat_0_0)
@@ -87,6 +52,42 @@ c_e_BusBlock_balance(heat_2_7)_:
 
 c_e_BusBlock_balance(heat_2_8)_:
 +1 flow(backpressure_heat_2_8)
+= 0
+
+c_e_BusBlock_balance(fuel_0_0)_:
++1 flow(fuel_backpressure_0_0)
+= 0
+
+c_e_BusBlock_balance(fuel_0_1)_:
++1 flow(fuel_backpressure_0_1)
+= 0
+
+c_e_BusBlock_balance(fuel_0_2)_:
++1 flow(fuel_backpressure_0_2)
+= 0
+
+c_e_BusBlock_balance(fuel_1_3)_:
++1 flow(fuel_backpressure_1_3)
+= 0
+
+c_e_BusBlock_balance(fuel_1_4)_:
++1 flow(fuel_backpressure_1_4)
+= 0
+
+c_e_BusBlock_balance(fuel_1_5)_:
++1 flow(fuel_backpressure_1_5)
+= 0
+
+c_e_BusBlock_balance(fuel_2_6)_:
++1 flow(fuel_backpressure_2_6)
+= 0
+
+c_e_BusBlock_balance(fuel_2_7)_:
++1 flow(fuel_backpressure_2_7)
+= 0
+
+c_e_BusBlock_balance(fuel_2_8)_:
++1 flow(fuel_backpressure_2_8)
 = 0
 
 c_e_BusBlock_balance(electricity_0_0)_:
@@ -323,6 +324,7 @@ c_u_InvestmentFlowBlock_max(backpressure_electricity_2_8)_:
 <= 0
 
 bounds
+   1 <= ONE_VAR_CONSTANT <= 1
    0 <= InvestmentFlowBlock_invest(backpressure_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_invest(backpressure_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_invest(backpressure_electricity_2) <= +inf

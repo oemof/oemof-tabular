@@ -23,51 +23,6 @@ objective:
 
 s.t.
 
-c_e_BusBlock_balance(bus2_0_0)_:
-+1 flow(link_bus2_0_0)
--1 flow(bus2_link_0_0)
-= 0
-
-c_e_BusBlock_balance(bus2_0_1)_:
-+1 flow(link_bus2_0_1)
--1 flow(bus2_link_0_1)
-= 0
-
-c_e_BusBlock_balance(bus2_0_2)_:
-+1 flow(link_bus2_0_2)
--1 flow(bus2_link_0_2)
-= 0
-
-c_e_BusBlock_balance(bus2_1_3)_:
-+1 flow(link_bus2_1_3)
--1 flow(bus2_link_1_3)
-= 0
-
-c_e_BusBlock_balance(bus2_1_4)_:
-+1 flow(link_bus2_1_4)
--1 flow(bus2_link_1_4)
-= 0
-
-c_e_BusBlock_balance(bus2_1_5)_:
-+1 flow(link_bus2_1_5)
--1 flow(bus2_link_1_5)
-= 0
-
-c_e_BusBlock_balance(bus2_2_6)_:
-+1 flow(link_bus2_2_6)
--1 flow(bus2_link_2_6)
-= 0
-
-c_e_BusBlock_balance(bus2_2_7)_:
-+1 flow(link_bus2_2_7)
--1 flow(bus2_link_2_7)
-= 0
-
-c_e_BusBlock_balance(bus2_2_8)_:
-+1 flow(link_bus2_2_8)
--1 flow(bus2_link_2_8)
-= 0
-
 c_e_BusBlock_balance(bus1_0_0)_:
 +1 flow(link_bus1_0_0)
 -1 flow(bus1_link_0_0)
@@ -111,6 +66,51 @@ c_e_BusBlock_balance(bus1_2_7)_:
 c_e_BusBlock_balance(bus1_2_8)_:
 +1 flow(link_bus1_2_8)
 -1 flow(bus1_link_2_8)
+= 0
+
+c_e_BusBlock_balance(bus2_0_0)_:
++1 flow(link_bus2_0_0)
+-1 flow(bus2_link_0_0)
+= 0
+
+c_e_BusBlock_balance(bus2_0_1)_:
++1 flow(link_bus2_0_1)
+-1 flow(bus2_link_0_1)
+= 0
+
+c_e_BusBlock_balance(bus2_0_2)_:
++1 flow(link_bus2_0_2)
+-1 flow(bus2_link_0_2)
+= 0
+
+c_e_BusBlock_balance(bus2_1_3)_:
++1 flow(link_bus2_1_3)
+-1 flow(bus2_link_1_3)
+= 0
+
+c_e_BusBlock_balance(bus2_1_4)_:
++1 flow(link_bus2_1_4)
+-1 flow(bus2_link_1_4)
+= 0
+
+c_e_BusBlock_balance(bus2_1_5)_:
++1 flow(link_bus2_1_5)
+-1 flow(bus2_link_1_5)
+= 0
+
+c_e_BusBlock_balance(bus2_2_6)_:
++1 flow(link_bus2_2_6)
+-1 flow(bus2_link_2_6)
+= 0
+
+c_e_BusBlock_balance(bus2_2_7)_:
++1 flow(link_bus2_2_7)
+-1 flow(bus2_link_2_7)
+= 0
+
+c_e_BusBlock_balance(bus2_2_8)_:
++1 flow(link_bus2_2_8)
+-1 flow(bus2_link_2_8)
 = 0
 
 c_e_LinkBlock_relation(link_bus1_bus2_0_0)_:
@@ -222,15 +222,6 @@ bounds
    0 <= flow(link_bus2_2_6) <= 100
    0 <= flow(link_bus2_2_7) <= 100
    0 <= flow(link_bus2_2_8) <= 100
-   0 <= flow(bus2_link_0_0) <= +inf
-   0 <= flow(bus2_link_0_1) <= +inf
-   0 <= flow(bus2_link_0_2) <= +inf
-   0 <= flow(bus2_link_1_3) <= +inf
-   0 <= flow(bus2_link_1_4) <= +inf
-   0 <= flow(bus2_link_1_5) <= +inf
-   0 <= flow(bus2_link_2_6) <= +inf
-   0 <= flow(bus2_link_2_7) <= +inf
-   0 <= flow(bus2_link_2_8) <= +inf
    0 <= flow(bus1_link_0_0) <= +inf
    0 <= flow(bus1_link_0_1) <= +inf
    0 <= flow(bus1_link_0_2) <= +inf
@@ -240,4 +231,13 @@ bounds
    0 <= flow(bus1_link_2_6) <= +inf
    0 <= flow(bus1_link_2_7) <= +inf
    0 <= flow(bus1_link_2_8) <= +inf
+   0 <= flow(bus2_link_0_0) <= +inf
+   0 <= flow(bus2_link_0_1) <= +inf
+   0 <= flow(bus2_link_0_2) <= +inf
+   0 <= flow(bus2_link_1_3) <= +inf
+   0 <= flow(bus2_link_1_4) <= +inf
+   0 <= flow(bus2_link_1_5) <= +inf
+   0 <= flow(bus2_link_2_6) <= +inf
+   0 <= flow(bus2_link_2_7) <= +inf
+   0 <= flow(bus2_link_2_8) <= +inf
 end

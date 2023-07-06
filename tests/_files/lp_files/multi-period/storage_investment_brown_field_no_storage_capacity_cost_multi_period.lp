@@ -2,9 +2,13 @@
 
 min 
 objective:
-+293.55224700139365 InvestmentFlowBlock_invest(bus_el_storage_0)
-+240.8150867521249 InvestmentFlowBlock_invest(bus_el_storage_1)
-+197.55224700139365 InvestmentFlowBlock_invest(bus_el_storage_2)
++1179.5623893526972 ONE_VAR_CONSTANT
++793.9061073460653 InvestmentFlowBlock_invest(bus_el_storage_0)
++577.5388911740415 InvestmentFlowBlock_invest(bus_el_storage_1)
++424.1577145524276 InvestmentFlowBlock_invest(bus_el_storage_2)
++500.35386034467155 GenericInvestmentStorageBlock_invest(storage_0)
++336.72380442191655 GenericInvestmentStorageBlock_invest(storage_1)
++226.6054675510339 GenericInvestmentStorageBlock_invest(storage_2)
 
 s.t.
 
@@ -268,21 +272,21 @@ c_u_InvestmentFlowBlock_max(storage_bus_el_2_8)_:
 <= 0
 
 c_e_GenericInvestmentStorageBlock_total_storage_rule(storage_0)_:
-+1 GenericInvestmentStorageBlock_total(storage_0)
 -1 GenericInvestmentStorageBlock_invest(storage_0)
++1 GenericInvestmentStorageBlock_total(storage_0)
 = 2
 
 c_e_GenericInvestmentStorageBlock_total_storage_rule(storage_1)_:
+-1 GenericInvestmentStorageBlock_invest(storage_1)
 -1 GenericInvestmentStorageBlock_total(storage_0)
 +1 GenericInvestmentStorageBlock_total(storage_1)
--1 GenericInvestmentStorageBlock_invest(storage_1)
 +1 GenericInvestmentStorageBlock_old(storage_1)
 = 0
 
 c_e_GenericInvestmentStorageBlock_total_storage_rule(storage_2)_:
+-1 GenericInvestmentStorageBlock_invest(storage_2)
 -1 GenericInvestmentStorageBlock_total(storage_1)
 +1 GenericInvestmentStorageBlock_total(storage_2)
--1 GenericInvestmentStorageBlock_invest(storage_2)
 +1 GenericInvestmentStorageBlock_old(storage_2)
 = 0
 
@@ -446,9 +450,13 @@ c_u_GenericInvestmentStorageBlock_max_storage_content(storage_2_8)_:
 <= 0
 
 bounds
+   1 <= ONE_VAR_CONSTANT <= 1
    0 <= InvestmentFlowBlock_invest(bus_el_storage_0) <= 4
    0 <= InvestmentFlowBlock_invest(bus_el_storage_1) <= 4
    0 <= InvestmentFlowBlock_invest(bus_el_storage_2) <= 4
+   0 <= GenericInvestmentStorageBlock_invest(storage_0) <= 8
+   0 <= GenericInvestmentStorageBlock_invest(storage_1) <= 8
+   0 <= GenericInvestmentStorageBlock_invest(storage_2) <= 8
    0 <= flow(storage_bus_el_0_0) <= +inf
    0 <= flow(bus_el_storage_0_0) <= +inf
    0 <= flow(storage_bus_el_0_1) <= +inf
@@ -495,12 +503,9 @@ bounds
    0 <= InvestmentFlowBlock_old(bus_el_storage_0) <= +inf
    0 <= InvestmentFlowBlock_old(storage_bus_el_0) <= +inf
    0 <= GenericInvestmentStorageBlock_total(storage_0) <= +inf
-   0 <= GenericInvestmentStorageBlock_invest(storage_0) <= 8
    0 <= GenericInvestmentStorageBlock_total(storage_1) <= +inf
-   0 <= GenericInvestmentStorageBlock_invest(storage_1) <= 8
    0 <= GenericInvestmentStorageBlock_old(storage_1) <= +inf
    0 <= GenericInvestmentStorageBlock_total(storage_2) <= +inf
-   0 <= GenericInvestmentStorageBlock_invest(storage_2) <= 8
    0 <= GenericInvestmentStorageBlock_old(storage_2) <= +inf
    0 <= GenericInvestmentStorageBlock_old_end(storage_0) <= +inf
    0 <= GenericInvestmentStorageBlock_old_end(storage_1) <= +inf
