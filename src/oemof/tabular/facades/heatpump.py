@@ -121,6 +121,7 @@ class HeatPump(Transformer, Facade):
     age: int = None
 
     fixed_costs: Union[float, Sequence[float]] = None
+
     capacity_potential: float = float("+inf")
 
     low_temperature_parameters: dict = field(default_factory=dict)
