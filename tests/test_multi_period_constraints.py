@@ -83,6 +83,8 @@ def compare_lp_files(lp_file_1, lp_file_2, ignored=None):
 
 
 class TestMultiPeriodConstraints:
+    """Test the multi period constraints."""
+
     @classmethod
     def setup_class(cls):
         """Setup the test class."""
@@ -112,39 +114,36 @@ class TestMultiPeriodConstraints:
         cls.tmpdir = helpers.extend_basic_path("tmp")
         logging.info(cls.tmpdir)
 
-    @classmethod
-    def setup_method(cls):
+    def setup_method(self):
         """Setup method which is called before every test"""
 
         # Create an energy system
-        cls.energysystem = solph.EnergySystem(
+        self.energysystem = solph.EnergySystem(
             groupings=solph.GROUPINGS,
-            timeincrement=[1] * len(cls.timeindex),
-            periods=cls.periods,
-            timeindex=cls.timeindex,
+            timeincrement=[1] * len(self.timeindex),
+            periods=self.periods,
+            timeindex=self.timeindex,
             infer_last_interval=False,
         )
 
-    @classmethod
-    def get_om(cls):
+    def get_om(self):
         """Create the optimization model from the defined energy system"""
         return solph.Model(
-            cls.energysystem,
-            timeindex=cls.energysystem.timeindex,
+            self.energysystem,
+            timeindex=self.energysystem.timeindex,
             discount_rate=0.02,
         )
 
-    @classmethod
-    def compare_to_reference_lp(cls, ref_filename, my_om=None):
+    def compare_to_reference_lp(self, ref_filename, my_om=None):
         """Compare the lp file to a reference file"""
         if my_om is None:
-            om = cls.get_om()
+            om = self.get_om()
         else:
             om = my_om
 
         tmp_filename = ref_filename.replace(".lp", "") + "_tmp.lp"
 
-        new_filepath = os.path.join(cls.tmpdir, tmp_filename)
+        new_filepath = os.path.join(self.tmpdir, tmp_filename)
 
         om.write(new_filepath, io_options={"symbolic_solver_labels": True})
 
