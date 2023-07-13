@@ -72,7 +72,7 @@ def test_example_datapackage_readability():
 
 
 @pytest.mark.skip(
-    reason="Postprocessing is broken. Will get replacedin PR#102."
+    reason="Postprocessing is broken. Will get replaced in PR#102."
 )
 def test_scripting_examples():
     """ """
