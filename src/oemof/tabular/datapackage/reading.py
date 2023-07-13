@@ -437,17 +437,38 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 name="timeindex",
             )
             timeindex = temporal.index
+            es = cls(timeindex=timeindex, temporal=temporal)
 
         # if no temporal provided as resource, take the first timeindex
         # from dict
         else:
+            # look for periods resource and if present, take as periods from it
+            if package.get_resource("periods"):
+                df_periods = (
+                    pd.DataFrame.from_dict(
+                        package.get_resource("periods").read(keyed=True)
+                    )
+                              )
+                timeincrement = df_periods["increment"].values
+                timeindex = pd.DatetimeIndex(df_periods["timeindex"])
+                periods = [pd.DatetimeIndex(df["timeindex"]) for period, df in
+                           df_periods.groupby("periods")]
+                periods = [pd.DatetimeIndex(i.values, freq=i.inferred_freq,
+                                            name="timeindex") for i in periods]
+
+                es = cls(timeindex=timeindex,
+                         timeincrement=timeincrement,
+                         periods=periods,
+                         infer_last_interval=False)
+
             # if lst is not empty
-            if lst:
+            elif lst:
                 idx = pd.DatetimeIndex(lst[0])
                 timeindex = pd.DatetimeIndex(
                     idx.values, freq=idx.inferred_freq, name="timeindex"
                 )
                 temporal = None
+                es = cls(timeindex=timeindex, temporal=temporal)
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
             # step of today (same as in the EnergySystem __init__ if no
@@ -456,8 +477,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex = pd.date_range(
                     start=pd.to_datetime("today"), periods=1, freq="H"
                 )
-
-        es = cls(timeindex=timeindex, temporal=temporal) if lst else cls()
+                es = cls()
 
         es.add(
             *chain(
