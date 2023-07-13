@@ -444,22 +444,28 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         else:
             # look for periods resource and if present, take as periods from it
             if package.get_resource("periods"):
-                df_periods = (
-                    pd.DataFrame.from_dict(
-                        package.get_resource("periods").read(keyed=True)
-                    )
-                              )
+                df_periods = pd.DataFrame.from_dict(
+                    package.get_resource("periods").read(keyed=True)
+                )
                 timeincrement = df_periods["increment"].values
                 timeindex = pd.DatetimeIndex(df_periods["timeindex"])
-                periods = [pd.DatetimeIndex(df["timeindex"]) for period, df in
-                           df_periods.groupby("periods")]
-                periods = [pd.DatetimeIndex(i.values, freq=i.inferred_freq,
-                                            name="timeindex") for i in periods]
+                periods = [
+                    pd.DatetimeIndex(df["timeindex"])
+                    for period, df in df_periods.groupby("periods")
+                ]
+                periods = [
+                    pd.DatetimeIndex(
+                        i.values, freq=i.inferred_freq, name="timeindex"
+                    )
+                    for i in periods
+                ]
 
-                es = cls(timeindex=timeindex,
-                         timeincrement=timeincrement,
-                         periods=periods,
-                         infer_last_interval=False)
+                es = cls(
+                    timeindex=timeindex,
+                    timeincrement=timeincrement,
+                    periods=periods,
+                    infer_last_interval=False,
+                )
 
             # if lst is not empty
             elif lst:
