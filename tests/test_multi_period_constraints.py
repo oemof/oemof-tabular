@@ -423,8 +423,13 @@ class TestMultiPeriodConstraints:
             carrier="gas",
             tech="ccgt",
             capacity=1000,
+            capacity_cost=50,
             marginal_cost=10,
             output_parameters={"min": 0.2},
+            expandable=True,
+            lifetime=20,
+            age=5,
+            fixed_costs=30,
         )
         self.energysystem.add(bus, dispatchable)
         self.compare_to_reference_lp("dispatchable_multi_period.lp")
