@@ -36,7 +36,7 @@ class Storage(GenericStorage, Facade):
         The initial age of a flow (usually given in years);
         once it reaches its lifetime (considering also
         an initial age), the flow is forced to 0.
-        Note: Only applicable for a multi-period model. Default: None.
+        Note: Only applicable for a multi-period model. Default: 0.
     fixed_costs : numeric (iterable or scalar) (optional)
         The fixed costs associated with a flow.
         Note: Only applicable for a multi-period model. Default: None.
@@ -162,7 +162,7 @@ class Storage(GenericStorage, Facade):
                     ),
                     existing=self.capacity,
                     lifetime=getattr(self, "lifetime", None),
-                    age=getattr(self, "age", None),
+                    age=getattr(self, "age", 0),
                     fixed_costs=getattr(self, "fixed_costs", None),
                 ),
                 **self.input_parameters,
@@ -172,7 +172,7 @@ class Storage(GenericStorage, Facade):
                 investment=Investment(
                     existing=self.capacity,
                     lifetime=getattr(self, "lifetime", None),
-                    age=getattr(self, "age", None),
+                    age=getattr(self, "age", 0),
                 ),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters,

@@ -47,7 +47,7 @@ class Dispatchable(Source, Facade):
         The initial age of a flow (usually given in years);
         once it reaches its lifetime (considering also
         an initial age), the flow is forced to 0.
-        Note: Only applicable for a multi-period model. Default: None.
+        Note: Only applicable for a multi-period model. Default: 0.
     fixed_costs : numeric (iterable or scalar) (optional)
         The fixed costs associated with a flow.
         Note: Only applicable for a multi-period model. Default: None.

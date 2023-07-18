@@ -192,7 +192,7 @@ class Facade(Node):
                     minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
                     lifetime=getattr(self, "lifetime", None),
-                    age=getattr(self, "age", None),
+                    age=getattr(self, "age", 0),
                     fixed_costs=getattr(self, "fixed_costs", None),
                 )
             # If invest costs/MWh are not given
@@ -204,7 +204,7 @@ class Facade(Node):
                     minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
                     lifetime=getattr(self, "lifetime", None),
-                    age=getattr(self, "age", None),
+                    age=getattr(self, "age", 0),
                     fixed_costs=getattr(self, "fixed_costs", None),
                 )
         # If other component than storage
@@ -217,7 +217,7 @@ class Facade(Node):
                 minimum=getattr(self, "capacity_minimum", 0),
                 existing=getattr(self, "capacity", 0),
                 lifetime=getattr(self, "lifetime", None),
-                age=getattr(self, "age", None),
+                age=getattr(self, "age", 0),
                 fixed_costs=getattr(self, "fixed_costs", None),
             )
         return self.investment
