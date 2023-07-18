@@ -40,6 +40,18 @@ class BackpressureTurbine(Transformer, Facade):
         if timestep length is one hour. Default: 0
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization.
+        Note: Only applicable for a multi-period model. Default: None.
+    age : int (optional)
+        The initial age of a flow (usually given in years);
+        once it reaches its lifetime (considering also
+        an initial age), the flow is forced to 0.
+        Note: Only applicable for a multi-period model. Default: 0.
+    fixed_costs : numeric (iterable or scalar) (optional)
+        The fixed costs associated with a flow.
+        Note: Only applicable for a multi-period model. Default: None.
     capacity_cost: numeric
         Investment costs per unit of electrical capacity (e.g. Euro / MW) .
         If capacity is not set, this value will be used for optimizing the
@@ -115,6 +127,12 @@ class BackpressureTurbine(Transformer, Facade):
     marginal_cost: float = 0
 
     expandable: bool = False
+
+    lifetime: int = None
+
+    age: int = 0
+
+    fixed_costs: Union[float, Sequence[float]] = None
 
     input_parameters: dict = field(default_factory=dict)
 
