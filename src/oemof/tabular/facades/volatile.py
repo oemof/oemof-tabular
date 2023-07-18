@@ -40,6 +40,18 @@ class Volatile(Source, Facade):
         Minimum install capacity if investment
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization.
+        Note: Only applicable for a multi-period model. Default: None.
+    age : int (optional)
+        The initial age of a flow (usually given in years);
+        once it reaches its lifetime (considering also
+        an initial age), the flow is forced to 0.
+        Note: Only applicable for a multi-period model. Default: 0.
+    fixed_costs : numeric (iterable or scalar) (optional)
+        The fixed costs associated with a flow.
+        Note: Only applicable for a multi-period model. Default: None.
 
 
     The mathematical representations for this components are dependent on the
@@ -107,6 +119,12 @@ class Volatile(Source, Facade):
     marginal_cost: float = 0
 
     capacity_cost: float = None
+
+    lifetime: int = None
+
+    age: int = 0
+
+    fixed_costs: Union[float, Sequence[float]] = None
 
     output_parameters: dict = field(default_factory=dict)
 
