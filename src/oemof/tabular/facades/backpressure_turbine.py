@@ -130,7 +130,7 @@ class BackpressureTurbine(Transformer, Facade):
 
     lifetime: int = None
 
-    age: int = None
+    age: int = 0
 
     fixed_costs: Union[float, Sequence[float]] = None
 
