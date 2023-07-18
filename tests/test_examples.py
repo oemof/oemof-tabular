@@ -71,13 +71,10 @@ def test_example_datapackage_readability():
         assert type(system) is ES
 
 
-@pytest.mark.skip(
-    reason="Postprocessing is broken. Will get replaced in PR#102."
-)
 def test_scripting_examples():
     """ """
 
-    exclude = ["plotting.py", "__pycache__"]
+    exclude = ["plotting.py", "postprocessing.py", "__pycache__"]
     for example in pkg.resource_listdir("oemof.tabular", "examples/scripting"):
         if not example.endswith(".ipynb") and example not in exclude:
             print("Running scripting example {} ...".format(example))

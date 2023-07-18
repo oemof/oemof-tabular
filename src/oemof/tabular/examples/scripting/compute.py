@@ -12,7 +12,7 @@ from oemof.tabular import datapackage  # noqa
 from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 from oemof.tabular.facades import TYPEMAP
 
-examples = ["dispatch", "investment", "foreignkeys", "emission_constraint"]
+examples = ["dispatch", "investment", "foreignkeys", "emission_constraint", "investment_failing"]
 for example in examples:
     print("Running compute example with datapackage {}".format(example))
 
@@ -53,4 +53,4 @@ for example in examples:
     results = m.results()
     # now we use the write results method to write the results in oemof-tabular
     # format
-    pp.write_results(m, results, results_path)
+    # pp.write_results(m, results, results_path)
