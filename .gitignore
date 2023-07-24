@@ -66,3 +66,6 @@ docs/_build
 
 # Mypy Cache
 .mypy_cache/
+
+docs/facade_attributes
+docs/facades.rst

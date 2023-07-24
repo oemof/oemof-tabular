@@ -6,53 +6,51 @@ objective:
 
 s.t.
 
-c_e_Bus_balance(biomass_0)_:
-+1 flow(biomass_biomass_plant_0)
+c_e_BusBlock_balance(heat_0_0)_:
++1 flow(biomass_plant_heat_0_0)
 = 0
 
-c_e_Bus_balance(biomass_1)_:
-+1 flow(biomass_biomass_plant_1)
+c_e_BusBlock_balance(heat_0_1)_:
++1 flow(biomass_plant_heat_0_1)
 = 0
 
-c_e_Bus_balance(biomass_2)_:
-+1 flow(biomass_biomass_plant_2)
+c_e_BusBlock_balance(heat_0_2)_:
++1 flow(biomass_plant_heat_0_2)
 = 0
 
-c_e_Bus_balance(heat_0)_:
-+1 flow(biomass_plant_heat_0)
+c_e_BusBlock_balance(biomass_0_0)_:
++1 flow(biomass_biomass_plant_0_0)
 = 0
 
-c_e_Bus_balance(heat_1)_:
-+1 flow(biomass_plant_heat_1)
+c_e_BusBlock_balance(biomass_0_1)_:
++1 flow(biomass_biomass_plant_0_1)
 = 0
 
-c_e_Bus_balance(heat_2)_:
-+1 flow(biomass_plant_heat_2)
+c_e_BusBlock_balance(biomass_0_2)_:
++1 flow(biomass_biomass_plant_0_2)
 = 0
 
-c_e_Transformer_relation(biomass_plant_biomass_heat_0)_:
-+0.40000000000000002 flow(biomass_biomass_plant_0)
--1 flow(biomass_plant_heat_0)
+c_e_TransformerBlock_relation(biomass_plant_biomass_heat_0_0)_:
+-1 flow(biomass_plant_heat_0_0)
++0.4 flow(biomass_biomass_plant_0_0)
 = 0
 
-c_e_Transformer_relation(biomass_plant_biomass_heat_1)_:
-+0.40000000000000002 flow(biomass_biomass_plant_1)
--1 flow(biomass_plant_heat_1)
+c_e_TransformerBlock_relation(biomass_plant_biomass_heat_0_1)_:
+-1 flow(biomass_plant_heat_0_1)
++0.4 flow(biomass_biomass_plant_0_1)
 = 0
 
-c_e_Transformer_relation(biomass_plant_biomass_heat_2)_:
-+0.40000000000000002 flow(biomass_biomass_plant_2)
--1 flow(biomass_plant_heat_2)
+c_e_TransformerBlock_relation(biomass_plant_biomass_heat_0_2)_:
+-1 flow(biomass_plant_heat_0_2)
++0.4 flow(biomass_biomass_plant_0_2)
 = 0
-
-c_e_ONE_VAR_CONSTANT: 
-ONE_VAR_CONSTANT = 1.0
 
 bounds
-   0 <= flow(biomass_biomass_plant_0) <= +inf
-   0 <= flow(biomass_biomass_plant_1) <= +inf
-   0 <= flow(biomass_biomass_plant_2) <= +inf
-   0 <= flow(biomass_plant_heat_0) <= 100
-   0 <= flow(biomass_plant_heat_1) <= 100
-   0 <= flow(biomass_plant_heat_2) <= 100
+   1 <= ONE_VAR_CONSTANT <= 1
+   0 <= flow(biomass_plant_heat_0_0) <= 100
+   0 <= flow(biomass_plant_heat_0_1) <= 100
+   0 <= flow(biomass_plant_heat_0_2) <= 100
+   0 <= flow(biomass_biomass_plant_0_0) <= +inf
+   0 <= flow(biomass_biomass_plant_0_1) <= +inf
+   0 <= flow(biomass_biomass_plant_0_2) <= +inf
 end

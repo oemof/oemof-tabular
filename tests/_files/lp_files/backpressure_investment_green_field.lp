@@ -2,106 +2,109 @@
 
 min 
 objective:
-+50 InvestmentFlow_invest(backpressure_electricity)
-+0.59999999999999998 flow(fuel_backpressure_0)
-+0.59999999999999998 flow(fuel_backpressure_1)
-+0.59999999999999998 flow(fuel_backpressure_2)
++50 InvestmentFlowBlock_invest(backpressure_electricity_0)
++0.6 flow(fuel_backpressure_0_0)
++0.6 flow(fuel_backpressure_0_1)
++0.6 flow(fuel_backpressure_0_2)
 
 s.t.
 
-c_e_Bus_balance(electricity_0)_:
-+1 flow(backpressure_electricity_0)
+c_e_BusBlock_balance(heat_0_0)_:
++1 flow(backpressure_heat_0_0)
 = 0
 
-c_e_Bus_balance(electricity_1)_:
-+1 flow(backpressure_electricity_1)
+c_e_BusBlock_balance(heat_0_1)_:
++1 flow(backpressure_heat_0_1)
 = 0
 
-c_e_Bus_balance(electricity_2)_:
-+1 flow(backpressure_electricity_2)
+c_e_BusBlock_balance(heat_0_2)_:
++1 flow(backpressure_heat_0_2)
 = 0
 
-c_e_Bus_balance(fuel_0)_:
-+1 flow(fuel_backpressure_0)
+c_e_BusBlock_balance(fuel_0_0)_:
++1 flow(fuel_backpressure_0_0)
 = 0
 
-c_e_Bus_balance(fuel_1)_:
-+1 flow(fuel_backpressure_1)
+c_e_BusBlock_balance(fuel_0_1)_:
++1 flow(fuel_backpressure_0_1)
 = 0
 
-c_e_Bus_balance(fuel_2)_:
-+1 flow(fuel_backpressure_2)
+c_e_BusBlock_balance(fuel_0_2)_:
++1 flow(fuel_backpressure_0_2)
 = 0
 
-c_e_Bus_balance(heat_0)_:
-+1 flow(backpressure_heat_0)
+c_e_BusBlock_balance(electricity_0_0)_:
++1 flow(backpressure_electricity_0_0)
 = 0
 
-c_e_Bus_balance(heat_1)_:
-+1 flow(backpressure_heat_1)
+c_e_BusBlock_balance(electricity_0_1)_:
++1 flow(backpressure_electricity_0_1)
 = 0
 
-c_e_Bus_balance(heat_2)_:
-+1 flow(backpressure_heat_2)
+c_e_BusBlock_balance(electricity_0_2)_:
++1 flow(backpressure_electricity_0_2)
 = 0
 
-c_e_Transformer_relation(backpressure_fuel_electricity_0)_:
--1 flow(backpressure_electricity_0)
-+0.40000000000000002 flow(fuel_backpressure_0)
+c_e_TransformerBlock_relation(backpressure_fuel_electricity_0_0)_:
++0.4 flow(fuel_backpressure_0_0)
+-1 flow(backpressure_electricity_0_0)
 = 0
 
-c_e_Transformer_relation(backpressure_fuel_electricity_1)_:
--1 flow(backpressure_electricity_1)
-+0.40000000000000002 flow(fuel_backpressure_1)
+c_e_TransformerBlock_relation(backpressure_fuel_heat_0_0)_:
++0.35 flow(fuel_backpressure_0_0)
+-1 flow(backpressure_heat_0_0)
 = 0
 
-c_e_Transformer_relation(backpressure_fuel_electricity_2)_:
--1 flow(backpressure_electricity_2)
-+0.40000000000000002 flow(fuel_backpressure_2)
+c_e_TransformerBlock_relation(backpressure_fuel_electricity_0_1)_:
++0.4 flow(fuel_backpressure_0_1)
+-1 flow(backpressure_electricity_0_1)
 = 0
 
-c_e_Transformer_relation(backpressure_fuel_heat_0)_:
--1 flow(backpressure_heat_0)
-+0.34999999999999998 flow(fuel_backpressure_0)
+c_e_TransformerBlock_relation(backpressure_fuel_heat_0_1)_:
++0.35 flow(fuel_backpressure_0_1)
+-1 flow(backpressure_heat_0_1)
 = 0
 
-c_e_Transformer_relation(backpressure_fuel_heat_1)_:
--1 flow(backpressure_heat_1)
-+0.34999999999999998 flow(fuel_backpressure_1)
+c_e_TransformerBlock_relation(backpressure_fuel_electricity_0_2)_:
++0.4 flow(fuel_backpressure_0_2)
+-1 flow(backpressure_electricity_0_2)
 = 0
 
-c_e_Transformer_relation(backpressure_fuel_heat_2)_:
--1 flow(backpressure_heat_2)
-+0.34999999999999998 flow(fuel_backpressure_2)
+c_e_TransformerBlock_relation(backpressure_fuel_heat_0_2)_:
++0.35 flow(fuel_backpressure_0_2)
+-1 flow(backpressure_heat_0_2)
 = 0
 
-c_u_InvestmentFlow_max(backpressure_electricity_0)_:
--1 InvestmentFlow_invest(backpressure_electricity)
-+1 flow(backpressure_electricity_0)
+c_e_InvestmentFlowBlock_total_rule(backpressure_electricity_0)_:
+-1 InvestmentFlowBlock_invest(backpressure_electricity_0)
++1 InvestmentFlowBlock_total(backpressure_electricity_0)
+= 0
+
+c_u_InvestmentFlowBlock_max(backpressure_electricity_0_0)_:
++1 flow(backpressure_electricity_0_0)
+-1 InvestmentFlowBlock_total(backpressure_electricity_0)
 <= 0
 
-c_u_InvestmentFlow_max(backpressure_electricity_1)_:
--1 InvestmentFlow_invest(backpressure_electricity)
-+1 flow(backpressure_electricity_1)
+c_u_InvestmentFlowBlock_max(backpressure_electricity_0_1)_:
++1 flow(backpressure_electricity_0_1)
+-1 InvestmentFlowBlock_total(backpressure_electricity_0)
 <= 0
 
-c_u_InvestmentFlow_max(backpressure_electricity_2)_:
--1 InvestmentFlow_invest(backpressure_electricity)
-+1 flow(backpressure_electricity_2)
+c_u_InvestmentFlowBlock_max(backpressure_electricity_0_2)_:
++1 flow(backpressure_electricity_0_2)
+-1 InvestmentFlowBlock_total(backpressure_electricity_0)
 <= 0
-
-c_e_ONE_VAR_CONSTANT: 
-ONE_VAR_CONSTANT = 1.0
 
 bounds
-   0 <= flow(backpressure_electricity_0) <= +inf
-   0 <= flow(backpressure_electricity_1) <= +inf
-   0 <= flow(backpressure_electricity_2) <= +inf
-   0 <= flow(backpressure_heat_0) <= +inf
-   0 <= flow(backpressure_heat_1) <= +inf
-   0 <= flow(backpressure_heat_2) <= +inf
-   0 <= flow(fuel_backpressure_0) <= +inf
-   0 <= flow(fuel_backpressure_1) <= +inf
-   0 <= flow(fuel_backpressure_2) <= +inf
-   0 <= InvestmentFlow_invest(backpressure_electricity) <= +inf
+   0 <= InvestmentFlowBlock_invest(backpressure_electricity_0) <= +inf
+   0 <= InvestmentFlowBlock_total(backpressure_electricity_0) <= +inf
+   0 <= flow(fuel_backpressure_0_0) <= +inf
+   0 <= flow(fuel_backpressure_0_1) <= +inf
+   0 <= flow(fuel_backpressure_0_2) <= +inf
+   0 <= flow(backpressure_heat_0_0) <= +inf
+   0 <= flow(backpressure_heat_0_1) <= +inf
+   0 <= flow(backpressure_heat_0_2) <= +inf
+   0 <= flow(backpressure_electricity_0_0) <= +inf
+   0 <= flow(backpressure_electricity_0_1) <= +inf
+   0 <= flow(backpressure_electricity_0_2) <= +inf
 end

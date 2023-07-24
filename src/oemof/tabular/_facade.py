@@ -19,6 +19,7 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 SPDX-License-Identifier: BSD-3-Clause
 """
 import dataclasses
+import inspect
 import warnings
 from collections import deque
 from dataclasses import dataclass
@@ -26,8 +27,7 @@ from dataclasses import dataclass
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Node
 from oemof.solph import Investment
-from oemof.solph.components import GenericStorage
-from oemof.solph.custom import Link
+from oemof.solph.components import GenericStorage, Link
 from oemof.tools.debugging import SuspiciousUsageWarning
 
 # Switch off SuspiciousUsageWarning
@@ -51,7 +51,6 @@ def kwargs_to_parent(cls):
     original_init = cls.__init__
 
     def new_init(self, *args, **kwargs):
-
         # pass only those kwargs to the dataclass which are expected
         dataclass_kwargs = {
             key: value
@@ -59,12 +58,41 @@ def kwargs_to_parent(cls):
             if key in [f.name for f in dataclasses.fields(cls)]
         }
 
-        original_init(self, **dataclass_kwargs)
+        # pass args and kwargs to the dataclasses' __init_
+        original_init(self, *args, **dataclass_kwargs)
 
-        # TODO: Could move the following lines to a __post_init__
+        # update kwargs with default arguments
         kwargs.update(dataclasses.asdict(self))
 
-        super(cls, self).__init__(*args, **kwargs)
+        # Pass only those arguments to solph component's __init__ that
+        # are expected.
+        init_expected_args = list(
+            inspect.signature(super(cls, self).__init__).parameters
+        )
+
+        kwargs_expected = {
+            key: value
+            for key, value in kwargs.items()
+            if key in init_expected_args
+        }
+
+        kwargs_unexpected = {
+            key: value
+            for key, value in kwargs.items()
+            if key not in init_expected_args
+        }
+
+        if "custom_attributes" in init_expected_args:
+            kwargs_expected["custom_attributes"] = kwargs_unexpected
+
+        if kwargs_unexpected and "custom_attributes" not in init_expected_args:
+            warnings.warn(
+                f"No custom_attributes in parent class {cls.__mro__[1]}"
+            )
+
+        super(cls, self).__init__(
+            **kwargs_expected,
+        )
 
         if not kwargs.get("build_solph_components") is False:
             self.build_solph_components()
@@ -152,7 +180,9 @@ class Facade(Node):
                 "attribute `capacity_cost` of component {}!"
             )
             raise ValueError(msg.format(self.label))
+        # If storage component
         if isinstance(self, GenericStorage):
+            # If invest costs/MWH are given
             if self.storage_capacity_cost is not None:
                 self.investment = Investment(
                     ep_costs=self.storage_capacity_cost,
@@ -161,7 +191,11 @@ class Facade(Node):
                     ),
                     minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
+                    lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", 0),
+                    fixed_costs=getattr(self, "fixed_costs", None),
                 )
+            # If invest costs/MWh are not given
             else:
                 self.investment = Investment(
                     maximum=self._get_maximum_additional_invest(
@@ -169,7 +203,11 @@ class Facade(Node):
                     ),
                     minimum=getattr(self, "minimum_storage_capacity", 0),
                     existing=getattr(self, "storage_capacity", 0),
+                    lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", 0),
+                    fixed_costs=getattr(self, "fixed_costs", None),
                 )
+        # If other component than storage
         else:
             self.investment = Investment(
                 ep_costs=self.capacity_cost,
@@ -178,6 +216,9 @@ class Facade(Node):
                 ),
                 minimum=getattr(self, "capacity_minimum", 0),
                 existing=getattr(self, "capacity", 0),
+                lifetime=getattr(self, "lifetime", None),
+                age=getattr(self, "age", 0),
+                fixed_costs=getattr(self, "fixed_costs", None),
             )
         return self.investment
 
