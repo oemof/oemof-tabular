@@ -217,6 +217,8 @@ class SummedVariableCosts(core.Calculation):
             self.scalar_params, "variable_costs"
         ).unstack(2)["variable_costs"]
         variable_costs = variable_costs.loc[variable_costs != 0]
+        if variable_costs.empty:
+            return pd.Series(dtype="object")
         aggregated_flows = (
             self.dependency("aggregated_flows").unstack(2).loc[:, "flow"]
         )
@@ -291,7 +293,7 @@ class TotalSystemCosts(core.Calculation):
         return total_system_cost
 
 
-def run_postprocessing(es):
+def run_postprocessing(es) -> pd.DataFrame:
     # Setup calculations
     calculator = core.Calculator(es.params, es.results)
 
@@ -320,7 +322,7 @@ def run_postprocessing(es):
         summed_carrier_costs,
         summed_marginal_costs,
     ]
-    all_scalars = pd.concat(all_scalars, 0)
+    all_scalars = pd.concat(all_scalars, axis=0)
     all_scalars = naming.map_var_names(
         all_scalars,
         calculator.scalar_params,
@@ -330,6 +332,7 @@ def run_postprocessing(es):
     all_scalars = naming.add_component_info(
         all_scalars, calculator.scalar_params
     )
+    total_system_costs.index.names = ("name", "var_name")
     all_scalars = pd.concat([all_scalars, total_system_costs], axis=0)
     all_scalars = all_scalars.sort_values(by=["carrier", "tech", "var_name"])
 
