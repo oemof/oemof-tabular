@@ -37,7 +37,10 @@ def map_var_names(
     def get_carrier(node):
         bus = helper.get_bus_from_oemof_tuple((node[0], node[1]), busses)
         if bus:
-            carrier = str.split(bus, "-")[1]
+            try:
+                carrier = str.split(bus, "-")[1]
+            except IndexError:
+                return bus
             return carrier
 
     def get_in_out(node, component_id):
