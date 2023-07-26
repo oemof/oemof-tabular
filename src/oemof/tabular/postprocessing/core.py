@@ -79,11 +79,6 @@ class Calculator:
         """
 
         def convert_to_pandas(value):
-            data_key = (
-                "period_scalars"
-                if "period_scalars" in value and data_type == "scalars"
-                else data_type
-            )
             if data_key in ("sequences", "period_scalars"):
                 result_type = pd.DataFrame
             else:
@@ -95,6 +90,12 @@ class Calculator:
                 return pd.DataFrame.from_dict(value[data_key], dtype="object")
             return pd.Series(value[data_key], dtype="object")
 
+        data_key = (
+            "period_scalars"
+            if "period_scalars" in list(oemof_data.values())[0]
+            and data_type == "scalars"
+            else data_type
+        )
         data = {
             tuple(
                 str(k) if k is not None else None for k in key
@@ -105,6 +106,8 @@ class Calculator:
         for key, series in data.items():
             if series.empty:
                 continue
+            if data_key == "period_scalars":
+                series = series.transpose()
             mindex = pd.MultiIndex.from_tuples(
                 [
                     (*key, entry)
