@@ -11,7 +11,14 @@ from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 from oemof.tabular.facades import TYPEMAP
 from oemof.tabular.postprocessing import calculations
 
-examples = ["dispatch", "investment", "foreignkeys", "emission_constraint"]
+examples = [
+    "dispatch_multi_period",
+    "dispatch",
+    "investment",
+    "investment_multi_period",
+    "foreignkeys",
+    "emission_constraint",
+]
 for example in examples:
     print("Running compute example with datapackage {}".format(example))
 
