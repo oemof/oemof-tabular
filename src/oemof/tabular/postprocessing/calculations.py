@@ -1,3 +1,4 @@
+import warnings
 from abc import abstractmethod
 from typing import List
 
@@ -114,11 +115,11 @@ class Investment(core.Calculation):
     name = "investment"
 
     def calculate_result(self):
-        return (
-            pd.Series(dtype="object")
-            if (self.scalars is None or self.scalars.empty)
-            else helper.filter_by_var_name(self.scalars, "invest")
-        )
+        if self.scalars is None or self.scalars.empty:
+            if self.calculator.is_multi_period:
+                return pd.DataFrame(dtype="object")
+            return pd.Series(dtype="object")
+        return helper.filter_by_var_name(self.scalars, "invest")
 
 
 class EPCosts(core.Calculation):
@@ -142,7 +143,7 @@ class InvestedCapacity(core.Calculation):
 
     def calculate_result(self):
         if self.dependency("investment").empty:
-            return pd.Series(dtype="object")
+            return self.dependency("investment")
         target_is_none = (
             self.dependency("investment").index.get_level_values(1).isnull()
         )
@@ -157,7 +158,7 @@ class InvestedStorageCapacity(core.Calculation):
 
     def calculate_result(self):
         if self.dependency("investment").empty:
-            return pd.Series(dtype="object")
+            return self.dependency("investment")
         target_is_none = (
             self.dependency("investment").index.get_level_values(1).isnull()
         )
@@ -172,11 +173,22 @@ class InvestedCapacityCosts(core.Calculation):
     }
 
     def calculate_result(self):
-        invested_capacity_costs = helper.multiply_var_with_param(
-            self.dependency("invested_capacity"), self.dependency("ep_costs")
-        )
+        if self.calculator.is_multi_period:
+            warnings.warn(
+                "Multi period investment not implemented for varying "
+                "costs per period"
+            )
+            invested_capacity_costs = helper.multiply_var_with_param(
+                self.dependency("invested_capacity").sum(axis=1),
+                self.dependency("ep_costs"),
+            )
+        else:
+            invested_capacity_costs = helper.multiply_var_with_param(
+                self.dependency("invested_capacity"),
+                self.dependency("ep_costs"),
+            )
         if invested_capacity_costs.empty:
-            return pd.Series(dtype="object")
+            return invested_capacity_costs
         invested_capacity_costs.index = (
             invested_capacity_costs.index.set_levels(
                 invested_capacity_costs.index.levels[2] + "_costs", level=2
@@ -193,10 +205,20 @@ class InvestedStorageCapacityCosts(core.Calculation):
     }
 
     def calculate_result(self):
-        invested_storage_capacity_costs = helper.multiply_var_with_param(
-            self.dependency("invested_storage_capacity"),
-            self.dependency("ep_costs"),
-        )
+        if self.calculator.is_multi_period:
+            warnings.warn(
+                "Multi period investment not implemented for varying "
+                "costs per period"
+            )
+            invested_storage_capacity_costs = helper.multiply_var_with_param(
+                self.dependency("invested_storage_capacity").sum(axis=1),
+                self.dependency("ep_costs"),
+            )
+        else:
+            invested_storage_capacity_costs = helper.multiply_var_with_param(
+                self.dependency("invested_storage_capacity"),
+                self.dependency("ep_costs"),
+            )
         if invested_storage_capacity_costs.empty:
             return pd.Series(dtype="object")
         invested_storage_capacity_costs.index = (
@@ -300,8 +322,6 @@ def run_postprocessing(es) -> pd.DataFrame:
     aggregated_flows = AggregatedFlows(calculator).result
     storage_losses = StorageLosses(calculator).result
     transmission_losses = TransmissionLosses(calculator).result
-    invested_capacity = InvestedCapacity(calculator).result
-    invested_storage_capacity = InvestedStorageCapacity(calculator).result
     invested_capacity_costs = InvestedCapacityCosts(calculator).result
     invested_storage_capacity_costs = InvestedStorageCapacityCosts(
         calculator
@@ -315,8 +335,6 @@ def run_postprocessing(es) -> pd.DataFrame:
         aggregated_flows,
         storage_losses,
         transmission_losses,
-        invested_capacity,
-        invested_storage_capacity,
         invested_capacity_costs,
         invested_storage_capacity_costs,
         summed_carrier_costs,
