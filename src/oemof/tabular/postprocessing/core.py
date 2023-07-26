@@ -61,6 +61,9 @@ class Calculator:
 
     def __init__(self, input_parameters, output_parameters):
         self.calculations = {}
+        self.is_multi_period = (
+            "period_scalars" in list(output_parameters.values())[0]
+        )
         self.scalar_params = self.__init_df(input_parameters, "scalars")
         self.scalars = self.__init_df(output_parameters, "scalars")
         self.sequences_params = self.__init_df(input_parameters, "sequences")
@@ -69,27 +72,33 @@ class Calculator:
         self.links = self.__filter_type("link")
         logging.info("Successfully set up calculator")
 
-    @staticmethod
-    def __init_df(oemof_data, data_type="scalars"):
+    def __init_df(self, oemof_data, data_type="scalars"):
         r"""
         Converts scalars/sequences dictionary to a multi-indexed
         DataFrame.
         """
-        data = {
-            tuple(str(k) if k is not None else None for k in key): (
-                value[data_type]
-                if isinstance(
-                    value[data_type],
-                    pd.Series if data_type == "scalars" else pd.DataFrame,
-                )
-                else (
-                    pd.Series(value[data_type], dtype="object")
-                    if data_type == "scalars"
-                    else pd.DataFrame.from_dict(
-                        value[data_type], dtype="object"
-                    )
-                )
+
+        def convert_to_pandas(value):
+            data_key = (
+                "period_scalars"
+                if "period_scalars" in value and data_type == "scalars"
+                else data_type
             )
+            if data_key in ("sequences", "period_scalars"):
+                result_type = pd.DataFrame
+            else:
+                result_type = pd.Series
+
+            if isinstance(value[data_key], result_type):
+                return value[data_key]
+            if data_key in ("sequences", "period_scalars"):
+                return pd.DataFrame.from_dict(value[data_key], dtype="object")
+            return pd.Series(value[data_key], dtype="object")
+
+        data = {
+            tuple(
+                str(k) if k is not None else None for k in key
+            ): convert_to_pandas(value)
             for key, value in oemof_data.items()
         }
         results = []
