@@ -357,6 +357,22 @@ field names in the generators-profile resource.
 		non-valid resources.**
 
 
+If resources are passed with a key other than "profile" (e.g. marginal_cost or
+efficiency), the foreign keys must also be updated with this key. In this case,
+the name of the resource is composed of the components name and the key:
+
+.. code-block:: json
+
+    "foreignKeys": [
+      {
+        "fields": "marginal_cost",
+        "reference": {
+          "resource": "generator_marginal_cost_profile"
+        }
+      }
+    ]
+
+
 Scripting
 =========================
 Currently the only way to construct a model and compute it is by using the
