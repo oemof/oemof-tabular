@@ -140,7 +140,7 @@ def infer_metadata(
                         r.descriptor["schema"]["foreignKeys"].append(
                             {
                                 "fields": key,
-                                "reference": {"resource": key + "_profile"},
+                                "reference": {"resource": r.name + "_" + key + "_profile"},
                             }
                         )
 
