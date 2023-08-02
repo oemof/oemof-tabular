@@ -115,7 +115,7 @@
                     {
                         "fields": "marginal_cost",
                         "reference": {
-                            "resource": "marginal_cost_profile"
+                            "resource": "component_marginal_cost_profile"
                         }
                     },
                     {
@@ -124,6 +124,31 @@
                             "resource": "component_profile"
                         }
                     }
+                ]
+            }
+        },
+        {
+            "path": "data/sequences/component_marginal_cost_profile.csv",
+            "profile": "tabular-data-resource",
+            "name": "component_marginal_cost_profile",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "timeindex",
+                        "type": "datetime",
+                        "format": "default"
+                    },
+                    {
+                        "name": "marginal-cost-coal",
+                        "type": "integer",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
                 ]
             }
         },
@@ -148,31 +173,6 @@
                     },
                     {
                         "name": "dispatchable-profile",
-                        "type": "integer",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            }
-        },
-        {
-            "path": "data/sequences/marginal_cost_profile.csv",
-            "profile": "tabular-data-resource",
-            "name": "marginal_cost_profile",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "timeindex",
-                        "type": "datetime",
-                        "format": "default"
-                    },
-                    {
-                        "name": "marginal-cost-coal",
                         "type": "integer",
                         "format": "default"
                     }
