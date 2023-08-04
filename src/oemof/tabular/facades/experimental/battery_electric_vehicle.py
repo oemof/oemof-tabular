@@ -1,6 +1,7 @@
 from dataclasses import field
 from typing import Sequence, Union
 
+from oemof.solph._plumbing import sequence as solph_sequence
 from oemof.solph.buses import Bus
 from oemof.solph.components import GenericStorage, Sink, Transformer
 from oemof.solph.flows import Flow
@@ -135,8 +136,8 @@ class Bev(GenericStorage, Facade):
         self.label = self.label + "-storage"
 
         self.nominal_storage_capacity = self.storage_capacity
-        self.inflow_conversion_factor = 1
-        self.outflow_conversion_factor = 1
+        self.inflow_conversion_factor = solph_sequence(1)
+        self.outflow_conversion_factor = solph_sequence(1)
         self.balanced = self.balanced
 
         if self.expandable:
