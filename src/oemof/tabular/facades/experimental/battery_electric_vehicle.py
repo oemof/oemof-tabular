@@ -1,9 +1,14 @@
-from oemof.solph import Bus, Flow, Sink, Transformer, sequence
-from oemof.solph.components import GenericStorage
+from dataclasses import field
+from typing import Sequence, Union
 
-from oemof.tabular._facade import Facade
+from oemof.solph.buses import Bus
+from oemof.solph.components import GenericStorage, Sink, Transformer
+from oemof.solph.flows import Flow
+
+from oemof.tabular._facade import Facade, dataclass_facade
 
 
+@dataclass_facade
 class Bev(GenericStorage, Facade):
     r"""A fleet of Battery electric vehicles with vehicle-to-grid.
 
@@ -14,28 +19,26 @@ class Bev(GenericStorage, Facade):
     ----------
     bus: oemof.solph.Bus
         An oemof bus instance where the storage unit is connected to.
-    storage_capacity: numeric
+    storage_capacity: int
         The total storage capacity of the vehicles (e.g. in MWh)
-    capacity: numeric
-        Total charging/discharging capacity of the vehicles.
+    drive_power: int
+        Total charging/discharging capacity of the vehicles (e.g. in MW)
+    drive_consumption : array-like
+        Profile of drive consumption of the fleet (relative to capacity).
+    max_charging_power : int
+        Max charging/discharging power of all vehicles (e.g. in MW)
     availability : array-like
         Ratio of available capacity for charging/vehicle-to-grid due to
         grid connection.
-    drive_power : array-like
-        Profile of the load of the fleet through driving relative amount.
-    amount : numeric
-        Total amount of energy consumed by driving. The drive_power profile
-        will be scaled by this number.
-    efficiency_charging: numeric
+    efficiency_charging: float
         Efficiency of charging the batteries, default: 1
-    efficiency_discharging: numeric
-        Efficiency of discharging the batteries, default: 1
-    efficiency_v2g: numeric
-        Efficiency of vehicle-to-grid, default: 1
+    v2g: bool
+        If True, vehicle-to-grid is enabled, default: False
+    loss_rate: float
     min_storage_level : array-like
-        Profile of minimum storage level.
+        Profile of minimum storage level (min SOC)
     max_storage_level : array-like
-        Profile of maximum storage level.
+        Profile of maximum storage level (max SOC).
     input_parameters: dict
         Dictionary to specify parameters on the input edge. You can use
         all keys that are available for the  oemof.solph.network.Flow class.
@@ -84,7 +87,7 @@ class Bev(GenericStorage, Facade):
     >>> from oemof.tabular import facades
     >>> my_bus = solph.Bus('my_bus')
     >>> my_bev = Bev(
-    ...     name='my_bev',
+    ...     label='my_bev',
     ...     bus=el_bus,
     ...     carrier='electricity',
     ...     tech='bev',
@@ -102,96 +105,105 @@ class Bev(GenericStorage, Facade):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    bus: Bus
 
-        kwargs.update(
-            {
-                "_facade_requires_": [
-                    "bus",
-                    "carrier",
-                    "tech",
-                    "availability",
-                    "drive_power",
-                    "amount",
-                ]
-            }
-        )
-        super().__init__(*args, **kwargs)
+    storage_capacity: int
 
-        self.storage_capacity = kwargs.get("storage_capacity")
+    drive_power: int
 
-        self.capacity = kwargs.get("capacity")
+    drive_consumption: Sequence
 
-        self.efficiency_charging = kwargs.get("efficiency_charging", 1)
+    max_charging_power: Union[float, Sequence[float]]
 
-        self.efficiency_discharging = kwargs.get("efficiency_discharging", 1)
+    availability: Sequence[float]
 
-        self.efficiency_v2g = kwargs.get("efficiency_v2g", 1)
+    efficiency_charging: float = 1
 
-        self.profile = kwargs.get("profile")
+    v2g: bool = False
 
-        self.marginal_cost = kwargs.get("marginal_cost", 0)
+    input_parameters: dict = field(default_factory=dict)
 
-        self.input_parameters = kwargs.get("input_parameters", {})
+    output_parameters: dict = field(default_factory=dict)
 
-        self.output_parameters = kwargs.get("output_parameters", {})
-
-        self.expandable = bool(kwargs.get("expandable", False))
-
-        self.build_solph_components()
+    expandable: bool = False
 
     def build_solph_components(self):
+        facade_label = self.label
+        self.label = self.label + "-storage"
 
         self.nominal_storage_capacity = self.storage_capacity
-
-        self.inflow_conversion_factor = sequence(self.efficiency_charging)
-
-        self.outflow_conversion_factor = sequence(self.efficiency_discharging)
 
         if self.expandable:
             raise NotImplementedError(
                 "Investment for bev class is not implemented."
             )
 
-        internal_bus = Bus(label=self.label + "-internal_bus")
+        internal_bus = Bus(label=facade_label + "-internal_bus")
+        subnodes = [internal_bus]
 
-        vehicle_to_grid = Transformer(
-            carrier=self.carrier,
-            tech=self.tech,
-            label=self.label + "-vehicle_to_grid",
-            inputs={internal_bus: Flow()},
-            outputs={
+        # Discharging
+        if self.v2g:
+            vehicle_to_grid = Transformer(
+                label=facade_label + "-v2g",
+                inputs={internal_bus: Flow()},
+                outputs={
+                    self.bus: Flow(
+                        nominal_value=self.max_charging_power,
+                        max=self.availability,
+                        # **self.output_parameters
+                    )
+                },
+                # Includes storage charging efficiencies
+                conversion_factors={self.bus: self.efficiency_charging},
+            )
+            subnodes.append(vehicle_to_grid)
+
+        # Charging
+        grid_to_vehicle = Transformer(
+            label=facade_label + "g2v",
+            inputs={
                 self.bus: Flow(
-                    nominal_value=self.capacity,
+                    nominal_value=self.max_charging_power,
                     max=self.availability,
-                    variable_costs=self.marginal_cost,
-                    **self.output_parameters
+                    # **self.output_parameters
                 )
             },
-            conversion_factors={internal_bus: self.efficiency_v2g},
+            outputs={internal_bus: Flow()},
+            conversion_factors={self.bus: self.efficiency_charging},
         )
+        subnodes.append(grid_to_vehicle)
 
-        drive_power = Sink(
-            label=self.label + "-drive_power",
+        # Drive consumption
+        driving_consumption = Sink(
+            label=facade_label + "-consumption",
             inputs={
                 internal_bus: Flow(
-                    nominal_value=self.amount,
-                    actual_value=self.drive_power,
-                    fixed=True,
+                    nominal_value=self.drive_power,
+                    fix=self.drive_consumption,
                 )
             },
         )
+        subnodes.append(driving_consumption)
 
+        # Storage input
         self.inputs.update(
             {
                 self.bus: Flow(
-                    nominal_value=self.capacity,
+                    nominal_value=self.max_charging_power,
                     max=self.availability,
                     **self.input_parameters
                 )
             }
         )
+        # Storage output
+        self.outputs.update(
+            {
+                internal_bus: Flow(
+                    nominal_value=self.max_charging_power,
+                    max=self.availability,
+                )
+            }
+        )
 
-        self.outputs.update({internal_bus: Flow()})
-
-        self.subnodes = (internal_bus, drive_power, vehicle_to_grid)
+        # many components in facade
+        self.subnodes = subnodes
