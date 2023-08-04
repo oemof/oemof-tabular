@@ -39,6 +39,9 @@ class Bev(GenericStorage, Facade):
         Profile of minimum storage level (min SOC)
     max_storage_level : array-like
         Profile of maximum storage level (max SOC).
+    balanced : boolean
+        Couple storage level of first and last time step.
+        (Total inflow and total outflow are balanced.)
     input_parameters: dict
         Dictionary to specify parameters on the input edge. You can use
         all keys that are available for the  oemof.solph.network.Flow class.
@@ -132,6 +135,9 @@ class Bev(GenericStorage, Facade):
         self.label = self.label + "-storage"
 
         self.nominal_storage_capacity = self.storage_capacity
+        self.inflow_conversion_factor = 1
+        self.outflow_conversion_factor = 1
+        self.balanced = self.balanced
 
         if self.expandable:
             raise NotImplementedError(
