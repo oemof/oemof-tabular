@@ -103,7 +103,8 @@ class TestConstraints:
 
     def get_om(self):
         return solph.Model(
-            self.energysystem, timeindex=self.energysystem.timeindex
+            self.energysystem,
+            timeindex=self.energysystem.timeindex,
         )
 
     def compare_to_reference_lp(self, ref_filename, my_om=None):
@@ -493,23 +494,21 @@ class TestConstraints:
         self.compare_to_reference_lp("emission_constraint.lp", my_om=model)
 
     def test_bev(self):
-        bus = solph.Bus("my_bus")
+        bus = solph.Bus("bus")
 
         bev = Bev(
-            name="my_bev",
+            label="bev",
             bus=bus,
-            carrier="electricity",
-            tech="bev",
             storage_capacity=1000,
-            capacity=50,
+            drive_power=50,
+            drive_consumption=[0.8, 0.7, 0.6],
+            max_charging_power=10,
             availability=[0.8, 0.7, 0.6],
-            drive_power=[0.3, 0.2, 0.5],
-            amount=450,
+            efficiency_charging=0.93,
+            v2g=True,
             loss_rate=0.01,
-            initial_storage_level=0,
-            min_storage_level=[0.1, 0.2, 0.15],
-            max_storage_level=[0.9, 0.95, 0.92],
-            efficiency=0.93,
+            min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            max_storage_level=[0.9, 0.95, 0.92, 0.92],
         )
 
         self.energysystem.add(bus, bev)
