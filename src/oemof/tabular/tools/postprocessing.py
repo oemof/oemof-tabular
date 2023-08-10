@@ -21,7 +21,7 @@ def component_results(es, results, select="sequences"):
         setattr(es, "typemap", facades.TYPEMAP)
 
     for k, v in es.typemap.items():
-        if type(k) == str:
+        if isinstance(k, str):
             if select == "sequences":
                 _seq_by_type = [
                     views.node(results, n, multiindex=True).get("sequences")
