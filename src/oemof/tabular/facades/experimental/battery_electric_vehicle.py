@@ -167,7 +167,7 @@ class Bev(GenericStorage, Facade):
 
         # Charging
         grid_to_vehicle = Transformer(
-            label=facade_label + "g2v",
+            label=facade_label + "-g2v",
             inputs={
                 self.bus: Flow(
                     nominal_value=self.max_charging_power,
@@ -192,7 +192,7 @@ class Bev(GenericStorage, Facade):
         )
         subnodes.append(driving_consumption)
 
-        # Storage input
+        # Storage inputs
         self.inputs.update(
             {
                 self.bus: Flow(
