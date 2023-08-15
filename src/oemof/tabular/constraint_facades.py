@@ -2,6 +2,7 @@ import abc
 from dataclasses import dataclass
 
 from oemof.solph.constraints.integral_limit import generic_integral_limit
+from oemof.solph.constraints.equate_variables import equate_variables
 
 
 class ConstraintFacade(abc.ABC):
@@ -40,3 +41,34 @@ class GenericIntegralLimit(ConstraintFacade):
 
 
 CONSTRAINT_TYPE_MAP = {"generic_integral_limit": GenericIntegralLimit}
+
+
+# @dataclass
+# class JointExtension(ConstraintFacade):
+#     name: str
+#     type: str
+#     limit: float
+#     keyword: str = "joint_extension"
+#
+#
+#     def build_constraint(self, model):
+#         # components = {}
+#         # for i in model.NODES:
+#         #     if hasattr(model.NODES[i], self.keyword):
+#         #         components[(i, o)] = model.NODES[i]
+#         components = {i: model.NODES[i] for i in model.NODES if
+#                       hasattr(model.NODES[i], self.keyword)}
+#
+#         if not components:
+#             raise Warning(f"No components with keyword {self.keyword}")
+#         else:
+#             print(
+#                 "These components will be extended jointly: "
+#                 f"{components.keys()}"
+#             )
+#
+#         # add constraint to the model
+#         equate_variables(
+#             model,
+#             var1=model.InvestmentFlowBlock.invest[],
+#             var2=)
