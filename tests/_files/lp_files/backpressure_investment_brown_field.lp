@@ -1,6 +1,6 @@
 \* Source Pyomo model name=Model *\
 
-min 
+min
 objective:
 +50 InvestmentFlowBlock_invest(backpressure_electricity_0)
 +0.6 flow(fuel_backpressure_0_0)
@@ -45,32 +45,32 @@ c_e_BusBlock_balance(electricity_0_2)_:
 +1 flow(backpressure_electricity_0_2)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_fuel_electricity_0_0)_:
+c_e_ConverterBlock_relation(backpressure_fuel_electricity_0_0)_:
 +0.4 flow(fuel_backpressure_0_0)
 -1 flow(backpressure_electricity_0_0)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_fuel_heat_0_0)_:
+c_e_ConverterBlock_relation(backpressure_fuel_heat_0_0)_:
 +0.35 flow(fuel_backpressure_0_0)
 -1 flow(backpressure_heat_0_0)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_fuel_electricity_0_1)_:
+c_e_ConverterBlock_relation(backpressure_fuel_electricity_0_1)_:
 +0.4 flow(fuel_backpressure_0_1)
 -1 flow(backpressure_electricity_0_1)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_fuel_heat_0_1)_:
+c_e_ConverterBlock_relation(backpressure_fuel_heat_0_1)_:
 +0.35 flow(fuel_backpressure_0_1)
 -1 flow(backpressure_heat_0_1)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_fuel_electricity_0_2)_:
+c_e_ConverterBlock_relation(backpressure_fuel_electricity_0_2)_:
 +0.4 flow(fuel_backpressure_0_2)
 -1 flow(backpressure_electricity_0_2)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_fuel_heat_0_2)_:
+c_e_ConverterBlock_relation(backpressure_fuel_heat_0_2)_:
 +0.35 flow(fuel_backpressure_0_2)
 -1 flow(backpressure_heat_0_2)
 = 0
