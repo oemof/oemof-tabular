@@ -455,8 +455,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 for f, v in facade.items():
                     if isinstance(v, Decimal):
                         facade[f] = float(v)
-                    # check if length of list equals number of periods
-                    if isinstance(v, list):
+                    # check if multi-period and value is list
+                    if period_data and isinstance(v, list):
+                        # check if length of list equals number of periods
                         if len(v) == len(period_data["periods"]):
                             # create timeseries with periodic values
                             facade[f] = create_periodic_values(
