@@ -377,6 +377,25 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         for flow in (typemap.get(FLOW_TYPE, HSN),)
     }
 
+    period_data = {}
+    if package.get_resource("periods"):
+        df_periods = pd.DataFrame.from_dict(
+            package.get_resource("periods").read(keyed=True)
+        )
+        period_data["timeincrement"] = df_periods["increment"].values
+        period_data["timeindex"] = pd.DatetimeIndex(df_periods["timeindex"])
+        period_data["periods"] = [
+            pd.DatetimeIndex(df["timeindex"])
+            for period, df in df_periods.groupby("periods")
+        ]
+        period_data["periods"] = [
+            pd.DatetimeIndex(
+                i.values, freq=i.inferred_freq, name="timeindex"
+            )
+            for i in period_data["periods"]
+        ]
+
+
     facades = {}
     for r in package.resources:
         if all(
@@ -442,28 +461,12 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         # if no temporal provided as resource, take the first timeindex
         # from dict
         else:
-            # look for periods resource and if present, take as periods from it
+            # look for periods resource and if present, take periods from it
             if package.get_resource("periods"):
-                df_periods = pd.DataFrame.from_dict(
-                    package.get_resource("periods").read(keyed=True)
-                )
-                timeincrement = df_periods["increment"].values
-                timeindex = pd.DatetimeIndex(df_periods["timeindex"])
-                periods = [
-                    pd.DatetimeIndex(df["timeindex"])
-                    for period, df in df_periods.groupby("periods")
-                ]
-                periods = [
-                    pd.DatetimeIndex(
-                        i.values, freq=i.inferred_freq, name="timeindex"
-                    )
-                    for i in periods
-                ]
-
                 es = cls(
-                    timeindex=timeindex,
-                    timeincrement=timeincrement,
-                    periods=periods,
+                    timeindex=period_data["timeindex"],
+                    timeincrement=period_data["timeincrement"],
+                    periods=period_data["periods"],
                     infer_last_interval=False,
                 )
 
@@ -483,7 +486,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex = pd.date_range(
                     start=pd.to_datetime("today"), periods=1, freq="H"
                 )
-                es = cls()
+                es = cls(timeindex=timeindex)
 
         es.add(
             *chain(
