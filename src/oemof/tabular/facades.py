@@ -32,11 +32,11 @@ from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
 from oemof.solph.buses.experimental import ElectricalBus
 from oemof.solph.components import (
+    Converter,
     ExtractionTurbineCHP,
     GenericStorage,
     Sink,
     Source,
-    Transformer,
 )
 from oemof.solph.components.experimental import Link
 from oemof.solph.flows import Flow
@@ -770,7 +770,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
 
 @dataclass_facade
-class BackpressureTurbine(Transformer, Facade):
+class BackpressureTurbine(Converter, Facade):
     r""" Combined Heat and Power (backpressure) unit with one input and
     two outputs.
 
@@ -908,7 +908,7 @@ class BackpressureTurbine(Transformer, Facade):
 
 
 @dataclass_facade
-class Conversion(Transformer, Facade):
+class Conversion(Converter, Facade):
     r"""Conversion unit with one input and one output.
 
     Parameters
@@ -1033,7 +1033,7 @@ class Conversion(Transformer, Facade):
 
 
 @dataclass_facade
-class HeatPump(Transformer, Facade):
+class HeatPump(Converter, Facade):
     r"""HeatPump unit with two inputs and one output.
 
     Parameters

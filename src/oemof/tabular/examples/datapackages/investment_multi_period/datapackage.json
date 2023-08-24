@@ -400,7 +400,7 @@
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "integer",
+                        "type": "string",
                         "format": "default"
                     },
                     {
@@ -449,6 +449,12 @@
                         "reference": {
                             "resource": "bus",
                             "fields": "name"
+                        }
+                    },
+                    {
+                        "fields": "capacity_cost",
+                        "reference": {
+                            "resource": "capacity_cost_profile"
                         }
                     },
                     {
@@ -552,6 +558,31 @@
                             "fields": "name"
                         }
                     }
+                ]
+            }
+        },
+        {
+            "path": "data/sequences/capacity_cost_profile.csv",
+            "profile": "tabular-data-resource",
+            "name": "capacity_cost_profile",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "timeindex",
+                        "type": "datetime",
+                        "format": "default"
+                    },
+                    {
+                        "name": "cc_profile",
+                        "type": "integer",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
                 ]
             }
         },
