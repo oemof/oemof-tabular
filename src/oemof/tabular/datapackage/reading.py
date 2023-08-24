@@ -389,12 +389,43 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             for period, df in df_periods.groupby("periods")
         ]
         period_data["periods"] = [
-            pd.DatetimeIndex(
-                i.values, freq=i.inferred_freq, name="timeindex"
-            )
+            pd.DatetimeIndex(i.values, freq=i.inferred_freq, name="timeindex")
             for i in period_data["periods"]
         ]
 
+    def create_periodic_values(values, periods_index):
+        """
+        Create periodic values from given values and period_data.
+
+        Parameters
+        ----------
+        values : list
+            List of values to be repeated.
+        periods_index : list
+            List containing periods datetimeindex.
+
+        Returns
+        -------
+        list
+            List of periodic values.
+        """
+        # check if length of list equals number of periods
+        if len(values) == len(periods_index):
+            pass
+        else:
+            raise ValueError(
+                "Length of values does not0 equal number of periods."
+            )
+
+        # create timeseries with periodic values
+        periodic_values = pd.concat(
+            [
+                pd.Series(repeat(values[i], len(period)), index=period)
+                for i, period in enumerate(periods_index)
+            ]
+        )
+
+        return periodic_values
 
     facades = {}
     for r in package.resources:
@@ -424,6 +455,13 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 for f, v in facade.items():
                     if isinstance(v, Decimal):
                         facade[f] = float(v)
+                    # check if length of list equals number of periods
+                    if isinstance(v, list):
+                        if len(v) == len(period_data["periods"]):
+                            # create timeseries with periodic values
+                            facade[f] = create_periodic_values(
+                                v, period_data["periods"]
+                            )
                 read_facade(
                     facade,
                     facades,
