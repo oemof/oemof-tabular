@@ -1,6 +1,6 @@
 \* Source Pyomo model name=Model *\
 
-min 
+min
 objective:
 +1179.5623893526972 ONE_VAR_CONSTANT
 +793.9061073460653 InvestmentFlowBlock_invest(bus_el_storage_0)
@@ -331,6 +331,10 @@ c_e_GenericInvestmentStorageBlock_old_rule(storage_2)_:
 +1 GenericInvestmentStorageBlock_old(storage_2)
 -1 GenericInvestmentStorageBlock_old_end(storage_2)
 -1 GenericInvestmentStorageBlock_old_exo(storage_2)
+= 0
+
+c_e_GenericInvestmentStorageBlock_initially_empty(storage_0)_:
++1 GenericInvestmentStorageBlock_storage_content(storage_0)
 = 0
 
 c_e_GenericInvestmentStorageBlock_balance(storage_0_1)_:

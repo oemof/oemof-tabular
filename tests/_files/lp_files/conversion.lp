@@ -1,6 +1,6 @@
 \* Source Pyomo model name=Model *\
 
-min 
+min
 objective:
 +0 ONE_VAR_CONSTANT
 
@@ -30,17 +30,17 @@ c_e_BusBlock_balance(biomass_0_2)_:
 +1 flow(biomass_biomass_plant_0_2)
 = 0
 
-c_e_TransformerBlock_relation(biomass_plant_biomass_heat_0_0)_:
+c_e_ConverterBlock_relation(biomass_plant_biomass_heat_0_0)_:
 -1 flow(biomass_plant_heat_0_0)
 +0.4 flow(biomass_biomass_plant_0_0)
 = 0
 
-c_e_TransformerBlock_relation(biomass_plant_biomass_heat_0_1)_:
+c_e_ConverterBlock_relation(biomass_plant_biomass_heat_0_1)_:
 -1 flow(biomass_plant_heat_0_1)
 +0.4 flow(biomass_biomass_plant_0_1)
 = 0
 
-c_e_TransformerBlock_relation(biomass_plant_biomass_heat_0_2)_:
+c_e_ConverterBlock_relation(biomass_plant_biomass_heat_0_2)_:
 -1 flow(biomass_plant_heat_0_2)
 +0.4 flow(biomass_biomass_plant_0_2)
 = 0
