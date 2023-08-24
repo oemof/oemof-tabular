@@ -2,10 +2,10 @@
 # -*- encoding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-from glob import glob
-from os.path import basename, dirname, join, splitext
 import io
 import re
+from glob import glob
+from os.path import basename, dirname, join, splitext
 
 from setuptools import find_packages, setup
 
@@ -20,7 +20,7 @@ def read(*names, **kwargs):
 
 setup(
     name="oemof.tabular",
-    version="0.0.4dev",
+    version="0.0.4dev1",
     license="BSD 3-Clause License",
     description="Load oemof energy systems from tabular data sources.",
     long_description="%s\n%s"
@@ -53,7 +53,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: Implementation :: CPython",
         # uncomment if you test on these interpreters:
         # 'Programming Language :: Python :: Implementation :: IronPython',
@@ -64,11 +63,11 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires='>=3.9',
+    python_requires=">=3.9, <3.11",
     install_requires=[
         "datapackage==1.5.1",
         "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
-        "oemof.solph==0.4.5",
+        "oemof.solph==0.5.1rc1",
         "pandas>=0.22",
         "paramiko",
         "toml",

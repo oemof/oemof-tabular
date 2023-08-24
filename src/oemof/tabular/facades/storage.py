@@ -1,8 +1,9 @@
 from dataclasses import field
+from typing import Sequence, Union
 
 from oemof.solph import Bus, Flow, Investment
+from oemof.solph._plumbing import sequence
 from oemof.solph.components import GenericStorage
-from oemof.solph.plumbing import sequence
 
 from oemof.tabular._facade import Facade, dataclass_facade
 
@@ -27,6 +28,18 @@ class Storage(GenericStorage, Facade):
         Investment costs for the storage unit e.g in €/MW-capacity
     expandable: boolean
         True, if capacity can be expanded within optimization. Default: False.
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization.
+        Note: Only applicable for a multi-period model. Default: None.
+    age : int (optional)
+        The initial age of a flow (usually given in years);
+        once it reaches its lifetime (considering also
+        an initial age), the flow is forced to 0.
+        Note: Only applicable for a multi-period model. Default: 0.
+    fixed_costs : numeric (iterable or scalar) (optional)
+        The fixed costs associated with a flow.
+        Note: Only applicable for a multi-period model. Default: None.
     storage_capacity_potential: numeric
         Potential of the investment for storage capacity in MWh. Default: +inf.
     capacity_potential: numeric
@@ -34,7 +47,7 @@ class Storage(GenericStorage, Facade):
     input_parameters: dict (optional)
         Set parameters on the input edge of the storage (see oemof.solph for
         more information on possible parameters)
-    ouput_parameters: dict (optional)
+    output_parameters: dict (optional)
         Set parameters on the output edge of the storage (see oemof.solph for
         more information on possible parameters)
 
@@ -104,6 +117,12 @@ class Storage(GenericStorage, Facade):
 
     expandable: bool = False
 
+    lifetime: int = None
+
+    age: int = 0
+
+    fixed_costs: Union[float, Sequence[float]] = 0
+
     marginal_cost: float = 0
 
     efficiency: float = 1
@@ -142,12 +161,19 @@ class Storage(GenericStorage, Facade):
                         "capacity_potential", "capacity"
                     ),
                     existing=self.capacity,
+                    lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", 0),
+                    fixed_costs=getattr(self, "fixed_costs", None),
                 ),
                 **self.input_parameters,
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
-                investment=Investment(existing=self.capacity),
+                investment=Investment(
+                    existing=self.capacity,
+                    lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", 0),
+                ),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters,
             )

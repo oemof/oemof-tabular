@@ -370,20 +370,20 @@ the results.
 
 .. code-block:: python
 
-    from oemof.solph import EnergySystem, Model
-    from renpass.facades import Load, Dispatchable, Bus
+        from oemof.solph import EnergySystem, Model
+        from renpass.facades import Load, Dispatchable, Bus
 
-    es = EnergySystem.from_datapackage(
-        'datapackage.json',
-        attributemap={
-            Demand: {"demand-profiles": "profile"}},
-        typemap={
-            'load': Load,
-            'dispatchable': Dispatchable,
-            'bus': Bus})
+        es = EnergySystem.from_datapackage(
+            'datapackage.json',
+            attributemap={
+                Demand: {"demand-profiles": "profile"}},
+            typemap={
+                'load': Load,
+                'dispatchable': Dispatchable,
+                'bus': Bus})
 
-    m = Model(es)
-    m.solve()
+        m = Model(es)
+        m.solve()
 
 
 .. note::
@@ -393,17 +393,46 @@ the results.
 		datapackage and map those to the facade classes (use `typemap` attribute for
 		this)
 
-Write results
+Postprocessing
 --------------
+After solving the energysystem model, results can be calculated using the
+:py:mod:`~oemof.tabular.postprocessing` module. The postprocessing module itself consists of four modules:
+- :py:mod:`~oemof.tabular.postprocessing.core` holds base classes for postprocessing
+- :py:mod:`~oemof.tabular.postprocessing.calculations` holds predefined calculations
+- :py:mod:`~oemof.tabular.postprocessing.helper` holds helper functions which are used in calculations
+- :py:mod:`~oemof.tabular.postprocessing.naming` holds functions for naming results and adding additional information
 
-For writing results you either use the `oemof.outputlib` functionalities or
-/ and the oemof tabular specific postprocessing functionalities of this
-package.
+The standard way of using the postprocessing module is to initiate the
+:py:class:`~oemof.tabular.postprocessing.core.Calculator` class from
+:py:mod:`~oemof.tabular.postprocessing.core` module with parameters and results from an optimized :py:mod:`~oemof.solph` `Energysystem`.
+Afterwards, calculations can be performed by either using predefined calculations from :py:mod:`~oemof.tabular.postprocessing.calculations` or
+by self-defined calculations inherited from :py:class:`~oemof.tabular.postprocessing.core.Calculation` class in
+:py:mod:`~oemof.tabular.postprocessing.core`.
+
+See the following example on how to use the :py:mod:`~oemof.tabular.postprocessing` module:
+
+.. code-block:: python
+
+    from oemoflex.postprocessing import core, calculations
+
+    calculator = core.Calculator(es.params, es.results)
+
+    aggregated_flows = calculations.AggregatedFlows(calculator).result
+    storage_losses = calculations.StorageLosses(calculator).result
+    transmission_losses = calculations.TransmissionLosses(calculator).result
+    invested_capacity = calculations.InvestedCapacity(calculator).result
+    invested_storage_capacity = calculations.InvestedStorageCapacity(calculator).result
+    invested_capacity_costs = calculations.InvestedCapacityCosts(calculator).result
+    invested_storage_capacity_costs = calculations.InvestedStorageCapacityCosts(calculator).result
+    summed_carrier_costs = calculations.SummedCarrierCosts(calculator).result
+    summed_marginal_costs = calculations.SummedMarginalCosts(calculator).result
+    total_system_costs = calculations.TotalSystemCosts(calculator).result
+
 
 Reproducible Workflows
 =======================
 
-To get reproducible results we recommend setting up a folder strucutre
+To get reproducible results we recommend setting up a folder structure
 as follows:
 
 ::

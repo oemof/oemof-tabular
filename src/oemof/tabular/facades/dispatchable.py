@@ -1,7 +1,9 @@
 from dataclasses import field
 from typing import Sequence, Union
 
-from oemof.solph import Bus, Flow, Source
+from oemof.solph.buses import Bus
+from oemof.solph.components import Source
+from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
 
@@ -37,6 +39,18 @@ class Dispatchable(Source, Facade):
         Max install capacity if capacity is to be expanded
     capacity_minimum: numeric
         Minimum install capacity if capacity is to be expanded
+    lifetime: int (optional)
+        Lifetime of the component in years. Necessary for multi-period
+        investment optimization.
+        Note: Only applicable for a multi-period model. Default: None.
+    age : int (optional)
+        The initial age of a flow (usually given in years);
+        once it reaches its lifetime (considering also
+        an initial age), the flow is forced to 0.
+        Note: Only applicable for a multi-period model. Default: 0.
+    fixed_costs : numeric (iterable or scalar) (optional)
+        The fixed costs associated with a flow.
+        Note: Only applicable for a multi-period model. Default: None.
 
 
     The mathematical representations for these components are dependent on the
@@ -106,6 +120,12 @@ class Dispatchable(Source, Facade):
     marginal_cost: float = 0
 
     capacity_cost: float = None
+
+    lifetime: int = None
+
+    age: int = 0
+
+    fixed_costs: Union[float, Sequence[float]] = None
 
     capacity_minimum: float = None
 

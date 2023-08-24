@@ -62,6 +62,11 @@ def compare_lp_files(lp_file_1, lp_file_2, ignored=None):
     lines_1 = normalize_to_positive_results(lines_1)
     lines_2 = normalize_to_positive_results(lines_2)
 
+    lines_1 = sorted(lines_1)
+    lines_2 = sorted(lines_2)
+
+    assert len(lines_1) == len(lines_2)
+
     if not lines_1 == lines_2:
         raise AssertionError(
             "Failed matching lp_file_1 with lp_file_2:\n"
@@ -90,7 +95,7 @@ class TestConstraints:
         logging.info(cls.tmpdir)
 
     @classmethod
-    def setup(cls):
+    def setup_method(cls):
         cls.energysystem = solph.EnergySystem(
             groupings=solph.GROUPINGS, timeindex=cls.date_time_index
         )
@@ -433,7 +438,7 @@ class TestConstraints:
             invest_relation_output_capacity=1 / 8,  # oemof.solph
             marginal_cost=5,
             balanced=True,  # oemof.solph argument
-            initial_storage_level=1,  # oemof.solph argument
+            initial_storage_level=0.5,  # oemof.solph argument
             max_storage_level=[0.75, 0.5, 0.25],
             expandable=True,
         )
@@ -468,7 +473,8 @@ class TestConstraints:
             bus=bus,
             carrier="ch4",
             tech="import",
-            output_parameters={"emission_factor": 2.5},
+            capacity=1000,
+            output_parameters={"custom_attributes": {"emission_factor": 2.5}},
         )
 
         emission_constraint = GenericIntegralLimit(

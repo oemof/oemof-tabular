@@ -1,13 +1,15 @@
 from dataclasses import field
 
-from oemof.solph import Bus, Flow, Transformer
-from oemof.solph.plumbing import sequence
+from oemof.solph._plumbing import sequence
+from oemof.solph.buses import Bus
+from oemof.solph.components import Converter
+from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
 
 
 @dataclass_facade
-class Conversion(Transformer, Facade):
+class Conversion(Converter, Facade):
     r"""Conversion unit with one input and one output.
 
     Parameters

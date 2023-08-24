@@ -32,7 +32,7 @@ def test_adding_subnodes():
         efficiency=0.93,
         carrier="carrier",
         tech="tech",
-        profile="profile",
+        profile=[2, 3, 1],
     )
     for sn in reservoir.subnodes:
         assert sn.label not in es.groups

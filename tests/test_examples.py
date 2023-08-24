@@ -51,8 +51,7 @@ def test_example_datapackage_readability():
 
     systems = []
     datapackage_dir = os.path.join(
-        importlib.resources.files("oemof.tabular"),
-        "examples/datapackages"
+        importlib.resources.files("oemof.tabular"), "examples/datapackages"
     )
     for example in os.listdir(datapackage_dir):
         print("Runnig reading datapackage example {} ...".format(example))
@@ -72,12 +71,11 @@ def test_scripting_examples():
 
     exclude = ["plotting.py", "__pycache__"]
     examples_dir = os.path.join(
-        importlib.resources.files("oemof.tabular"),
-        "examples/scripting"
+        importlib.resources.files("oemof.tabular"), "examples/scripting"
     )
     for example in os.listdir(examples_dir):
         if not example.endswith(".ipynb") and example not in exclude:
-            print("Runnig scripting example {} ...".format(example))
+            print("Running scripting example {} ...".format(example))
             exec(open(os.path.join(examples_dir, example)).read())
 
 
@@ -86,6 +84,7 @@ def test_examples_datapackages_scripts_infer():
     script = "infer.py"
 
     import pkg_resources as pkg
+
     for example_datapackage in pkg.resource_listdir(
         "oemof.tabular", "examples/datapackages/"
     ):
