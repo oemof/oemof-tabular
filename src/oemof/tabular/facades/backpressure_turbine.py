@@ -3,14 +3,14 @@ from typing import Sequence, Union
 
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
-from oemof.solph.components import Transformer
+from oemof.solph.components import Converter
 from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
 
 
 @dataclass_facade
-class BackpressureTurbine(Transformer, Facade):
+class BackpressureTurbine(Converter, Facade):
     r""" Combined Heat and Power (backpressure) unit with one input and
     two outputs.
 

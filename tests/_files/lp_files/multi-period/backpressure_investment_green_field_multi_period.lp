@@ -1,6 +1,6 @@
 \* Source Pyomo model name=Model *\
 
-min 
+min
 objective:
 +561.5105784699618 InvestmentFlowBlock_invest(backpressure_bus_el_0)
 +386.89361416194254 InvestmentFlowBlock_invest(backpressure_bus_el_1)
@@ -125,92 +125,92 @@ c_e_BusBlock_balance(bus_el_2_8)_:
 +1 flow(backpressure_bus_el_2_8)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_0_0)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_0_0)_:
 +0.4 flow(bus_fuel_backpressure_0_0)
 -1 flow(backpressure_bus_el_0_0)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_0_0)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_0_0)_:
 +0.35 flow(bus_fuel_backpressure_0_0)
 -1 flow(backpressure_bus_heat_0_0)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_0_1)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_0_1)_:
 +0.4 flow(bus_fuel_backpressure_0_1)
 -1 flow(backpressure_bus_el_0_1)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_0_1)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_0_1)_:
 +0.35 flow(bus_fuel_backpressure_0_1)
 -1 flow(backpressure_bus_heat_0_1)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_0_2)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_0_2)_:
 +0.4 flow(bus_fuel_backpressure_0_2)
 -1 flow(backpressure_bus_el_0_2)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_0_2)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_0_2)_:
 +0.35 flow(bus_fuel_backpressure_0_2)
 -1 flow(backpressure_bus_heat_0_2)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_1_3)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_1_3)_:
 +0.4 flow(bus_fuel_backpressure_1_3)
 -1 flow(backpressure_bus_el_1_3)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_1_3)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_1_3)_:
 +0.35 flow(bus_fuel_backpressure_1_3)
 -1 flow(backpressure_bus_heat_1_3)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_1_4)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_1_4)_:
 +0.4 flow(bus_fuel_backpressure_1_4)
 -1 flow(backpressure_bus_el_1_4)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_1_4)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_1_4)_:
 +0.35 flow(bus_fuel_backpressure_1_4)
 -1 flow(backpressure_bus_heat_1_4)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_1_5)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_1_5)_:
 +0.4 flow(bus_fuel_backpressure_1_5)
 -1 flow(backpressure_bus_el_1_5)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_1_5)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_1_5)_:
 +0.35 flow(bus_fuel_backpressure_1_5)
 -1 flow(backpressure_bus_heat_1_5)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_2_6)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_2_6)_:
 +0.4 flow(bus_fuel_backpressure_2_6)
 -1 flow(backpressure_bus_el_2_6)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_2_6)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_2_6)_:
 +0.35 flow(bus_fuel_backpressure_2_6)
 -1 flow(backpressure_bus_heat_2_6)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_2_7)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_2_7)_:
 +0.4 flow(bus_fuel_backpressure_2_7)
 -1 flow(backpressure_bus_el_2_7)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_2_7)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_2_7)_:
 +0.35 flow(bus_fuel_backpressure_2_7)
 -1 flow(backpressure_bus_heat_2_7)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_el_2_8)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_2_8)_:
 +0.4 flow(bus_fuel_backpressure_2_8)
 -1 flow(backpressure_bus_el_2_8)
 = 0
 
-c_e_TransformerBlock_relation(backpressure_bus_fuel_bus_heat_2_8)_:
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_2_8)_:
 +0.35 flow(bus_fuel_backpressure_2_8)
 -1 flow(backpressure_bus_heat_2_8)
 = 0
