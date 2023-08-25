@@ -463,6 +463,16 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                             facade[f] = create_periodic_values(
                                 v, period_data["periods"]
                             )
+                            msg = (
+                                "\n"
+                                f"The parameter '{f}' of a '{facade['type']}' "
+                                "facade is converted into a periodic time "
+                                "series.\nThis might not be possible for every"
+                                " parameter and lead to ambiguous error "
+                                "messages.\nPlease be aware, when using this "
+                                "feature!"
+                            )
+                            warnings.warn(msg, UserWarning)
                 read_facade(
                     facade,
                     facades,
