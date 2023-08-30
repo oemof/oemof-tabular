@@ -1,10 +1,10 @@
 import importlib
-import importlib.resources
 import os
 import pathlib
 import re
 from difflib import unified_diff
 
+import pkg_resources as pkg
 from oemof.network.energy_system import EnergySystem as ES
 from oemof.solph import helpers
 
@@ -50,14 +50,18 @@ def test_example_datapackage_readability():
     """The example datapackages can be read and loaded."""
 
     systems = []
-    datapackage_dir = os.path.join(
-        importlib.resources.files("oemof.tabular"), "examples/datapackages"
-    )
-    for example in os.listdir(datapackage_dir):
+    for example in pkg.resource_listdir(
+        "oemof.tabular", "examples/datapackages"
+    ):
         print("Runnig reading datapackage example {} ...".format(example))
         systems.append(
             ES.from_datapackage(
-                os.path.join(datapackage_dir, example, "datapackage.json"),
+                pkg.resource_filename(
+                    "oemof.tabular",
+                    "examples/datapackages/{}/datapackage.json".format(
+                        example
+                    ),
+                ),
                 typemap=TYPEMAP,
             )
         )
@@ -70,26 +74,46 @@ def test_scripting_examples():
     """ """
 
     exclude = ["plotting.py", "__pycache__"]
-    examples_dir = os.path.join(
-        importlib.resources.files("oemof.tabular"), "examples/scripting"
-    )
-    for example in os.listdir(examples_dir):
+    for example in pkg.resource_listdir("oemof.tabular", "examples/scripting"):
         if not example.endswith(".ipynb") and example not in exclude:
             print("Running scripting example {} ...".format(example))
-            exec(open(os.path.join(examples_dir, example)).read())
+            exec(
+                open(
+                    pkg.resource_filename(
+                        "oemof.tabular",
+                        "examples/scripting/{}".format(example),
+                    )
+                ).read()
+            )
 
 
 def test_examples_datapackages_scripts_infer():
     """ """
     script = "infer.py"
 
-    module_path = pathlib.Path(oemof.tabular.__file__).parent
-    example_path = module_path / "examples" / "datapackages"
-
-    for datapackage_path in example_path.iterdir():
-        example_datapackage = datapackage_path.name
-        script_path = datapackage_path / "scripts" / script
-
+    for example_datapackage in pkg.resource_listdir(
+        "oemof.tabular", "examples/datapackages/"
+    ):
+        script_path = (
+            ROOT_DIR
+            / "src"
+            / "oemof"
+            / "tabular"
+            / "examples"
+            / "datapackages"
+            / example_datapackage
+            / "scripts"
+            / script
+        )
+        datapackage_path = (
+            ROOT_DIR
+            / "src"
+            / "oemof"
+            / "tabular"
+            / "examples"
+            / "datapackages"
+            / example_datapackage
+        )
         if script_path.exists():
             print(
                 "Running infer script for {} ...".format(example_datapackage)
