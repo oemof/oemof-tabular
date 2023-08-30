@@ -20,7 +20,7 @@ def read(*names, **kwargs):
 
 setup(
     name="oemof.tabular",
-    version="0.0.4dev",
+    version="0.0.4dev1",
     license="BSD 3-Clause License",
     description="Load oemof energy systems from tabular data sources.",
     long_description="%s\n%s"
@@ -67,8 +67,7 @@ setup(
     install_requires=[
         "datapackage==1.5.1",
         "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
-        # "oemof.solph==0.5.1",
-        "oemof.solph @ git+https://github.com/oemof/oemof-solph.git@v0.5.1.dev2",
+        "oemof.solph==0.5.1rc1",
         "pandas>=0.22",
         "paramiko",
         "toml",

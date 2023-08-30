@@ -5,7 +5,6 @@ import re
 from difflib import unified_diff
 
 import pkg_resources as pkg
-import pytest
 from oemof.network.energy_system import EnergySystem as ES
 from oemof.solph import helpers
 
@@ -71,9 +70,6 @@ def test_example_datapackage_readability():
         assert type(system) is ES
 
 
-@pytest.mark.skip(
-    reason="Postprocessing is broken. Will get replaced in PR#102."
-)
 def test_scripting_examples():
     """ """
 

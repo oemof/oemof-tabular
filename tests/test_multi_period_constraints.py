@@ -500,7 +500,6 @@ class TestMultiPeriodConstraints:
             invest_relation_output_capacity=1 / 8,  # oemof.solph
             marginal_cost=5,
             balanced=True,  # oemof.solph argument
-            initial_storage_level=0.5,  # oemof.solph argument
             max_storage_level=[0.75, 0.5, 0.25] * len(self.periods),
             expandable=True,
             lifetime=20,

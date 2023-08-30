@@ -20,6 +20,7 @@ building.infer_metadata(
         "profile": ["load", "source"],
         "chp": ["chp"],
         "from_to_bus": ["link", "conversion"],
+        "capacity_cost": ["source"],
     },
     **kwargs,
 )
