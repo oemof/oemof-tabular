@@ -51,6 +51,7 @@ setup(
         "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: Implementation :: CPython",
@@ -63,7 +64,6 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires=">=3.9, <3.11",
     install_requires=[
         "datapackage==1.5.1",
         "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
