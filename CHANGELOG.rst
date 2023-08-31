@@ -6,6 +6,11 @@ Changelog
 
 Unreleased
 ------------------
+
+
+0.0.4 Patch Release - Tangling tabular - (2023-08-31)
+-----------------------------------------------------
+
 Features
 
 * Add PR template `#129 <https://github.com/oemof/oemof-tabular/pull/129>`_
