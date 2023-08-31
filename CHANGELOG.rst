@@ -9,7 +9,18 @@ Unreleased
 Features
 
 * Add PR template `#129 <https://github.com/oemof/oemof-tabular/pull/129>`_
+* Add deprecation warning for python3.8 `#125 <https://github.com/oemof/oemof-tabular/pull/125>`_
+* Update to oemof.solph 0.5.1 latest changes `#123 <https://github.com/oemof/oemof-tabular/pull/123>`_
+* Add multi-period deserialization `#112 <https://github.com/oemof/oemof-tabular/pull/112>`_
+* Add multi-period investment `#108 <https://github.com/oemof/oemof-tabular/pull/108>`_
+* Make oemof.solph 0.5.1 work `#107 <https://github.com/oemof/oemof-tabular/pull/107>`_
+* Split facades into submodules `#92 <https://github.com/oemof/oemof-tabular/pull/92>`_
 * Add postprocessing module `#102 <https://github.com/oemof/oemof-tabular/pull/102>`_
+
+Fixes
+
+* Update neglected CHANGELOG `#130 <https://github.com/oemof/oemof-tabular/pull/130>`_
+
 
 0.0.3 (2022-01-26)
 ------------------
