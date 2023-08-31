@@ -17,6 +17,11 @@ Features
 * Split facades into submodules `#92 <https://github.com/oemof/oemof-tabular/pull/92>`_
 * Add postprocessing module `#102 <https://github.com/oemof/oemof-tabular/pull/102>`_
 
+Fixes
+
+* Update neglected CHANGELOG `#130 <https://github.com/oemof/oemof-tabular/pull/130>`_
+
+
 0.0.3 (2022-01-26)
 ------------------
 Fixes
