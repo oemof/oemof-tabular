@@ -8,6 +8,7 @@ Unreleased
 ------------------
 Features
 
+* Add PR template `#129 <https://github.com/oemof/oemof-tabular/pull/129>`_
 * Add postprocessing module `#102 <https://github.com/oemof/oemof-tabular/pull/102>`_
 
 0.0.3 (2022-01-26)
