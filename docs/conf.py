@@ -2,7 +2,17 @@
 from __future__ import unicode_literals
 
 import os
+import sys
 
+from oemof.tabular.facades import TYPEMAP
+
+sys.path.append("code")
+from get_facade_attributes import get_facade_attrs, write_table_rst
+
+facade_attrs = get_facade_attrs(TYPEMAP)
+for facade, attrs in facade_attrs.items():
+    attrs.to_csv(os.path.join("facade_attributes", facade + ".csv"))
+write_table_rst("facade_attributes", "facades.rst")
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -36,7 +46,7 @@ project = 'oemof.tabular'
 year = '2018'
 author = 'Stephan Günther'
 copyright = '{0}, {1}'.format(year, author)
-version = release = '0.0.3'
+version = release = '0.0.5dev'
 
 pygments_style = 'trac'
 templates_path = ['.']

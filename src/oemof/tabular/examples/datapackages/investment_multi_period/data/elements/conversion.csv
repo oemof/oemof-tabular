@@ -1,0 +1,2 @@
+name;type;carrier;tech;capacity;capacity_cost;marginal_cost;efficiency;from_bus;to_bus;lifetime;age
+power2heat;conversion;electricity;heatpump;;20;2;0.99;bus1;heat-bus;20;0

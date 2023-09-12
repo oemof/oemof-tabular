@@ -1,0 +1,6 @@
+name;type;carrier;tech;capacity;capacity_cost;bus;marginal_cost;profile;output_parameters;expandable;lifetime;age
+gas-gt;dispatchable;gas;gt;0;cc_profile;bus1;40;;{"full_load_time_max": 2000};True;40;5
+coal-st;dispatchable;coal;st;0;cc_profile;bus0;40;;{};True;40;10
+lignite-st;dispatchable;lignite;st;0;cc_profile;bus0;20;;{};True;40;20
+wind;volatile;wind;onshore;0;cc_profile;bus0;0;wind-profile;{};True;20;5
+pv;volatile;solar;pv;0;cc_profile;bus1;0;pv-profile;{};True;20;5
