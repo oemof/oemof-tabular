@@ -8,7 +8,7 @@ Unreleased
 ------------------
 
 
-0.0.4 Patch Release - Tangling tabular - (2023-08-31)
+0.0.4 Patch Release (2023-08-31)
 -----------------------------------------------------
 
 Features
