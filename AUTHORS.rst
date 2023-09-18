@@ -12,3 +12,4 @@ Authors
 * Francesco Witte
 * Sarah Berendes
 * Marie-Claire Gering
+* Julian Endres
