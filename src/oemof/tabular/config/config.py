@@ -23,5 +23,6 @@ supported_oemof_tabular_versions = [
     "0.0.1",
     "0.0.2",
     "0.0.3",
-    "0.0.4dev",
+    "0.0.4",
+    "0.0.5dev",
 ]
