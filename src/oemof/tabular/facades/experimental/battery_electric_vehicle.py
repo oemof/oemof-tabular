@@ -3,7 +3,7 @@ from typing import Sequence, Union
 
 from oemof.solph._plumbing import sequence as solph_sequence
 from oemof.solph.buses import Bus
-from oemof.solph.components import GenericStorage, Sink, Transformer
+from oemof.solph.components import GenericStorage, Sink, Converter
 from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
@@ -150,7 +150,7 @@ class Bev(GenericStorage, Facade):
 
         # Discharging
         if self.v2g:
-            vehicle_to_grid = Transformer(
+            vehicle_to_grid = Converter(
                 label=facade_label + "-v2g",
                 inputs={internal_bus: Flow()},
                 outputs={
@@ -166,7 +166,7 @@ class Bev(GenericStorage, Facade):
             subnodes.append(vehicle_to_grid)
 
         # Charging
-        grid_to_vehicle = Transformer(
+        grid_to_vehicle = Converter(
             label=facade_label + "-g2v",
             inputs={
                 self.bus: Flow(
@@ -181,16 +181,34 @@ class Bev(GenericStorage, Facade):
         subnodes.append(grid_to_vehicle)
 
         # Drive consumption
-        driving_consumption = Sink(
-            label=facade_label + "-consumption",
-            inputs={
-                internal_bus: Flow(
-                    nominal_value=self.drive_power,
-                    fix=self.drive_consumption,
-                )
-            },
-        )
-        subnodes.append(driving_consumption)
+        if self.transport_commodity_bus:
+        # if True:
+            transport_commodity = Converter(
+                label=facade_label + "-consumption-converter",
+                inputs={
+                    internal_bus: Flow(
+                        nominal_value=self.max_charging_power,
+                        max=self.availability,
+                        # **self.output_parameters
+                    )
+                },
+                outputs={self.transport_commodity_bus: Flow()},
+                conversion_factors={self.bus: self.efficiency_charging},
+                # TODO maybe add battery efficiency + charger efficiency
+            )
+            subnodes.append(transport_commodity)
+
+        else:
+            driving_consumption = Sink(
+                label=facade_label + "-consumption",
+                inputs={
+                    internal_bus: Flow(
+                        nominal_value=self.drive_power,
+                        fix=self.drive_consumption,
+                    )
+                },
+            )
+            subnodes.append(driving_consumption)
 
         # Storage inputs
         self.inputs.update(
