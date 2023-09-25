@@ -140,8 +140,8 @@ class Bev(GenericStorage, Facade):
         self.label = self.label + "-storage"
 
         self.nominal_storage_capacity = self.storage_capacity
-        self.inflow_conversion_factor = solph_sequence(1)
-        self.outflow_conversion_factor = solph_sequence(1)
+        # self.inflow_conversion_factor = solph_sequence(1)
+        # self.outflow_conversion_factor = solph_sequence(1)
         self.balanced = self.balanced
 
         if self.expandable:
