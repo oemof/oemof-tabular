@@ -7,6 +7,7 @@ from oemof.solph.components import GenericStorage, Sink, Converter
 from oemof.solph.flows import Flow
 
 from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular.facades import Load
 
 
 @dataclass_facade
@@ -102,7 +103,7 @@ class Bev(GenericStorage, Facade):
     ...     availability=[0.8, 0.7, 0.6],
     ...     drive_power=[0.3, 0.2, 0.5],
     ...     amount=450,
-    ...     loss_rate=0.01,
+    # ...     loss_rate=0.01,
     ...     initial_storage_level=0,
     ...     min_storage_level=[0.1, 0.2, 0.15],
     ...     max_storage_level=[0.9, 0.95, 0.92],
@@ -117,11 +118,11 @@ class Bev(GenericStorage, Facade):
 
     drive_power: int
 
-    drive_consumption: Sequence
-
     max_charging_power: Union[float, Sequence[float]]
 
     availability: Sequence[float]
+
+    drive_consumption: Sequence = None
 
     efficiency_charging: float = 1
 
@@ -142,14 +143,16 @@ class Bev(GenericStorage, Facade):
         self.nominal_storage_capacity = self.storage_capacity
         # self.inflow_conversion_factor = solph_sequence(1)
         # self.outflow_conversion_factor = solph_sequence(1)
-        self.balanced = self.balanced
+        # self.balanced = self.balanced # TODO not in multi-period
+        self.balanced = False
+        self.initial_storage_level=0
 
         if self.expandable:
             raise NotImplementedError(
                 "Investment for bev class is not implemented."
             )
 
-        internal_bus = Bus(label=facade_label + "-internal_bus")
+        internal_bus = Bus(label=facade_label + "-bev-bus")
         self.bus = internal_bus
         subnodes = [internal_bus]
 
@@ -157,16 +160,16 @@ class Bev(GenericStorage, Facade):
         if self.v2g:
             vehicle_to_grid = Converter(
                 label=facade_label + "-v2g",
-                inputs={internal_bus: Flow()},
+                inputs={internal_bus: Flow(
+                    nominal_value=self.max_charging_power,
+                    max=self.availability,
+                )},
                 outputs={
-                    self.electricity_bus: Flow(
-                        nominal_value=self.max_charging_power,
-                        max=self.availability,
-                        # **self.output_parameters
-                    )
+                    self.electricity_bus: Flow()
                 },
                 # Includes storage charging efficiencies
-                conversion_factors={self.electricity_bus: self.efficiency_charging},
+                conversion_factors={internal_bus: self.efficiency_charging},
+                # conversion_factors={self.electricity_bus: self.efficiency_charging},
                 # TODO maybe add battery efficiency + charger efficiency
             )
             subnodes.append(vehicle_to_grid)
@@ -191,7 +194,7 @@ class Bev(GenericStorage, Facade):
         if self.transport_commodity_bus:
         # if True:
             transport_commodity = Converter(
-                label=facade_label + "-consumption-converter",
+                label=facade_label + "-to-pkm",
                 inputs={
                     internal_bus: Flow(
                         nominal_value=self.max_charging_power,
