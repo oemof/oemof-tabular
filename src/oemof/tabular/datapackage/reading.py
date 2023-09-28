@@ -382,7 +382,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         df_periods = pd.DataFrame.from_dict(
             package.get_resource("periods").read(keyed=True)
         )
-        period_data["timeincrement"] = df_periods["increment"].values
+        period_data["timeincrement"] = df_periods["timeincrement"].values
         period_data["timeindex"] = pd.DatetimeIndex(df_periods["timeindex"])
         period_data["periods"] = [
             pd.DatetimeIndex(df["timeindex"])
