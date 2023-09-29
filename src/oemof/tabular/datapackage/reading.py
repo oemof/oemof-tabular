@@ -459,20 +459,35 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     if period_data and isinstance(v, list):
                         # check if length of list equals number of periods
                         if len(v) == len(period_data["periods"]):
-                            # create timeseries with periodic values
-                            facade[f] = create_periodic_values(
-                                v, period_data["periods"]
-                            )
-                            msg = (
-                                "\n"
-                                f"The parameter '{f}' of a '{facade['type']}' "
-                                "facade is converted into a periodic time "
-                                "series.\nThis might not be possible for every"
-                                " parameter and lead to ambiguous error "
-                                "messages.\nPlease be aware, when using this "
-                                "feature!"
-                            )
-                            warnings.warn(msg, UserWarning)
+                            if f in ["fixed_costs", "capacity_costs"]:
+                                # special period parameters don't need to be
+                                # converted into timeseries
+                                facade[f] = v
+                                msg = (
+                                    "\n"
+                                    f"The parameter '{f}' of a '{facade['type']}' "
+                                    "facade is converted into a periodic list. "
+                                    "This might not be possible for every"
+                                    " parameter and lead to ambiguous error "
+                                    "messages.\nPlease be aware, when using this "
+                                    "feature!"
+                                )
+                                warnings.warn(msg, UserWarning)
+                            else:
+                                # create timeseries with periodic values
+                                facade[f] = create_periodic_values(
+                                    v, period_data["periods"]
+                                )
+                                msg = (
+                                    "\n"
+                                    f"The parameter '{f}' of a '{facade['type']}' "
+                                    "facade is converted into a periodic time "
+                                    "series.\nThis might not be possible for every"
+                                    " parameter and lead to ambiguous error "
+                                    "messages.\nPlease be aware, when using this "
+                                    "feature!"
+                                )
+                                warnings.warn(msg, UserWarning)
                 read_facade(
                     facade,
                     facades,
