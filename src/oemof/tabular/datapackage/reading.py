@@ -425,7 +425,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             ]
         )
 
-        return periodic_values
+        return periodic_values.tolist()
 
     facades = {}
     for r in package.resources:
