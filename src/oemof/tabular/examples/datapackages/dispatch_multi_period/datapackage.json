@@ -454,7 +454,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "increment",
+                        "name": "timeincrement",
                         "type": "integer",
                         "format": "default"
                     }
