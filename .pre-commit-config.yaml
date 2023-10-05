@@ -25,7 +25,7 @@ repos:
         entry: isort
         language: python
         types: [python]
-        args: ["--verbose", "src", "tests"]
+#        args: ["--verbose", "src", "tests"]
 
 -   repo: local
     hooks:
