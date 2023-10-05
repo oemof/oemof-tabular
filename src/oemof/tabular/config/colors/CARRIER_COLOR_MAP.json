@@ -1,0 +1,15 @@
+{
+    "biomass": "olivedrab",
+    "coal": "darkgray",
+    "electricity": "darkred",
+    "gas": "lightgray",
+    "hydro": "aqua",
+    "hydrogen": "magenta",
+    "lignite": "chocolate",
+    "lithium": "lightsalmon",
+    "oil": "black",
+    "solar": "gold",
+    "uranium": "yellow",
+    "waste": "yellowgreen",
+    "wind": "skyblue"
+}
