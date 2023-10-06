@@ -392,6 +392,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             pd.DatetimeIndex(i.values, freq=i.inferred_freq, name="timeindex")
             for i in period_data["periods"]
         ]
+        period_data["years"] = period_data["timeindex"].year.unique().values
 
     def create_periodic_values(values, periods_index):
         """
@@ -429,6 +430,18 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
         return periodic_values.tolist()
 
+    def create_yearly_values(values, years):
+        results = pd.Series()
+        for i in range(len(years) - 1):
+            diff = years[i + 1] - years[i]
+            period_results = pd.Series(repeat(values[i], diff))
+            results = pd.concat([results, period_results])
+        results = pd.concat([results, pd.Series(values[-1])])
+        return results.tolist()
+
+
+
+
     facades = {}
     for r in package.resources:
         if all(
@@ -461,7 +474,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     if period_data and isinstance(v, list):
                         # check if length of list equals number of periods
                         if len(v) == len(period_data["periods"]):
-                            if f in ["fixed_costs", "capacity_costs"]:
+                            if f in ["capacity_costs"]:
                                 # special period parameters don't need to be
                                 # converted into timeseries
                                 facade[f] = v
@@ -474,6 +487,23 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                                     "aware, when using this feature!"
                                 )
                                 warnings.warn(msg, UserWarning)
+                            elif f in ["fixed_costs"]:
+                                # special period parameter need to be
+                                # converted into timeseries with value for each
+                                # year
+                                facade[f] = create_yearly_values(
+                                    v, period_data["years"]
+                                )
+                                msg = (
+                                    f"\nThe parameter '{f}' of a "
+                                    f"'{facade['type']}' facade is converted "
+                                    "into a yearly list. This might not be "
+                                    "possible for every parameter and lead to "
+                                    "ambiguous error messages.\nPlease be "
+                                    "aware, when using this feature!"
+                                )
+                                warnings.warn(msg, UserWarning)
+
                             else:
                                 # create timeseries with periodic values
                                 facade[f] = create_periodic_values(
