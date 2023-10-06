@@ -396,6 +396,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     def create_periodic_values(values, periods_index):
         """
         Create periodic values from given values and period_data.
+        The values are repeated for each period for the whole length e.g.
+        8760 values for hourly data in one period.
 
         Parameters
         ----------
@@ -414,7 +416,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             pass
         else:
             raise ValueError(
-                "Length of values does not0 equal number of periods."
+                "Length of values does not equal number of periods."
             )
 
         # create timeseries with periodic values
