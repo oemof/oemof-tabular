@@ -413,9 +413,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             List of periodic values.
         """
         # check if length of list equals number of periods
-        if len(values) == len(periods_index):
-            pass
-        else:
+        if len(values) != len(periods_index):
             raise ValueError(
                 "Length of values does not equal number of periods."
             )
