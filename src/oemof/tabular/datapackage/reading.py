@@ -478,15 +478,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                                 # special period parameters don't need to be
                                 # converted into timeseries
                                 facade[f] = v
-                                msg = (
-                                    f"\nThe parameter '{f}' of a "
-                                    f"'{facade['type']}' facade is converted "
-                                    "into a periodic list. This might not be "
-                                    "possible for every parameter and lead to "
-                                    "ambiguous error messages.\nPlease be "
-                                    "aware, when using this feature!"
-                                )
-                                warnings.warn(msg, UserWarning)
+                                continue
                             elif f in ["fixed_costs"]:
                                 # special period parameter need to be
                                 # converted into timeseries with value for each
