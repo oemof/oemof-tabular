@@ -16,7 +16,7 @@ repos:
         entry: flake8
         language: python
         types: [python]
-#        args: ["src", "tests"]
+        args: ["src", "tests"]
 
 -   repo: local
     hooks:
