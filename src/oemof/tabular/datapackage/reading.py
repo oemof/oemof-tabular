@@ -437,9 +437,6 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         results = pd.concat([results, pd.Series(values[-1])])
         return results.tolist()
 
-
-
-
     facades = {}
     for r in package.resources:
         if all(
@@ -475,7 +472,12 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                             if f in ["capacity_costs"]:
                                 # special period parameters don't need to be
                                 # converted into timeseries
-                                facade[f] = v
+                                facade[f] = [
+                                    float(vv)
+                                    if isinstance(vv, Decimal)
+                                    else vv
+                                    for vv in v
+                                ]
                                 continue
                             elif f in ["fixed_costs"]:
                                 # special period parameter need to be
