@@ -14,6 +14,8 @@ Features
 
 Fixes
 
+* Remove specific dirs from flake8 & isort `#136 <https://github.com/oemof/oemof-tabular/pull/136>`_
+
 
 
 0.0.4 Patch Release (2023-08-31)
