@@ -10,6 +10,7 @@ Unreleased
 
 Features
 
+* Remove facade relicts `#135 <https://github.com/oemof/oemof-tabular/pull/135>`_
 
 Fixes
 
