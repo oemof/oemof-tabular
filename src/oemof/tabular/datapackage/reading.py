@@ -377,6 +377,66 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         for flow in (typemap.get(FLOW_TYPE, HSN),)
     }
 
+    period_data = {}
+    if package.get_resource("periods"):
+        df_periods = pd.DataFrame.from_dict(
+            package.get_resource("periods").read(keyed=True)
+        )
+        period_data["timeincrement"] = df_periods["timeincrement"].values
+        period_data["timeindex"] = pd.DatetimeIndex(df_periods["timeindex"])
+        period_data["periods"] = [
+            pd.DatetimeIndex(df["timeindex"])
+            for period, df in df_periods.groupby("periods")
+        ]
+        period_data["periods"] = [
+            pd.DatetimeIndex(i.values, freq=i.inferred_freq, name="timeindex")
+            for i in period_data["periods"]
+        ]
+        period_data["years"] = period_data["timeindex"].year.unique().values
+
+    def create_periodic_values(values, periods_index):
+        """
+        Create periodic values from given values and period_data.
+        The values are repeated for each period for the whole length e.g.
+        8760 values for hourly data in one period.
+
+        Parameters
+        ----------
+        values : list
+            List of values to be repeated.
+        periods_index : list
+            List containing periods datetimeindex.
+
+        Returns
+        -------
+        list
+            List of periodic values.
+        """
+        # check if length of list equals number of periods
+        if len(values) != len(periods_index):
+            raise ValueError(
+                "Length of values does not equal number of periods."
+            )
+
+        # create timeseries with periodic values
+        periodic_values = pd.concat(
+            [
+                pd.Series(repeat(values[i], len(period)), index=period)
+                for i, period in enumerate(periods_index)
+            ]
+        )
+
+        return periodic_values.tolist()
+
+    def create_yearly_values(values, years):
+        results = pd.Series()
+        for i in range(len(years) - 1):
+            diff = years[i + 1] - years[i]
+            period_results = pd.Series(repeat(values[i], diff))
+            results = pd.concat([results, period_results])
+        results = pd.concat([results, pd.Series(values[-1])])
+        return results.tolist()
+
     facades = {}
     for r in package.resources:
         if all(
@@ -405,6 +465,51 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 for f, v in facade.items():
                     if isinstance(v, Decimal):
                         facade[f] = float(v)
+                    # check if multi-period and value is list
+                    if period_data and isinstance(v, list):
+                        # check if length of list equals number of periods
+                        if len(v) == len(period_data["periods"]):
+                            if f in ["capacity_costs"]:
+                                # special period parameters don't need to be
+                                # converted into timeseries
+                                facade[f] = [
+                                    float(vv)
+                                    if isinstance(vv, Decimal)
+                                    else vv
+                                    for vv in v
+                                ]
+                                continue
+                            elif f in ["fixed_costs"]:
+                                # special period parameter need to be
+                                # converted into timeseries with value for each
+                                # year
+                                facade[f] = create_yearly_values(
+                                    v, period_data["years"]
+                                )
+                                msg = (
+                                    f"\nThe parameter '{f}' of a "
+                                    f"'{facade['type']}' facade is converted "
+                                    "into a yearly list. This might not be "
+                                    "possible for every parameter and lead to "
+                                    "ambiguous error messages.\nPlease be "
+                                    "aware, when using this feature!"
+                                )
+                                warnings.warn(msg, UserWarning)
+
+                            else:
+                                # create timeseries with periodic values
+                                facade[f] = create_periodic_values(
+                                    v, period_data["periods"]
+                                )
+                                msg = (
+                                    f"\nThe parameter '{f}' of a "
+                                    f"'{facade['type']}' facade is converted "
+                                    "into a periodic timeseries. This might "
+                                    "not be possible for every parameter and "
+                                    "lead to ambiguous error messages.\nPlease"
+                                    " be aware, when using this feature!"
+                                )
+                                warnings.warn(msg, UserWarning)
                 read_facade(
                     facade,
                     facades,
@@ -442,28 +547,12 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         # if no temporal provided as resource, take the first timeindex
         # from dict
         else:
-            # look for periods resource and if present, take as periods from it
+            # look for periods resource and if present, take periods from it
             if package.get_resource("periods"):
-                df_periods = pd.DataFrame.from_dict(
-                    package.get_resource("periods").read(keyed=True)
-                )
-                timeincrement = df_periods["increment"].values
-                timeindex = pd.DatetimeIndex(df_periods["timeindex"])
-                periods = [
-                    pd.DatetimeIndex(df["timeindex"])
-                    for period, df in df_periods.groupby("periods")
-                ]
-                periods = [
-                    pd.DatetimeIndex(
-                        i.values, freq=i.inferred_freq, name="timeindex"
-                    )
-                    for i in periods
-                ]
-
                 es = cls(
-                    timeindex=timeindex,
-                    timeincrement=timeincrement,
-                    periods=periods,
+                    timeindex=period_data["timeindex"],
+                    timeincrement=period_data["timeincrement"],
+                    periods=period_data["periods"],
                     infer_last_interval=False,
                 )
 
@@ -483,7 +572,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex = pd.date_range(
                     start=pd.to_datetime("today"), periods=1, freq="H"
                 )
-                es = cls()
+                es = cls(timeindex=timeindex)
 
         es.add(
             *chain(
