@@ -3,8 +3,6 @@ import os
 
 import pandas as pd
 
-from oemof.tabular.facades import TYPEMAP
-
 
 def get_facade_attrs(TYPEMAP):
     facade_attrs = {}
