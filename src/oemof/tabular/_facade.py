@@ -151,7 +151,7 @@ class Facade(Node):
             add_subnodes, sender=self
         )
 
-    def _nominal_value(self):
+    def _nominal_value(self, value=None):
         """Returns None if self.expandable ist True otherwise it returns
         the capacity
         """
@@ -168,58 +168,77 @@ class Facade(Node):
                     "to_from": self.to_from_capacity,
                 }
             else:
-                return self.capacity
+                if value:
+                    return value
+                else:
+                    return self.capacity
 
-    def _investment(self):
+    def _investment(self, bev=False):
         if not self.expandable:
             self.investment = None
             return self.investment
-        if self.capacity_cost is None:
-            msg = (
-                "If you set `expandable`to True you need to set "
-                "attribute `capacity_cost` of component {}!"
-            )
-            raise ValueError(msg.format(self.label))
-        # If storage component
-        if isinstance(self, GenericStorage):
-            # If invest costs/MWH are given
-            if self.storage_capacity_cost is not None:
-                self.investment = Investment(
-                    ep_costs=self.storage_capacity_cost,
-                    maximum=self._get_maximum_additional_invest(
-                        "storage_capacity_potential", "storage_capacity"
-                    ),
-                    minimum=getattr(self, "minimum_storage_capacity", 0),
-                    existing=getattr(self, "storage_capacity", 0),
-                    lifetime=getattr(self, "lifetime", None),
-                    age=getattr(self, "age", 0),
-                    fixed_costs=getattr(self, "fixed_costs", None),
-                )
-            # If invest costs/MWh are not given
-            else:
-                self.investment = Investment(
-                    maximum=self._get_maximum_additional_invest(
-                        "storage_capacity_potential", "storage_capacity"
-                    ),
-                    minimum=getattr(self, "minimum_storage_capacity", 0),
-                    existing=getattr(self, "storage_capacity", 0),
-                    lifetime=getattr(self, "lifetime", None),
-                    age=getattr(self, "age", 0),
-                    fixed_costs=getattr(self, "fixed_costs", None),
-                )
-        # If other component than storage
-        else:
+
+        if bev:
             self.investment = Investment(
-                ep_costs=self.capacity_cost,
+                ep_costs=0,
+                # ep_costs=self.bev_capacity_cost,
                 maximum=self._get_maximum_additional_invest(
-                    "capacity_potential", "capacity"
+                    "storage_capacity_potential", "storage_capacity"
                 ),
-                minimum=getattr(self, "capacity_minimum", 0),
-                existing=getattr(self, "capacity", 0),
+                minimum=getattr(self, "minimum_storage_capacity", 0),
+                existing=getattr(self, "storage_capacity", 0),
                 lifetime=getattr(self, "lifetime", None),
                 age=getattr(self, "age", 0),
                 fixed_costs=getattr(self, "fixed_costs", None),
             )
+        else:
+            if self.capacity_cost is None:
+                msg = (
+                    "If you set `expandable`to True you need to set "
+                    "attribute `capacity_cost` of component {}!"
+                )
+                raise ValueError(msg.format(self.label))
+
+            # If storage component
+            if isinstance(self, GenericStorage):
+                # If invest costs/MWH are given
+                if self.storage_capacity_cost is not None:
+                    self.investment = Investment(
+                        ep_costs=self.storage_capacity_cost,
+                        maximum=self._get_maximum_additional_invest(
+                            "storage_capacity_potential", "storage_capacity"
+                        ),
+                        minimum=getattr(self, "minimum_storage_capacity", 0),
+                        existing=getattr(self, "storage_capacity", 0),
+                        lifetime=getattr(self, "lifetime", None),
+                        age=getattr(self, "age", 0),
+                        fixed_costs=getattr(self, "fixed_costs", None),
+                    )
+                # If invest costs/MWh are not given
+                else:
+                    self.investment = Investment(
+                        maximum=self._get_maximum_additional_invest(
+                            "storage_capacity_potential", "storage_capacity"
+                        ),
+                        minimum=getattr(self, "minimum_storage_capacity", 0),
+                        existing=getattr(self, "storage_capacity", 0),
+                        lifetime=getattr(self, "lifetime", None),
+                        age=getattr(self, "age", 0),
+                        fixed_costs=getattr(self, "fixed_costs", None),
+                    )
+            # If other component than storage or Bev
+            else:
+                self.investment = Investment(
+                    ep_costs=self.capacity_cost,
+                    maximum=self._get_maximum_additional_invest(
+                        "capacity_potential", "capacity"
+                    ),
+                    minimum=getattr(self, "capacity_minimum", 0),
+                    existing=getattr(self, "capacity", 0),
+                    lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", 0),
+                    fixed_costs=getattr(self, "fixed_costs", None),
+                )
         return self.investment
 
     def _get_maximum_additional_invest(self, attr_potential, attr_existing):
