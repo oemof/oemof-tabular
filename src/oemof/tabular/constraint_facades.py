@@ -2,7 +2,38 @@ import abc
 from dataclasses import dataclass
 
 from oemof.solph.constraints.integral_limit import generic_integral_limit
-from oemof.solph.constraints.equate_variables import equate_variables
+from pyomo.environ import Constraint
+
+from oemof.tabular.facades import Bev
+
+
+def var2str(var):
+    return "_".join(
+        [i.label if not isinstance(i, int) else str(i) for i in var]
+    )
+
+
+def get_bev_label(var):
+    return var[1].label.split("-storage")[0]
+
+
+def get_period(model, year, constraint_type=None):
+    if model.es.periods:
+        years = [period.year.min() for period in model.es.periods]
+        for period_index, period_year in enumerate(years):
+            if period_year == year:
+                return period_index
+        raise ValueError(
+            f"'{constraint_type}' constraint facade:\n"
+            f"Year {year} is not in model.PERIODS."
+        )
+    elif year == model.es.timeindex.year.min():
+        return 0
+    else:
+        raise ValueError(
+            f"'{constraint_type}' constraint facade:\n"
+            f"Year {year} is not in model.timeindex."
+        )
 
 
 class ConstraintFacade(abc.ABC):
