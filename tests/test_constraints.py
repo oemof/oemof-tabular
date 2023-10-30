@@ -7,9 +7,14 @@ import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
-from oemof.tabular.constraint_facades import GenericIntegralLimit
+from oemof.tabular.constraint_facades import (
+    BevEqualInvest,
+    BevShareMob,
+    GenericIntegralLimit,
+)
 from oemof.tabular.facades import (
     BackpressureTurbine,
+    Bev,
     Commodity,
     Conversion,
     Dispatchable,
@@ -21,7 +26,6 @@ from oemof.tabular.facades import (
     Storage,
     Volatile,
 )
-from oemof.tabular.facades.experimental.battery_electric_vehicle import Bev
 
 
 def chop_trailing_whitespace(lines):
@@ -491,26 +495,120 @@ class TestConstraints:
 
         emission_constraint.build_constraint(model)
 
-        self.compare_to_reference_lp("emission_constraint.lp", my_om=model)
+    def test_bev_trio(self):
+        el_bus = solph.Bus("el-bus")
+        el_bus.type = "bus"
+        self.energysystem.add(el_bus)
 
-    def test_bev(self):
-        bus = solph.Bus("bus")
+        indiv_mob = solph.Bus("pkm-bus")
+        indiv_mob.type = "bus"
+        self.energysystem.add(indiv_mob)
 
-        bev = Bev(
-            label="bev",
-            bus=bus,
-            storage_capacity=1000,
-            drive_power=50,
-            drive_consumption=[0.8, 0.7, 0.6],
-            max_charging_power=10,
-            availability=[0.8, 0.7, 0.6],
-            efficiency_charging=0.93,
-            v2g=True,
-            loss_rate=0.01,
-            min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            max_storage_level=[0.9, 0.95, 0.92, 0.92],
+        pkm_demand = Load(
+            label="pkm_demand",
+            type="Load",
+            carrier="pkm",
+            bus=indiv_mob,
+            amount=200,  # PKM
+            profile=[0, 1, 0],  # drive consumption
         )
 
-        self.energysystem.add(bus, bev)
+        self.energysystem.add(pkm_demand)
 
-        self.compare_to_reference_lp("bev.lp")
+        bev_v2g = Bev(
+            type="bev",
+            label="BEV-V2G",
+            electricity_bus=el_bus,
+            storage_capacity=150,
+            capacity=50,
+            drive_power=150,  # nominal value sink
+            # drive_consumption=[1, 1, 1],  # relative value sink
+            max_charging_power=0,  # existing
+            availability=[1, 1, 1],
+            efficiency_charging=1,
+            v2g=True,
+            # loss_rate=0.01,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            transport_commodity_bus=indiv_mob,
+            expandable=True,
+            bev_capacity_cost=2,
+            invest_c_rate=60 / 20,
+            # marginal_cost=3,
+            pkm_conversion_rate=0.7,
+            lifetime=10,
+        )
+
+        self.energysystem.add(bev_v2g)
+
+        bev_flex = Bev(
+            type="bev",
+            label="BEV-inflex",
+            electricity_bus=el_bus,
+            storage_capacity=200,
+            drive_power=100,
+            # drive_consumption=[0, 1, 0],
+            # max_charging_power=200,
+            availability=[1, 1, 1],
+            v2g=False,
+            # loss_rate=0.01,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            transport_commodity_bus=indiv_mob,
+            expandable=True,
+            bev_capacity_cost=2,
+            invest_c_rate=60 / 20,
+            # marginal_cost=3,
+            pkm_conversion_rate=0.7,
+            lifetime=10,
+        )
+        self.energysystem.add(bev_flex)
+
+        bev_fix = Bev(
+            type="bev",
+            label="BEV-G2V",
+            electricity_bus=el_bus,
+            storage_capacity=200,
+            drive_power=100,
+            # drive_consumption=[0, 1, 0],
+            # max_charging_power=200,
+            availability=[1, 1, 1],
+            v2g=False,
+            # loss_rate=0.01,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            transport_commodity_bus=indiv_mob,
+            expandable=True,
+            bev_capacity_cost=2,
+            invest_c_rate=60 / 20,  # Capacity/Power
+            # marginal_cost=3,
+            pkm_conversion_rate=0.7,
+            input_parameters={"fix": [0, 0, 0]},
+            # fixed relative charging profile
+            lifetime=10,
+        )
+        self.energysystem.add(bev_fix)
+
+        model = solph.Model(self.energysystem)
+
+        year = self.date_time_index.year.min()
+        mob_share_constraint = BevShareMob(
+            name=f"mob_share_{year}",
+            type=None,
+            year=year,
+            label="BEV",
+            share_mob_flex_G2V=10,
+            share_mob_flex_V2G=20,
+            share_mob_inflex=70,
+        )
+        mob_share_constraint.build_constraint(model)
+
+        invest_constraint = BevEqualInvest(
+            name=f"bev_total_invest_{year}",
+            type=None,
+            year=year,
+        )
+
+        invest_constraint.build_constraint(model)
+
+        self.compare_to_reference_lp("bev_trio_constraint.lp", my_om=model)
