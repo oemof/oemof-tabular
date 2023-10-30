@@ -101,13 +101,14 @@ def draw_graph(energysystem):
     fig, ax = plt.subplots(figsize=(10, 8))
     node_colors = list()
     for i in list(G.nodes()):
-        if "BEV-V2G" in i:
+        if "storage" in i:
+            node_colors.append("royalblue")
+        elif "BEV-V2G" in i:
             node_colors.append("firebrick")
-        elif "BEV-FLEX" in i:
+        elif "BEV-G2V" in i:
             node_colors.append("lightblue")
-        elif "BEV-FIX" in i:
+        elif "BEV-inflex" in i:
             node_colors.append("darkviolet")
-
         elif "excess" in i:
             node_colors.append("green")
         elif "shortage" in i:
