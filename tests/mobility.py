@@ -1,218 +1,36 @@
+import os
+
 import mobility_plotting as mp
 import pandas as pd
-from pyomo import environ as po
-from pyomo.core.base.block import ScalarBlock
 
 from oemof import solph
+from oemof.tabular import __path__ as tabular_path
+from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
+from oemof.tabular.datapackage.reading import deserialize_constraints
 from oemof.tabular.facades import Excess, Load, Shortage, Volatile
 from oemof.tabular.facades.experimental.battery_electric_vehicle import Bev
 from oemof.tabular.postprocessing import calculations
 
-
-def double_with_offset(lst):
-    result = []
-    for i in range(len(lst) - 1):
-        result.append((lst[i], lst[i + 1]))
-    return result
-
-
-def var2str(var):
-    return "_".join(
-        [i.label if not isinstance(i, int) else str(i) for i in var]
-    )
-
-
-def equate_bev_invest(model, energysystem):
-    for node in energysystem.nodes:
-        if isinstance(node, Bev):
-            invest_vars = list(
-                set(
-                    inv
-                    for inv in model.InvestmentFlowBlock.invest
-                    for edge in inv[:2]
-                    if node.facade_label in edge.label
-                )
-            )
-            # TODO take care of multi period, only chain within period
-            for var1, var2 in double_with_offset(invest_vars):
-                solph.constraints.equate_variables(
-                    model=model,
-                    var1=model.InvestmentFlowBlock.invest[var1],
-                    var2=model.InvestmentFlowBlock.invest[var2],
-                    name=f"equal_invest({var2str(var1)}__{var2str(var2)})",
-                )
-
-
-# def relate_bev_invest(model, energysystem):
-#     invest_vars = {}
-#     for node in energysystem.nodes:
-#         if isinstance(node, Bev):
-#             invest_vars.update({
-#                     node.facade_label: inv for inv in model.InvestmentFlowBlock.invest
-#                     if f"{node.facade_label}-storage" in inv[1].label
-#                     for edge in inv[:1]
-#                     if node.electricity_bus.label in edge.label
-#                     # and f"{node.facade_label}-storage" in edge.label)
-#             } )
-#     factors = dict.fromkeys(invest_vars.keys(), 0.3)
-def relate_bev_invest(model, energysystem):
-    invest_vars = []
-    for node in energysystem.nodes:
-        if isinstance(node, Bev):
-            invest_vars.extend(
-                [
-                    inv
-                    for inv in model.InvestmentFlowBlock.invest
-                    if f"{node.facade_label}-storage" in inv[1].label
-                    for edge in inv[:1]
-                    if node.electricity_bus.label in edge.label
-                    # and f"{node.facade_label}-storage" in edge.label)
-                ]
-            )
-    market_share = dict(zip(invest_vars, [0.3, 0.1, 0.6]))
-
-    model.TotalBevInvest = po.Var(model.PERIODS, within=po.NonNegativeReals)
-    # m.PERIODS,
-
-    def total_bev_invest_rule(m):
-        return m.TotalBevInvest[p] == sum(
-            m.InvestmentFlowBlock.invest[inv_var] for inv_var in invest_vars
-        )
-
-    for p in model.PERIODS:
-        name = f"total_bev_invest-({p})"
-        setattr(model, name, po.Constraint(rule=total_bev_invest_rule))
-
-    # model.total_investment_constraint = po.Constraint(
-    #     expr=sum(model.InvestmentFlowBlock.invest[inv_var] for inv_var in
-    #              invest_vars) == model.TotalBevInvest[period]
+if __name__ == "__main__":
+    # date_time_index = pd.date_range("1/1/2020", periods=3, freq="H")
+    # energysystem = solph.EnergySystem(
+    #     timeindex=date_time_index,
+    #     infer_last_interval=True,
     # )
 
-    # model.investment_constraints = po.ConstraintList()
-    # for inv_var in invest_vars:
-    #     model.investment_constraints.add(
-    #         model.InvestmentFlowBlock.invest[inv_var] == factors[
-    #             inv_var] * model.total_bev_invest
-    #
-    #     )
-
-    # Define the rule to set the investment constraints
-    def investment_constraints_rule(m):
-        return (
-            m.InvestmentFlowBlock.invest[inv_var]
-            == market_share[inv_var] * m.TotalBevInvest[p]
-        )
-
-    for p in model.PERIODS:
-        for inv_var in invest_vars:
-            name = f"bev_invest_share({var2str(inv_var)})"
-            setattr(
-                model, name, po.Constraint(rule=investment_constraints_rule)
-            )
-
-    # model.BevBlock = OrderedScalarSet(
-    #     ordered_constraints=[model.TotalBevInvest, model.constraint2,
-    #                          model.constraint3])
-
-    # setattr(model, name, po.Constraint(rule=relate_variables_rule))
-    # # for var1, var2 in double_with_offset(invest_vars):
-    # relate_variables(
-    #     model=model,
-    #     var1=model.InvestmentFlowBlock.invest[invest_vars[0]],
-    #     var2=model.InvestmentFlowBlock.invest[invest_vars[1]],
-    #     var3=model.InvestmentFlowBlock.invest[invest_vars[2]],
-    #     factor1=0.2,
-    #     factor2=0.3,
-    #     factor3=0.5,
-    #     name="test"
-    #     # name=f"fixed_bev_share({var2str(var1)}__{var2str(var2)})",
-    #     )
-
-
-# def relate_variables(model, vars, factors, name=None
-#                      ):
-#
-#     if name is None:
-#         name = "_".join(["relate", str(var1), str(var2), str(var3)])
-#
-#     def relate_variables_rule(m):
-#         return var1 * factor1 + var2 * factor2 + var3 * factor3 == v
-#
-#     setattr(model, name, po.Constraint(rule=relate_variables_rule))
-
-
-def relate_variables(
-    model, var1, var2, var3, factor1, factor2, factor3, name=None
-):
-    if name is None:
-        name = "_".join(["relate", str(var1), str(var2), str(var3)])
-
-    def relate_variables_rule(m):
-        return (
-            var1 * factor1 + var2 * factor2 + var3 * factor3
-            == factor1 + factor2 + factor3
-        )
-
-    setattr(model, name, po.Constraint(rule=relate_variables_rule))
-
-
-class BevInvestmentBlock(ScalarBlock):
-    CONSTRAINT_GROUP = True
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def _create(self, group=None):
-        if group is None:
-            return None
-
-        m = self.parent_block()
-
-        # Set of DSM Components
-        self.bev = po.Set(initialize=[n for n in group])
-
-        self.TotalBevInvest = po.Var(m.PERIODS, within=po.NonNegativeReals)
-
-        def relate_bev_invest(self):
-            invest_vars = []
-            for node in self.es.nodes:
-                if isinstance(node, Bev):
-                    invest_vars.extend(
-                        [
-                            inv
-                            for inv in model.InvestmentFlowBlock.invest
-                            if f"{node.facade_label}-storage" in inv[1].label
-                            for edge in inv[:1]
-                            if node.electricity_bus.label in edge.label
-                            # and f"{node.facade_label}-storage" in edge.label)
-                        ]
-                    )
-            market_share = dict(zip(invest_vars, [0.3, 0.1, 0.6]))
-            return invest_vars, market_share
-
-            # m.PERIODS,
-
-        def total_bev_invest_rule(m):
-            return m.TotalBevInvest[p] == sum(
-                m.InvestmentFlowBlock.invest[inv_var]
-                for inv_var in invest_vars
-            )
-
-        invest_vars, market_share = relate_bev_invest()
-        for p in model.PERIODS:
-            name = f"total_bev_invest-({p})"
-            setattr(
-                model, name, po.Constraint(group, rule=total_bev_invest_rule)
-            )
-
-
-if __name__ == "__main__":
-    date_time_index = pd.date_range("1/1/2012", periods=3, freq="H")
+    # Multi-period example
+    t_idx_1 = pd.date_range("1/1/2020", periods=3, freq="H")
+    t_idx_2 = pd.date_range("1/1/2030", periods=3, freq="H")
+    t_idx_1_series = pd.Series(index=t_idx_1, dtype="float64")
+    t_idx_2_series = pd.Series(index=t_idx_2, dtype="float64")
+    timeindex = pd.concat([t_idx_1_series, t_idx_2_series]).index
+    periods = [t_idx_1, t_idx_2]
 
     energysystem = solph.EnergySystem(
-        groupings=solph.GROUPINGS,
-        timeindex=date_time_index,
-        infer_last_interval=True,
+        timeindex=timeindex,
+        infer_last_interval=False,
+        timeincrement=[1] * len(timeindex),
+        periods=periods,
     )
 
     el_bus = solph.Bus("el-bus")
@@ -234,7 +52,8 @@ if __name__ == "__main__":
         expandable=True,
         # expandable=False,
         # capacity_potential=1e8,
-        profile=[1, 0, 1],
+        profile=2 * [1, 0, 1],
+        lifetime=20,
     )
     energysystem.add(volatile)
 
@@ -244,7 +63,7 @@ if __name__ == "__main__":
         carrier="electricity",
         bus=el_bus,
         amount=100,
-        profile=[1, 1, 1],
+        profile=2 * [1, 1, 1],
     )
     energysystem.add(load)
 
@@ -265,7 +84,7 @@ if __name__ == "__main__":
         bus=el_bus,
         carrier="electricity",
         tech="shortage",
-        capacity=100,
+        capacity=1000,
         marginal_cost=1e6,
     )
     energysystem.add(shortage)
@@ -276,7 +95,7 @@ if __name__ == "__main__":
         carrier="pkm",
         bus=indiv_mob,
         amount=200,  # PKM
-        profile=[0, 1, 0],  # drive consumption
+        profile=2 * [0, 1, 0],  # drive consumption
     )
 
     energysystem.add(pkm_demand)
@@ -290,7 +109,7 @@ if __name__ == "__main__":
         drive_power=150,  # nominal value sink
         # drive_consumption=[1, 1, 1],  # relative value sink
         max_charging_power=0,  # existing
-        availability=[1, 1, 1],
+        availability=2 * [1, 1, 1],
         efficiency_charging=1,
         v2g=True,
         # loss_rate=0.01,
@@ -299,21 +118,22 @@ if __name__ == "__main__":
         transport_commodity_bus=indiv_mob,
         expandable=True,
         bev_capacity_cost=2,
-        invest_c_rate=0.5,
+        invest_c_rate=60 / 20,
         # marginal_cost=3,
         pkm_conversion_rate=0.7,
+        lifetime=10,
     )
     energysystem.add(bev_v2g)
 
     bev_flex = Bev(
         type="bev",
-        label="BEV-FLEX",
+        label="BEV-inflex",
         electricity_bus=el_bus,
         storage_capacity=200,
         drive_power=100,
         # drive_consumption=[0, 1, 0],
         # max_charging_power=200,
-        availability=[1, 1, 1],
+        availability=2 * [1, 1, 1],
         v2g=False,
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
@@ -321,21 +141,22 @@ if __name__ == "__main__":
         transport_commodity_bus=indiv_mob,
         expandable=True,
         bev_capacity_cost=2,
-        invest_c_rate=1,
+        invest_c_rate=60 / 20,
         # marginal_cost=3,
         pkm_conversion_rate=0.7,
+        lifetime=10,
     )
     energysystem.add(bev_flex)
 
     bev_fix = Bev(
         type="bev",
-        label="BEV-FIX",
+        label="BEV-G2V",
         electricity_bus=el_bus,
         storage_capacity=200,
         drive_power=100,
         # drive_consumption=[0, 1, 0],
         # max_charging_power=200,
-        availability=[1, 1, 1],
+        availability=2 * [1, 1, 1],
         v2g=False,
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
@@ -346,7 +167,10 @@ if __name__ == "__main__":
         invest_c_rate=60 / 20,  # Capacity/Power
         # marginal_cost=3,
         pkm_conversion_rate=0.7,
-        input_parameters={"fix": [0, 0, 0]},  # fixed relative charging profile
+        input_parameters={
+            "fix": 2 * [0, 0, 0]
+        },  # fixed relative charging profile
+        lifetime=10,
     )
     energysystem.add(bev_fix)
 
@@ -360,17 +184,21 @@ if __name__ == "__main__":
     filepath = "./mobility.lp"
     model.write(filepath, io_options={"symbolic_solver_labels": True})
 
-    # extra constraints
-    equate_bev_invest(model, energysystem)
-    #
-    # relate_bev_invest(model, energysystem)
-    BevInvestmentBlock._create(group="bev")
+    datapackage_dir = os.path.join(
+        tabular_path[0], "examples/own_examples/bev"
+    )
+    deserialize_constraints(
+        model=model,
+        path=os.path.join(datapackage_dir, "datapackage.json"),
+        constraint_type_map=CONSTRAINT_TYPE_MAP,
+    )
 
     filepath = "./mobility_constrained.lp"
     model.write(filepath, io_options={"symbolic_solver_labels": True})
 
     # select solver 'gurobi', 'cplex', 'glpk' etc
     model.solve("cbc", solve_kwargs={"tee": True})
+    model.display()
 
     energysystem.params = solph.processing.parameter_as_dict(
         energysystem, exclude_attrs=["subnodes"]
