@@ -12,24 +12,26 @@ from oemof.tabular.facades.experimental.battery_electric_vehicle import Bev
 from oemof.tabular.postprocessing import calculations
 
 if __name__ == "__main__":
+    # Single-period example
     # date_time_index = pd.date_range("1/1/2020", periods=3, freq="H")
     # energysystem = solph.EnergySystem(
     #     timeindex=date_time_index,
     #     infer_last_interval=True,
     # )
+    # periods=[2020]
 
     # Multi-period example
     t_idx_1 = pd.date_range("1/1/2020", periods=3, freq="H")
     t_idx_2 = pd.date_range("1/1/2030", periods=3, freq="H")
     t_idx_1_series = pd.Series(index=t_idx_1, dtype="float64")
     t_idx_2_series = pd.Series(index=t_idx_2, dtype="float64")
-    timeindex = pd.concat([t_idx_1_series, t_idx_2_series]).index
+    date_time_index = pd.concat([t_idx_1_series, t_idx_2_series]).index
     periods = [t_idx_1, t_idx_2]
 
     energysystem = solph.EnergySystem(
-        timeindex=timeindex,
+        timeindex=date_time_index,
         infer_last_interval=False,
-        timeincrement=[1] * len(timeindex),
+        timeincrement=[1] * len(date_time_index),
         periods=periods,
     )
 
@@ -52,7 +54,7 @@ if __name__ == "__main__":
         expandable=True,
         # expandable=False,
         # capacity_potential=1e8,
-        profile=2 * [1, 0, 1],
+        profile=len(periods) * [1, 0, 1],
         lifetime=20,
     )
     energysystem.add(volatile)
@@ -63,7 +65,7 @@ if __name__ == "__main__":
         carrier="electricity",
         bus=el_bus,
         amount=100,
-        profile=2 * [1, 1, 1],
+        profile=len(periods) * [1, 1, 1],
     )
     energysystem.add(load)
 
@@ -95,7 +97,7 @@ if __name__ == "__main__":
         carrier="pkm",
         bus=indiv_mob,
         amount=200,  # PKM
-        profile=2 * [0, 1, 0],  # drive consumption
+        profile=len(periods) * [0, 1, 0],  # drive consumption
     )
 
     energysystem.add(pkm_demand)
@@ -106,20 +108,20 @@ if __name__ == "__main__":
         electricity_bus=el_bus,
         storage_capacity=150,
         capacity=50,
-        drive_power=150,  # nominal value sink
+        # drive_power=150,  # nominal value sink
         # drive_consumption=[1, 1, 1],  # relative value sink
         max_charging_power=0,  # existing
-        availability=2 * [1, 1, 1],
+        availability=len(periods) * [1, 1, 1],
         efficiency_charging=1,
         v2g=True,
-        # loss_rate=0.01,
-        # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-        # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+        loss_rate=0.01,
+        min_storage_level=(len(date_time_index) + 0) * [0],
+        max_storage_level=(len(date_time_index) + 0) * [0.9],
         transport_commodity_bus=indiv_mob,
         expandable=True,
         bev_capacity_cost=2,
-        invest_c_rate=60 / 20,
-        # marginal_cost=3,
+        invest_c_rate=60 / 20,  # Capacity/Power
+        marginal_cost=3,
         pkm_conversion_rate=0.7,
         lifetime=10,
     )
@@ -133,7 +135,7 @@ if __name__ == "__main__":
         drive_power=100,
         # drive_consumption=[0, 1, 0],
         # max_charging_power=200,
-        availability=2 * [1, 1, 1],
+        availability=len(periods) * [1, 1, 1],
         v2g=False,
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
@@ -156,7 +158,7 @@ if __name__ == "__main__":
         drive_power=100,
         # drive_consumption=[0, 1, 0],
         # max_charging_power=200,
-        availability=2 * [1, 1, 1],
+        availability=len(periods) * [1, 1, 1],
         v2g=False,
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
@@ -168,7 +170,7 @@ if __name__ == "__main__":
         # marginal_cost=3,
         pkm_conversion_rate=0.7,
         input_parameters={
-            "fix": 2 * [0, 0, 0]
+            "fix": len(periods) * [0, 0, 0]
         },  # fixed relative charging profile
         lifetime=10,
     )
@@ -198,7 +200,7 @@ if __name__ == "__main__":
 
     # select solver 'gurobi', 'cplex', 'glpk' etc
     model.solve("cbc", solve_kwargs={"tee": True})
-    model.display()
+    # model.display()
 
     energysystem.params = solph.processing.parameter_as_dict(
         energysystem, exclude_attrs=["subnodes"]
