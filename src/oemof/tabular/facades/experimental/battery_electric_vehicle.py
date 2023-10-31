@@ -207,28 +207,6 @@ class Bev(GenericStorage, Facade):
             )
             subnodes.append(vehicle_to_grid)
 
-        # ##### Charging Converter #####
-
-        # grid_to_vehicle = Converter(
-        #     label=self.facade_label + "-g2v",
-        #     inputs={
-        #         self.electricity_bus: Flow(
-        #             # **self.output_parameters
-        #         )
-        #     },
-        #     outputs={internal_bus: Flow(
-        #         nominal_value=self._nominal_value(
-        #             value=self.max_charging_power),
-        #         max=self.availability,
-        #         variable_costs=None,
-        #         investment=self._investment(bev=True),
-        #     )},
-        #     conversion_factors={
-        #     self.electricity_bus: self.efficiency_charging},
-        #     # TODO maybe add battery efficiency + charger efficiency
-        # )
-        # subnodes.append(grid_to_vehicle)
-
         # Drive consumption
         if self.transport_commodity_bus:
             # ##### PKM Converter #####
