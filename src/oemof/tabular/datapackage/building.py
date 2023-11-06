@@ -6,6 +6,7 @@ import shutil
 import sys
 import tarfile
 import urllib.request
+import warnings
 import zipfile
 from ftplib import FTP
 from urllib.parse import urlparse
@@ -17,6 +18,11 @@ from datapackage import Package, Resource
 
 from oemof.tabular import __version__ as oemof_tabular_version
 from oemof.tabular.config import config
+from oemof.tabular.datapackage.utils import (
+    Data,
+    get_facade_fields,
+    populate_df,
+)
 
 
 def infer_resources(directory="data/elements"):
@@ -718,3 +724,88 @@ def write_sequences(
     sequences.to_csv(path, sep=";", date_format="%Y-%m-%dT%H:%M:%SZ")
 
     return path
+
+
+class DataFramePackage:
+    def __init__(self, name, data=None, facade_fields=None):
+        if data is None:
+            data = Data()
+
+        self.data = data
+
+        self.name = name
+
+        if facade_fields is None:
+            self.facade_fields = get_facade_fields()
+
+    def add_component(self, facade_type, **kwargs):
+        fields = self.facade_fields[facade_type]
+
+        columns = [field.name for field in fields]
+
+        # create resource
+        r = pd.DataFrame(columns=columns, index=[])
+
+        r = populate_df(r, **kwargs)
+
+        self.data.set_resource(["data", "elements", facade_type], r)
+
+    def to_csvs(self, destination, overwrite=False):
+        # check if directory exist and check if it is empty
+        destination_exists = os.path.exists(destination)
+        if destination_exists and os.listdir(destination):
+            # If overwrite is False, throw a warning
+            if not overwrite:
+                warnings.warn(
+                    "The path is not empty. Might overwrite existing data. "
+                    "Pass 'overwrite=True' to delete all contents in "
+                    "directory before saving."
+                )
+                return
+
+            # If overwrite is True delete any contents
+            else:
+                import shutil
+
+                shutil.rmtree(destination)
+
+        # get file tree info self.data
+        # save Resource.to_csv(
+        # Check if path exists and is non-empty
+        for location, resource in self.data.to_tuple_dict().items():
+            path = os.path.join(destination, *location[:-1])
+            filename = location[-1] + ".csv"
+
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            resource.to_csv(os.path.join(path, filename))
+
+
+def create_default_datapackage(
+    name,
+    basepath,
+    datetimeindex,
+    components,
+    busses,
+    regions,
+    links,
+    dummy_sequences=False,
+    bus_attrs=None,
+    component_attrs=None,
+    facade_fields=None,
+):
+    dfp = DataFramePackage(name, facade_fields=facade_fields)
+    for component in components:
+        try:
+            attrs = component_attrs[component]
+        except KeyError:
+            raise KeyError("Component not described in component_attrs")
+
+        facade_type = attrs.pop("type")
+
+        attrs.update({"region": regions})
+
+        dfp.add_component(facade_type, **attrs)
+
+    dfp.to_csvs(os.path.join(basepath, name))
