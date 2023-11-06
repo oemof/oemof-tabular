@@ -389,6 +389,52 @@ class TestConstraints:
 
         self.compare_to_reference_lp("link.lp")
 
+    def test_link_investment_green_field(self):
+        r"""
+        Investment into link with no existing capacities.
+        """
+        bus1 = solph.Bus("bus1")
+        bus2 = solph.Bus("bus2")
+
+        link = Link(
+            label="link",
+            carrier="electricity",
+            from_bus=bus1,
+            to_bus=bus2,
+            from_to_capacity=0,
+            to_from_capacity=0,
+            loss=0.04,
+            marginal_cost=22,
+            capacity_cost=540,
+            expandable=True,
+        )
+        self.energysystem.add(bus1, bus2, link)
+
+        self.compare_to_reference_lp("link_investment_green_field.lp")
+
+    def test_link_investment_brown_field(self):
+        r"""
+        Investment into link with existing capacities.
+        """
+        bus1 = solph.Bus("bus1")
+        bus2 = solph.Bus("bus2")
+
+        link = Link(
+            label="link",
+            carrier="electricity",
+            from_bus=bus1,
+            to_bus=bus2,
+            from_to_capacity=100,
+            to_from_capacity=80,
+            loss=0.04,
+            marginal_cost=22,
+            capacity_cost=540,
+            expandable=True,
+        )
+        self.energysystem.add(bus1, bus2, link)
+
+        self.compare_to_reference_lp("link_investment_brown_field.lp")
+
     def test_load(self):
         r""" """
         bus = solph.Bus("electricity")
