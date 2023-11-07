@@ -243,7 +243,7 @@ class Bev(GenericStorage, Facade):
 
         # convert to solph sequences
         self.availability = solph_sequence(self.availability)
-        self.max_charging_power = solph_sequence(self.max_charging_power)
+        self.charging_power = solph_sequence(self.charging_power)
 
         # TODO: check if this is correct
         self.nominal_storage_capacity = self.storage_capacity
@@ -270,7 +270,7 @@ class Bev(GenericStorage, Facade):
                 outputs={
                     self.electricity_bus: Flow(
                         nominal_value=self._nominal_value(
-                            value=self.max_charging_power
+                            value=self.charging_power
                         ),
                         # max=self.availability, # doesn't work with investment
                         variable_costs=None,
@@ -296,10 +296,8 @@ class Bev(GenericStorage, Facade):
                     )
                 },
                 outputs={
-                    self.transport_commodity_bus: Flow(
-                        nominal_value=self._nominal_value(
-                            self.max_charging_power
-                        ),
+                    self.mobility_bus: Flow(
+                        nominal_value=self._nominal_value(self.charging_power),
                         max=self.availability,
                         variable_costs=None,
                         investment=self._investment(bev=True),
@@ -378,12 +376,12 @@ class Bev(GenericStorage, Facade):
 
         else:
             flow_in = Flow(
-                nominal_value=self._nominal_value(self.max_charging_power),
+                nominal_value=self._nominal_value(self.charging_power),
                 max=self.availability,
                 **self.input_parameters,
             )
             flow_out = Flow(
-                nominal_value=self._nominal_value(self.max_charging_power),
+                nominal_value=self._nominal_value(self.charging_power),
                 # max=self.availability,
                 variable_costs=self.marginal_cost,
                 **self.output_parameters,

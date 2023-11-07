@@ -110,7 +110,7 @@ if __name__ == "__main__":
         capacity=50,
         # drive_power=150,  # nominal value sink
         # drive_consumption=[1, 1, 1],  # relative value sink
-        max_charging_power=0,  # existing
+        charging_power=0,  # existing
         availability=len(periods) * [1, 1, 1],
         efficiency_charging=1,
         v2g=True,
@@ -134,7 +134,7 @@ if __name__ == "__main__":
         storage_capacity=200,
         drive_power=100,
         # drive_consumption=[0, 1, 0],
-        # max_charging_power=200,
+        # charging_power=200,
         availability=len(periods) * [1, 1, 1],
         v2g=False,
         # loss_rate=0.01,
@@ -157,7 +157,7 @@ if __name__ == "__main__":
         storage_capacity=200,
         drive_power=100,
         # drive_consumption=[0, 1, 0],
-        # max_charging_power=200,
+        # charging_power=200,
         availability=len(periods) * [1, 1, 1],
         v2g=False,
         # loss_rate=0.01,
