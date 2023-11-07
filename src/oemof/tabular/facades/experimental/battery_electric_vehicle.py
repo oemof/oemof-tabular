@@ -302,8 +302,11 @@ class Bev(GenericStorage, Facade):
                         investment=self._investment(bev=True),
                     )
                 },
-                conversion_factors={self.bus: self.pkm_conversion_rate},
-                # TODO maybe add battery efficiency + charger efficiency
+                conversion_factors={
+                    self.bus: self.pkm_conversion_rate
+                    * self.efficiency_mob_electrical
+                    * 100  # TODO pro 100 km?
+                },
             )
             subnodes.append(pkm_converter)
 
