@@ -367,6 +367,7 @@ class Bev(GenericStorage, Facade):
                     age=getattr(self, "age", 0),
                     fixed_costs=getattr(self, "fixed_investment_costs", None),
                 ),
+                variable_costs=self.variable_costs,
                 **self.input_parameters,
             )
             # set investment, but no costs (as relation input / output = 1)
@@ -376,7 +377,6 @@ class Bev(GenericStorage, Facade):
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
                 ),
-                variable_costs=self.variable_costs,
                 **self.output_parameters,
             )
             # required for correct grouping in oemof.solph.components
