@@ -362,7 +362,7 @@ class Bev(GenericStorage, Facade):
                     existing=getattr(self, "charging_power", 0),
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
-                    fixed_costs=getattr(self, "fixed_costs", None),
+                    fixed_costs=getattr(self, "fixed_investment_costs", None),
                 ),
                 **self.input_parameters,
             )
