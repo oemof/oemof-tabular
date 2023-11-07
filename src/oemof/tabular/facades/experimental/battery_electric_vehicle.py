@@ -12,45 +12,115 @@ from oemof.tabular._facade import Facade, dataclass_facade
 
 @dataclass_facade
 class Bev(GenericStorage, Facade):
-    r"""A fleet of Battery electric vehicles with vehicle-to-grid.
+    r"""A fleet of Battery electric vehicles with controlled/flexible charging,
+     (G2V), vehicle-to-grid (V2G) or uncontrolled/fixed charging (inflex).
 
-    Note that the investment option is not available for this facade at
-    the current development state.
+    This facade consists of mulitple oemof.solph components:
+
+    - a GenericStorage as storage unit
+    - a Bus as internal bus
+    - a Sink to model the drive consumption (if no mobility bus is
+        given)
+    - a Converter to convert the energy to the electricity bus (optional V2G)
+    - a Converter to convert the energy to e.g. pkm (optional if mobility bus
+      is given)
+
+    Charging and discharging capacity is assumed to be equal.
+    Multiple fleets can be modelled and connected to a common bus
+    (mobility_bus) to apply one demand for all modelled fleets.
 
     Parameters
     ----------
     electricity_bus: oemof.solph.Bus
-        An oemof bus instance where the storage unit is connected to.
+        The electricity bus where the BEV is connected to.
+    mobility_bus: oemof.solph.Bus
+        A bus which is used to connect a common demand for multiple BEV
+        instances (optional).
+    charging_power : int
+        The total charging/discharging power of the fleet (e.g. in MW).
+    charging_potential: int
+        Maximum charging potential in investment optimization.
+    availability : float, array of float
+        Availability of the fleet at the charging stations (e.g. 0.8).
     storage_capacity: int
-        The total storage capacity of the vehicles (e.g. in MWh)
+        The total storage capacity of the fleet (e.g. in MWh).
+    initial_storage_capacity: float
+        The relative storage content in the timestep before the first
+        time step of optimization (between 0 and 1).
+
+        Note: When investment mode is used in a multi-period model,
+        `initial_storage_level` is not supported.
+        Storage output is forced to zero until the storage unit is invested in.
+    min_storage_level : array of float
+        Relative profile of minimum storage level (min SOC).The normed minimum
+        storage content as fraction of the storage capacity or the capacity
+        that has been invested into (between 0 and 1).
+    max_storage_level : array of float
+        Relative profile of maximum storage level (max SOC).
     drive_power: int
-        Total charging/discharging capacity of the vehicles (e.g. in MW)
-    drive_consumption : array-like
-        Profile of drive consumption of the fleet (relative to capacity).
-    max_charging_power : int
-        Max charging/discharging power of all vehicles (e.g. in MW)
-    availability : array-like
-        Ratio of available capacity for charging/vehicle-to-grid due to
-        grid connection.
-    efficiency_charging: float
-        Efficiency of charging the batteries, default: 1
+        The total driving capacity of the fleet (e.g. in MW) if no mobility_bus
+        is connected.
+    drive_consumption : array of float
+        Relative profile of drive consumption of the fleet
     v2g: bool
-        If True, vehicle-to-grid is enabled, default: False
+        If True, Vehicle-to-grid option is enabled, default: False
     loss_rate: float
-    min_storage_level : array-like
-        Profile of minimum storage level (min SOC)
-    max_storage_level : array-like
-        Profile of maximum storage level (max SOC).
+        The relative loss/self discharge of the storage content per time unit,
+        default: 0
+    efficiency_mob_g2v: float
+        Efficiency at the charging station (grid-to-vehicle), default: 1
+    efficiency_mob_v2g: float
+        Efficiency at the charging station (vehicle-to-grid), default: 1
+    efficiency_sto_in: float
+        Efficiency of charging the batteries, default: 1
+    efficiency_sto_out: float
+        Efficiency of discharging the batteries, default: 1
+    efficiency_mob_electrical: float
+        Efficiency of the electrical drive train per 100 km (optional).
+         default: 1
+    pkm_conversion_rate: float
+        Conversion rate from energy to e.g. pkm if mobility_bus passed
+        (optional) default: 1
+    expandable: bool
+        If True, the fleet is expandable, default: False
+        Charging_power and storage_capacity are then interpreted as existing
+        capacities at the first investment period.
+    lifetime: int
+        Total lifetime of the fleet in years.
+    age: int
+        Age of the existing fleet at the first investment period in years.
+
+    invest_c_rate: float
+        Invested storage capacity per power rate
+        (e.g. 60/20 = 3h charging/discharging time)
+    bev_storage_capacity: int
+        Storage capacity of one vehicle in kWh.
+    bev_capacity: int
+        Charging capacity of one vehicle in kW.
+
+    bev_invest_costs: float, array of float
+        Investment costs for new vehicle unit. EUR/vehicle
+    fixed_costs: float, array of float
+        Operation independent costs for existing and new vehicle units.
+         (e.g. EUR/(vehicle*a))
+    variable_costs: float, array of float
+        Variable costs of the fleet (e.g. in EUR/MWh).
+    fixed_investment_costs
+
+
     balanced : boolean
         Couple storage level of first and last time step.
         (Total inflow and total outflow are balanced.)
-    transport_commodity: None
-        Bus for the transport commodity
+
     input_parameters: dict
         Dictionary to specify parameters on the input edge. You can use
         all keys that are available for the  oemof.solph.network.Flow class.
+        e.g. fixed charging timeseries for the storage can be passed with
+        {"fix": [1,0.5,...]}
     output_parameters: dict
         see: input_parameters
+        e.g. fixed discharging timeseries for the storage can be passed with
+        {"fix": [1,0.5,...]}
 
 
     The vehicle fleet is modelled as a storage together with an internal
