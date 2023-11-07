@@ -309,17 +309,23 @@ class Bev(GenericStorage, Facade):
 
         else:
             # ##### Consumption Sink #####
-            # fixed timeseries for this bev unit only
-            driving_consumption = Sink(
-                label=self.facade_label + "-consumption",
-                inputs={
-                    internal_bus: Flow(
-                        nominal_value=self._nominal_value(self.drive_power),
-                        fix=self.drive_consumption,
-                        investment=self._investment(bev=True),
-                    )
-                },
-            )
+            # fixed demand for this fleet only
+            if self.expandable:
+                raise NotImplementedError(
+                    "Consumption sink for expandable BEV not implemented yet!"
+                    "Please use a `mobility_bus` + `Sink` instead. Optimizing"
+                    "one fleet alone may not yield meaningful results."
+                )
+            else:
+                driving_consumption = Sink(
+                    label=self.facade_label + "-consumption",
+                    inputs={
+                        internal_bus: Flow(
+                            nominal_value=self.drive_power,
+                            fix=self.drive_consumption,
+                        )
+                    },
+                )
             subnodes.append(driving_consumption)
 
         # ##### Storage ########
