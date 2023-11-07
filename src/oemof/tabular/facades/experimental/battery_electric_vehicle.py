@@ -184,41 +184,23 @@ class Bev(GenericStorage, Facade):
 
     electricity_bus: Bus
 
+    mobility_bus: Bus = None
+
+    charging_power: int = 0
+
+    charging_potential: int = None
+
     availability: Union[float, Sequence[float]] = 1
-
-    max_charging_power: Union[float, Sequence[float]] = 0
-
-    drive_power: int = 0
-
-    capacity: int = 0
 
     storage_capacity: int = 0
 
     initial_storage_capacity: float = 0
 
-    drive_consumption: Sequence = None
+    drive_power: int = 0
+
+    drive_consumption: Sequence[float] = None
 
     v2g: bool = False
-
-    transport_commodity_bus: Bus = None
-
-    input_parameters: dict = field(default_factory=dict)
-
-    output_parameters: dict = field(default_factory=dict)
-
-    expandable: bool = False
-
-    lifetime: int = None
-
-    bev_capacity_cost: Sequence[float] = None
-
-    invest_c_rate: Sequence[float] = None
-
-    marginal_cost: float = 0
-
-    balanced: bool = False
-
-    pkm_conversion_rate: float = 1
 
     efficiency_mob_g2v: float = 1
 
@@ -229,6 +211,30 @@ class Bev(GenericStorage, Facade):
     efficiency_sto_in: float = 1
 
     efficiency_sto_out: float = 1
+
+    pkm_conversion_rate: float = 1
+
+    expandable: bool = False
+
+    lifetime: int = 20
+
+    age: int = 0
+
+    invest_c_rate: Sequence[float] = None
+
+    bev_invest_costs: Sequence[float] = None
+
+    variable_costs: Union[float, Sequence[float]] = 0
+
+    fixed_costs: Union[float, Sequence[float]] = 0
+
+    fixed_investment_costs: Union[float, Sequence[float]] = 0
+
+    balanced: bool = False
+
+    input_parameters: dict = field(default_factory=dict)
+
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
         # use label as prefix for subnodes
