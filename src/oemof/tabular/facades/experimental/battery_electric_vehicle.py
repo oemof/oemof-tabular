@@ -243,7 +243,6 @@ class Bev(GenericStorage, Facade):
 
         # convert to solph sequences
         self.availability = solph_sequence(self.availability)
-        self.charging_power = solph_sequence(self.charging_power)
 
         # TODO: check if this is correct
         self.nominal_storage_capacity = self.storage_capacity
@@ -346,15 +345,15 @@ class Bev(GenericStorage, Facade):
                     )
 
             # ##### Grid2Vehicle #####
-            # containts the whole investmentcosts for bev
+            # containts the whole investment costs for bev
             flow_in = Flow(
                 # max=self.availability,
                 investment=Investment(
                     ep_costs=self.bev_invest_costs,
                     maximum=self._get_maximum_additional_invest(
-                        "capacity_potential", "capacity"
+                        "charging_potential", "charging_power"
                     ),
-                    existing=getattr(self, "capacity", 0),
+                    existing=getattr(self, "charging_power", 0),
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
                     fixed_costs=getattr(self, "fixed_costs", None),
@@ -364,7 +363,7 @@ class Bev(GenericStorage, Facade):
             # set investment, but no costs (as relation input / output = 1)
             flow_out = Flow(
                 investment=Investment(
-                    existing=getattr(self, "capacity", 0),
+                    existing=getattr(self, "charging_power", 0),
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
                 ),
