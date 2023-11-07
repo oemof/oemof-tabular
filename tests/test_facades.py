@@ -5,7 +5,7 @@ from oemof.solph import helpers
 
 from oemof import solph
 from oemof.tabular.constraint_facades import BevEqualInvest, BevShareMob
-from oemof.tabular.facades import Bev, Load, Volatile
+from oemof.tabular.facades import Bev, Excess, Load, Shortage, Volatile
 from oemof.tabular.postprocessing import calculations
 
 
@@ -104,6 +104,28 @@ class TestFacades:
         )
 
         self.energysystem.add(bev_v2g)
+
+        # excess = Excess(
+        #     type="excess",
+        #     label="excess",
+        #     bus=el_bus,
+        #     carrier="electricity",
+        #     tech="excess",
+        #     capacity=1e6,
+        #     marginal_cost=1e6,
+        # )
+        # self.energysystem.add(excess)
+        #
+        # shortage = Shortage(
+        #     type="shortage",
+        #     label="shortage",
+        #     bus=el_bus,
+        #     carrier="electricity",
+        #     tech="shortage",
+        #     capacity=1e6,
+        #     marginal_cost=1e6,
+        # )
+        # self.energysystem.add(shortage)
 
         self.get_om()
 
