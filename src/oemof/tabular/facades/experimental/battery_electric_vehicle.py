@@ -284,7 +284,7 @@ class Bev(GenericStorage, Facade):
             subnodes.append(vehicle_to_grid)
 
         # Drive consumption
-        if self.transport_commodity_bus:
+        if self.mobility_bus:
             # ##### PKM Converter #####
             # converts energy to e.g. pkm
             # connects it to a special mobility bus

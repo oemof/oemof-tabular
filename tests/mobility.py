@@ -117,7 +117,7 @@ if __name__ == "__main__":
         loss_rate=0.01,
         min_storage_level=(len(date_time_index) + 0) * [0],
         max_storage_level=(len(date_time_index) + 0) * [0.9],
-        transport_commodity_bus=indiv_mob,
+        mobility_bus=indiv_mob,
         expandable=True,
         bev_capacity_cost=2,
         invest_c_rate=60 / 20,  # Capacity/Power
@@ -140,7 +140,7 @@ if __name__ == "__main__":
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
         # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-        transport_commodity_bus=indiv_mob,
+        mobility_bus=indiv_mob,
         expandable=True,
         bev_capacity_cost=2,
         invest_c_rate=60 / 20,
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
         # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-        transport_commodity_bus=indiv_mob,
+        mobility_bus=indiv_mob,
         expandable=True,
         bev_capacity_cost=2,
         invest_c_rate=60 / 20,  # Capacity/Power
