@@ -121,7 +121,7 @@ if __name__ == "__main__":
         expandable=True,
         bev_invest_costs=2,
         invest_c_rate=60 / 20,  # Capacity/Power
-        marginal_cost=3,
+        variable_costs=3,
         pkm_conversion_rate=0.7,
         lifetime=10,
     )
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         expandable=True,
         bev_invest_costs=2,
         invest_c_rate=60 / 20,
-        # marginal_cost=3,
+        # variable_costs=3,
         pkm_conversion_rate=0.7,
         lifetime=10,
     )
@@ -167,7 +167,7 @@ if __name__ == "__main__":
         expandable=True,
         bev_invest_costs=2,
         invest_c_rate=60 / 20,  # Capacity/Power
-        # marginal_cost=3,
+        # variable_costs=3,
         pkm_conversion_rate=0.7,
         input_parameters={
             "fix": len(periods) * [0, 0, 0]

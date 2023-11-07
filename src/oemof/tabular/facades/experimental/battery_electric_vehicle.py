@@ -368,7 +368,7 @@ class Bev(GenericStorage, Facade):
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
                 ),
-                variable_costs=self.marginal_cost,
+                variable_costs=self.variable_costs,
                 **self.output_parameters,
             )
             # required for correct grouping in oemof.solph.components
@@ -383,7 +383,7 @@ class Bev(GenericStorage, Facade):
             flow_out = Flow(
                 nominal_value=self._nominal_value(self.charging_power),
                 # max=self.availability,
-                variable_costs=self.marginal_cost,
+                variable_costs=self.variable_costs,
                 **self.output_parameters,
             )
 
