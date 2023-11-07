@@ -325,7 +325,7 @@ class Bev(GenericStorage, Facade):
 
         # ##### Storage ########
         if self.expandable:
-            self.capacity_cost = self.bev_capacity_cost
+            # self.capacity_cost = self.bev_invest_costs
             self.storage_capacity_cost = 0
             # self.investment = self._investment(bev=False)
             self.invest_relation_input_output = 1  # charge/discharge equal
@@ -350,7 +350,7 @@ class Bev(GenericStorage, Facade):
             flow_in = Flow(
                 # max=self.availability,
                 investment=Investment(
-                    ep_costs=self.bev_capacity_cost,
+                    ep_costs=self.bev_invest_costs,
                     maximum=self._get_maximum_additional_invest(
                         "capacity_potential", "capacity"
                     ),

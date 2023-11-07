@@ -119,7 +119,7 @@ if __name__ == "__main__":
         max_storage_level=(len(date_time_index) + 0) * [0.9],
         mobility_bus=indiv_mob,
         expandable=True,
-        bev_capacity_cost=2,
+        bev_invest_costs=2,
         invest_c_rate=60 / 20,  # Capacity/Power
         marginal_cost=3,
         pkm_conversion_rate=0.7,
@@ -142,7 +142,7 @@ if __name__ == "__main__":
         # max_storage_level=[0.9, 0.95, 0.92, 0.92],
         mobility_bus=indiv_mob,
         expandable=True,
-        bev_capacity_cost=2,
+        bev_invest_costs=2,
         invest_c_rate=60 / 20,
         # marginal_cost=3,
         pkm_conversion_rate=0.7,
@@ -165,7 +165,7 @@ if __name__ == "__main__":
         # max_storage_level=[0.9, 0.95, 0.92, 0.92],
         mobility_bus=indiv_mob,
         expandable=True,
-        bev_capacity_cost=2,
+        bev_invest_costs=2,
         invest_c_rate=60 / 20,  # Capacity/Power
         # marginal_cost=3,
         pkm_conversion_rate=0.7,
