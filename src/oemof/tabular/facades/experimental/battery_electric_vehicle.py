@@ -33,7 +33,7 @@ class Bev(GenericStorage, Facade):
     ----------
     electricity_bus: oemof.solph.Bus
         The electricity bus where the BEV is connected to.
-    mobility_bus: oemof.solph.Bus
+    commodity_bus: oemof.solph.Bus
         A bus which is used to connect a common demand for multiple BEV
         instances (optional).
     charging_power : int
@@ -184,11 +184,13 @@ class Bev(GenericStorage, Facade):
 
     electricity_bus: Bus
 
-    mobility_bus: Bus = None
+    commodity_bus: Bus = None
 
-    charging_power: int = 0
+    charging_power: float = 0
 
-    charging_potential: int = None
+    minimum_charging_power: float = None
+
+    charging_potential: float = None
 
     availability: Union[float, Sequence[float]] = 1
 
@@ -212,7 +214,7 @@ class Bev(GenericStorage, Facade):
 
     efficiency_sto_out: float = 1
 
-    pkm_conversion_rate: float = 1
+    commodity_conversion_rate: float = 1
 
     expandable: bool = False
 
@@ -283,19 +285,19 @@ class Bev(GenericStorage, Facade):
             subnodes.append(vehicle_to_grid)
 
         # Drive consumption
-        if self.mobility_bus:
-            # ##### PKM Converter #####
-            # converts energy to e.g. pkm
+        if self.commodity_bus:
+            # ##### Commodity Converter #####
+            # converts energy to another commodity e.g. pkm
             # connects it to a special mobility bus
-            pkm_converter = Converter(
-                label=self.facade_label + "-2pkm",
+            commodity_converter = Converter(
+                label=self.facade_label + "-2com",
                 inputs={
                     internal_bus: Flow(
                         # **self.output_parameters
                     )
                 },
                 outputs={
-                    self.mobility_bus: Flow(
+                    self.commodity_bus: Flow(
                         nominal_value=self._nominal_value(self.charging_power),
                         max=self.availability,
                         variable_costs=None,
@@ -303,12 +305,12 @@ class Bev(GenericStorage, Facade):
                     )
                 },
                 conversion_factors={
-                    self.bus: self.pkm_conversion_rate
+                    self.bus: self.commodity_conversion_rate
                     * self.efficiency_mob_electrical
                     # * 100  # TODO pro 100 km?
                 },
             )
-            subnodes.append(pkm_converter)
+            subnodes.append(commodity_converter)
 
         else:
             # ##### Consumption Sink #####

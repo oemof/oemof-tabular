@@ -106,6 +106,7 @@ if __name__ == "__main__":
         type="bev",
         label="BEV-V2G",
         electricity_bus=el_bus,
+        commodity_bus=indiv_mob,
         storage_capacity=150,
         # drive_power=150,  # nominal value sink
         # drive_consumption=[1, 1, 1],  # relative value sink
@@ -116,13 +117,12 @@ if __name__ == "__main__":
         loss_rate=0.01,
         min_storage_level=(len(date_time_index) + 0) * [0],
         max_storage_level=(len(date_time_index) + 0) * [0.9],
-        mobility_bus=indiv_mob,
         expandable=True,
         bev_invest_costs=2,
         invest_c_rate=60 / 20,  # Capacity/Power
         variable_costs=3,
         fixed_investment_costs=1,
-        pkm_conversion_rate=0.7,
+        commodity_conversion_rate=0.7,
         lifetime=10,
     )
     energysystem.add(bev_v2g)
@@ -131,6 +131,7 @@ if __name__ == "__main__":
         type="bev",
         label="BEV-inflex",
         electricity_bus=el_bus,
+        commodity_bus=indiv_mob,
         storage_capacity=200,
         drive_power=100,
         # drive_consumption=[0, 1, 0],
@@ -140,13 +141,12 @@ if __name__ == "__main__":
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
         # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-        mobility_bus=indiv_mob,
         expandable=True,
         bev_invest_costs=2,
         invest_c_rate=60 / 20,
         variable_costs=3,
         fixed_investment_costs=1,
-        pkm_conversion_rate=0.7,
+        commodity_conversion_rate=0.7,
         lifetime=10,
     )
     energysystem.add(bev_flex)
@@ -155,6 +155,7 @@ if __name__ == "__main__":
         type="bev",
         label="BEV-G2V",
         electricity_bus=el_bus,
+        commodity_bus=indiv_mob,
         storage_capacity=200,
         drive_power=100,
         # drive_consumption=[0, 1, 0],
@@ -164,13 +165,12 @@ if __name__ == "__main__":
         # loss_rate=0.01,
         # min_storage_level=[0.1, 0.2, 0.15, 0.15],
         # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-        mobility_bus=indiv_mob,
         expandable=True,
         bev_invest_costs=2,
         invest_c_rate=60 / 20,  # Capacity/Power
         variable_costs=3,
         fixed_investment_costs=1,
-        pkm_conversion_rate=0.7,
+        commodity_conversion_rate=0.7,
         input_parameters={
             "fix": len(periods) * [0, 0, 0]
         },  # fixed relative charging profile
