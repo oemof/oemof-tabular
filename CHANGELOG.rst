@@ -11,8 +11,11 @@ Unreleased
 Features
 
 * Improve reading error message `#129 <https://github.com/oemof/oemof-tabular/pull/134>`_
+* Remove facade relicts `#135 <https://github.com/oemof/oemof-tabular/pull/135>`_
 
 Fixes
+
+* Remove specific dirs from flake8 & isort `#136 <https://github.com/oemof/oemof-tabular/pull/136>`_
 
 
 
