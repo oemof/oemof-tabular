@@ -10,6 +10,7 @@ Unreleased
 
 Features
 
+* Improve reading error message `#129 <https://github.com/oemof/oemof-tabular/pull/134>`_
 
 Fixes
 
