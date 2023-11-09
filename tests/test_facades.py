@@ -86,20 +86,21 @@ class TestFacades:
             label="BEV-V2G",
             v2g=True,
             electricity_bus=el_bus,
-            mobility_bus=indiv_mob,
+            commodity_bus=indiv_mob,
             storage_capacity=200,
             loss_rate=0,  # self discharge of storage
             charging_power=200,
             availability=[1, 1, 1],  # Vehicle availability at charger
             # min_storage_level=[0.1, 0.2, 0.15, 0.15],
             # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-            efficiency_charging=1,
-            pkm_conversion_rate=1,  # Energy to pkm
+            # efficiency_charging=1,
+            commodity_conversion_rate=1,  # Energy to pkm
             efficiency_mob_electrical=1,  # Vehicle efficiency per 100km
             efficiency_mob_g2v=1,  # Charger efficiency
             efficiency_mob_v2g=1,  # V2G charger efficiency
             efficiency_sto_in=1,  # Storage charging efficiency
             efficiency_sto_out=1,  # Storage discharging efficiency
+            variable_costs=10,  # Charging costs
         )
 
         self.energysystem.add(bev_v2g)

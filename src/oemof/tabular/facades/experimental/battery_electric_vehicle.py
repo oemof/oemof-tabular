@@ -194,7 +194,11 @@ class Bev(GenericStorage, Facade):
 
     availability: Union[float, Sequence[float]] = 1
 
-    storage_capacity: int = 0
+    storage_capacity: float = 0
+
+    minimum_storage_capacity: float = 0
+
+    storage_capacity_potential: float = None
 
     initial_storage_capacity: float = 0
 
@@ -238,6 +242,26 @@ class Bev(GenericStorage, Facade):
 
     output_parameters: dict = field(default_factory=dict)
 
+    def _converter_investment(self):
+        """All parameters are passed, but no investment cost is considered.
+        The investment cost will be considered by the storage inflow only.
+        """
+        if self.expandable:
+            investment = Investment(
+                ep_costs=0,
+                maximum=self._get_maximum_additional_invest(
+                    "charging_potential", "charging_power"
+                ),
+                minimum=getattr(self, "minimum_charging_power", 0),
+                existing=getattr(self, "charging_power", 0),
+                lifetime=getattr(self, "lifetime", None),
+                age=getattr(self, "age", 0),
+                fixed_costs=0,
+            )
+            return investment
+        else:
+            return None
+
     def build_solph_components(self):
         # use label as prefix for subnodes
         self.facade_label = self.label
@@ -258,6 +282,18 @@ class Bev(GenericStorage, Facade):
         self.bus = internal_bus
         subnodes = [internal_bus]
 
+        self.investment = Investment(
+            ep_costs=0,
+            maximum=self._get_maximum_additional_invest(
+                "storage_capacity_potential", "storage_capacity"
+            ),
+            minimum=getattr(self, "minimum_storage_capacity", 0),
+            existing=getattr(self, "storage_capacity", 0),
+            lifetime=getattr(self, "lifetime", None),
+            age=getattr(self, "age", 0),
+            fixed_costs=0,
+        )
+
         # ##### Vehicle2Grid Converter #####
         if self.v2g:
             vehicle_to_grid = Converter(
@@ -275,7 +311,8 @@ class Bev(GenericStorage, Facade):
                         ),
                         # max=self.availability, # doesn't work with investment
                         variable_costs=None,
-                        investment=self._investment(bev=True),
+                        # investment=self._investment(bev=True),
+                        investment=self._converter_investment(),
                     )
                 },
                 # Includes storage charging efficiencies
@@ -301,7 +338,8 @@ class Bev(GenericStorage, Facade):
                         nominal_value=self._nominal_value(self.charging_power),
                         max=self.availability,
                         variable_costs=None,
-                        investment=self._investment(bev=True),
+                        # investment=self._investment(bev=True),
+                        investment=self._converter_investment(),
                     )
                 },
                 conversion_factors={
