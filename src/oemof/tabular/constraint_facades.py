@@ -73,6 +73,9 @@ class GenericIntegralLimit(ConstraintFacade):
 
 @dataclass
 class BevShareMob(ConstraintFacade):
+    # TODO: rework docstring
+    """This constraint is only feasible if the definition of one vehicle is the
+    same (charging_capacity/storage_capacity) for all three bev technologies"""
     name: str
     type: str
     year: int
@@ -151,6 +154,7 @@ class BevShareMob(ConstraintFacade):
             )
 
 
+# TODO maybe move inside facade
 @dataclass
 class BevEqualInvest(ConstraintFacade):
     name: str
