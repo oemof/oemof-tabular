@@ -133,8 +133,13 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     for r in package.resources:
         try:
             r.read()
-        except dp.exceptions.CastError:
-            raise dp.exceptions.CastError((cast_error_msg).format(r.name))
+        except dp.exceptions.CastError as e:
+            raise dp.exceptions.CastError(
+                "\n"
+                + (cast_error_msg).format(r.name)
+                + "\n"
+                + "\n ".join([str(i) for i in e.errors])
+            )
     empty = HSN()
     empty.read = lambda *xs, **ks: ()
     empty.headers = ()
