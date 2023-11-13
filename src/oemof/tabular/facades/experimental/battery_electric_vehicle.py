@@ -316,7 +316,9 @@ class Bev(GenericStorage, Facade):
                     )
                 },
                 # Includes storage charging efficiencies
-                conversion_factors={internal_bus: self.efficiency_mob_v2g},
+                conversion_factors={
+                    self.electricity_bus: (self.efficiency_mob_v2g)
+                },
                 # TODO check efficiencies
             )
             subnodes.append(vehicle_to_grid)
@@ -343,7 +345,7 @@ class Bev(GenericStorage, Facade):
                     )
                 },
                 conversion_factors={
-                    self.bus: self.commodity_conversion_rate
+                    self.commodity_bus: self.commodity_conversion_rate
                     * self.efficiency_mob_electrical
                     # * 100  # TODO pro 100 km?
                 },
