@@ -4,15 +4,17 @@ import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
-from oemof.tabular.constraint_facades import BevEqualInvest, BevShareMob
-from oemof.tabular.facades import Bev, Excess, Load, Shortage, Volatile
-from oemof.tabular.postprocessing import calculations
+
+# from oemof.tabular.constraint_facades import BevEqualInvest, BevShareMob
+from oemof.tabular.facades import Bev, Load, Volatile  # , Shortage, Excess
+
+# from oemof.tabular.postprocessing import calculations
 
 
 class TestFacades:
     @classmethod
     def setup_class(cls):
-        cls.date_time_index = pd.date_range("1/1/2020", periods=3, freq="H")
+        cls.date_time_index = pd.date_range("1/1/2020", periods=4, freq="H")
 
         cls.tmpdir = helpers.extend_basic_path("tmp")
         logging.info(cls.tmpdir)
@@ -56,8 +58,9 @@ class TestFacades:
             bus=el_bus,
             carrier="wind",
             tech="onshore",
-            capacity=100,
-            profile=[1, 0, 0],
+            capacity=495.36,
+            profile=[1, 0, 0, 1 / 3],
+            variable_costs=10,
         )
         self.energysystem.add(volatile)
 
@@ -65,8 +68,8 @@ class TestFacades:
             label="load",
             carrier="electricity",
             bus=el_bus,
-            amount=50,
-            profile=[0, 1, 0],
+            amount=100,
+            profile=[0, 1, 0, 0.1],
         )
         self.energysystem.add(load)
 
@@ -75,8 +78,8 @@ class TestFacades:
             type="Load",
             carrier="pkm",
             bus=indiv_mob,
-            amount=50,  # PKM
-            profile=[0, 0, 1],  # drive consumption
+            amount=100,  # PKM
+            profile=[0, 0, 1, 0.5],  # drive consumption
         )
 
         self.energysystem.add(pkm_demand)
@@ -87,19 +90,19 @@ class TestFacades:
             v2g=True,
             electricity_bus=el_bus,
             commodity_bus=indiv_mob,
-            storage_capacity=200,
+            storage_capacity=500,
             loss_rate=0,  # self discharge of storage
-            charging_power=200,
-            availability=[1, 1, 1],  # Vehicle availability at charger
+            charging_power=500,
+            availability=[1, 1, 1, 1],  # Vehicle availability at charger
             # min_storage_level=[0.1, 0.2, 0.15, 0.15],
             # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             # efficiency_charging=1,
-            commodity_conversion_rate=1,  # Energy to pkm
-            efficiency_mob_electrical=1,  # Vehicle efficiency per 100km
-            efficiency_mob_g2v=1,  # Charger efficiency
-            efficiency_mob_v2g=1,  # V2G charger efficiency
-            efficiency_sto_in=1,  # Storage charging efficiency
-            efficiency_sto_out=1,  # Storage discharging efficiency
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
             variable_costs=10,  # Charging costs
         )
 
@@ -145,6 +148,10 @@ class TestFacades:
         # Check Storage level
         cn = "BEV-V2G-storage->None"
         assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
-        assert self.results[cn]["sequences"]["storage_content"].iloc[1] == 100
-        assert self.results[cn]["sequences"]["storage_content"].iloc[2] == 50
-        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 0
+        assert self.results[cn]["sequences"]["storage_content"].iloc[1] == 344
+        assert self.results[cn]["sequences"]["storage_content"].iloc[2] == 200
+        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 27.2
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[4]
+            == 48.522222
+        )
