@@ -27,7 +27,7 @@ class Bev(GenericStorage, Facade):
 
     Charging and discharging capacity is assumed to be equal.
     Multiple fleets can be modelled and connected to a common bus
-    (mobility_bus) to apply one demand for all modelled fleets.
+    (commodity_bus) to apply one demand for all modelled fleets.
 
     Parameters
     ----------
@@ -126,6 +126,7 @@ class Bev(GenericStorage, Facade):
     The vehicle fleet is modelled as a storage together with an internal
     sink with fixed flow:
 
+    todo check formula
     .. math::
 
         x^{level}(t) =
