@@ -337,7 +337,7 @@ class Bev(GenericStorage, Facade):
                 outputs={
                     self.commodity_bus: Flow(
                         nominal_value=self._nominal_value(self.charging_power),
-                        max=self.availability,
+                        # max=self.availability,
                         variable_costs=None,
                         # investment=self._investment(bev=True),
                         investment=self._converter_investment(),
@@ -426,7 +426,7 @@ class Bev(GenericStorage, Facade):
         else:
             flow_in = Flow(
                 nominal_value=self._nominal_value(self.charging_power),
-                max=self.availability,
+                # max=self.availability,
                 **self.input_parameters,
             )
             flow_out = Flow(
