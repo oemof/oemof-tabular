@@ -319,7 +319,6 @@ class Bev(GenericStorage, Facade):
                 conversion_factors={
                     self.electricity_bus: (self.efficiency_mob_v2g)
                 },
-                # TODO check efficiencies
             )
             subnodes.append(vehicle_to_grid)
 
@@ -437,7 +436,6 @@ class Bev(GenericStorage, Facade):
                 **self.output_parameters,
             )
 
-        # TODO check conversion factors
         self.inflow_conversion_factor = solph_sequence(
             self.efficiency_mob_g2v * self.efficiency_sto_in
         )

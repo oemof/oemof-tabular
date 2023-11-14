@@ -110,37 +110,9 @@ class TestFacades:
 
         self.energysystem.add(bev_v2g)
 
-        # excess = Excess(
-        #     type="excess",
-        #     label="excess",
-        #     bus=el_bus,
-        #     carrier="electricity",
-        #     tech="excess",
-        #     capacity=1e6,
-        #     marginal_cost=1e6,
-        # )
-        # self.energysystem.add(excess)
-        #
-        # shortage = Shortage(
-        #     type="shortage",
-        #     label="shortage",
-        #     bus=el_bus,
-        #     carrier="electricity",
-        #     tech="shortage",
-        #     capacity=1e6,
-        #     marginal_cost=1e6,
-        # )
-        # self.energysystem.add(shortage)
-
         self.get_om()
 
         solver_stats = self.solve_om()
-
-        # TODO check why this is not working
-        # self.energysystem.params = solph.processing.parameter_as_dict(
-        #     self.energysystem)
-        # postprocessed_results = calculations.run_postprocessing(
-        #     self.energysystem)
 
         # rename results to make them accessible
         self.rename_results()
