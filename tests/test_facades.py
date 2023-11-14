@@ -58,8 +58,8 @@ class TestFacades:
             bus=el_bus,
             carrier="wind",
             tech="onshore",
-            capacity=495.36,
-            profile=[1, 0, 0, 1 / 3],
+            capacity=725.76,
+            profile=[1, 0, 0, 0],
             variable_costs=10,
         )
         self.energysystem.add(volatile)
@@ -69,7 +69,7 @@ class TestFacades:
             carrier="electricity",
             bus=el_bus,
             amount=100,
-            profile=[0, 1, 0, 0.1],
+            profile=[0, 0.1, 0, 1],
         )
         self.energysystem.add(load)
 
@@ -79,7 +79,7 @@ class TestFacades:
             carrier="pkm",
             bus=indiv_mob,
             amount=100,  # PKM
-            profile=[0, 0, 1, 0.5],  # drive consumption
+            profile=[0.5, 0.5, 1, 0],  # drive consumption
         )
 
         self.energysystem.add(pkm_demand)
@@ -90,11 +90,13 @@ class TestFacades:
             v2g=True,
             electricity_bus=el_bus,
             commodity_bus=indiv_mob,
-            storage_capacity=500,
+            storage_capacity=800,
             loss_rate=0,  # self discharge of storage
-            charging_power=500,
+            charging_power=800,
+            balanced=True,
+            initial_storage_level=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
             # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             # efficiency_charging=1,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
@@ -148,10 +150,11 @@ class TestFacades:
         # Check Storage level
         cn = "BEV-V2G-storage->None"
         assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
-        assert self.results[cn]["sequences"]["storage_content"].iloc[1] == 344
-        assert self.results[cn]["sequences"]["storage_content"].iloc[2] == 200
-        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 27.2
         assert (
-            self.results[cn]["sequences"]["storage_content"].iloc[4]
-            == 48.522222
+            self.results[cn]["sequences"]["storage_content"].iloc[1] == 417.6
         )
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[2] == 316.8
+        )
+        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 144
+        assert self.results[cn]["sequences"]["storage_content"].iloc[4] == 0
