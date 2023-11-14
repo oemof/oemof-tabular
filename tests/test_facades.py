@@ -148,3 +148,167 @@ class TestFacades:
         )
         assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 144
         assert self.results[cn]["sequences"]["storage_content"].iloc[4] == 0
+
+    def test_bev_trio_dispatch(self):
+        """
+        Tests linked v2g, g2v and inflex bev facades in dispatch mode.
+        """
+        el_bus = solph.Bus("el-bus")
+        el_bus.type = "bus"
+        self.energysystem.add(el_bus)
+
+        indiv_mob = solph.Bus("pkm-bus")
+        indiv_mob.type = "bus"
+        self.energysystem.add(indiv_mob)
+
+        volatile = Volatile(
+            label="wind",
+            bus=el_bus,
+            carrier="wind",
+            tech="onshore",
+            capacity=882.432,
+            profile=[1, 0, 0, 0],
+            variable_costs=10,
+        )
+        self.energysystem.add(volatile)
+
+        load = Load(
+            label="load",
+            carrier="electricity",
+            bus=el_bus,
+            amount=100,
+            profile=[0, 1, 0, 1],
+        )
+        self.energysystem.add(load)
+
+        pkm_demand = Load(
+            label="pkm_demand",
+            type="Load",
+            carrier="pkm",
+            bus=indiv_mob,
+            amount=100,  # PKM
+            profile=[1, 1, 1, 0],  # drive consumption
+        )
+        self.energysystem.add(pkm_demand)
+
+        bev_v2g = Bev(
+            type="bev",
+            label="BEV-V2G",
+            v2g=True,
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=300,
+            loss_rate=0,  # self discharge of storage
+            charging_power=300,
+            balanced=True,
+            expandable=False,
+            initial_storage_capacity=0,
+            availability=[1, 1, 1, 1],  # Vehicle availability at charger
+            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            # efficiency_charging=1,
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=10,  # Charging costs
+        )
+        self.energysystem.add(bev_v2g)
+
+        bev_inflex = Bev(
+            type="bev",
+            label="BEV-inflex",
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=172.8,
+            loss_rate=0,  # self discharge of storage
+            charging_power=172.8,
+            # drive_power=100,  # total driving capacity of the fleet
+            availability=[1, 1, 1, 1],
+            v2g=False,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            balanced=True,
+            expandable=False,
+            input_parameters={
+                "fix": [1, 0, 0, 0]
+            },  # fixed relative charging profile
+            output_parameters={
+                "fix": [0, 0.5, 0.5, 0]
+            },  # fixed relative discharging profile
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=10,
+        )
+        self.energysystem.add(bev_inflex)
+
+        bev_g2v = Bev(
+            type="bev",
+            label="BEV-G2V",
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=172.8,
+            loss_rate=0,  # self discharge of storage
+            charging_power=172.8,
+            # drive_power=100,
+            # drive_consumption=[0, 1, 0, 0],
+            availability=[1, 1, 1, 1],
+            v2g=False,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            balanced=True,
+            expandable=False,
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=8,
+        )
+        self.energysystem.add(bev_g2v)
+
+        self.get_om()
+
+        solver_stats = self.solve_om()
+
+        # rename results to make them accessible
+        self.rename_results()
+
+        assert solver_stats["Solver"][0]["Status"] == "ok"
+
+        # Check Storage level
+        cn = "BEV-V2G-storage->None"
+        assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
+        assert self.results[cn]["sequences"]["storage_content"].iloc[1] == 288
+        assert self.results[cn]["sequences"]["storage_content"].iloc[2] == 144
+        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 144
+        assert self.results[cn]["sequences"]["storage_content"].iloc[4] == 0
+
+        cn2 = "BEV-inflex-storage->None"
+        assert self.results[cn2]["sequences"]["storage_content"].iloc[0] == 0
+        assert (
+            self.results[cn2]["sequences"]["storage_content"].iloc[1] == 172.8
+        )
+        assert (
+            self.results[cn2]["sequences"]["storage_content"].iloc[2] == 86.4
+        )
+        assert self.results[cn2]["sequences"]["storage_content"].iloc[3] == 0
+        assert self.results[cn2]["sequences"]["storage_content"].iloc[4] == 0
+
+        cn3 = "BEV-G2V-storage->None"
+        assert self.results[cn3]["sequences"]["storage_content"].iloc[0] == 0
+        assert (
+            self.results[cn3]["sequences"]["storage_content"].iloc[1] == 417.6
+        )
+        assert (
+            self.results[cn3]["sequences"]["storage_content"].iloc[2] == 172.8
+        )
+        assert (
+            self.results[cn3]["sequences"]["storage_content"].iloc[3] == 86.4
+        )
+        assert self.results[cn3]["sequences"]["storage_content"].iloc[4] == 0
