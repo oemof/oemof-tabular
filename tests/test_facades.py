@@ -45,6 +45,24 @@ class TestFacades:
             self.results[new_key] = self.results.pop(old_key)
 
     def test_bev_v2g_dispatch(self):
+        """
+        Tests v2g bev facade in dispatch mode.
+
+        The following energy quantities are used:
+        volatile	    +725.76	    0	    0	    0
+        load	        0	        -10	    0	    -100
+        pkm_demand	    -50	        -50	    -100	0
+        V2g storage	    417.6	    316.8	144	    0
+
+        The following efficiencies are taken into consideration:
+        volatile --> v2g_storage:   efficiency_sto_in * efficiency_mob_g2v
+        storage --> load:           efficiency_sto_out * efficiency_mob_v2g
+        storage --> pkm_demand:
+            efficiency_sto_out * efficiency_mob_electrical *
+                commodity_conversion_rate
+
+        todo, optional: show as table
+        """
         el_bus = solph.Bus("el-bus")
         el_bus.type = "bus"
         self.energysystem.add(el_bus)
