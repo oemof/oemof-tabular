@@ -112,7 +112,7 @@ class TestFacades:
             loss_rate=0,  # self discharge of storage
             charging_power=800,
             balanced=True,
-            initial_storage_level=0,
+            initial_storage_capacity=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
             # min_storage_level=[0.0, 0.2, 0.15, 0.0],
             # max_storage_level=[0.9, 0.95, 0.92, 0.92],
