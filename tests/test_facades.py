@@ -152,7 +152,22 @@ class TestFacades:
 
     def test_bev_inflex_dispatch(self):
         """
-        Tests linked v2g, g2v and inflex bev facades in dispatch mode.
+        Tests inflex bev facade in dispatch mode.
+
+        The following energy quantities are used:
+        volatile	    +908.704    0	    0	    0
+        load	        -100        0	    0	    0
+        pkm_demand	    -100        -50	    -100	-75
+        V2g storage	    388.8	    302.4	129.6   0
+
+        The following efficiencies are taken into consideration:
+        volatile --> v2g_storage:   efficiency_sto_in * efficiency_mob_g2v
+        storage --> load:           efficiency_sto_out * efficiency_mob_v2g
+        storage --> pkm_demand:
+            efficiency_sto_out * efficiency_mob_electrical *
+                commodity_conversion_rate
+
+        todo, optional: show as table
         """
         el_bus = solph.Bus("el-bus")
         el_bus.type = "bus"
@@ -167,7 +182,7 @@ class TestFacades:
             bus=el_bus,
             carrier="wind",
             tech="onshore",
-            capacity=545.6,
+            capacity=908.704,
             profile=[1, 0, 0, 0],
             variable_costs=10,
         )
@@ -188,7 +203,7 @@ class TestFacades:
             carrier="pkm",
             bus=indiv_mob,
             amount=100,  # PKM
-            profile=[1, 0.5, 1, 0.5],  # drive consumption
+            profile=[1, 0.5, 1, 0.75],  # drive consumption
         )
         self.energysystem.add(pkm_demand)
 
@@ -197,22 +212,23 @@ class TestFacades:
             label="BEV-inflex",
             electricity_bus=el_bus,
             commodity_bus=indiv_mob,
-            storage_capacity=345.6,
+            storage_capacity=900,
             loss_rate=0,  # self discharge of storage
-            charging_power=345.6,
+            charging_power=900,
             # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
             # min_storage_level=[0.1, 0.2, 0.15, 0.15],
             # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
+            initial_storage_capacity=0,
             expandable=False,
             input_parameters={
-                "fix": [1, 0, 0, 0]
+                "fix": [0.89856, 0, 0, 0]
             },  # fixed relative charging profile
-            # output_parameters={
-            #     "fix": [0.25, 0.5, 0.25, 0]
-            # },  # fixed relative discharging profile
+            output_parameters={
+                "fix": [0.16, 0.08, 0.16, 0.12]
+            },  # fixed relative discharging profile
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_g2v=5 / 6,  # Charger efficiency
@@ -235,12 +251,14 @@ class TestFacades:
         cn = "BEV-inflex-storage->None"
         assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
         assert (
-            self.results[cn]["sequences"]["storage_content"].iloc[1] == 345.6
+            self.results[cn]["sequences"]["storage_content"].iloc[1] == 388.8
         )
         assert (
-            self.results[cn]["sequences"]["storage_content"].iloc[2] == 259.2
+            self.results[cn]["sequences"]["storage_content"].iloc[2] == 302.4
         )
-        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 86.4
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[3] == 129.6
+        )
         assert self.results[cn]["sequences"]["storage_content"].iloc[4] == 0
 
     def test_bev_trio_dispatch(self):
