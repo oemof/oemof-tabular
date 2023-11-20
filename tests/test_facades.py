@@ -370,7 +370,7 @@ class TestFacades:
             bus=el_bus,
             carrier="wind",
             tech="onshore",
-            capacity=882.432,
+            capacity=2543.168,
             profile=[1, 0, 0, 0],
             variable_costs=10,
         )
@@ -380,8 +380,8 @@ class TestFacades:
             label="load",
             carrier="electricity",
             bus=el_bus,
-            amount=100,
-            profile=[0, 1, 0, 1],
+            amount=200,
+            profile=[1, 0.05, 0, 0.5],
         )
         self.energysystem.add(load)
 
@@ -390,8 +390,8 @@ class TestFacades:
             type="Load",
             carrier="pkm",
             bus=indiv_mob,
-            amount=100,  # PKM
-            profile=[1, 1, 1, 0],  # drive consumption
+            amount=250,  # PKM
+            profile=[1, 0.6, 1.2, 0.6],  # drive consumption
         )
         self.energysystem.add(pkm_demand)
 
@@ -401,9 +401,9 @@ class TestFacades:
             v2g=True,
             electricity_bus=el_bus,
             commodity_bus=indiv_mob,
-            storage_capacity=300,
+            storage_capacity=800,
             loss_rate=0,  # self discharge of storage
-            charging_power=300,
+            charging_power=800,
             balanced=True,
             expandable=False,
             initial_storage_capacity=0,
@@ -426,28 +426,29 @@ class TestFacades:
             label="BEV-inflex",
             electricity_bus=el_bus,
             commodity_bus=indiv_mob,
-            storage_capacity=172.8,
+            storage_capacity=900,
             loss_rate=0,  # self discharge of storage
-            charging_power=172.8,
+            charging_power=900,
             # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
             # min_storage_level=[0.1, 0.2, 0.15, 0.15],
             # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
+            initial_storage_capacity=0,
             expandable=False,
             input_parameters={
-                "fix": [1, 0, 0, 0]
+                "fix": [0.89856, 0, 0, 0]
             },  # fixed relative charging profile
             output_parameters={
-                "fix": [0, 0.5, 0.5, 0]
+                "fix": [0.16, 0.08, 0.16, 0.12]
             },  # fixed relative discharging profile
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_g2v=5 / 6,  # Charger efficiency
             efficiency_sto_in=5 / 6,  # Storage charging efficiency
             efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
-            variable_costs=10,
+            variable_costs=20,  # Charging costs
         )
         self.energysystem.add(bev_inflex)
 
@@ -456,23 +457,23 @@ class TestFacades:
             label="BEV-G2V",
             electricity_bus=el_bus,
             commodity_bus=indiv_mob,
-            storage_capacity=172.8,
+            storage_capacity=808.704,
             loss_rate=0,  # self discharge of storage
-            charging_power=172.8,
-            # drive_power=100,
-            # drive_consumption=[0, 1, 0, 0],
+            charging_power=808.704,
+            # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
             # min_storage_level=[0.1, 0.2, 0.15, 0.15],
             # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
+            initial_storage_capacity=0,
             expandable=False,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_g2v=5 / 6,  # Charger efficiency
             efficiency_sto_in=5 / 6,  # Storage charging efficiency
             efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
-            variable_costs=8,
+            variable_costs=4,  # Charging costs
         )
         self.energysystem.add(bev_g2v)
 
@@ -488,31 +489,28 @@ class TestFacades:
         # Check Storage level
         cn = "BEV-V2G-storage->None"
         assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
-        assert self.results[cn]["sequences"]["storage_content"].iloc[1] == 288
-        assert self.results[cn]["sequences"]["storage_content"].iloc[2] == 144
-        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 144
         assert self.results[cn]["sequences"]["storage_content"].iloc[4] == 0
 
         cn2 = "BEV-inflex-storage->None"
         assert self.results[cn2]["sequences"]["storage_content"].iloc[0] == 0
         assert (
-            self.results[cn2]["sequences"]["storage_content"].iloc[1] == 172.8
+            self.results[cn2]["sequences"]["storage_content"].iloc[1] == 388.8
         )
         assert (
-            self.results[cn2]["sequences"]["storage_content"].iloc[2] == 86.4
+            self.results[cn2]["sequences"]["storage_content"].iloc[2] == 302.4
         )
-        assert self.results[cn2]["sequences"]["storage_content"].iloc[3] == 0
+        assert (
+            self.results[cn2]["sequences"]["storage_content"].iloc[3] == 129.6
+        )
         assert self.results[cn2]["sequences"]["storage_content"].iloc[4] == 0
 
         cn3 = "BEV-G2V-storage->None"
         assert self.results[cn3]["sequences"]["storage_content"].iloc[0] == 0
-        assert (
-            self.results[cn3]["sequences"]["storage_content"].iloc[1] == 417.6
-        )
-        assert (
-            self.results[cn3]["sequences"]["storage_content"].iloc[2] == 172.8
-        )
-        assert (
-            self.results[cn3]["sequences"]["storage_content"].iloc[3] == 86.4
-        )
         assert self.results[cn3]["sequences"]["storage_content"].iloc[4] == 0
+
+        # Check storage input flows
+        cn4 = "el-bus->BEV-V2G-storage"
+        assert self.results[cn4]["sequences"]["flow"].iloc[0] == 725.76
+
+        cn5 = "el-bus->BEV-G2V-storage"
+        assert self.results[cn5]["sequences"]["flow"].iloc[0] == 808.704
