@@ -356,6 +356,11 @@ class TestFacades:
     def test_bev_trio_dispatch(self):
         """
         Tests linked v2g, g2v and inflex bev facades in dispatch mode.
+
+        Energy quantities are taken from the single tests
+        (`test_bev_v2g_dispatch()`, `test_bev_inflex_dispatch()`,
+        `test_bev_g2v_dispatch()`) and summed up in this test.
+
         """
         el_bus = solph.Bus("el-bus")
         el_bus.type = "bus"
