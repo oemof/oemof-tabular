@@ -261,6 +261,98 @@ class TestFacades:
         )
         assert self.results[cn]["sequences"]["storage_content"].iloc[4] == 0
 
+    def test_bev_g2v_dispatch(self):
+        """
+        Tests g2v bev facade in dispatch mode.
+
+        The same quantities as in `test_bev_inflex_dispatch()` are used.
+        """
+        el_bus = solph.Bus("el-bus")
+        el_bus.type = "bus"
+        self.energysystem.add(el_bus)
+
+        indiv_mob = solph.Bus("pkm-bus")
+        indiv_mob.type = "bus"
+        self.energysystem.add(indiv_mob)
+
+        volatile = Volatile(
+            label="wind",
+            bus=el_bus,
+            carrier="wind",
+            tech="onshore",
+            capacity=908.704,
+            profile=[1, 0, 0, 0],
+            variable_costs=10,
+        )
+        self.energysystem.add(volatile)
+
+        load = Load(
+            label="load",
+            carrier="electricity",
+            bus=el_bus,
+            amount=100,
+            profile=[1, 0, 0, 0],
+        )
+        self.energysystem.add(load)
+
+        pkm_demand = Load(
+            label="pkm_demand",
+            type="Load",
+            carrier="pkm",
+            bus=indiv_mob,
+            amount=100,  # PKM
+            profile=[1, 0.5, 1, 0.75],  # drive consumption
+        )
+        self.energysystem.add(pkm_demand)
+
+        bev_g2v = Bev(
+            type="bev",
+            label="BEV-G2V",
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=900,
+            loss_rate=0,  # self discharge of storage
+            charging_power=900,
+            # drive_power=100,  # total driving capacity of the fleet
+            availability=[1, 1, 1, 1],
+            v2g=False,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            balanced=True,
+            initial_storage_capacity=0,
+            expandable=False,
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=8,
+        )
+        self.energysystem.add(bev_g2v)
+
+        self.get_om()
+
+        solver_stats = self.solve_om()
+
+        # rename results to make them accessible
+        self.rename_results()
+
+        assert solver_stats["Solver"][0]["Status"] == "ok"
+
+        # Check Storage level
+        cn = "BEV-G2V-storage->None"
+        assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[1] == 388.8
+        )
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[2] == 302.4
+        )
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[3] == 129.6
+        )
+        assert self.results[cn]["sequences"]["storage_content"].iloc[4] == 0
+
     def test_bev_trio_dispatch(self):
         """
         Tests linked v2g, g2v and inflex bev facades in dispatch mode.
