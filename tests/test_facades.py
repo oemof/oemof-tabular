@@ -11,7 +11,7 @@ from oemof.tabular.facades import Bev, Load, Volatile  # , Shortage, Excess
 # from oemof.tabular.postprocessing import calculations
 
 
-class TestFacades:
+class TestBevFacadesDispatch:
     @classmethod
     def setup_class(cls):
         cls.date_time_index = pd.date_range("1/1/2020", periods=4, freq="H")
