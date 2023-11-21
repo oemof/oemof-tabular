@@ -519,3 +519,123 @@ class TestFacades:
 
         cn5 = "el-bus->BEV-G2V-storage"
         assert self.results[cn5]["sequences"]["flow"].iloc[0] == 808.704
+
+
+class TestBevFacadesInvestment:
+    @classmethod
+    def setup_class(cls):
+        t_idx_1 = pd.date_range("1/1/2020", periods=3, freq="H")
+        t_idx_2 = pd.date_range("1/1/2030", periods=3, freq="H")
+        t_idx_1_series = pd.Series(index=t_idx_1, dtype="float64")
+        t_idx_2_series = pd.Series(index=t_idx_2, dtype="float64")
+        cls.date_time_index = pd.concat([t_idx_1_series, t_idx_2_series]).index
+        cls.periods = [t_idx_1, t_idx_2]
+
+        cls.tmpdir = helpers.extend_basic_path("tmp")
+        logging.info(cls.tmpdir)
+
+    @classmethod
+    def setup_method(cls):
+        cls.energysystem = solph.EnergySystem(
+            groupings=solph.GROUPINGS,
+            timeindex=cls.date_time_index,
+            infer_last_interval=False,
+            timeincrement=[1] * len(cls.date_time_index),
+            periods=cls.periods,
+        )
+
+    # todo: identical functions can be @fixtures or else (outside of classes)
+
+    def get_om(self):
+        self.model = solph.Model(
+            self.energysystem,
+            timeindex=self.energysystem.timeindex,
+        )
+
+    def solve_om(self):
+        opt_result = self.model.solve("cbc", solve_kwargs={"tee": True})
+        self.results = self.model.results()
+        return opt_result
+
+    def rename_results(self):
+        rename_mapping = {
+            oemof_tuple: f"{oemof_tuple[0]}->{oemof_tuple[1]}"
+            for oemof_tuple in self.results.keys()
+        }
+        for old_key, new_key in rename_mapping.items():
+            self.results[new_key] = self.results.pop(old_key)
+
+    def test_bev_v2g_invest(self):
+        """
+        Tests v2g bev facade in investment mode.
+        """
+        el_bus = solph.Bus("el-bus")
+        el_bus.type = "bus"
+        self.energysystem.add(el_bus)
+
+        indiv_mob = solph.Bus("pkm-bus")
+        indiv_mob.type = "bus"
+        self.energysystem.add(indiv_mob)
+
+        volatile = Volatile(
+            label="wind",
+            bus=el_bus,
+            carrier="wind",
+            tech="onshore",
+            capacity=725.76,
+            # capacity_cost=1,
+            # expandable=True,
+            profile=len(self.periods) * [1, 0, 0],
+            lifetime=20,
+            variable_costs=10,
+        )
+        self.energysystem.add(volatile)
+
+        load = Load(
+            label="load",
+            carrier="electricity",
+            bus=el_bus,
+            amount=100,
+            profile=len(self.periods) * [1, 1, 1],
+        )
+        self.energysystem.add(load)
+
+        pkm_demand = Load(
+            label="pkm_demand",
+            type="Load",
+            carrier="pkm",
+            bus=indiv_mob,
+            amount=100,  # PKM
+            profile=len(self.periods) * [0, 1, 0],  # drive consumption
+        )
+        self.energysystem.add(pkm_demand)
+
+        bev_v2g = Bev(
+            type="bev",
+            label="BEV-V2G",
+            v2g=True,
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=800,
+            loss_rate=0,  # self discharge of storage
+            charging_power=800,
+            balanced=True,
+            expandable=True,
+            # initial_storage_capacity=0,
+            availability=len(self.periods)
+            * [1, 1, 1],  # Vehicle availability at charger
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=10,  # Charging costs
+            bev_invest_costs=2,
+            invest_c_rate=60 / 20,  # Capacity/Power
+            fixed_investment_costs=1,
+            lifetime=10,
+        )
+        self.energysystem.add(bev_v2g)
+
+        # todo adapt test case and add assertments
