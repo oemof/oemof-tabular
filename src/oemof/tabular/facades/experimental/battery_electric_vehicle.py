@@ -428,12 +428,12 @@ class Bev(GenericStorage, Facade):
             flow_in = Flow(
                 nominal_value=self._nominal_value(self.charging_power),
                 # max=self.availability,
+                variable_costs=self.variable_costs,
                 **self.input_parameters,
             )
             flow_out = Flow(
                 nominal_value=self._nominal_value(self.charging_power),
                 # max=self.availability,
-                variable_costs=self.variable_costs,
                 **self.output_parameters,
             )
 
