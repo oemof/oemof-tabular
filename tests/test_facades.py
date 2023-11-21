@@ -5,6 +5,8 @@ import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
+from oemof.tabular import __path__ as tabular_path
+from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 
 # from oemof.tabular.constraint_facades import BevEqualInvest, BevShareMob
 from oemof.tabular.datapackage.reading import deserialize_constraints
@@ -642,8 +644,9 @@ class TestBevFacadesInvestment:
 
         self.get_om()
 
-        datapackage_dir = "todo"
-        CONSTRAINT_TYPE_MAP = "todo"
+        datapackage_dir = os.path.join(
+            tabular_path[0], "examples/own_examples/bev"
+        )
         deserialize_constraints(
             model=self.model,
             path=os.path.join(datapackage_dir, "datapackage.json"),
