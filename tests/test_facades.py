@@ -1,4 +1,5 @@
 import logging
+import os
 
 import pandas as pd
 from oemof.solph import helpers
@@ -6,6 +7,7 @@ from oemof.solph import helpers
 from oemof import solph
 
 # from oemof.tabular.constraint_facades import BevEqualInvest, BevShareMob
+from oemof.tabular.datapackage.reading import deserialize_constraints
 from oemof.tabular.facades import Bev, Load, Volatile  # , Shortage, Excess
 
 # from oemof.tabular.postprocessing import calculations
@@ -639,6 +641,14 @@ class TestBevFacadesInvestment:
         self.energysystem.add(bev_v2g)
 
         self.get_om()
+
+        datapackage_dir = "todo"
+        CONSTRAINT_TYPE_MAP = "todo"
+        deserialize_constraints(
+            model=self.model,
+            path=os.path.join(datapackage_dir, "datapackage.json"),
+            constraint_type_map=CONSTRAINT_TYPE_MAP,
+        )
 
         solver_stats = self.solve_om()
 
