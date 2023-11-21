@@ -638,4 +638,13 @@ class TestBevFacadesInvestment:
         )
         self.energysystem.add(bev_v2g)
 
-        # todo adapt test case and add assertments
+        self.get_om()
+
+        solver_stats = self.solve_om()
+
+        # rename results to make them accessible
+        self.rename_results()
+
+        assert solver_stats["Solver"][0]["Status"] == "ok"
+
+        # todo adapt test case and add assertions
