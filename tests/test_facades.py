@@ -1,15 +1,10 @@
 import logging
-import os
 
 import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
-from oemof.tabular import __path__ as tabular_path
 from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
-
-# from oemof.tabular.constraint_facades import BevEqualInvest, BevShareMob
-from oemof.tabular.datapackage.reading import deserialize_constraints
 from oemof.tabular.facades import Bev, Load, Volatile  # , Shortage, Excess
 
 # from oemof.tabular.postprocessing import calculations
@@ -644,14 +639,29 @@ class TestBevFacadesInvestment:
 
         self.get_om()
 
-        datapackage_dir = os.path.join(
-            tabular_path[0], "examples/own_examples/bev"
-        )
-        deserialize_constraints(
-            model=self.model,
-            path=os.path.join(datapackage_dir, "datapackage.json"),
-            constraint_type_map=CONSTRAINT_TYPE_MAP,
-        )
+        for period in self.energysystem.periods:
+            year = period.year.min()
+            constraint = CONSTRAINT_TYPE_MAP["bev_equal_invest"]
+            constraint = constraint(name=None, type=None, year=year)
+            # build constraint for each facade & period
+            constraint.build_constraint(self.model)
+
+        # This one is only for the bev trio
+        # ##################################
+        # for period in self.energysystem.periods:
+        #     year = period.year.min()
+        #     constraint = CONSTRAINT_TYPE_MAP["bev_share_mob"]
+        #     constraint = constraint(
+        #         name=None,
+        #         type=None,
+        #         label="BEV",
+        #         year=year,
+        #         share_mob_flex_G2V=0.3,
+        #         share_mob_flex_V2G=0.2,
+        #         share_mob_inflex=0.5,
+        #     )
+        #     # build constraint for each facade & period
+        #     constraint.build_constraint(self.model)
 
         solver_stats = self.solve_om()
 
