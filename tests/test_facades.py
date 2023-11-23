@@ -523,8 +523,8 @@ class TestBevFacadesDispatch:
 class TestBevFacadesInvestment:
     @classmethod
     def setup_class(cls):
-        t_idx_1 = pd.date_range("1/1/2020", periods=3, freq="H")
-        t_idx_2 = pd.date_range("1/1/2030", periods=3, freq="H")
+        t_idx_1 = pd.date_range("1/1/2020", periods=1, freq="H")
+        t_idx_2 = pd.date_range("1/1/2030", periods=1, freq="H")
         t_idx_1_series = pd.Series(index=t_idx_1, dtype="float64")
         t_idx_2_series = pd.Series(index=t_idx_2, dtype="float64")
         cls.date_time_index = pd.concat([t_idx_1_series, t_idx_2_series]).index
@@ -581,10 +581,10 @@ class TestBevFacadesInvestment:
             bus=el_bus,
             carrier="wind",
             tech="onshore",
-            capacity=725.76,
+            capacity=248.832,
             # capacity_cost=1,
             # expandable=True,
-            profile=len(self.periods) * [1, 0, 0],
+            profile=len(self.periods) * [1],
             lifetime=20,
             variable_costs=10,
         )
@@ -594,8 +594,8 @@ class TestBevFacadesInvestment:
             label="load",
             carrier="electricity",
             bus=el_bus,
-            amount=100,
-            profile=len(self.periods) * [1, 1, 1],
+            amount=0,
+            profile=len(self.periods) * [1],
         )
         self.energysystem.add(load)
 
@@ -605,7 +605,7 @@ class TestBevFacadesInvestment:
             carrier="pkm",
             bus=indiv_mob,
             amount=100,  # PKM
-            profile=len(self.periods) * [0, 1, 0],  # drive consumption
+            profile=len(self.periods) * [1],  # drive consumption
         )
         self.energysystem.add(pkm_demand)
 
@@ -615,14 +615,14 @@ class TestBevFacadesInvestment:
             v2g=True,
             electricity_bus=el_bus,
             commodity_bus=indiv_mob,
-            storage_capacity=800,
+            storage_capacity=0,
             loss_rate=0,  # self discharge of storage
-            charging_power=800,
+            charging_power=0,
             balanced=True,
             expandable=True,
-            # initial_storage_capacity=0,
+            initial_storage_capacity=0,
             availability=len(self.periods)
-            * [1, 1, 1],  # Vehicle availability at charger
+            * [1],  # Vehicle availability at charger
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
@@ -646,23 +646,6 @@ class TestBevFacadesInvestment:
             # build constraint for each facade & period
             constraint.build_constraint(self.model)
 
-        # This one is only for the bev trio
-        # ##################################
-        # for period in self.energysystem.periods:
-        #     year = period.year.min()
-        #     constraint = CONSTRAINT_TYPE_MAP["bev_share_mob"]
-        #     constraint = constraint(
-        #         name=None,
-        #         type=None,
-        #         label="BEV",
-        #         year=year,
-        #         share_mob_flex_G2V=0.3,
-        #         share_mob_flex_V2G=0.2,
-        #         share_mob_inflex=0.5,
-        #     )
-        #     # build constraint for each facade & period
-        #     constraint.build_constraint(self.model)
-
         solver_stats = self.solve_om()
 
         # rename results to make them accessible
@@ -670,4 +653,40 @@ class TestBevFacadesInvestment:
 
         assert solver_stats["Solver"][0]["Status"] == "ok"
 
-        # todo adapt test case and add assertions
+        # Check storage level and invested storage capacity
+        cn = "BEV-V2G-storage->None"
+        # todo optional capacity as a variable
+        # todo 2020 2030 (infer_last_interval missing)
+        # todo add second time step to periods
+        assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
+        assert self.results[cn]["sequences"]["storage_content"].iloc[1] == 0
+        assert self.results[cn]["period_scalars"]["invest"].iloc[0] == 746.496
+        assert self.results[cn]["period_scalars"]["invest"].iloc[1] == 746.496
+
+        # Check invested v2g capacity
+        cn2 = "BEV-V2G-v2g->el-bus"
+        assert self.results[cn2]["period_scalars"]["invest"].iloc[0] == 248.832
+        assert self.results[cn2]["period_scalars"]["invest"].iloc[1] == 248.832
+
+        # Check invested v2g capacity
+        cn2 = "BEV-V2G-2com->pkm-bus"
+        assert self.results[cn2]["period_scalars"]["invest"].iloc[0] == 248.832
+        assert self.results[cn2]["period_scalars"]["invest"].iloc[1] == 248.832
+
+
+#     This one is only for the bev trio
+# ##################################
+# for period in self.energysystem.periods:
+#     year = period.year.min()
+#     constraint = CONSTRAINT_TYPE_MAP["bev_share_mob"]
+#     constraint = constraint(
+#         name=None,
+#         type=None,
+#         label="BEV",
+#         year=year,
+#         share_mob_flex_G2V=0.3,
+#         share_mob_flex_V2G=0.2,
+#         share_mob_inflex=0.5,
+#     )
+#     # build constraint for each facade & period
+#     constraint.build_constraint(self.model)
