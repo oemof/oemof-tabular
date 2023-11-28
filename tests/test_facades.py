@@ -6,9 +6,7 @@ from oemof.solph import helpers
 
 from oemof import solph
 from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
-from oemof.tabular.facades import Bev, Load, Volatile  # , Shortage, Excess
-
-# from oemof.tabular.postprocessing import calculations
+from oemof.tabular.facades import Bev, Load, Volatile
 
 
 class TestBevFacades:
@@ -116,9 +114,6 @@ class TestBevFacades:
             expandable=False,
             initial_storage_capacity=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
-            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-            # efficiency_charging=1,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
@@ -216,11 +211,8 @@ class TestBevFacades:
             storage_capacity=900,
             loss_rate=0,  # self discharge of storage
             charging_power=900,
-            # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
             initial_storage_capacity=0,
             expandable=False,
@@ -314,11 +306,8 @@ class TestBevFacades:
             storage_capacity=900,
             loss_rate=0,  # self discharge of storage
             charging_power=900,
-            # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
             initial_storage_capacity=0,
             expandable=False,
@@ -414,9 +403,6 @@ class TestBevFacades:
             expandable=False,
             initial_storage_capacity=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
-            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-            # efficiency_charging=1,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
@@ -435,11 +421,8 @@ class TestBevFacades:
             storage_capacity=900,
             loss_rate=0,  # self discharge of storage
             charging_power=900,
-            # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
             initial_storage_capacity=0,
             expandable=False,
@@ -466,11 +449,8 @@ class TestBevFacades:
             storage_capacity=808.704,
             loss_rate=0,  # self discharge of storage
             charging_power=808.704,
-            # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
             initial_storage_capacity=0,
             expandable=False,
@@ -546,9 +526,6 @@ class TestBevFacades:
             capacity=725.76,
             profile=[1, 0, 0, 0],
             variable_costs=10,
-            # capacity_cost=1,
-            # expandable=True,
-            # lifetime=20,
         )
         self.energysystem.add(volatile)
 
@@ -585,9 +562,6 @@ class TestBevFacades:
             expandable=True,
             initial_storage_level=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
-            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-            # efficiency_charging=1,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
@@ -703,9 +677,6 @@ class TestBevFacades:
             expandable=True,
             initial_storage_capacity=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
-            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
-            # efficiency_charging=1,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
@@ -728,11 +699,8 @@ class TestBevFacades:
             storage_capacity=0,
             loss_rate=0,  # self discharge of storage
             charging_power=0,
-            # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
             initial_storage_capacity=0,
             expandable=True,
@@ -763,11 +731,8 @@ class TestBevFacades:
             storage_capacity=0,
             loss_rate=0,  # self discharge of storage
             charging_power=0,
-            # drive_power=100,  # total driving capacity of the fleet
             availability=[1, 1, 1, 1],
             v2g=False,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             balanced=True,
             initial_storage_capacity=0,
             expandable=True,
