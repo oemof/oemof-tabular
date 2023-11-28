@@ -1,6 +1,7 @@
 import logging
 
 import pandas as pd
+import pytest
 from oemof.solph import helpers
 
 from oemof import solph
@@ -522,7 +523,12 @@ class TestBevFacades:
 
     def test_bev_v2g_invest(self):
         """
-        Tests v2g bev facade in investment mode.
+        Tests v2g bev facade with investment optimization.
+
+        Energy quantities and efficiencies are the same as in
+        `test_bev_v2g_dispatch`.
+
+        The constraint "bev_equal_invest" is used.
         """
         el_bus = solph.Bus("el-bus")
         el_bus.type = "bus"
@@ -537,12 +543,12 @@ class TestBevFacades:
             bus=el_bus,
             carrier="wind",
             tech="onshore",
-            capacity=248.832,
+            capacity=725.76,
+            profile=[1, 0, 0, 0],
+            variable_costs=10,
             # capacity_cost=1,
             # expandable=True,
-            profile=len(self.periods) * [1],
-            lifetime=20,
-            variable_costs=10,
+            # lifetime=20,
         )
         self.energysystem.add(volatile)
 
@@ -550,8 +556,8 @@ class TestBevFacades:
             label="load",
             carrier="electricity",
             bus=el_bus,
-            amount=0,
-            profile=len(self.periods) * [1],
+            amount=100,
+            profile=[0, 0.1, 0, 1],
         )
         self.energysystem.add(load)
 
@@ -561,8 +567,9 @@ class TestBevFacades:
             carrier="pkm",
             bus=indiv_mob,
             amount=100,  # PKM
-            profile=len(self.periods) * [1],  # drive consumption
+            profile=[0.5, 0.5, 1, 0],  # drive consumption
         )
+
         self.energysystem.add(pkm_demand)
 
         bev_v2g = Bev(
@@ -576,9 +583,11 @@ class TestBevFacades:
             charging_power=0,
             balanced=True,
             expandable=True,
-            initial_storage_capacity=0,
-            availability=len(self.periods)
-            * [1],  # Vehicle availability at charger
+            initial_storage_level=0,
+            availability=[1, 1, 1, 1],  # Vehicle availability at charger
+            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            # efficiency_charging=1,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
@@ -595,12 +604,11 @@ class TestBevFacades:
 
         self.get_om()
 
-        for period in self.energysystem.periods:
-            year = period.year.min()
-            constraint = CONSTRAINT_TYPE_MAP["bev_equal_invest"]
-            constraint = constraint(name=None, type=None, year=year)
-            # build constraint for each facade & period
-            constraint.build_constraint(self.model)
+        # Add constraint bev_equal_invest
+        year = self.energysystem.timeindex.year[0]
+        constraint = CONSTRAINT_TYPE_MAP["bev_equal_invest"]
+        constraint = constraint(name=None, type=None, year=year)
+        constraint.build_constraint(self.model)
 
         solver_stats = self.solve_om()
 
@@ -609,40 +617,224 @@ class TestBevFacades:
 
         assert solver_stats["Solver"][0]["Status"] == "ok"
 
-        # Check storage level and invested storage capacity
+        # Check Storage level
         cn = "BEV-V2G-storage->None"
-        # todo optional capacity as a variable
-        # todo 2020 2030 (infer_last_interval missing)
-        # todo add second time step to periods
-        assert self.results[cn]["sequences"]["storage_content"].iloc[0] == 0
-        assert self.results[cn]["sequences"]["storage_content"].iloc[1] == 0
-        assert self.results[cn]["period_scalars"]["invest"].iloc[0] == 746.496
-        assert self.results[cn]["period_scalars"]["invest"].iloc[1] == 746.496
+        # todo: why is first time step of storage level missing, but last time
+        #  step is nan?
+        assert self.results[cn]["sequences"]["storage_content"][0] == 417.6
+        assert self.results[cn]["sequences"]["storage_content"][1] == 316.8
+        assert self.results[cn]["sequences"]["storage_content"][2] == 144
+        assert self.results[cn]["sequences"]["storage_content"][3] == 0
+
+        # Check invested storage capacity
+        assert self.results[cn]["scalars"]["invest"] == 2177.28
 
         # Check invested v2g capacity
         cn2 = "BEV-V2G-v2g->el-bus"
-        assert self.results[cn2]["period_scalars"]["invest"].iloc[0] == 248.832
-        assert self.results[cn2]["period_scalars"]["invest"].iloc[1] == 248.832
+        assert self.results[cn2]["scalars"]["invest"] == 725.76
+
+        # Check invested v2g-2com capacity
+        cn3 = "BEV-V2G-2com->pkm-bus"
+        assert self.results[cn3]["scalars"]["invest"] == 725.76
+
+    def test_bev_trio_invest(self):
+        """
+        Tests linked v2g, g2v and inflex bev facades in dispatch mode.
+
+        Energy quantities of load, pkm_demand and volatile and the efficiencies
+        are the same as in `test_bev_trio_dispatch`.
+
+        The constraints "bev_equal_invest" and "bev_share_mob" are used.
+
+        The checks include shares of invested storage capacities of the three
+        BEV components (v2g, g2v, inflex) and the invested capacities of the
+        inverters.
+        Storage levels were not calculated manually and therefore, are not
+        being checked.
+        """
+        el_bus = solph.Bus("el-bus")
+        el_bus.type = "bus"
+        self.energysystem.add(el_bus)
+
+        indiv_mob = solph.Bus("pkm-bus")
+        indiv_mob.type = "bus"
+        self.energysystem.add(indiv_mob)
+
+        volatile = Volatile(
+            label="wind",
+            bus=el_bus,
+            carrier="wind",
+            tech="onshore",
+            capacity=2543.168,
+            profile=[1, 0, 0, 0],
+            variable_costs=10,
+        )
+        self.energysystem.add(volatile)
+
+        load = Load(
+            label="load",
+            carrier="electricity",
+            bus=el_bus,
+            amount=200,
+            profile=[1, 0.05, 0, 0.5],
+        )
+        self.energysystem.add(load)
+
+        pkm_demand = Load(
+            label="pkm_demand",
+            type="Load",
+            carrier="pkm",
+            bus=indiv_mob,
+            amount=250,  # PKM
+            profile=[1, 0.6, 1.2, 0.6],  # drive consumption
+        )
+        self.energysystem.add(pkm_demand)
+
+        bev_v2g = Bev(
+            type="bev",
+            label="BEV-V2G",
+            v2g=True,
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=0,
+            loss_rate=0,  # self discharge of storage
+            charging_power=0,
+            balanced=True,
+            expandable=True,
+            initial_storage_capacity=0,
+            availability=[1, 1, 1, 1],  # Vehicle availability at charger
+            # min_storage_level=[0.0, 0.2, 0.15, 0.0],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            # efficiency_charging=1,
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=10,  # Charging costs
+            bev_invest_costs=2,
+            invest_c_rate=60 / 20,  # Capacity/Power
+            fixed_investment_costs=1,
+            lifetime=10,
+        )
+        self.energysystem.add(bev_v2g)
+
+        bev_inflex = Bev(
+            type="bev",
+            label="BEV-inflex",
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=0,
+            loss_rate=0,  # self discharge of storage
+            charging_power=0,
+            # drive_power=100,  # total driving capacity of the fleet
+            availability=[1, 1, 1, 1],
+            v2g=False,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            balanced=True,
+            initial_storage_capacity=0,
+            expandable=True,
+            input_parameters={
+                "fix": [0.89856, 0, 0, 0]
+            },  # fixed relative charging profile
+            output_parameters={
+                "fix": [0.16, 0.08, 0.16, 0.12]
+            },  # fixed relative discharging profile
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=20,  # Charging costs
+            bev_invest_costs=2,
+            invest_c_rate=60 / 20,  # Capacity/Power
+            fixed_investment_costs=1,
+            lifetime=10,
+        )
+        self.energysystem.add(bev_inflex)
+
+        bev_g2v = Bev(
+            type="bev",
+            label="BEV-G2V",
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=0,
+            loss_rate=0,  # self discharge of storage
+            charging_power=0,
+            # drive_power=100,  # total driving capacity of the fleet
+            availability=[1, 1, 1, 1],
+            v2g=False,
+            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
+            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            balanced=True,
+            initial_storage_capacity=0,
+            expandable=True,
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=4,  # Charging costs
+            bev_invest_costs=2,
+            invest_c_rate=60 / 20,  # Capacity/Power
+            fixed_investment_costs=1,
+            lifetime=10,
+        )
+        self.energysystem.add(bev_g2v)
+
+        self.get_om()
+
+        # Add constraint bev_equal_invest
+        year = self.energysystem.timeindex.year[0]
+        constraint = CONSTRAINT_TYPE_MAP["bev_equal_invest"]
+        constraint = constraint(name=None, type=None, year=year)
+        constraint.build_constraint(self.model)
+
+        # Add constraint
+        constraint = CONSTRAINT_TYPE_MAP["bev_share_mob"]
+        constraint = constraint(
+            name=None,
+            type=None,
+            label="BEV",
+            year=year,
+            share_mob_flex_V2G=0.3,
+            share_mob_inflex=0.2,
+            share_mob_flex_G2V=0.5,
+        )
+        constraint.build_constraint(self.model)
+
+        solver_stats = self.solve_om()
+
+        # rename results to make them accessible
+        self.rename_results()
+
+        assert solver_stats["Solver"][0]["Status"] == "ok"
+
+        # Check invested storage capacity shares
+        cn = "BEV-V2G-storage->None"
+        cn2 = "BEV-inflex-storage->None"
+        cn3 = "BEV-G2V-storage->None"
+        v2g_cap = self.results[cn]["scalars"]["invest"]
+        inflex_cap = self.results[cn2]["scalars"]["invest"]
+        g2v_cap = self.results[cn3]["scalars"]["invest"]
+        total_cap = v2g_cap + inflex_cap + g2v_cap
+        assert round(v2g_cap / total_cap, 1) == constraint.share_mob_flex_V2G
+        assert round(g2v_cap / total_cap, 1) == constraint.share_mob_flex_G2V
+        assert round(inflex_cap / total_cap, 1) == constraint.share_mob_inflex
 
         # Check invested v2g capacity
-        cn2 = "BEV-V2G-2com->pkm-bus"
-        assert self.results[cn2]["period_scalars"]["invest"].iloc[0] == 248.832
-        assert self.results[cn2]["period_scalars"]["invest"].iloc[1] == 248.832
+        cn4 = "BEV-V2G-v2g->el-bus"
+        assert round(self.results[cn4]["scalars"]["invest"], 4) == v2g_cap / 3
 
+        # Check invested v2g-2com capacity
+        cn5 = "BEV-V2G-2com->pkm-bus"
+        assert round(self.results[cn5]["scalars"]["invest"], 4) == v2g_cap / 3
+        cn6 = "BEV-G2V-2com->pkm-bus"
+        assert self.results[cn6]["scalars"]["invest"] == g2v_cap / 3
 
-#     This one is only for the bev trio
-# ##################################
-# for period in self.energysystem.periods:
-#     year = period.year.min()
-#     constraint = CONSTRAINT_TYPE_MAP["bev_share_mob"]
-#     constraint = constraint(
-#         name=None,
-#         type=None,
-#         label="BEV",
-#         year=year,
-#         share_mob_flex_G2V=0.3,
-#         share_mob_flex_V2G=0.2,
-#         share_mob_inflex=0.5,
-#     )
-#     # build constraint for each facade & period
-#     constraint.build_constraint(self.model)
+        cn7 = "BEV-inflex-2com->pkm-bus"
+        assert self.results[cn7]["scalars"]["invest"] == pytest.approx(
+            inflex_cap / 3
+        )  # difference at 5th decimal place
