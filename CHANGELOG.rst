@@ -11,6 +11,7 @@ Unreleased
 Features
 
 * Remove facade relicts `#135 <https://github.com/oemof/oemof-tabular/pull/135>`_
+* Add tests for BEV facades developed in #94 `#142 <https://github.com/oemof/oemof-tabular/pull/142>`_
 
 Fixes
 
