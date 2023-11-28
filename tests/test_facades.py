@@ -10,7 +10,7 @@ from oemof.tabular.facades import Bev, Load, Volatile  # , Shortage, Excess
 # from oemof.tabular.postprocessing import calculations
 
 
-class TestBevFacadesDispatch:
+class TestBevFacades:
     @classmethod
     def setup_class(cls):
         cls.date_time_index = pd.date_range("1/1/2020", periods=4, freq="H")
@@ -21,7 +21,8 @@ class TestBevFacadesDispatch:
     @classmethod
     def setup_method(cls):
         cls.energysystem = solph.EnergySystem(
-            groupings=solph.GROUPINGS, timeindex=cls.date_time_index
+            groupings=solph.GROUPINGS,
+            timeindex=cls.date_time_index,
         )
 
     def get_om(self):
@@ -518,51 +519,6 @@ class TestBevFacadesDispatch:
 
         cn5 = "el-bus->BEV-G2V-storage"
         assert self.results[cn5]["sequences"]["flow"].iloc[0] == 808.704
-
-
-class TestBevFacadesInvestment:
-    @classmethod
-    def setup_class(cls):
-        t_idx_1 = pd.date_range("1/1/2020", periods=1, freq="H")
-        t_idx_2 = pd.date_range("1/1/2030", periods=1, freq="H")
-        t_idx_1_series = pd.Series(index=t_idx_1, dtype="float64")
-        t_idx_2_series = pd.Series(index=t_idx_2, dtype="float64")
-        cls.date_time_index = pd.concat([t_idx_1_series, t_idx_2_series]).index
-        cls.periods = [t_idx_1, t_idx_2]
-
-        cls.tmpdir = helpers.extend_basic_path("tmp")
-        logging.info(cls.tmpdir)
-
-    @classmethod
-    def setup_method(cls):
-        cls.energysystem = solph.EnergySystem(
-            groupings=solph.GROUPINGS,
-            timeindex=cls.date_time_index,
-            infer_last_interval=False,
-            timeincrement=[1] * len(cls.date_time_index),
-            periods=cls.periods,
-        )
-
-    # todo: identical functions can be @fixtures or else (outside of classes)
-
-    def get_om(self):
-        self.model = solph.Model(
-            self.energysystem,
-            timeindex=self.energysystem.timeindex,
-        )
-
-    def solve_om(self):
-        opt_result = self.model.solve("cbc", solve_kwargs={"tee": True})
-        self.results = self.model.results()
-        return opt_result
-
-    def rename_results(self):
-        rename_mapping = {
-            oemof_tuple: f"{oemof_tuple[0]}->{oemof_tuple[1]}"
-            for oemof_tuple in self.results.keys()
-        }
-        for old_key, new_key in rename_mapping.items():
-            self.results[new_key] = self.results.pop(old_key)
 
     def test_bev_v2g_invest(self):
         """
