@@ -45,7 +45,7 @@ class TestBevFacades:
 
     def test_bev_v2g_dispatch(self):
         """
-        Tests v2g bev facade in dispatch mode.
+        Tests v2g bev facade in dispatch optimization.
 
         The following energy quantities are used:
         volatile	    +725.76	    0	    0	    0
@@ -148,7 +148,7 @@ class TestBevFacades:
 
     def test_bev_inflex_dispatch(self):
         """
-        Tests inflex bev facade in dispatch mode.
+        Tests inflex bev facade in dispatch optimization.
 
         The following energy quantities are used:
         volatile	    +908.704    0	    0	    0
@@ -256,7 +256,7 @@ class TestBevFacades:
 
     def test_bev_g2v_dispatch(self):
         """
-        Tests g2v bev facade in dispatch mode.
+        Tests g2v bev facade in dispatch optimization.
 
         The same quantities as in `test_bev_inflex_dispatch()` are used.
         """
@@ -345,7 +345,7 @@ class TestBevFacades:
 
     def test_bev_trio_dispatch(self):
         """
-        Tests linked v2g, g2v and inflex bev facades in dispatch mode.
+        Tests linked v2g, g2v and inflex bev facades in dispatch optimization.
 
         Energy quantities are taken from the single tests
         (`test_bev_v2g_dispatch()`, `test_bev_inflex_dispatch()`,
@@ -503,7 +503,7 @@ class TestBevFacades:
 
     def test_bev_v2g_invest(self):
         """
-        Tests v2g bev facade with investment optimization.
+        Tests v2g bev facade in investment optimization.
 
         Energy quantities and efficiencies are the same as in
         `test_bev_v2g_dispatch`.
@@ -613,7 +613,7 @@ class TestBevFacades:
 
     def test_bev_trio_invest(self):
         """
-        Tests linked v2g, g2v and inflex bev facades in dispatch mode.
+        Tests linked v2g, g2v and inflex bev facades in invest optimization.
 
         Energy quantities of load, pkm_demand and volatile and the efficiencies
         are the same as in `test_bev_trio_dispatch`.
