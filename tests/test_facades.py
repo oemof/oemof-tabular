@@ -112,7 +112,6 @@ class TestBevFacades:
             charging_power=800,
             balanced=True,
             expandable=False,
-            initial_storage_capacity=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
@@ -214,7 +213,6 @@ class TestBevFacades:
             availability=[1, 1, 1, 1],
             v2g=False,
             balanced=True,
-            initial_storage_capacity=0,
             expandable=False,
             input_parameters={
                 "fix": [0.89856, 0, 0, 0]
@@ -309,7 +307,6 @@ class TestBevFacades:
             availability=[1, 1, 1, 1],
             v2g=False,
             balanced=True,
-            initial_storage_capacity=0,
             expandable=False,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
@@ -401,7 +398,6 @@ class TestBevFacades:
             charging_power=800,
             balanced=True,
             expandable=False,
-            initial_storage_capacity=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
@@ -424,7 +420,6 @@ class TestBevFacades:
             availability=[1, 1, 1, 1],
             v2g=False,
             balanced=True,
-            initial_storage_capacity=0,
             expandable=False,
             input_parameters={
                 "fix": [0.89856, 0, 0, 0]
@@ -452,7 +447,6 @@ class TestBevFacades:
             availability=[1, 1, 1, 1],
             v2g=False,
             balanced=True,
-            initial_storage_capacity=0,
             expandable=False,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
@@ -675,7 +669,7 @@ class TestBevFacades:
             charging_power=0,
             balanced=True,
             expandable=True,
-            initial_storage_capacity=0,
+            initial_storage_level=0,
             availability=[1, 1, 1, 1],  # Vehicle availability at charger
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
@@ -702,8 +696,8 @@ class TestBevFacades:
             availability=[1, 1, 1, 1],
             v2g=False,
             balanced=True,
-            initial_storage_capacity=0,
             expandable=True,
+            initial_storage_level=0,
             input_parameters={
                 "fix": [0.89856, 0, 0, 0]
             },  # fixed relative charging profile
@@ -734,8 +728,8 @@ class TestBevFacades:
             availability=[1, 1, 1, 1],
             v2g=False,
             balanced=True,
-            initial_storage_capacity=0,
             expandable=True,
+            initial_storage_level=0,
             commodity_conversion_rate=5 / 6,  # Energy to pkm
             efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
             efficiency_mob_g2v=5 / 6,  # Charger efficiency
