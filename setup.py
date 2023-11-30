@@ -68,7 +68,7 @@ setup(
         "datapackage==1.5.1",
         "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
         # "oemof.solph==0.5.1",
-        "oemof.solph @ git+https://github.com/oemof/oemof-solph.git@dev",
+        "oemof.solph @ git+https://github.com/stadt-land-energie-projekt/oemof-solph.git@v0.5.2.dev0-robust",
         "pandas>=0.22",
         "paramiko",
         "toml",
