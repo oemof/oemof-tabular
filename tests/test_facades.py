@@ -1233,3 +1233,115 @@ class TestBevFacadesMultiPeriodInvest:
             ] == pytest.approx(
                 inflex_cap / 3
             )  # difference at 5th decimal place
+
+    def test_bev_v2g_dispatch_multi_period(self):
+        """
+        Tests v2g bev facade with multi-period in dispatch optimization.
+
+        Energy quantities of load, pkm_demand and volatile and the efficiencies
+        are the same as in `test_bev_v2g_invest_multi_period`.
+        """
+        el_bus = solph.Bus("el-bus")
+        el_bus.type = "bus"
+        self.energysystem.add(el_bus)
+
+        indiv_mob = solph.Bus("pkm-bus")
+        indiv_mob.type = "bus"
+        self.energysystem.add(indiv_mob)
+
+        volatile = Volatile(
+            label="wind",
+            bus=el_bus,
+            carrier="wind",
+            tech="onshore",
+            capacity=725.76,
+            profile=len(self.periods) * [1, 0, 0, 0, 0],
+            variable_costs=10,
+        )
+        self.energysystem.add(volatile)
+
+        load = Load(
+            label="load",
+            carrier="electricity",
+            bus=el_bus,
+            amount=100,
+            profile=len(self.periods) * [0, 0.1, 0, 1, 0],
+        )
+        self.energysystem.add(load)
+
+        pkm_demand = Load(
+            label="pkm_demand",
+            type="Load",
+            carrier="pkm",
+            bus=indiv_mob,
+            amount=100,  # PKM
+            profile=len(self.periods)
+            * [0.5, 0.5, 1, 0, 0],  # drive consumption
+        )
+        self.energysystem.add(pkm_demand)
+
+        bev_v2g = Bev(
+            type="bev",
+            label="BEV-V2G",
+            v2g=True,
+            electricity_bus=el_bus,
+            commodity_bus=indiv_mob,
+            storage_capacity=800,
+            loss_rate=0,  # self discharge of storage
+            charging_power=800,
+            balanced=True,
+            expandable=False,
+            initial_storage_level=0,
+            availability=len(self.periods)
+            * [1, 1, 1, 1, 1],  # Vehicle availability at charger
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=10,  # Charging costs
+        )
+        self.energysystem.add(bev_v2g)
+
+        self.get_om()
+
+        solver_stats = self.solve_om()
+
+        # rename results to make them accessible
+        self.rename_results()
+
+        assert solver_stats["Solver"][0]["Status"] == "ok"
+
+        # Check storage level
+        cn = "BEV-V2G-storage->None"
+        assert (
+            round(self.results[cn]["sequences"]["storage_content"].iloc[0], 12)
+            == 0
+        )
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[1] == 417.6
+        )
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[2] == 316.8
+        )
+        assert self.results[cn]["sequences"]["storage_content"].iloc[3] == 144
+        assert (
+            round(self.results[cn]["sequences"]["storage_content"].iloc[4], 12)
+            == 0
+        )
+        assert (
+            round(self.results[cn]["sequences"]["storage_content"].iloc[5], 12)
+            == 0
+        )
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[6] == 417.6
+        )
+        assert (
+            self.results[cn]["sequences"]["storage_content"].iloc[7] == 316.8
+        )
+        assert self.results[cn]["sequences"]["storage_content"].iloc[8] == 144
+        assert (
+            round(self.results[cn]["sequences"]["storage_content"].iloc[9], 12)
+            == 0
+        )
