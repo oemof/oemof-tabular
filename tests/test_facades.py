@@ -847,8 +847,7 @@ class TestBevFacadesMultiPeriodInvest:
             self.results[new_key] = self.results.pop(old_key)
 
     @pytest.mark.skip(
-        reason="multi-period feature is not working as expected, see "
-        + ""  # todo add issue
+        reason="multi-period feature is not working as expected, see #144"
     )
     def test_bev_v2g_invest_multi_period(self):
         """
@@ -994,8 +993,7 @@ class TestBevFacadesMultiPeriodInvest:
         assert self.results[cn2]["period_scalars"]["invest"].iloc[1] == 725.76
 
     @pytest.mark.skip(
-        reason="multi-period feature is not working as expected, see "
-        + ""  # todo add issue
+        reason="multi-period feature is not working as expected, see #144"
     )
     def test_bev_trio_invest_multi_period(self):
         """
