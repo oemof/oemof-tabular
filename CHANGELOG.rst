@@ -10,11 +10,14 @@ Unreleased
 
 Features
 
+* Improve reading error message `#134 <https://github.com/oemof/oemof-tabular/pull/134>`_
 * Remove facade relicts `#135 <https://github.com/oemof/oemof-tabular/pull/135>`_
+* Add tests for BEV facades developed in #94 `#142 <https://github.com/oemof/oemof-tabular/pull/142>`_
 
 Fixes
 
 * Remove specific dirs from flake8 & isort `#136 <https://github.com/oemof/oemof-tabular/pull/136>`_
+* Update lp-files to pyomo6.7 `#148 <https://github.com/oemof/oemof-tabular/pull/148>`_
 
 
 

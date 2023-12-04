@@ -27,7 +27,7 @@ class Bev(GenericStorage, Facade):
 
     Charging and discharging capacity is assumed to be equal.
     Multiple fleets can be modelled and connected to a common bus
-    (mobility_bus) to apply one demand for all modelled fleets.
+    (commodity_bus) to apply one demand for all modelled fleets.
 
     Parameters
     ----------
@@ -126,6 +126,7 @@ class Bev(GenericStorage, Facade):
     The vehicle fleet is modelled as a storage together with an internal
     sink with fixed flow:
 
+    todo check formula
     .. math::
 
         x^{level}(t) =
@@ -316,8 +317,9 @@ class Bev(GenericStorage, Facade):
                     )
                 },
                 # Includes storage charging efficiencies
-                conversion_factors={internal_bus: self.efficiency_mob_v2g},
-                # TODO check efficiencies
+                conversion_factors={
+                    self.electricity_bus: (self.efficiency_mob_v2g)
+                },
             )
             subnodes.append(vehicle_to_grid)
 
@@ -336,14 +338,14 @@ class Bev(GenericStorage, Facade):
                 outputs={
                     self.commodity_bus: Flow(
                         nominal_value=self._nominal_value(self.charging_power),
-                        max=self.availability,
+                        # max=self.availability,
                         variable_costs=None,
                         # investment=self._investment(bev=True),
                         investment=self._converter_investment(),
                     )
                 },
                 conversion_factors={
-                    self.bus: self.commodity_conversion_rate
+                    self.commodity_bus: self.commodity_conversion_rate
                     * self.efficiency_mob_electrical
                     # * 100  # TODO pro 100 km?
                 },
@@ -425,17 +427,16 @@ class Bev(GenericStorage, Facade):
         else:
             flow_in = Flow(
                 nominal_value=self._nominal_value(self.charging_power),
-                max=self.availability,
+                # max=self.availability,
+                variable_costs=self.variable_costs,
                 **self.input_parameters,
             )
             flow_out = Flow(
                 nominal_value=self._nominal_value(self.charging_power),
                 # max=self.availability,
-                variable_costs=self.variable_costs,
                 **self.output_parameters,
             )
 
-        # TODO check conversion factors
         self.inflow_conversion_factor = solph_sequence(
             self.efficiency_mob_g2v * self.efficiency_sto_in
         )
