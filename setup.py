@@ -75,6 +75,7 @@ setup(
     ],
     extras_require={
         "cli": ["click"],
+        "dev": ["pytest"],
         "plots": ["plotly", "matplotlib"],
         "aggregation": ["tsam"],
         "geometry": ["shapely", "scipy", "pyproj", "geojson", "pyshp"],
