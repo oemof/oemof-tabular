@@ -465,36 +465,6 @@
             }
         },
         {
-            "path": "data/tsam/timeindex.csv",
-            "profile": "tabular-data-resource",
-            "name": "timeindex",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "period_0",
-                        "type": "datetime",
-                        "format": "default"
-                    },
-                    {
-                        "name": "period_1",
-                        "type": "datetime",
-                        "format": "default"
-                    },
-                    {
-                        "name": "period_2",
-                        "type": "datetime",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            }
-        },
-        {
             "path": "data/tsam/tsa_parameters.csv",
             "profile": "tabular-data-resource",
             "name": "tsa_parameters",
