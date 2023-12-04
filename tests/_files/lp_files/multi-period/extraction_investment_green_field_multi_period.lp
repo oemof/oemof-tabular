@@ -248,7 +248,7 @@ c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_0_2)_:
 +1 flow(gas_extraction_0_2)
 -0.5714285714285713 flow(extraction_heat_0_2)
 -2.0 flow(extraction_electricity_0_2)
-= 0.0
+= 0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_1_3)_:
 +1 flow(gas_extraction_1_3)
