@@ -7,11 +7,7 @@ import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
-from oemof.tabular.constraint_facades import (
-    BevEqualInvest,
-    BevShareMob,
-    GenericIntegralLimit,
-)
+from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 from oemof.tabular.facades import (
     BackpressureTurbine,
     Bev,
@@ -483,7 +479,8 @@ class TestConstraints:
             output_parameters={"custom_attributes": {"emission_factor": 2.5}},
         )
 
-        emission_constraint = GenericIntegralLimit(
+        emission_constraint = CONSTRAINT_TYPE_MAP["generic_integral_limit"]
+        emission_constraint = emission_constraint(
             name="emission_constraint",
             type="e",
             limit=1000,
@@ -518,24 +515,26 @@ class TestConstraints:
         bev_v2g = Bev(
             type="bev",
             label="BEV-V2G",
-            electricity_bus=el_bus,
-            storage_capacity=150,
-            capacity=50,
-            drive_power=150,  # nominal value sink
-            # drive_consumption=[1, 1, 1],  # relative value sink
-            max_charging_power=0,  # existing
-            availability=[1, 1, 1],
-            efficiency_charging=1,
             v2g=True,
-            # loss_rate=0.01,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
+            electricity_bus=el_bus,
             commodity_bus=indiv_mob,
+            storage_capacity=0,
+            loss_rate=0,  # self discharge of storage
+            charging_power=0,
+            balanced=True,
             expandable=True,
-            bev_capacity_cost=2,
-            invest_c_rate=60 / 20,
-            # marginal_cost=3,
-            pkm_conversion_rate=0.7,
+            initial_storage_level=0,
+            availability=[1, 1, 1, 1],  # Vehicle availability at charger
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_v2g=5 / 6,  # V2G charger efficiency
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=10,  # Charging costs
+            bev_invest_costs=2,
+            invest_c_rate=60 / 20,  # Capacity/Power
+            fixed_investment_costs=1,
             lifetime=10,
         )
 
@@ -545,21 +544,30 @@ class TestConstraints:
             type="bev",
             label="BEV-inflex",
             electricity_bus=el_bus,
-            storage_capacity=200,
-            drive_power=100,
-            # drive_consumption=[0, 1, 0],
-            # max_charging_power=200,
-            availability=[1, 1, 1],
-            v2g=False,
-            # loss_rate=0.01,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             commodity_bus=indiv_mob,
+            storage_capacity=0,
+            loss_rate=0,  # self discharge of storage
+            charging_power=0,
+            availability=[1, 1, 1, 1],
+            v2g=False,
+            balanced=True,
             expandable=True,
-            bev_capacity_cost=2,
-            invest_c_rate=60 / 20,
-            # marginal_cost=3,
-            pkm_conversion_rate=0.7,
+            initial_storage_level=0,
+            input_parameters={
+                "fix": [0.89856, 0, 0, 0]
+            },  # fixed relative charging profile
+            output_parameters={
+                "fix": [0.16, 0.08, 0.16, 0.12]
+            },  # fixed relative discharging profile
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=20,  # Charging costs
+            bev_invest_costs=2,
+            invest_c_rate=60 / 20,  # Capacity/Power
+            fixed_investment_costs=1,
             lifetime=10,
         )
         self.energysystem.add(bev_flex)
@@ -568,23 +576,24 @@ class TestConstraints:
             type="bev",
             label="BEV-G2V",
             electricity_bus=el_bus,
-            storage_capacity=200,
-            drive_power=100,
-            # drive_consumption=[0, 1, 0],
-            # max_charging_power=200,
-            availability=[1, 1, 1],
-            v2g=False,
-            # loss_rate=0.01,
-            # min_storage_level=[0.1, 0.2, 0.15, 0.15],
-            # max_storage_level=[0.9, 0.95, 0.92, 0.92],
             commodity_bus=indiv_mob,
+            storage_capacity=0,
+            loss_rate=0,  # self discharge of storage
+            charging_power=0,
+            availability=[1, 1, 1, 1],
+            v2g=False,
+            balanced=True,
             expandable=True,
-            bev_capacity_cost=2,
+            initial_storage_level=0,
+            commodity_conversion_rate=5 / 6,  # Energy to pkm
+            efficiency_mob_electrical=5 / 6,  # Vehicle efficiency per 100km
+            efficiency_mob_g2v=5 / 6,  # Charger efficiency
+            efficiency_sto_in=5 / 6,  # Storage charging efficiency
+            efficiency_sto_out=5 / 6,  # Storage discharging efficiency,
+            variable_costs=4,  # Charging costs
+            bev_invest_costs=2,
             invest_c_rate=60 / 20,  # Capacity/Power
-            # marginal_cost=3,
-            pkm_conversion_rate=0.7,
-            input_parameters={"fix": [0, 0, 0]},
-            # fixed relative charging profile
+            fixed_investment_costs=1,
             lifetime=10,
         )
         self.energysystem.add(bev_fix)
@@ -592,24 +601,22 @@ class TestConstraints:
         model = solph.Model(self.energysystem)
 
         year = self.date_time_index.year.min()
-        mob_share_constraint = BevShareMob(
-            name=f"mob_share_{year}",
+        mob_share_constraint = CONSTRAINT_TYPE_MAP["bev_share_mob"]
+        mob_share_constraint = mob_share_constraint(
+            name=None,
             type=None,
-            year=year,
             label="BEV",
-            share_mob_flex_G2V=10,
-            share_mob_flex_V2G=20,
-            share_mob_inflex=70,
+            year=year,
+            share_mob_flex_V2G=0.3,
+            share_mob_inflex=0.2,
+            share_mob_flex_G2V=0.5,
         )
         mob_share_constraint.build_constraint(model)
 
         # these constraints are not mandatory as the energy flow through the
         # facade is already limited by the in & outflow capactiy of the storage
-        invest_constraint = BevEqualInvest(
-            name=f"bev_total_invest_{year}",
-            type=None,
-            year=year,
-        )
+        invest_constraint = CONSTRAINT_TYPE_MAP["bev_equal_invest"]
+        invest_constraint = invest_constraint(name=None, type=None, year=year)
 
         invest_constraint.build_constraint(model)
 
