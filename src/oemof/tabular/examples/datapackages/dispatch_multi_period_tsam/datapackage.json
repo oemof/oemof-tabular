@@ -425,7 +425,7 @@
                     },
                     {
                         "name": "pv-profile",
-                        "type": "integer",
+                        "type": "number",
                         "format": "default"
                     }
                 ],
