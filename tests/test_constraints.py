@@ -603,6 +603,8 @@ class TestConstraints:
         )
         mob_share_constraint.build_constraint(model)
 
+        # these constraints are not mandatory as the energy flow through the
+        # facade is already limited by the in & outflow capactiy of the storage
         invest_constraint = BevEqualInvest(
             name=f"bev_total_invest_{year}",
             type=None,
