@@ -7,7 +7,11 @@ import pandas as pd
 from oemof.solph import helpers
 
 from oemof import solph
-from oemof.tabular.constraint_facades import BevShareMob, GenericIntegralLimit
+from oemof.tabular.constraint_facades import (
+    BevEqualInvest,
+    BevShareMob,
+    GenericIntegralLimit,
+)
 from oemof.tabular.facades import (
     BackpressureTurbine,
     Bev,
@@ -598,5 +602,13 @@ class TestConstraints:
             share_mob_inflex=70,
         )
         mob_share_constraint.build_constraint(model)
+
+        invest_constraint = BevEqualInvest(
+            name=f"bev_total_invest_{year}",
+            type=None,
+            year=year,
+        )
+
+        invest_constraint.build_constraint(model)
 
         self.compare_to_reference_lp("bev_trio_constraint.lp", my_om=model)
