@@ -562,27 +562,13 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                         package.get_resource("tsa_parameters").read(keyed=True)
                     ).set_index("period", drop=True)
 
-                    df_timeindex = pd.DataFrame.from_dict(
-                        package.get_resource("timeindex").read(keyed=True)
-                    )
-                    tsa_parameters = []
-                    for p, data in df_tsa_parameters.sort_index().iterrows():
-                        tsa_parameters.append(
-                            {
-                                "timesteps_per_period": data[
-                                    "timesteps_per_period"
-                                ],
-                                "order": data["order"],
-                                "timeindex": pd.to_datetime(
-                                    df_timeindex.loc[:, f"period_{p}"].values
-                                ),
-                            }
-                        )
                     es = cls(
                         timeindex=period_data["timeindex"],
                         timeincrement=period_data["timeincrement"],
                         periods=period_data["periods"],
-                        tsa_parameters=tsa_parameters,
+                        tsa_parameters=df_tsa_parameters.sort_index().to_dict(
+                            "records"
+                        ),
                         infer_last_interval=False,
                     )
                 else:
