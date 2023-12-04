@@ -52,12 +52,12 @@ class TestBevFacades:
 
         The following energy quantities are used:
 
-        timestep        0           1       2       3
-        -------------------------------------------------
-        volatile	    +725.76	    0	    0	    0
-        load	        0	        -10	    0	    -100
-        pkm_demand	    -50	        -50	    -100	0
-        V2g storage	    417.6	    316.8	144	    0
+        | timestep    | 0       | 1     | 2    | 3    |
+        |-------------|---------|-------|------|------|
+        | volatile    | +725.76 | 0     | 0    | 0    |
+        | load        | 0       | -10   | 0    | -100 |
+        | pkm_demand  | -50     | -50   | -100 | 0    |
+        | V2g storage | 417.6   | 316.8 | 144  | 0    |
 
         The following efficiencies are taken into consideration:
         volatile --> v2g_storage:   efficiency_sto_in * efficiency_mob_g2v
@@ -156,12 +156,12 @@ class TestBevFacades:
         Tests inflex bev facade in dispatch optimization.
 
         The following energy quantities are used:
-        timestep        0           1       2       3
-        -------------------------------------------------
-        volatile	    +908.704    0	    0	    0
-        load	        -100        0	    0	    0
-        pkm_demand	    -100        -50	    -100	-75
-        V2g storage	    388.8	    302.4	129.6   0
+        | timestep    | 0        | 1     | 2     | 3   |
+        |-------------|----------|-------|-------|-----|
+        | volatile    | +908.704 | 0     | 0     | 0   |
+        | load        | -100     | 0     | 0     | 0   |
+        | pkm_demand  | -100     | -50   | -100  | -75 |
+        | V2g storage | 388.8    | 302.4 | 129.6 | 0   |
 
         The following efficiencies are taken into consideration:
         volatile --> v2g_storage:   efficiency_sto_in * efficiency_mob_g2v
