@@ -51,6 +51,9 @@ class TestBevFacades:
         Tests v2g bev facade in dispatch optimization.
 
         The following energy quantities are used:
+
+        timestep        0           1       2       3
+        -------------------------------------------------
         volatile	    +725.76	    0	    0	    0
         load	        0	        -10	    0	    -100
         pkm_demand	    -50	        -50	    -100	0
@@ -153,6 +156,8 @@ class TestBevFacades:
         Tests inflex bev facade in dispatch optimization.
 
         The following energy quantities are used:
+        timestep        0           1       2       3
+        -------------------------------------------------
         volatile	    +908.704    0	    0	    0
         load	        -100        0	    0	    0
         pkm_demand	    -100        -50	    -100	-75
