@@ -29,6 +29,28 @@ DEFAULT = object()
 FLOW_TYPE = object()
 
 
+def error_enhancer(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            # Add additional information to the error message
+            facade_type = args[0].get("type", None)
+            facade_name = args[0].get("name", None)
+            if facade_type is not None and facade_name is not None:
+                additional_info = (
+                    f"\nFailed creating '{facade_type}' with "
+                    f"name '{facade_name}'."
+                )
+                new_error_message = f"{str(e)} - {additional_info}"
+            else:
+                new_error_message = str(e)
+            # Raise the enhanced error
+            raise type(e)(new_error_message).with_traceback(e.__traceback__)
+
+    return wrapper
+
+
 def sequences(r, timeindices=None):
     """Parses the resource `r` as a sequence."""
     result = {
@@ -44,6 +66,7 @@ def sequences(r, timeindices=None):
     return result
 
 
+@error_enhancer
 def read_facade(
     facade,
     facades,

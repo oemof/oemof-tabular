@@ -12,7 +12,9 @@ Features
 
 * Improve reading error message `#134 <https://github.com/oemof/oemof-tabular/pull/134>`_
 * Remove facade relicts `#135 <https://github.com/oemof/oemof-tabular/pull/135>`_
+* Reading error enhancer `#145 <https://github.com/oemof/oemof-tabular/pull/145>`_
 * Add dev install version `#147 <https://github.com/oemof/oemof-tabular/pull/147>`_
+
 
 Fixes
 
