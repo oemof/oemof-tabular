@@ -18,6 +18,7 @@ Features
 Fixes
 
 * Remove specific dirs from flake8 & isort `#136 <https://github.com/oemof/oemof-tabular/pull/136>`_
+* Update lp-files to pyomo6.7 `#148 <https://github.com/oemof/oemof-tabular/pull/148>`_
 
 
 
