@@ -479,7 +479,6 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                                 "capacity_cost",
                                 "capacity",
                                 "capacity_potential",
-                                "lifetime",
                             ]:
                                 # special periodic parameters don't need to be
                                 # converted into full length timeseries
@@ -509,7 +508,11 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                                     "aware, when using this feature!"
                                 )
                                 warnings.warn(msg, UserWarning)
-
+                                continue
+                            elif f in ["lifetime"]:
+                                # parameter which needs to be a constant value
+                                # fix to smallest value if list of values
+                                facade[f] = min(v)
                             else:
                                 # create full length timeseries with changing
                                 # values for every period
