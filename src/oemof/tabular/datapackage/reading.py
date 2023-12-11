@@ -528,6 +528,18 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                                     " be aware, when using this feature!"
                                 )
                                 warnings.warn(msg, UserWarning)
+                                continue
+                        elif len(v) == len(period_data["timeindex"]):
+                            facade[f] = [
+                                float(vv) if isinstance(vv, Decimal) else vv
+                                for vv in v
+                            ]
+                            continue
+                        else:  # pragma: no cover
+                            raise ValueError(
+                                "Length of list does not equal number of "
+                                "periods or timeindex."
+                            )
                 read_facade(
                     facade,
                     facades,
