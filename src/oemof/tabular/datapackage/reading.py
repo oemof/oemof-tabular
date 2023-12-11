@@ -474,9 +474,17 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     if period_data and isinstance(v, list):
                         # check if length of list equals number of periods
                         if len(v) == len(period_data["periods"]):
-                            if f in ["capacity_costs"]:
-                                # special period parameters don't need to be
-                                # converted into timeseries
+                            if f in [
+                                "capacity_costs",
+                                "capacity_cost",
+                                "capacity",
+                                "capacity_potential",
+                                "lifetime",
+                            ]:
+                                # special periodic parameters don't need to be
+                                # converted into full length timeseries
+                                # and can stay as lists but decimals should be
+                                # converted to floats (why? @günni)
                                 facade[f] = [
                                     float(vv)
                                     if isinstance(vv, Decimal)
@@ -485,9 +493,10 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                                 ]
                                 continue
                             elif f in ["fixed_costs"]:
-                                # special period parameter need to be
-                                # converted into timeseries with value for each
-                                # year
+                                # special periodic parameters need to be
+                                # converted into timeseries with value for
+                                # every year (implicit and explicit)
+
                                 facade[f] = create_yearly_values(
                                     v, period_data["years"]
                                 )
@@ -502,7 +511,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                                 warnings.warn(msg, UserWarning)
 
                             else:
-                                # create timeseries with periodic values
+                                # create full length timeseries with changing
+                                # values for every period
                                 facade[f] = create_periodic_values(
                                     v, period_data["periods"]
                                 )
