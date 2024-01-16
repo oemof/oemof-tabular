@@ -458,10 +458,11 @@ class Bev(GenericStorage, Facade):
 # ToDo: remove facade-bus
 # ToDo: name of class ok?
 # ToDo: adjust parameters
-# ToDo: adjust docstring
+# ToDo: update docstring
 @dataclass_facade
 class individual_mobility_sector(Facade):
-    r"""A fleet of Battery electric vehicles with vehicle-to-grid.
+    r"""A fleet of Battery electric vehicles with controlled/flexible charging (G2V),
+    vehicle-to-grid (V2G) or uncontrolled/fixed charging (inflex).
     Note that the investment option is not available for this facade at
     the current development state.
     Parameters
@@ -500,33 +501,81 @@ class individual_mobility_sector(Facade):
         see: input_parameters
     """
 
+    # TODO: match data formats with actual data
+
+    label: str = "ind_mob_sec"
+
     electricity_bus: Bus
 
-    storage_capacity: int
+    # transport_commodity_bus: Bus = None Todo: nötig? wird unten angelegt
 
-    drive_power: int
+    charging_power_g2v: int
 
-    max_charging_power: Union[float, Sequence[float]]
+    charging_power_v2g: int
+
+    charging_power_inflex: int
+
+    charging_potential: int
 
     availability: Sequence[float]
 
-    label: str
+    storage_capacity_g2v: int
 
-    # type: str = "ind_mob_sec"
+    storage_capacity_v2g: int
+
+    storage_capacity_inflex: int
+
+    # initial_storage_capacity=, ToDo: weglassen?
+
+    min_storage_level: Sequence[float]
+
+    max_storage_level: Sequence[float]
+
+    # drive_power: int todo: s.u.
 
     drive_consumption: Sequence = None
 
-    efficiency_charging: float = 1
+    v2g: bool = (False,)  # todo: hier notwendig? wird unten hard-gecoded
 
-    v2g: bool = False
+    loss_rate: float = 0
 
-    transport_commodity_bus: Bus = None
+    efficiency_mob_g2v: float = 1
 
-    input_parameters: dict = field(default_factory=dict)
+    efficiency_mob_v2g: float = 1
 
-    output_parameters: dict = field(default_factory=dict)
+    efficiency_sto_in: float = 1
 
-    expandable: bool = False
+    efficiency_sto_out: float = 1
+
+    efficiency_mob_electrical: float  # = 1 todo: unit?
+
+    pkm_conversion_rate: float  # todo: unit?
+
+    # expandable: bool = False todo: ?
+
+    lifetime: float
+
+    # age=, todo: ?
+
+    # invest_c_rate=, todo: ?
+
+    bev_storage_capacity: int
+
+    # bev_capacity=, todo:?
+
+    bev_invest_cost: int
+
+    fixed_costs: int
+
+    variable_costs: int
+
+    # balanced=, todo:?
+
+    input_parameters_inflex: dict = field(default_factory=dict)
+
+    # output_parameters: dict = field(default_factory=dict), todo: weglassen?
+
+    # max_charging_power: Union[float, Sequence[float]] todo: s.u.
 
     def build_solph_components(self):
         transport_commodity_bus = Bus(label="transport_commodity")
@@ -534,35 +583,120 @@ class individual_mobility_sector(Facade):
 
         mobility_nodes = [transport_commodity_bus]
 
+        bev_controlled_g2v = Bev(
+            label="G2V",
+            electricity_bus=self.electricity_bus,
+            commodity_bus=transport_commodity_bus,
+            charging_power=self.charging_power_g2v,
+            # charging_potential=, todo: ?
+            availability=self.availability,
+            storage_capacity=self.storage_capacity_g2v,
+            # initial_storage_capacity=, ToDo: weglassen?
+            min_storage_level=self.min_storage_level,
+            max_storage_level=self.max_storage_level,
+            # drive_power=self.drive_power, ToDo: wofür?
+            drive_consumption=self.drive_consumption,
+            v2g=False,
+            loss_rate=self.loss_rate,
+            efficiency_mob_g2v=self.efficiency_mob_g2v,
+            efficiency_mob_v2g=0,
+            efficiency_sto_in=self.efficiency_sto_in,
+            efficiency_sto_out=self.efficiency_sto_out,
+            efficiency_mob_electrical=self.efficiency_mob_electrical,
+            pkm_conversion_rate=self.pkm_conversion_rate,
+            # expandable=, todo: ?
+            lifetime=self.lifetime,
+            # age=, todo: ?
+            # invest_c_rate=, todo: ?
+            bev_storage_capacity=self.bev_storage_capacity,
+            # bev_capacity=, todo:?
+            bev_invest_cost=self.bev_invest_cost,
+            fixed_costs=self.fixed_costs,
+            variable_costs=self.variable_costs,
+            # balanced=, todo:?
+            input_parameters=None,
+            # output_parameters=, todo: weglassen?
+            # max_charging_power=self.max_charging_power, ToDo: was ist das hier?
+        )
+
+        mobility_nodes.append(bev_controlled_g2v)
+
         bev_controlled_v2g = Bev(
             label="V2G",
             electricity_bus=self.electricity_bus,
-            storage_capacity=self.storage_capacity,
-            drive_power=self.drive_power,
-            max_charging_power=self.max_charging_power,
+            commodity_bus=transport_commodity_bus,
+            charging_power=self.charging_power_v2g,
+            # charging_potential=, todo: ?
             availability=self.availability,
-            efficiency_charging=self.efficiency_charging,
+            storage_capacity=self.storage_capacity_v2g,
+            # initial_storage_capacity=, ToDo: weglassen?
+            min_storage_level=self.min_storage_level,
+            max_storage_level=self.max_storage_level,
+            # drive_power=self.drive_power, ToDo: wofür?
+            drive_consumption=self.drive_consumption,
             v2g=True,
-            transport_commodity_bus=transport_commodity_bus,
+            loss_rate=self.loss_rate,
+            efficiency_mob_g2v=self.efficiency_mob_g2v,
+            efficiency_mob_v2g=self.efficiency_mob_v2g,
+            efficiency_sto_in=self.efficiency_sto_in,
+            efficiency_sto_out=self.efficiency_sto_out,
+            efficiency_mob_electrical=self.efficiency_mob_electrical,
+            pkm_conversion_rate=self.pkm_conversion_rate,
+            # expandable=, todo: ?
+            lifetime=self.lifetime,
+            # age=, todo: ?
+            # invest_c_rate=, todo: ?
+            bev_storage_capacity=self.bev_storage_capacity,
+            # bev_capacity=, todo:?
+            bev_invest_cost=self.bev_invest_cost,
+            fixed_costs=self.fixed_costs,
+            variable_costs=self.variable_costs,
+            # balanced=, todo:?
+            input_parameters=None,
+            # output_parameters=, todo: weglassen?
+            # max_charging_power=self.max_charging_power, ToDo: was ist das hier?
         )
 
         mobility_nodes.append(bev_controlled_v2g)
 
-        bev_controlled = Bev(
-            label="BEV",
+        bev_inflex = Bev(
+            label="Inflex",
             electricity_bus=self.electricity_bus,
-            storage_capacity=self.storage_capacity,
-            drive_power=self.drive_power,
-            max_charging_power=self.max_charging_power,
+            commodity_bus=transport_commodity_bus,
+            charging_power=self.charging_power_inflex,
+            # charging_potential=, todo: ?
             availability=self.availability,
-            efficiency_charging=self.efficiency_charging,
+            storage_capacity=self.storage_capacity_inflex,
+            # initial_storage_capacity=, ToDo: weglassen?
+            min_storage_level=self.min_storage_level,
+            max_storage_level=self.max_storage_level,
+            # drive_power=self.drive_power, ToDo: wofür?
+            drive_consumption=self.drive_consumption,
             v2g=False,
-            transport_commodity_bus=transport_commodity_bus,
+            loss_rate=self.loss_rate,
+            efficiency_mob_g2v=self.efficiency_mob_g2v,
+            efficiency_mob_v2g=0,
+            efficiency_sto_in=self.efficiency_sto_in,
+            efficiency_sto_out=self.efficiency_sto_out,
+            efficiency_mob_electrical=self.efficiency_mob_electrical,
+            pkm_conversion_rate=self.pkm_conversion_rate,
+            # expandable=, todo: ?
+            lifetime=self.lifetime,
+            # age=, todo: ?
+            # invest_c_rate=, todo: ?
+            bev_storage_capacity=self.bev_storage_capacity,
+            # bev_capacity=, todo:?
+            bev_invest_cost=self.bev_invest_cost,
+            fixed_costs=self.fixed_costs,
+            variable_costs=self.variable_costs,
+            # balanced=, todo:?
+            input_parameters=self.input_parameters_inflex,
+            # output_parameters=, todo: weglassen?
         )
 
-        mobility_nodes.append(bev_controlled)
+        mobility_nodes.append(bev_inflex)
 
-        pkm_demand = Load(
+        pkm_demand = Load(  # todo: was geht hier?
             label="pkm_demand",
             type="Load",
             carrier="pkm",
