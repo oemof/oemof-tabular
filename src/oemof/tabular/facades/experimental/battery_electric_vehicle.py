@@ -453,3 +453,125 @@ class Bev(GenericStorage, Facade):
 
         # many components in facade
         self.subnodes = subnodes
+
+
+# ToDo: remove facade-bus
+# ToDo: name of class ok?
+# ToDo: adjust parameters
+# ToDo: adjust docstring
+@dataclass_facade
+class individual_mobility_sector(Facade):
+    r"""A fleet of Battery electric vehicles with vehicle-to-grid.
+    Note that the investment option is not available for this facade at
+    the current development state.
+    Parameters
+    ----------
+    bus: oemof.solph.Bus
+        An oemof bus instance where the storage unit is connected to.
+    storage_capacity: int
+        The total storage capacity of the vehicles (e.g. in MWh)
+    drive_power: int
+        Total charging/discharging capacity of the vehicles (e.g. in MW)
+    drive_consumption : array-like
+        Profile of drive consumption of the fleet (relative to capacity).
+    max_charging_power : int
+        Max charging/discharging power of all vehicles (e.g. in MW)
+    availability : array-like
+        Ratio of available capacity for charging/vehicle-to-grid due to
+        grid connection.
+    efficiency_charging: float
+        Efficiency of charging the batteries, default: 1
+    v2g: bool
+        If True, vehicle-to-grid is enabled, default: False
+    loss_rate: float
+    min_storage_level : array-like
+        Profile of minimum storage level (min SOC)
+    max_storage_level : array-like
+        Profile of maximum storage level (max SOC).
+    balanced : boolean
+        Couple storage level of first and last time step.
+        (Total inflow and total outflow are balanced.)
+    transport_commodity: None
+        Bus for the transport commodity
+    input_parameters: dict
+        Dictionary to specify parameters on the input edge. You can use
+        all keys that are available for the  oemof.solph.network.Flow class.
+    output_parameters: dict
+        see: input_parameters
+    """
+
+    electricity_bus: Bus
+
+    storage_capacity: int
+
+    drive_power: int
+
+    max_charging_power: Union[float, Sequence[float]]
+
+    availability: Sequence[float]
+
+    label: str
+
+    # type: str = "ind_mob_sec"
+
+    drive_consumption: Sequence = None
+
+    efficiency_charging: float = 1
+
+    v2g: bool = False
+
+    transport_commodity_bus: Bus = None
+
+    input_parameters: dict = field(default_factory=dict)
+
+    output_parameters: dict = field(default_factory=dict)
+
+    expandable: bool = False
+
+    def build_solph_components(self):
+        transport_commodity_bus = Bus(label="transport_commodity")
+        transport_commodity_bus.type = "bus"
+
+        mobility_nodes = [transport_commodity_bus]
+
+        bev_controlled_v2g = Bev(
+            label="V2G",
+            electricity_bus=self.electricity_bus,
+            storage_capacity=self.storage_capacity,
+            drive_power=self.drive_power,
+            max_charging_power=self.max_charging_power,
+            availability=self.availability,
+            efficiency_charging=self.efficiency_charging,
+            v2g=True,
+            transport_commodity_bus=transport_commodity_bus,
+        )
+
+        mobility_nodes.append(bev_controlled_v2g)
+
+        bev_controlled = Bev(
+            label="BEV",
+            electricity_bus=self.electricity_bus,
+            storage_capacity=self.storage_capacity,
+            drive_power=self.drive_power,
+            max_charging_power=self.max_charging_power,
+            availability=self.availability,
+            efficiency_charging=self.efficiency_charging,
+            v2g=False,
+            transport_commodity_bus=transport_commodity_bus,
+        )
+
+        mobility_nodes.append(bev_controlled)
+
+        pkm_demand = Load(
+            label="pkm_demand",
+            type="Load",
+            carrier="pkm",
+            bus=transport_commodity_bus,
+            amount=400,
+            profile=[0, 1, 0],
+        )
+
+        mobility_nodes.append(pkm_demand)
+
+        # many components in facade
+        self.subnodes = mobility_nodes
