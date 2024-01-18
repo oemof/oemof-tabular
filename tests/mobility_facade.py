@@ -181,7 +181,7 @@ if __name__ == "__main__":
     bev = IndividualMobilitySector(
         label="ind_mob_sec",
         electricity_bus=el_bus,
-        # transport_commodity_bus: Bus = None Todo: nötig? wird unten angelegt
+        transport_commodity_bus=indiv_mob,
         charging_power_g2v=200,
         charging_power_v2g=200,
         charging_power_inflex=200,
@@ -191,31 +191,33 @@ if __name__ == "__main__":
         storage_capacity_v2g=200,
         storage_capacity_inflex=200,
         # initial_storage_capacity=, ToDo: weglassen?
-        #min_storage_level=[0.1, 0.2, 0.15, 0.15],
-        #max_storage_level=[0.9, 0.95, 0.92, 0.92],
-        # drive_power: int todo: ?
+        min_storage_level=(len(date_time_index) + 0) * [0],
+        max_storage_level=(len(date_time_index) + 0) * [0.9],
+        drive_power=100, #todo: ?
         #drive_consumption: Sequence = None
-        #v2g: bool = (False,)  # todo: hier notwendig? wird unten hard-gecoded
-        #loss_rate: float = 0
+        loss_rate=0.01,
         #efficiency_mob_g2v: float = 1
         #efficiency_mob_v2g: float = 1
         #efficiency_sto_in: float = 1
         #efficiency_sto_out: float = 1
         #efficiency_mob_electrical: float  # = 1 todo: unit?
-        pkm_conversion_rate=0.7,  # todo: unit?
-        # expandable: bool = False todo: ?
+        efficiency_charging=1, # todo: added for test
+        # pkm_conversion_rate=0.7,  # todo: unit? deactivated for test
+        expandable=True, #todo: ?
         lifetime=10,
         # age=, todo: ?
         invest_c_rate=60 / 20,
         #bev_storage_capacity: int
         # bev_capacity=, todo:?
-        bev_invest_cost=2,
-        fixed_costs=1,
+        bev_invest_costs=2,
+        # fixed_costs=1, todo: deactivated for test
+        fixed_investment_costs=1,
         variable_costs=3,
         # balanced=, todo:?
         input_parameters_inflex={
             "fix": len(periods) * [0, 0, 0]
         },  # fixed relative charging profile
+        commodity_conversion_rate=0.7, # todo: added for test
     )
     energysystem.add(bev)
 
