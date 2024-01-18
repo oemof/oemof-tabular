@@ -507,7 +507,7 @@ class IndividualMobilitySector(Facade):
 
     electricity_bus: Bus = None
 
-    # transport_commodity_bus: Bus = None Todo: nötig? wird unten angelegt
+    transport_commodity_bus: Bus = None
 
     charging_power_g2v: float = 0
 
@@ -578,15 +578,13 @@ class IndividualMobilitySector(Facade):
     # max_charging_power: Union[float, Sequence[float]] todo: s.u.
 
     def build_solph_components(self):
-        transport_commodity_bus = Bus(label="transport_commodity")
-        transport_commodity_bus.type = "bus"
 
-        mobility_nodes = [transport_commodity_bus]
+        mobility_nodes = [self.transport_commodity_bus]
 
         bev_controlled_g2v = Bev(
             label="G2V",
             electricity_bus=self.electricity_bus,
-            commodity_bus=transport_commodity_bus,
+            commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_g2v,
             # charging_potential=, todo: ?
             availability=self.availability,
@@ -624,7 +622,7 @@ class IndividualMobilitySector(Facade):
         bev_controlled_v2g = Bev(
             label="V2G",
             electricity_bus=self.electricity_bus,
-            commodity_bus=transport_commodity_bus,
+            commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_v2g,
             # charging_potential=, todo: ?
             availability=self.availability,
@@ -662,7 +660,7 @@ class IndividualMobilitySector(Facade):
         bev_inflex = Bev(
             label="Inflex",
             electricity_bus=self.electricity_bus,
-            commodity_bus=transport_commodity_bus,
+            commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_inflex,
             # charging_potential=, todo: ?
             availability=self.availability,
