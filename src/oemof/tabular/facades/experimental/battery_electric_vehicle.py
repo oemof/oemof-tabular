@@ -183,7 +183,7 @@ class Bev(GenericStorage, Facade):
 
     """
 
-    electricity_bus: Bus
+    electricity_bus: Bus = None
 
     commodity_bus: Bus = None
 
@@ -460,7 +460,7 @@ class Bev(GenericStorage, Facade):
 # ToDo: adjust parameters
 # ToDo: update docstring
 @dataclass_facade
-class individual_mobility_sector(Facade):
+class IndividualMobilitySector(Facade):
     r"""A fleet of Battery electric vehicles with controlled/flexible charging (G2V),
     vehicle-to-grid (V2G) or uncontrolled/fixed charging (inflex).
     Note that the investment option is not available for this facade at
@@ -505,35 +505,35 @@ class individual_mobility_sector(Facade):
 
     label: str = "ind_mob_sec"
 
-    electricity_bus: Bus
+    electricity_bus: Bus = None
 
     # transport_commodity_bus: Bus = None Todo: nötig? wird unten angelegt
 
-    charging_power_g2v: int
+    charging_power_g2v: float = 0
 
-    charging_power_v2g: int
+    charging_power_v2g: float = 0
 
-    charging_power_inflex: int
+    charging_power_inflex: float = 0
 
-    charging_potential: int
+    charging_potential: float = None
 
-    availability: Sequence[float]
+    availability: Union[float, Sequence[float]] = 1
 
-    storage_capacity_g2v: int
+    storage_capacity_g2v: float = 0
 
-    storage_capacity_v2g: int
+    storage_capacity_v2g: float = 0
 
-    storage_capacity_inflex: int
+    storage_capacity_inflex: float = 0
 
     # initial_storage_capacity=, ToDo: weglassen?
 
-    min_storage_level: Sequence[float]
+    min_storage_level: Union[float, Sequence[float]] = 0
 
-    max_storage_level: Sequence[float]
+    max_storage_level: Union[float, Sequence[float]] = 1
 
     # drive_power: int todo: s.u.
 
-    drive_consumption: Sequence = None
+    drive_consumption: Sequence[float] = None
 
     v2g: bool = (False,)  # todo: hier notwendig? wird unten hard-gecoded
 
@@ -547,27 +547,27 @@ class individual_mobility_sector(Facade):
 
     efficiency_sto_out: float = 1
 
-    efficiency_mob_electrical: float  # = 1 todo: unit?
+    efficiency_mob_electrical: float = 1 #todo: unit?
 
-    pkm_conversion_rate: float  # todo: unit?
+    pkm_conversion_rate: float = 1  # todo: unit?
 
     # expandable: bool = False todo: ?
 
-    lifetime: float
+    lifetime: int = 20
 
-    # age=, todo: ?
+    age: int = 0 # todo: ?
 
-    # invest_c_rate=, todo: ?
+    invest_c_rate: Sequence[float] = None
 
-    bev_storage_capacity: int
+    bev_storage_capacity: int = 0 # todo: not used in bev()
 
     # bev_capacity=, todo:?
 
-    bev_invest_cost: int
+    bev_invest_cost: Sequence[float] = None
 
-    fixed_costs: int
+    fixed_costs: Union[float, Sequence[float]] = 0
 
-    variable_costs: int
+    variable_costs: Union[float, Sequence[float]] = 0
 
     # balanced=, todo:?
 
@@ -607,14 +607,14 @@ class individual_mobility_sector(Facade):
             # expandable=, todo: ?
             lifetime=self.lifetime,
             # age=, todo: ?
-            # invest_c_rate=, todo: ?
+            invest_c_rate=self.invest_c_rate,
             bev_storage_capacity=self.bev_storage_capacity,
             # bev_capacity=, todo:?
             bev_invest_cost=self.bev_invest_cost,
             fixed_costs=self.fixed_costs,
             variable_costs=self.variable_costs,
             # balanced=, todo:?
-            input_parameters=None,
+            input_parameters=field(default_factory=dict),
             # output_parameters=, todo: weglassen?
             # max_charging_power=self.max_charging_power, ToDo: was ist das hier?
         )
@@ -645,14 +645,14 @@ class individual_mobility_sector(Facade):
             # expandable=, todo: ?
             lifetime=self.lifetime,
             # age=, todo: ?
-            # invest_c_rate=, todo: ?
+            invest_c_rate=self.invest_c_rate,
             bev_storage_capacity=self.bev_storage_capacity,
             # bev_capacity=, todo:?
             bev_invest_cost=self.bev_invest_cost,
             fixed_costs=self.fixed_costs,
             variable_costs=self.variable_costs,
             # balanced=, todo:?
-            input_parameters=None,
+            input_parameters=field(default_factory=dict),
             # output_parameters=, todo: weglassen?
             # max_charging_power=self.max_charging_power, ToDo: was ist das hier?
         )
@@ -683,7 +683,7 @@ class individual_mobility_sector(Facade):
             # expandable=, todo: ?
             lifetime=self.lifetime,
             # age=, todo: ?
-            # invest_c_rate=, todo: ?
+            invest_c_rate=self.invest_c_rate,
             bev_storage_capacity=self.bev_storage_capacity,
             # bev_capacity=, todo:?
             bev_invest_cost=self.bev_invest_cost,
@@ -696,7 +696,7 @@ class individual_mobility_sector(Facade):
 
         mobility_nodes.append(bev_inflex)
 
-        pkm_demand = Load(  # todo: was geht hier?
+        '''pkm_demand = Load(  # todo: was geht hier?
             label="pkm_demand",
             type="Load",
             carrier="pkm",
@@ -705,7 +705,7 @@ class individual_mobility_sector(Facade):
             profile=[0, 1, 0],
         )
 
-        mobility_nodes.append(pkm_demand)
+        mobility_nodes.append(pkm_demand)'''
 
         # many components in facade
         self.subnodes = mobility_nodes
