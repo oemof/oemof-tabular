@@ -582,7 +582,7 @@ class IndividualMobilitySector(Facade):
         mobility_nodes = [self.transport_commodity_bus]
 
         bev_controlled_g2v = Bev(
-            label="G2V",
+            label=self.label+"_G2V",
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_g2v,
@@ -620,7 +620,7 @@ class IndividualMobilitySector(Facade):
         mobility_nodes.append(bev_controlled_g2v)
 
         bev_controlled_v2g = Bev(
-            label="V2G",
+            label=self.label+"_V2G",
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_v2g,
@@ -658,7 +658,7 @@ class IndividualMobilitySector(Facade):
         mobility_nodes.append(bev_controlled_v2g)
 
         bev_inflex = Bev(
-            label="Inflex",
+            label=self.label+"_Inflex",
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_inflex,
