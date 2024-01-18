@@ -696,16 +696,5 @@ class IndividualMobilitySector(Facade):
 
         mobility_nodes.append(bev_inflex)
 
-        '''pkm_demand = Load(  # todo: was geht hier?
-            label="pkm_demand",
-            type="Load",
-            carrier="pkm",
-            bus=transport_commodity_bus,
-            amount=400,
-            profile=[0, 1, 0],
-        )
-
-        mobility_nodes.append(pkm_demand)'''
-
         # many components in facade
         self.subnodes = mobility_nodes
