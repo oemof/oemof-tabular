@@ -68,7 +68,9 @@ setup(
         "datapackage==1.5.1",
         "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
         # "oemof.solph>=0.5.1",
-        "oemof.solph==0.5.2dev0",
+        # Fixing solph version. Might Upgrade later but depends on explicit arguments
+        "oemof.solph @ git+https://github.com/oemof/oemof-solph.git@feature/integrate_tsam",
+        "oemof.network==0.5.0.a5",
         "pandas>=0.22",
         "paramiko",
         "toml",
