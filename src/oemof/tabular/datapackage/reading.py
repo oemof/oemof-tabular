@@ -481,7 +481,12 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         """
 
         yearly_values = ["fixed_costs", "marginal_costs"]
-        periodical_values = ["capacity", "capacity_cost", "capacity_potential"]
+        periodical_values = [
+            "capacity",
+            "capacity_cost",
+            "capacity_potential",
+            "storage_capacity",
+        ]
 
         for value_name, value in facade.items():
             if isinstance(value, Decimal):
