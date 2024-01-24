@@ -48,7 +48,7 @@ class Bev(GenericStorage, Facade):
         todo: add description.
     storage_capacity_potential: float
         todo: add description.
-    initial_storage_capacity: float
+    initial_storage_capacity: float #todo: initial storage capacity or level?
         The relative storage content in the timestep before the first
         time step of optimization (between 0 and 1).
 
@@ -530,13 +530,13 @@ class IndividualMobilitySector(Facade):
 
     storage_capacity_inflex: float = 0
 
-    # initial_storage_capacity=, ToDo: weglassen?
+    initial_storage_capacity: float = 0
 
     min_storage_level: Union[float, Sequence[float]] = 0
 
     max_storage_level: Union[float, Sequence[float]] = 1
 
-    drive_power: int = 0  # todo: ?
+    drive_power: int = 0
 
     drive_consumption: Sequence[float] = None
 
@@ -550,9 +550,7 @@ class IndividualMobilitySector(Facade):
 
     efficiency_sto_out: float = 1
 
-    efficiency_mob_electrical: float = 1  # todo: unit?
-
-    efficiency_charging: float = 1  # todo: added for test
+    efficiency_mob_electrical: float = 1
 
     commodity_conversion_rate: float = 1
 
@@ -560,9 +558,9 @@ class IndividualMobilitySector(Facade):
 
     lifetime: int = 20
 
-    age: int = 0  # todo: ?
+    age: int = 0
 
-    invest_c_rate: Sequence[float] = None
+    invest_c_rate: Sequence[float] = None  # todo: cannot run with default parameter
 
     bev_storage_capacity: int = 0  # todo: not used in bev()
 
@@ -576,13 +574,11 @@ class IndividualMobilitySector(Facade):
 
     variable_costs: Union[float, Sequence[float]] = 0
 
-    # balanced=, todo:?
+    balanced: bool = False
 
     input_parameters_inflex: dict = field(default_factory=dict)
 
-    # output_parameters: dict = field(default_factory=dict), todo: weglassen?
-
-    # max_charging_power: Union[float, Sequence[float]] todo: s.u.
+    output_parameters: dict = field(default_factory=dict)
 
     def build_solph_components(self):
         mobility_nodes = [self.transport_commodity_bus]
@@ -593,35 +589,31 @@ class IndividualMobilitySector(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_g2v,
-            # charging_potential=, todo: ?
             availability=self.availability,
-            storage_capacity=self.storage_capacity_g2v,
-            # initial_storage_capacity=, ToDo: weglassen?
+            storage_capacity=self.storage_capacity_g2v,  # defined via constraint
+            initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
-            drive_power=self.drive_power,  # ToDo: wofür? activated for test
-            # drive_consumption=self.drive_consumption, #todo: deactivated for test
+            drive_consumption=self.drive_consumption,
             v2g=False,
-            # loss_rate=self.loss_rate, #todo: deactivated for test
-            # efficiency_mob_g2v=self.efficiency_mob_g2v,  # Todo: deactivated for test
-            # efficiency_mob_v2g=0, # Todo: deactivated for test
-            # efficiency_sto_in=self.efficiency_sto_in, # Todo: deactivated for test
-            # efficiency_sto_out=self.efficiency_sto_out, # Todo: deactivated for test
-            # efficiency_mob_electrical=self.efficiency_mob_electrical, # Todo: deactivated for test
+            loss_rate=self.loss_rate,
+            efficiency_mob_g2v=self.efficiency_mob_g2v,
+            efficiency_mob_v2g=0,
+            efficiency_sto_in=self.efficiency_sto_in,
+            efficiency_sto_out=self.efficiency_sto_out,
+            efficiency_mob_electrical=self.efficiency_mob_electrical,
             commodity_conversion_rate=self.commodity_conversion_rate,
-            expandable=self.expandable,  # todo: ?, activated for test
+            expandable=self.expandable,
             lifetime=self.lifetime,
-            # age=, todo: ?
+            age=self.age,
             invest_c_rate=self.invest_c_rate,
             # bev_storage_capacity=self.bev_storage_capacity, Todo: deactivated for test
             # bev_capacity=, todo:?
             bev_invest_costs=self.bev_invest_costs,
-            # fixed_costs=self.fixed_costs, todo: deactivated for test
+            fixed_costs=self.fixed_costs,
             fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
             variable_costs=self.variable_costs,
-            # balanced=, todo:?
-            # output_parameters=, todo: weglassen?
-            # max_charging_power=self.max_charging_power, ToDo: was ist das hier?
+            balanced=self.balanced,
         )
 
         mobility_nodes.append(bev_controlled_g2v)
@@ -632,36 +624,31 @@ class IndividualMobilitySector(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_v2g,
-            # charging_potential=, todo: ?
             availability=self.availability,
             storage_capacity=self.storage_capacity_v2g,
-            # initial_storage_capacity=, ToDo: weglassen?
+            initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
-            # drive_power=self.drive_power, ToDo: wofür?
-            # drive_consumption=self.drive_consumption, todo: deactivated for test
+            drive_consumption=self.drive_consumption,
             v2g=True,
             loss_rate=self.loss_rate,
-            # efficiency_mob_g2v=self.efficiency_mob_g2v, # Todo: deactivated for test
-            # efficiency_mob_v2g=self.efficiency_mob_v2g, # Todo: deactivated for test
-            # efficiency_sto_in=self.efficiency_sto_in, # Todo: deactivated for test
-            # efficiency_sto_out=self.efficiency_sto_out, # Todo: deactivated for test
-            # efficiency_mob_electrical=self.efficiency_mob_electrical, # Todo: deactivated for test
-            efficiency_charging=self.efficiency_charging,  # todo: added for test
+            efficiency_mob_g2v=self.efficiency_mob_g2v,
+            efficiency_mob_v2g=self.efficiency_mob_v2g,
+            efficiency_sto_in=self.efficiency_sto_in,
+            efficiency_sto_out=self.efficiency_sto_out,
+            efficiency_mob_electrical=self.efficiency_mob_electrical,
             commodity_conversion_rate=self.commodity_conversion_rate,
-            expandable=self.expandable,  # todo: ?, activated for test
+            expandable=self.expandable,
             lifetime=self.lifetime,
-            # age=, todo: ?
+            age=self.age,
             invest_c_rate=self.invest_c_rate,
             # bev_storage_capacity=self.bev_storage_capacity, #todo: deactivated for test
             # bev_capacity=, todo:?
             bev_invest_costs=self.bev_invest_costs,
-            # fixed_costs=self.fixed_costs, #todo: deactivated for test
+            fixed_costs=self.fixed_costs,
             fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
             variable_costs=self.variable_costs,
-            # balanced=, todo:?
-            # output_parameters=, todo: weglassen?
-            # max_charging_power=self.max_charging_power, ToDo: was ist das hier?
+            balanced=self.balanced,
         )
 
         mobility_nodes.append(bev_controlled_v2g)
@@ -672,35 +659,32 @@ class IndividualMobilitySector(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_inflex,
-            # charging_potential=, todo: ?
             availability=self.availability,
             storage_capacity=self.storage_capacity_inflex,
-            # initial_storage_capacity=, ToDo: weglassen?
+            initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
-            drive_power=self.drive_power,  # ToDo: wofür?, activated for test
-            # drive_consumption=self.drive_consumption, #todo: deactivated for test
+            drive_consumption=self.drive_consumption,
             v2g=False,
-            # loss_rate=self.loss_rate, #todo: deactivated for test
-            # efficiency_mob_g2v=self.efficiency_mob_g2v, # Todo: deactivated for test
-            # efficiency_mob_v2g=0, # Todo: deactivated for test
-            # efficiency_sto_in=self.efficiency_sto_in, # Todo: deactivated for test
-            # efficiency_sto_out=self.efficiency_sto_out, # Todo: deactivated for test
-            # efficiency_mob_electrical=self.efficiency_mob_electrical, # Todo: deactivated for test
+            loss_rate=self.loss_rate,
+            efficiency_mob_g2v=self.efficiency_mob_g2v,
+            efficiency_mob_v2g=0,
+            efficiency_sto_in=self.efficiency_sto_in,
+            efficiency_sto_out=self.efficiency_sto_out,
+            efficiency_mob_electrical=self.efficiency_mob_electrical,
             commodity_conversion_rate=self.commodity_conversion_rate,
-            expandable=self.expandable,  # todo: ?
+            expandable=self.expandable,
             lifetime=self.lifetime,
-            # age=, todo: ?
+            age=self.age,
             invest_c_rate=self.invest_c_rate,
             bev_storage_capacity=self.bev_storage_capacity,
             # bev_capacity=, todo:?
             bev_invest_costs=self.bev_invest_costs,
-            # fixed_costs=self.fixed_costs, # todo: deactivated for test
+            fixed_costs=self.fixed_costs,
             fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
             variable_costs=self.variable_costs,
-            # balanced=, todo:?
+            balanced=self.balanced,
             input_parameters=self.input_parameters_inflex,
-            # output_parameters=, todo: weglassen?
         )
 
         mobility_nodes.append(bev_inflex)

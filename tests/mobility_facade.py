@@ -8,7 +8,9 @@ from oemof.tabular import __path__ as tabular_path
 from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 from oemof.tabular.datapackage.reading import deserialize_constraints
 from oemof.tabular.facades import Excess, Load, Shortage, Volatile
-from oemof.tabular.facades.experimental.battery_electric_vehicle import IndividualMobilitySector
+from oemof.tabular.facades.experimental.battery_electric_vehicle import (
+    IndividualMobilitySector,
+)
 from oemof.tabular.postprocessing import calculations
 
 if __name__ == "__main__":
@@ -185,39 +187,33 @@ if __name__ == "__main__":
         charging_power_g2v=200,
         charging_power_v2g=200,
         charging_power_inflex=200,
-        #charging_potential: int
         availability=len(periods) * [1, 1, 1],
         storage_capacity_g2v=200,
         storage_capacity_v2g=200,
         storage_capacity_inflex=200,
-        # initial_storage_capacity=, ToDo: weglassen?
         min_storage_level=(len(date_time_index) + 0) * [0],
         max_storage_level=(len(date_time_index) + 0) * [0.9],
-        drive_power=100, #todo: ?
-        #drive_consumption: Sequence = None
+        drive_consumption=[1, 1, 1],
         loss_rate=0.01,
-        #efficiency_mob_g2v: float = 1
-        #efficiency_mob_v2g: float = 1
-        #efficiency_sto_in: float = 1
-        #efficiency_sto_out: float = 1
-        #efficiency_mob_electrical: float  # = 1 todo: unit?
-        efficiency_charging=1, # todo: added for test
-        # pkm_conversion_rate=0.7,  # todo: unit? deactivated for test
-        expandable=True, #todo: ?
+        efficiency_mob_g2v=1,
+        efficiency_mob_v2g=1,
+        efficiency_sto_in=1,
+        efficiency_sto_out=1,
+        efficiency_mob_electrical=1,  # todo: unit?
+        commodity_conversion_rate=0.7,
+        expandable=True, # todo: ?
         lifetime=10,
-        # age=, todo: ?
+        age=0,
         invest_c_rate=60 / 20,
         #bev_storage_capacity: int
         # bev_capacity=, todo:?
         bev_invest_costs=2,
-        # fixed_costs=1, todo: deactivated for test
-        fixed_investment_costs=1,
+        fixed_costs=1,
+        #fixed_investment_costs=1,
         variable_costs=3,
-        # balanced=, todo:?
         input_parameters_inflex={
             "fix": len(periods) * [0, 0, 0]
         },  # fixed relative charging profile
-        commodity_conversion_rate=0.7, # todo: added for test
     )
     energysystem.add(bev)
 
