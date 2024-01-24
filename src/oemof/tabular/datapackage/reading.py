@@ -434,7 +434,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
         return periodic_values.tolist()
 
-    def create_yearly_values(values: typing.Iterable[float], period_years: typing.Iterable[int]):
+    def create_yearly_values(
+        values: typing.Iterable[float], period_years: typing.Iterable[int]
+    ):
         """
         Creates a value for every year (between two periods)
         Value of period is continued until next period
@@ -463,7 +465,10 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             - yearly values (between periods)
             - kept as periodical values
 
-        Decision happens based on value name entry in yearly/periodical values ist.
+        Decision happens based on
+            - value
+            - name
+            - entry in yearly/periodical values list.
 
         Parameters
         ----------
@@ -474,7 +479,6 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         -------
         facade
         """
-
 
         yearly_values = ["fixed_costs", "marginal_costs"]
         periodical_values = ["capacity", "capacity_cost", "capacity_potential"]
@@ -490,9 +494,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                         # special period parameters don't need to be
                         # converted into timeseries
                         facade[value_name] = [
-                            float(vv)
-                            if isinstance(vv, Decimal)
-                            else vv
+                            float(vv) if isinstance(vv, Decimal) else vv
                             for vv in value
                         ]
                         continue
@@ -557,7 +559,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 # convert decimal to float
 
                 read_facade(
-                    convert_and_deserialize_dtypes(facade=facade, period_data=period_data),
+                    convert_and_deserialize_dtypes(
+                        facade=facade, period_data=period_data
+                    ),
                     facades,
                     create,
                     typemap,
