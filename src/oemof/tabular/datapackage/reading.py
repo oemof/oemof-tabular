@@ -13,6 +13,7 @@ along with how to use the functions in this module.
 import collections.abc as cabc
 import json
 import re
+import typing
 import warnings
 from decimal import Decimal
 from itertools import chain, groupby, repeat
@@ -433,10 +434,22 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
         return periodic_values.tolist()
 
-    def create_yearly_values(values, years):
+    def create_yearly_values(values: typing.Iterable[int, float], period_years: typing.Iterable[int]):
+        """
+        Creates a value for every year (between two periods)
+        Value of period is continued until next period
+        Parameters
+        ----------
+        values values to be interpolated
+        years years of periods
+
+        Returns
+        -------
+
+        """
         results = pd.Series()
-        for i in range(len(years) - 1):
-            diff = years[i + 1] - years[i]
+        for i in range(len(period_years) - 1):
+            diff = period_years[i + 1] - period_years[i]
             period_results = pd.Series(repeat(values[i], diff))
             results = pd.concat([results, period_results])
         results = pd.concat([results, pd.Series(values[-1])])
