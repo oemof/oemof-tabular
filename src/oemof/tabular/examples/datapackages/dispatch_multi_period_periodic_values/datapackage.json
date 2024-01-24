@@ -264,7 +264,7 @@
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "integer",
+                        "type": "array",
                         "format": "default"
                     },
                     {

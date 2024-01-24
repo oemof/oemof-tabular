@@ -118,14 +118,14 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         FLOW_TYPE: HSN,
     }
 
-    for k, v in default_typemap.items():
-        typemap[k] = typemap.get(k, v)
+    for k, value in default_typemap.items():
+        typemap[k] = typemap.get(k, value)
 
     if attributemap.get(object) is None:
         attributemap[object] = {"name": "label"}
 
-    for k, v in attributemap.items():
-        if v.get("name") is None:
+    for k, value in attributemap.items():
+        if value.get("name") is None:
             attributemap[k]["name"] = "label"
 
     package = dp.Package(path)
@@ -434,7 +434,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
         return periodic_values.tolist()
 
-    def create_yearly_values(values: typing.Iterable[int, float], period_years: typing.Iterable[int]):
+    def create_yearly_values(values: typing.Iterable[float], period_years: typing.Iterable[int]):
         """
         Creates a value for every year (between two periods)
         Value of period is continued until next period
@@ -443,7 +443,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         values values to be interpolated
         years years of periods
 
-        Returns
+        Returns list
         -------
 
         """
@@ -454,6 +454,80 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             results = pd.concat([results, period_results])
         results = pd.concat([results, pd.Series(values[-1])])
         return results.tolist()
+
+    def convert_and_deserialize_dtypes(facade, period_data):
+        """
+        Depending on dtype and content.
+        Periodically changing values [given as array] are either unpacked into
+            - full periods
+            - yearly values (between periods)
+            - kept as periodical values
+
+        Decision happens based on value name entry in yearly/periodical values ist.
+
+        Parameters
+        ----------
+        facade
+        period_data
+
+        Returns
+        -------
+        facade
+        """
+
+
+        yearly_values = ["fixed_costs", "marginal_costs"]
+        periodical_values = ["capacity", "capacity_cost", "capacity_potential"]
+
+        for value_name, value in facade.items():
+            if isinstance(value, Decimal):
+                facade[value_name] = float(value)
+            # check if multi-period and value is list
+            if period_data and isinstance(value, list):
+                # check if length of list equals number of periods
+                if len(value) == len(period_data["periods"]):
+                    if value_name in periodical_values:
+                        # special period parameters don't need to be
+                        # converted into timeseries
+                        facade[value_name] = [
+                            float(vv)
+                            if isinstance(vv, Decimal)
+                            else vv
+                            for vv in value
+                        ]
+                        continue
+                    elif value_name in yearly_values:
+                        # special period parameter need to be
+                        # converted into timeseries with value for each
+                        # year
+                        facade[value_name] = create_yearly_values(
+                            value, period_data["years"]
+                        )
+                        msg = (
+                            f"\nThe parameter '{value_name}' of a "
+                            f"'{facade['type']}' facade is converted "
+                            "into a yearly list. This might not be "
+                            "possible for every parameter and lead to "
+                            "ambiguous error messages.\nPlease be "
+                            "aware, when using this feature!"
+                        )
+                        warnings.warn(msg, UserWarning)
+
+                    else:
+                        # create timeseries with periodic values
+                        facade[value_name] = create_periodic_values(
+                            value, period_data["periods"]
+                        )
+                        msg = (
+                            f"\nThe parameter '{value_name}' of a "
+                            f"'{facade['type']}' facade is converted "
+                            "into a periodic timeseries. This might "
+                            "not be possible for every parameter and "
+                            "lead to ambiguous error messages.\nPlease"
+                            " be aware, when using this feature!"
+                        )
+                        warnings.warn(msg, UserWarning)
+        return facade
 
     facades = {}
     for r in package.resources:
@@ -478,58 +552,12 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 fk["fields"]: fk["reference"]
                 for fk in r.descriptor["schema"].get("foreignKeys", ())
             }
+
             for facade in facade_data:
                 # convert decimal to float
-                for f, v in facade.items():
-                    if isinstance(v, Decimal):
-                        facade[f] = float(v)
-                    # check if multi-period and value is list
-                    if period_data and isinstance(v, list):
-                        # check if length of list equals number of periods
-                        if len(v) == len(period_data["periods"]):
-                            if f in ["capacity_costs"]:
-                                # special period parameters don't need to be
-                                # converted into timeseries
-                                facade[f] = [
-                                    float(vv)
-                                    if isinstance(vv, Decimal)
-                                    else vv
-                                    for vv in v
-                                ]
-                                continue
-                            elif f in ["fixed_costs"]:
-                                # special period parameter need to be
-                                # converted into timeseries with value for each
-                                # year
-                                facade[f] = create_yearly_values(
-                                    v, period_data["years"]
-                                )
-                                msg = (
-                                    f"\nThe parameter '{f}' of a "
-                                    f"'{facade['type']}' facade is converted "
-                                    "into a yearly list. This might not be "
-                                    "possible for every parameter and lead to "
-                                    "ambiguous error messages.\nPlease be "
-                                    "aware, when using this feature!"
-                                )
-                                warnings.warn(msg, UserWarning)
 
-                            else:
-                                # create timeseries with periodic values
-                                facade[f] = create_periodic_values(
-                                    v, period_data["periods"]
-                                )
-                                msg = (
-                                    f"\nThe parameter '{f}' of a "
-                                    f"'{facade['type']}' facade is converted "
-                                    "into a periodic timeseries. This might "
-                                    "not be possible for every parameter and "
-                                    "lead to ambiguous error messages.\nPlease"
-                                    " be aware, when using this feature!"
-                                )
-                                warnings.warn(msg, UserWarning)
                 read_facade(
-                    facade,
+                    convert_and_deserialize_dtypes(facade=facade, period_data=period_data),
                     facades,
                     create,
                     typemap,
