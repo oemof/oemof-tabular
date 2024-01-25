@@ -466,44 +466,103 @@ class Bev(GenericStorage, Facade):
 # ToDo: update docstring
 @dataclass_facade
 class IndividualMobilitySector(Facade):
-    r"""A fleet of Battery electric vehicles with controlled/flexible charging (G2V),
-    vehicle-to-grid (V2G) or uncontrolled/fixed charging (inflex).
+    r"""A fleet of Battery electric vehicles with different controlled/flexible
+    charging (G2V), vehicle-to-grid (V2G) or uncontrolled/fixed charging (inflex).
     Note that the investment option is not available for this facade at
-    the current development state.
+    the current development state. todo: still up to date?
     Parameters
     ----------
-    bus: oemof.solph.Bus
-        An oemof bus instance where the storage unit is connected to.
-    storage_capacity: int
-        The total storage capacity of the vehicles (e.g. in MWh)
+
+    label: str
+        A string representing the label for the IndividualMobilitySector instance.
+    electricity_bus: Bus
+        An oemof bus instance representing the connection to the electricity grid.
+    transport_commodity_bus: Bus
+        An oemof bus instance representing the connection to the transport commodity.
+    charging_power_g2v: float
+        The charging power for grid-to-vehicle (G2V) operations, in MW.
+    charging_power_v2g: float
+        The charging power for vehicle-to-grid (V2G) operations, in MW.
+    charging_power_inflex: float
+        The charging power for uncontrolled/fixed charging (inflex), in MW.
+    charging_potential: float
+        Maximum charging potential in investment optimization.
+    availability: Union[float, Sequence[float]]
+        The ratio of available capacity for charging/vehicle-to-grid due to grid
+        connection.
+    storage_capacity_g2v: float
+        The storage capacity for grid-to-vehicle (G2V) operations, in MWh.
+    storage_capacity_v2g: float
+        The storage capacity for vehicle-to-grid (V2G) operations, in MWh.
+    storage_capacity_inflex: float
+        The storage capacity for uncontrolled/fixed charging (inflex), in MWh.
+    initial_storage_capacity: float #todo: initial storage capacity or level?
+        The relative storage content in the timestep before the first
+        time step of optimization (between 0 and 1).
+
+        Note: When investment mode is used in a multi-period model,
+        `initial_storage_level` is not supported.
+        Storage output is forced to zero until the storage unit is invested in.
+    min_storage_level: Union[float, Sequence[float]]
+        The profile of minimum storage level (min SOC).
+    max_storage_level: Union[float, Sequence[float]]
+        The profile of maximum storage level (max SOC).
     drive_power: int
-        Total charging/discharging capacity of the vehicles (e.g. in MW)
-    drive_consumption : array-like
-        Profile of drive consumption of the fleet (relative to capacity).
-    max_charging_power : int
-        Max charging/discharging power of all vehicles (e.g. in MW)
-    availability : array-like
-        Ratio of available capacity for charging/vehicle-to-grid due to
-        grid connection.
-    efficiency_charging: float
-        Efficiency of charging the batteries, default: 1
-    v2g: bool
-        If True, vehicle-to-grid is enabled, default: False
+        The total driving capacity of the fleet (e.g. in MW) if no mobility_bus
+        is connected.
+    drive_consumption: Sequence[float]
+        The profile of drive consumption of the fleet (relative to drive_power).
     loss_rate: float
-    min_storage_level : array-like
-        Profile of minimum storage level (min SOC)
-    max_storage_level : array-like
-        Profile of maximum storage level (max SOC).
+        The relative loss of the storage content per time unit (e.g. hour).
+    efficiency_mob_g2v: float
+        Efficiency at the charging station (grid-to-vehicle), default: 1
+    efficiency_mob_v2g: float
+        Efficiency at the charging station (vehicle-to-grid), default: 1
+    efficiency_sto_in: float
+        Efficiency of charging the batteries, default: 1
+    efficiency_sto_out: float
+        Efficiency of discharging the batteries, default: 1
+    efficiency_mob_electrical: float
+        Efficiency of the electrical drive train per 100 km (optional).
+         default: 1
+    commodity_conversion_rate: float
+        Conversion rate from energy to e.g. pkm if mobility_bus passed
+        (optional) default: 1
+    expandable: bool
+        If True, the fleet is expandable, default: False
+        Charging_power and storage_capacity are then interpreted as existing
+        capacities at the first investment period.
+    lifetime: int
+        Total lifetime of the fleet in years.
+    age: int
+        Age of the existing fleet at the first investment period in years.
+    invest_c_rate: float
+        Invested storage capacity per power rate
+        (e.g. 60/20 = 3h charging/discharging time)
+    bev_storage_capacity: int
+        Storage capacity of one vehicle in kWh.
+    bev_invest_costs: float, array of float
+        Investment costs for new vehicle unit. EUR/vehicle
+    fixed_costs: float, array of float
+        Operation independent costs for existing and new vehicle units.
+         (e.g. EUR/(vehicle*a))
+    fixed_investment_costs: float, array of float
+        todo: add description.
+    variable_costs: float, array of float
+        Variable costs of the fleet (e.g. in EUR/MWh).
     balanced : boolean
         Couple storage level of first and last time step.
         (Total inflow and total outflow are balanced.)
-    transport_commodity: None
-        Bus for the transport commodity
-    input_parameters: dict
-        Dictionary to specify parameters on the input edge. You can use
-        all keys that are available for the  oemof.solph.network.Flow class.
+    input_parameters_inflex: dict
+        Dictionary to specify parameters on the input edge for uncontrolled/fixed
+        charging. You can use all keys that are available for the
+        oemof.solph.network.Flow class. e.g. fixed charging timeseries for the storage
+        can be passed with {"fix": [1,0.5,...]}
     output_parameters: dict
-        see: input_parameters
+        Dictionary to specify parameters on the output edge. You can use
+        all keys that are available for the  oemof.solph.network.Flow class. e.g. fixed
+        discharging timeseries for the storage can be passed with {"fix": [1,0.5,...]}
+
     """
 
     # TODO: match data formats with actual data
@@ -560,7 +619,9 @@ class IndividualMobilitySector(Facade):
 
     age: int = 0
 
-    invest_c_rate: Sequence[float] = None  # todo: cannot run with default parameter
+    invest_c_rate: Sequence[
+        float
+    ] = None  # todo: cannot run with default parameter
 
     bev_storage_capacity: int = 0  # todo: not used in bev()
 
