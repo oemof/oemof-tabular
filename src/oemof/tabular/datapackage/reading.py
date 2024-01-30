@@ -459,9 +459,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         results = pd.concat([results, pd.Series(values[-1])])
         return results.tolist()
 
-    def convert_and_deserialize_dtypes(facade, period_data):
+    def unpack_sequences(facade, period_data):
         """
-        Depending on dtype and content.
+        Depending on dtype and content:
         Periodically changing values [given as array] are either unpacked into
             - full periods
             - yearly values (between periods)
@@ -566,9 +566,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 # convert decimal to float
 
                 read_facade(
-                    convert_and_deserialize_dtypes(
-                        facade=facade, period_data=period_data
-                    ),
+                    unpack_sequences(facade=facade, period_data=period_data),
                     facades,
                     create,
                     typemap,
