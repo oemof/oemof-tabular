@@ -100,6 +100,7 @@ class Volatile(Source, Facade):
     ...     profile=[0.25, 0.1, 0.3])
 
     """
+
     bus: Bus
 
     carrier: str

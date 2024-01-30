@@ -104,6 +104,7 @@ class BackpressureTurbine(Converter, Facade):
 
 
     """
+
     fuel_bus: Bus
 
     heat_bus: Bus

@@ -310,13 +310,15 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
     data["buses"] = {
         name: create(
-            mapping
-            if mapping
-            else raisestatement(
-                ValueError,
-                "Typemap is missing a mapping for '{}'.".format(
-                    bus.get("type", "bus")
-                ),
+            (
+                mapping
+                if mapping
+                else raisestatement(
+                    ValueError,
+                    "Typemap is missing a mapping for '{}'.".format(
+                        bus.get("type", "bus")
+                    ),
+                )
             ),
             {"label": name},
             bus["parameters"],

@@ -97,6 +97,7 @@ class Storage(GenericStorage, Facade):
     ...        max_storage_level=[0.9, 0.95, 0.8])) # oemof.solph argument
 
     """
+
     bus: Bus
 
     carrier: str
