@@ -70,6 +70,7 @@ setup(
         # "oemof.solph>=0.5.1",
         "oemof.solph==0.5.2dev0",
         "pandas>=0.22",
+        "oemof.network==0.5.0a4",  # Temporal fix due to braking changes in 0.5.1
         "paramiko",
         "toml",
     ],

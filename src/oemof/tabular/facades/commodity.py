@@ -47,6 +47,7 @@ class Commodity(Source, Facade):
     ...         'max': [0.9, 0.5, 0.4]})
 
     """
+
     bus: Bus
 
     carrier: str
