@@ -100,8 +100,13 @@ class Bev(GenericStorage, Facade):
         Age of the existing fleet at the first investment period in years.
 
     invest_c_rate: float
-        Invested storage capacity per power rate
-        (e.g. 60/20 = 3h charging/discharging time)
+        The rate of storage capacity invested per unit of charging power.
+        For example, if invest_c_rate is 3, it indicates that 3 units of storage
+        capacity are invested for every unit of charging/discharging power. If
+        invest_c_rate is not provided, it is calculated based on the ratio of
+        storage_capacity to charging_power. If invest_c_rate, storage_capacity, and
+        charging_power are provided, invest_c_rate is validated against the calculated
+        value and a warning is issued if they do not match.
     bev_storage_capacity: int
         Storage capacity of one vehicle in kWh.
         todo: not used in code.
@@ -195,7 +200,7 @@ class Bev(GenericStorage, Facade):
 
     commodity_bus: Bus = None
 
-    charging_power: float = 0
+    charging_power: float = None
 
     minimum_charging_power: float = None
 
@@ -203,7 +208,7 @@ class Bev(GenericStorage, Facade):
 
     availability: Union[float, Sequence[float]] = 1
 
-    storage_capacity: float = 0
+    storage_capacity: float = None
 
     minimum_storage_capacity: float = 0
 
@@ -271,6 +276,41 @@ class Bev(GenericStorage, Facade):
         else:
             return None
 
+    def _invest_c_rate(self):
+        """Determines the investment rate (invest_c_rate) based on the passed
+        parameters:
+
+        - If no parameters are passed, the default value of 1 is assigned.
+        - If only invest_c_rate is passed, it is assigned directly.
+        - If only storage_capacity and charging_power are passed, the invest_c_rate is
+        calculated.
+        - If invest_c_rate, storage_capacity, and charging_power are passed, it ensures
+          that the calculated and passed invest_c_rate are equal. If not, the passed
+          value is assigned and a warning is issued.
+        """
+        if self.invest_c_rate is None:
+            self.invest_c_rate = 1
+        elif (
+            self.storage_capacity is not None
+            and self.charging_power is not None
+            and self.invest_c_rate is None
+        ):
+            self.invest_c_rate = self.storage_capacity / self.charging_power
+        elif (
+            self.invest_c_rate is not None
+            and self.storage_capacity is not None
+            and self.charging_power is not None
+        ):
+            calculated_invest_c_rate = (
+                self.storage_capacity / self.charging_power
+            )
+            if calculated_invest_c_rate != self.invest_c_rate:
+                print(
+                    f"Warning: The passed invest_c_rate ({self.invest_c_rate}) does not"
+                    f" match the calculated value ({calculated_invest_c_rate})."
+                )
+        return self.invest_c_rate
+
     def build_solph_components(self):
         # use label as prefix for subnodes
         self.facade_label = self.label
@@ -285,6 +325,9 @@ class Bev(GenericStorage, Facade):
         internal_bus = Bus(label=self.facade_label + "-bus")
         self.bus = internal_bus
         subnodes = [internal_bus]
+
+        # Calculate invest_c_rate
+        self.invest_c_rate = self._invest_c_rate()
 
         if self.expandable:
             self.investment = Investment(
@@ -537,8 +580,13 @@ class IndividualMobilitySector(Facade):
     age: int
         Age of the existing fleet at the first investment period in years.
     invest_c_rate: float
-        Invested storage capacity per power rate
-        (e.g. 60/20 = 3h charging/discharging time)
+        The rate of storage capacity invested per unit of charging power.
+        For example, if invest_c_rate is 3, it indicates that 3 units of storage
+        capacity are invested for every unit of charging/discharging power. If
+        invest_c_rate is not provided, it is calculated based on the ratio of
+        storage_capacity to charging_power. If invest_c_rate, storage_capacity, and
+        charging_power are provided, invest_c_rate is validated against the calculated
+        value and a warning is issued if they do not match.
     bev_storage_capacity: int
         Storage capacity of one vehicle in kWh.
     bev_invest_costs: float, array of float
@@ -566,7 +614,7 @@ class IndividualMobilitySector(Facade):
     """
 
     # TODO: match data formats with actual data
-    # Todo: wo müssen werte vorgegeben werden?
+    # Todo: wo müssen werte angegeben werden?
 
     label: str
 
@@ -578,11 +626,11 @@ class IndividualMobilitySector(Facade):
         0  # todo: auch in Bev, soll ausgerechnet werden
     )
 
-    charging_power_g2v: float = 0
+    charging_power_g2v: float = None
 
-    charging_power_v2g: float = 0  # todo: zusammenlegen mit g2v
+    charging_power_v2g: float = None  # todo: zusammenlegen mit g2v
 
-    charging_power_inflex: float = 0
+    charging_power_inflex: float = None
 
     charging_potential: float = None
 
@@ -624,7 +672,7 @@ class IndividualMobilitySector(Facade):
 
     age: int = 0
 
-    invest_c_rate: Sequence[float] = 1
+    invest_c_rate: Sequence[float] = None
 
     bev_storage_capacity: int = (
         0  # todo: not used in bev() -> average_storage_capacity
