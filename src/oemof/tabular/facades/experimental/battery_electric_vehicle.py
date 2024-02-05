@@ -38,12 +38,14 @@ class Bev(GenericStorage, Facade):
         instances (optional).
     charging_power : int
         The total charging/discharging power of the fleet (e.g. in MW).
+        todo: in case of expandable: average, else: total fleet
     charging_potential: int
         Maximum charging potential in investment optimization.
     availability : float, array of float
         Availability of the fleet at the charging stations (e.g. 0.8).
     storage_capacity: int
         The total storage capacity of the fleet (e.g. in MWh).
+        todo: in case of expandable: average, else: total fleet
     minimum_storage_capacity: float
         todo: add description.
     storage_capacity_potential: float
@@ -277,11 +279,6 @@ class Bev(GenericStorage, Facade):
         # convert to solph sequences
         self.availability = solph_sequence(self.availability)
 
-        # TODO: check if this is correct
-        self.nominal_storage_capacity = self.storage_capacity
-        # self.nominal_storage_capacity = self._nominal_value(
-        #     self.storage_capacity)
-
         self.balanced = self.balanced  # TODO to be false in multi-period
 
         # create internal bus
@@ -289,17 +286,20 @@ class Bev(GenericStorage, Facade):
         self.bus = internal_bus
         subnodes = [internal_bus]
 
-        self.investment = Investment(
-            ep_costs=0,
-            maximum=self._get_maximum_additional_invest(
-                "storage_capacity_potential", "storage_capacity"
-            ),
-            minimum=getattr(self, "minimum_storage_capacity", 0),
-            existing=getattr(self, "storage_capacity", 0),
-            lifetime=getattr(self, "lifetime", None),
-            age=getattr(self, "age", 0),
-            fixed_costs=0,
-        )
+        if self.expandable:
+            self.investment = Investment(
+                ep_costs=0,
+                maximum=self._get_maximum_additional_invest(
+                    "storage_capacity_potential", "storage_capacity"
+                ),
+                minimum=getattr(self, "minimum_storage_capacity", 0),
+                existing=getattr(self, "storage_capacity", 0),
+                lifetime=getattr(self, "lifetime", None),
+                age=getattr(self, "age", 0),
+                fixed_costs=0,
+            )
+        else:
+            self.nominal_storage_capacity = self.storage_capacity
 
         # ##### Vehicle2Grid Converter #####
         if self.v2g:
@@ -566,16 +566,21 @@ class IndividualMobilitySector(Facade):
     """
 
     # TODO: match data formats with actual data
+    # Todo: wo müssen werte vorgegeben werden?
 
-    label: str = "ind_mob_sec"
+    label: str
 
-    electricity_bus: Bus = None
+    electricity_bus: Bus
 
     transport_commodity_bus: Bus = None
 
+    average_charging_power: float = (
+        0  # todo: auch in Bev, soll ausgerechnet werden
+    )
+
     charging_power_g2v: float = 0
 
-    charging_power_v2g: float = 0
+    charging_power_v2g: float = 0  # todo: zusammenlegen mit g2v
 
     charging_power_inflex: float = 0
 
@@ -613,17 +618,17 @@ class IndividualMobilitySector(Facade):
 
     commodity_conversion_rate: float = 1
 
-    expandable: bool = False  # todo: ?
+    expandable: bool = False
 
     lifetime: int = 20
 
     age: int = 0
 
-    invest_c_rate: Sequence[
-        float
-    ] = None  # todo: cannot run with default parameter
+    invest_c_rate: Sequence[float] = 1
 
-    bev_storage_capacity: int = 0  # todo: not used in bev()
+    bev_storage_capacity: int = (
+        0  # todo: not used in bev() -> average_storage_capacity
+    )
 
     # bev_capacity=, todo:?
 
@@ -752,3 +757,5 @@ class IndividualMobilitySector(Facade):
 
         # many components in facade
         self.subnodes = mobility_nodes
+
+        print("hallo")
