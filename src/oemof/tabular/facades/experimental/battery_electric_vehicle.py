@@ -288,12 +288,16 @@ class Bev(GenericStorage, Facade):
           that the calculated and passed invest_c_rate are equal. If not, the passed
           value is assigned and a warning is issued.
         """
-        if self.invest_c_rate is None:
+        if (
+            self.invest_c_rate is None
+            and self.storage_capacity is None
+            and self.cahrging_power is None
+        ):
             self.invest_c_rate = 1
         elif (
-            self.storage_capacity is not None
+            self.invest_c_rate is None
+            and self.storage_capacity is not None
             and self.charging_power is not None
-            and self.invest_c_rate is None
         ):
             self.invest_c_rate = self.storage_capacity / self.charging_power
         elif (
@@ -309,7 +313,12 @@ class Bev(GenericStorage, Facade):
                     f"Warning: The passed invest_c_rate ({self.invest_c_rate}) does not"
                     f" match the calculated value ({calculated_invest_c_rate})."
                 )
-        return self.invest_c_rate
+        else:
+            self.invest_c_rate = 1
+            print(
+                f"Warning: invest_c_rate could not be calculated. Standard value of 1"
+                f" was assigned."
+            )
 
     def build_solph_components(self):
         # use label as prefix for subnodes
@@ -327,7 +336,7 @@ class Bev(GenericStorage, Facade):
         subnodes = [internal_bus]
 
         # Calculate invest_c_rate
-        self.invest_c_rate = self._invest_c_rate()
+        self._invest_c_rate()
 
         if self.expandable:
             self.investment = Investment(
@@ -618,7 +627,7 @@ class IndividualMobilitySector(Facade):
 
     label: str
 
-    electricity_bus: Bus
+    electricity_bus: Bus = None
 
     transport_commodity_bus: Bus = None
 

@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     energysystem.add(pkm_demand)
 
-    '''bev_v2g = Bev(
+    """bev_v2g = Bev(
         type="bev",
         label="BEV-V2G",
         electricity_bus=el_bus,
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         },  # fixed relative charging profile
         lifetime=10,
     )
-    energysystem.add(bev_fix)'''
+    energysystem.add(bev_fix)"""
 
     bev = IndividualMobilitySector(
         label="ind_mob_sec",
@@ -188,9 +188,9 @@ if __name__ == "__main__":
         charging_power_v2g=200,
         charging_power_inflex=200,
         availability=len(periods) * [1, 1, 1],
-        storage_capacity_g2v=200,
-        storage_capacity_v2g=200,
-        storage_capacity_inflex=200,
+        storage_capacity_g2v=400,
+        storage_capacity_v2g=400,
+        storage_capacity_inflex=400,
         min_storage_level=(len(date_time_index) + 0) * [0],
         max_storage_level=(len(date_time_index) + 0) * [0.9],
         drive_consumption=[1, 1, 1],
@@ -201,15 +201,15 @@ if __name__ == "__main__":
         efficiency_sto_out=1,
         efficiency_mob_electrical=1,  # todo: unit?
         commodity_conversion_rate=0.7,
-        expandable=True, # todo: ?
+        expandable=True,  # todo: ?
         lifetime=10,
         age=0,
-        invest_c_rate=60 / 20,
-        #bev_storage_capacity: int
+        invest_c_rate=40 / 20,
+        # bev_storage_capacity: int
         # bev_capacity=, todo:?
         bev_invest_costs=2,
         fixed_costs=1,
-        #fixed_investment_costs=1,
+        # fixed_investment_costs=1,
         variable_costs=3,
         input_parameters_inflex={
             "fix": len(periods) * [0, 0, 0]
