@@ -12,6 +12,7 @@ Features
 
 * Improve reading error message `#134 <https://github.com/oemof/oemof-tabular/pull/134>`_
 * Remove facade relicts `#135 <https://github.com/oemof/oemof-tabular/pull/135>`_
+* Add tsam to datapackge `#141 <https://github.com/oemof/oemof-tabular/pull/141>`_
 * Add dev install version `#147 <https://github.com/oemof/oemof-tabular/pull/147>`_
 
 Fixes

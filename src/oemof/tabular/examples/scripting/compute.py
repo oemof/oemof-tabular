@@ -13,8 +13,9 @@ from oemof.tabular.facades import TYPEMAP
 from oemof.tabular.postprocessing import calculations
 
 examples = [
-    "dispatch_multi_period",
     "dispatch",
+    "dispatch_multi_period",
+    "dispatch_multi_period_tsam",
     "investment",
     "investment_multi_period",
     "foreignkeys",

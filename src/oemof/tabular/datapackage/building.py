@@ -231,6 +231,25 @@ def infer_metadata(
             )
             p.add_resource(r.descriptor)
 
+    # create meta data resources tsam
+    if not os.path.exists("data/tsam"):
+        print(
+            "No periods path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in os.listdir("data/tsam"):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "tsam", f))}
+            )
+            r.infer()
+            r.commit()
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
+            p.add_resource(r.descriptor)
+
     p.commit()
     p.save(metadata_filename)
 

@@ -604,12 +604,30 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         else:
             # look for periods resource and if present, take periods from it
             if package.get_resource("periods"):
-                es = cls(
-                    timeindex=period_data["timeindex"],
-                    timeincrement=period_data["timeincrement"],
-                    periods=period_data["periods"],
-                    infer_last_interval=False,
-                )
+                # look for tsa_parameters resource and if present, get
+                # tsa_parameters from it
+                # currently only works for multi-period
+                if package.get_resource("tsa_parameters"):
+                    df_tsa_parameters = pd.DataFrame.from_dict(
+                        package.get_resource("tsa_parameters").read(keyed=True)
+                    ).set_index("period", drop=True)
+
+                    es = cls(
+                        timeindex=period_data["timeindex"],
+                        timeincrement=period_data["timeincrement"],
+                        periods=period_data["periods"],
+                        tsa_parameters=df_tsa_parameters.sort_index().to_dict(
+                            "records"
+                        ),
+                        infer_last_interval=False,
+                    )
+                else:
+                    es = cls(
+                        timeindex=period_data["timeindex"],
+                        timeincrement=period_data["timeincrement"],
+                        periods=period_data["periods"],
+                        infer_last_interval=False,
+                    )
 
             # if lst is not empty
             elif lst:
