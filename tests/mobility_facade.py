@@ -184,12 +184,10 @@ if __name__ == "__main__":
         label="ind_mob_sec",
         electricity_bus=el_bus,
         transport_commodity_bus=indiv_mob,
-        charging_power_g2v=200,
-        charging_power_v2g=200,
+        charging_flex=200,
         charging_power_inflex=200,
         availability=len(periods) * [1, 1, 1],
-        storage_capacity_g2v=400,
-        storage_capacity_v2g=400,
+        storage_capacity_flex=400,
         storage_capacity_inflex=400,
         min_storage_level=(len(date_time_index) + 0) * [0],
         max_storage_level=(len(date_time_index) + 0) * [0.9],
@@ -205,8 +203,6 @@ if __name__ == "__main__":
         lifetime=10,
         age=0,
         invest_c_rate=40 / 20,
-        # bev_storage_capacity: int
-        # bev_capacity=, todo:?
         bev_invest_costs=2,
         fixed_costs=1,
         # fixed_investment_costs=1,

@@ -800,5 +800,3 @@ class IndividualMobilitySector(Facade):
 
         # many components in facade
         self.subnodes = mobility_nodes
-
-        print("hallo")
