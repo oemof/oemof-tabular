@@ -37,15 +37,19 @@ class Bev(GenericStorage, Facade):
         A bus which is used to connect a common demand for multiple BEV
         instances (optional).
     charging_power : int
-        The total charging/discharging power of the fleet (e.g. in MW).
-        todo: in case of expandable: average, else: total fleet
+        If `expandable` is set to True, this value represents the average charging
+        power in kW. Otherwise, it denotes the charging power for the entire fleet in
+        MW.
+        todo: check units
     charging_potential: int
         Maximum charging potential in investment optimization.
     availability : float, array of float
         Availability of the fleet at the charging stations (e.g. 0.8).
     storage_capacity: int
-        The total storage capacity of the fleet (e.g. in MWh).
-        todo: in case of expandable: average, else: total fleet
+        If `expandable` is set to True, this value represents the average storage
+        capacity in kWh. Otherwise, it denotes the charging power for the entire fleet
+        in MWh.
+        todo: check units
     minimum_storage_capacity: float
         todo: add description.
     storage_capacity_potential: float
@@ -107,12 +111,6 @@ class Bev(GenericStorage, Facade):
         storage_capacity to charging_power. If invest_c_rate, storage_capacity, and
         charging_power are provided, invest_c_rate is validated against the calculated
         value and a warning is issued if they do not match.
-    bev_storage_capacity: int
-        Storage capacity of one vehicle in kWh.
-        todo: not used in code.
-    bev_capacity: int
-        Charging capacity of one vehicle in kW.
-        todo: not used in code.
     bev_invest_costs: float, array of float
         Investment costs for new vehicle unit. EUR/vehicle
     variable_costs: float, array of float
@@ -263,11 +261,11 @@ class Bev(GenericStorage, Facade):
         if self.expandable:
             investment = Investment(
                 ep_costs=0,
-                maximum=self._get_maximum_additional_invest(
-                    "charging_potential", "charging_power"
-                ),
+                # maximum=self._get_maximum_additional_invest(
+                #     "charging_potential", "charging_power"
+                # ),
                 minimum=getattr(self, "minimum_charging_power", 0),
-                existing=getattr(self, "charging_power", 0),
+                # existing=getattr(self, "charging_power", 0),
                 lifetime=getattr(self, "lifetime", None),
                 age=getattr(self, "age", 0),
                 fixed_costs=0,
@@ -341,11 +339,11 @@ class Bev(GenericStorage, Facade):
         if self.expandable:
             self.investment = Investment(
                 ep_costs=0,
-                maximum=self._get_maximum_additional_invest(
-                    "storage_capacity_potential", "storage_capacity"
-                ),
+                # maximum=self._get_maximum_additional_invest(
+                #     "storage_capacity_potential", "storage_capacity"
+                # ),
                 minimum=getattr(self, "minimum_storage_capacity", 0),
-                existing=getattr(self, "storage_capacity", 0),
+                # existing=getattr(self, "storage_capacity", 0),
                 lifetime=getattr(self, "lifetime", None),
                 age=getattr(self, "age", 0),
                 fixed_costs=0,
@@ -531,23 +529,33 @@ class IndividualMobilitySector(Facade):
         An oemof bus instance representing the connection to the electricity grid.
     transport_commodity_bus: Bus
         An oemof bus instance representing the connection to the transport commodity.
-    charging_power_g2v: float
-        The charging power for grid-to-vehicle (G2V) operations, in MW.
-    charging_power_v2g: float
-        The charging power for vehicle-to-grid (V2G) operations, in MW.
+    charging_power_flex: float
+        The charging power for grid-to-vehicle (G2V) and vehicle-to-grid (V2G)
+        operations. If `expandable` is set to True, this value represents the average
+        charging power in kW. Otherwise, it denotes the charging power for the entire
+        fleet in MW.
+        todo: check units
     charging_power_inflex: float
-        The charging power for uncontrolled/fixed charging (inflex), in MW.
+        The charging power for uncontrolled/fixed charging (inflex) operations. If
+        `expandable` is set to True, this value represents the average charging power
+        in kW. Otherwise, it denotes the charging power for the entire fleet in MW.
+        todo: check units
     charging_potential: float
         Maximum charging potential in investment optimization.
     availability: Union[float, Sequence[float]]
         The ratio of available capacity for charging/vehicle-to-grid due to grid
         connection.
-    storage_capacity_g2v: float
-        The storage capacity for grid-to-vehicle (G2V) operations, in MWh.
-    storage_capacity_v2g: float
-        The storage capacity for vehicle-to-grid (V2G) operations, in MWh.
+    storage_capacity_flex: float
+        The storage capacity for grid-to-vehicle (G2V) and vehicle-to-grid (V2G)
+        operations. If `expandable` is set to True, this value represents the average
+        storage capacity in kWh. Otherwise, it denotes the charging power for the entire
+        fleet in MWh.
+        todo: check units
     storage_capacity_inflex: float
-        The storage capacity for uncontrolled/fixed charging (inflex), in MWh.
+        The storage capacity for uncontrolled/fixed charging (inflex) operations. If
+        `expandable` is set to True, this value represents the average storage capacity
+        in kWh. Otherwise, it denotes the charging power for the entire fleet in MWh.
+        todo: check units
     initial_storage_capacity: float #todo: initial storage capacity or level?
         The relative storage content in the timestep before the first
         time step of optimization (between 0 and 1).
@@ -596,8 +604,6 @@ class IndividualMobilitySector(Facade):
         storage_capacity to charging_power. If invest_c_rate, storage_capacity, and
         charging_power are provided, invest_c_rate is validated against the calculated
         value and a warning is issued if they do not match.
-    bev_storage_capacity: int
-        Storage capacity of one vehicle in kWh.
     bev_invest_costs: float, array of float
         Investment costs for new vehicle unit. EUR/vehicle
     fixed_costs: float, array of float
@@ -631,13 +637,7 @@ class IndividualMobilitySector(Facade):
 
     transport_commodity_bus: Bus = None
 
-    average_charging_power: float = (
-        0  # todo: auch in Bev, soll ausgerechnet werden
-    )
-
-    charging_power_g2v: float = None
-
-    charging_power_v2g: float = None  # todo: zusammenlegen mit g2v
+    charging_power_flex: float = None
 
     charging_power_inflex: float = None
 
@@ -645,9 +645,7 @@ class IndividualMobilitySector(Facade):
 
     availability: Union[float, Sequence[float]] = 1
 
-    storage_capacity_g2v: float = 0
-
-    storage_capacity_v2g: float = 0
+    storage_capacity_flex: float = 0
 
     storage_capacity_inflex: float = 0
 
@@ -683,12 +681,6 @@ class IndividualMobilitySector(Facade):
 
     invest_c_rate: Sequence[float] = None
 
-    bev_storage_capacity: int = (
-        0  # todo: not used in bev() -> average_storage_capacity
-    )
-
-    # bev_capacity=, todo:?
-
     bev_invest_costs: Sequence[float] = None
 
     fixed_costs: Union[float, Sequence[float]] = 0
@@ -711,9 +703,9 @@ class IndividualMobilitySector(Facade):
             label=self.label + "_G2V",
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
-            charging_power=self.charging_power_g2v,
+            charging_power=self.charging_power_flex,
             availability=self.availability,
-            storage_capacity=self.storage_capacity_g2v,  # defined via constraint
+            storage_capacity=self.storage_capacity_flex,  # defined via constraint
             initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
@@ -730,8 +722,6 @@ class IndividualMobilitySector(Facade):
             lifetime=self.lifetime,
             age=self.age,
             invest_c_rate=self.invest_c_rate,
-            # bev_storage_capacity=self.bev_storage_capacity, Todo: deactivated for test
-            # bev_capacity=, todo:?
             bev_invest_costs=self.bev_invest_costs,
             fixed_costs=self.fixed_costs,
             fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
@@ -746,9 +736,9 @@ class IndividualMobilitySector(Facade):
             label=self.label + "_V2G",
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
-            charging_power=self.charging_power_v2g,
+            charging_power=self.charging_power_flex,
             availability=self.availability,
-            storage_capacity=self.storage_capacity_v2g,
+            storage_capacity=self.storage_capacity_flex,
             initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
@@ -765,8 +755,6 @@ class IndividualMobilitySector(Facade):
             lifetime=self.lifetime,
             age=self.age,
             invest_c_rate=self.invest_c_rate,
-            # bev_storage_capacity=self.bev_storage_capacity, #todo: deactivated for test
-            # bev_capacity=, todo:?
             bev_invest_costs=self.bev_invest_costs,
             fixed_costs=self.fixed_costs,
             fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
@@ -800,8 +788,6 @@ class IndividualMobilitySector(Facade):
             lifetime=self.lifetime,
             age=self.age,
             invest_c_rate=self.invest_c_rate,
-            bev_storage_capacity=self.bev_storage_capacity,
-            # bev_capacity=, todo:?
             bev_invest_costs=self.bev_invest_costs,
             fixed_costs=self.fixed_costs,
             fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
