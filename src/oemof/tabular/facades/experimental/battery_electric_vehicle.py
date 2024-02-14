@@ -41,8 +41,9 @@ class Bev(GenericStorage, Facade):
         power in kW. Otherwise, it denotes the charging power for the entire fleet in
         MW.
         todo: check units
-    charging_potential: int
-        Maximum charging potential in investment optimization.
+    maximum_charging_power_investment: float or sequence
+        Maximum charging power addition in investment optimization. Defined per period
+        p for a multi-period model.
     availability : float, array of float
         Availability of the fleet at the charging stations (e.g. 0.8).
     storage_capacity: int
@@ -50,25 +51,14 @@ class Bev(GenericStorage, Facade):
         capacity in kWh. Otherwise, it denotes the charging power for the entire fleet
         in MWh.
         todo: check units
-    minimum_storage_capacity: float
-        todo: add description.
-    storage_capacity_potential: float
-        todo: add description.
-    initial_storage_capacity: float #todo: initial storage capacity or level?
-        The relative storage content in the timestep before the first
-        time step of optimization (between 0 and 1).
-
-        Note: When investment mode is used in a multi-period model,
-        `initial_storage_level` is not supported.
-        Storage output is forced to zero until the storage unit is invested in.
     min_storage_level : array of float
+        This parameter is inherited from the :class:`GenericStorage` class.
         Relative profile of minimum storage level (min SOC).The normed minimum
         storage content as fraction of the storage capacity or the capacity
         that has been invested into (between 0 and 1).
-        todo: same as minimum_storage_capacity? definied in GenericStorage()
     max_storage_level : array of float
+        This parameter is inherited from the :class:`GenericStorage` class.
         Relative profile of maximum storage level (max SOC).
-        todo: definied in GenericStorage()
     drive_power: int
         The total driving capacity of the fleet (e.g. in MW) if no mobility_bus
         is connected.
@@ -77,9 +67,9 @@ class Bev(GenericStorage, Facade):
     v2g: bool
         If True, Vehicle-to-grid option is enabled, default: False
     loss_rate: float
+        This parameter is inherited from the :class:`GenericStorage` class.
         The relative loss/self discharge of the storage content per time unit,
         default: 0
-        todo: definied in GenericStorage()
     efficiency_mob_g2v: float
         Efficiency at the charging station (grid-to-vehicle), default: 1
     efficiency_mob_v2g: float
@@ -134,63 +124,18 @@ class Bev(GenericStorage, Facade):
         {"fix": [1,0.5,...]}
 
 
-    The vehicle fleet is modelled as a storage together with an internal
-    sink with fixed flow:
-
-    todo check formula
-    .. math::
-
-        x^{level}(t) =
-        x^{level}(t-1) \cdot (1 - c^{loss\_rate}(t))
-        + c^{efficiency\_charging}(t) \cdot  x^{flow, in}(t)
-        - \frac{x^{drive\_power}(t)}{c^{efficiency\_discharging}(t)}
-        - \frac{x^{flow, v2g}(t)}
-               {c^{efficiency\_discharging}(t) \cdot c^{efficiency\_v2g}(t)}
-        \qquad \forall t \in T
-
     Note
     ----
     As the Bev is a sub-class of `oemof.solph.GenericStorage` you also
     pass all arguments of this class.
 
-    The concept is similar to the one described in the following publications
-    with the difference that uncontrolled charging is not (yet) considered.
-
-    Wulff, N., Steck, F., Gils, H. C., Hoyer-Klick, C., van den Adel,
-    B., & Anderson, J. E. (2020).
-    Comparing power-system and user-oriented battery electric vehicle
-    charging representation and
-    its implications on energy system modeling.
-    Energies, 13(5). https://doi.org/10.3390/en13051093
-
-    Diego Luca de Tena Costales. (2014).
-    Large Scale Renewable Power Integration with Electric Vehicles.
-    https://doi.org/10.04.2014
-
-    Examples
-    --------
-    Basic usage example of the Bev class with an arbitrary selection of
-    attributes.
-
-    >>> from oemof import solph
-    >>> from oemof.tabular import facades
-    >>> my_bus = solph.Bus('my_bus')
-    >>> my_bev = Bev(
-    ...     label='my_bev',
-    ...     bus=el_bus,
-    ...     carrier='electricity',
-    ...     tech='bev',
-    ...     storage_capacity=1000,
-    ...     capacity=50,
-    ...     availability=[0.8, 0.7, 0.6],
-    ...     drive_power=[0.3, 0.2, 0.5],
-    ...     amount=450,
-    # ...     loss_rate=0.01,
-    ...     initial_storage_level=0,
-    ...     min_storage_level=[0.1, 0.2, 0.15],
-    ...     max_storage_level=[0.9, 0.95, 0.92],
-    ...     efficiency=0.93
-    ...     )
+    - Costs are determined by the charging converter (storage input converter) costs,
+    assuming the size equality of storage input and output converters. Additionally,
+    it guarantees that the V2G converter remains smaller than or equal to the storage
+    output converter.
+    - Access to investment variables is restricted until the component is added to the
+    energy system.
+    - Utilizes the constraint facade :class:`BevEqualInvest`.
 
     """
 
@@ -200,19 +145,11 @@ class Bev(GenericStorage, Facade):
 
     charging_power: float = None
 
-    minimum_charging_power: float = None
-
-    charging_potential: float = None
+    maximum_charging_power_investment: Union[float, Sequence[float]] = None
 
     availability: Union[float, Sequence[float]] = 1
 
     storage_capacity: float = None
-
-    minimum_storage_capacity: float = 0
-
-    storage_capacity_potential: float = None
-
-    initial_storage_capacity: float = 0
 
     drive_power: int = 0
 
@@ -261,11 +198,9 @@ class Bev(GenericStorage, Facade):
         if self.expandable:
             investment = Investment(
                 ep_costs=0,
-                # maximum=self._get_maximum_additional_invest(
-                #     "charging_potential", "charging_power"
-                # ),
-                minimum=getattr(self, "minimum_charging_power", 0),
-                # existing=getattr(self, "charging_power", 0),
+                maximum=getattr(
+                    self, "maximum_charging_power_investment", None
+                ),
                 lifetime=getattr(self, "lifetime", None),
                 age=getattr(self, "age", 0),
                 fixed_costs=0,
@@ -339,11 +274,6 @@ class Bev(GenericStorage, Facade):
         if self.expandable:
             self.investment = Investment(
                 ep_costs=0,
-                # maximum=self._get_maximum_additional_invest(
-                #     "storage_capacity_potential", "storage_capacity"
-                # ),
-                minimum=getattr(self, "minimum_storage_capacity", 0),
-                # existing=getattr(self, "storage_capacity", 0),
                 lifetime=getattr(self, "lifetime", None),
                 age=getattr(self, "age", 0),
                 fixed_costs=0,
@@ -366,7 +296,6 @@ class Bev(GenericStorage, Facade):
                         nominal_value=self._nominal_value(
                             value=self.charging_power
                         ),
-                        # max=self.availability, # doesn't work with investment
                         variable_costs=None,
                         # investment=self._investment(bev=True),
                         investment=self._converter_investment(),
@@ -452,15 +381,14 @@ class Bev(GenericStorage, Facade):
                     )
 
             # ##### Grid2Vehicle #####
-            # containts the whole investment costs for bev
+            # contains the whole investment costs for bev
             flow_in = Flow(
                 # max=self.availability,
                 investment=Investment(
                     ep_costs=self.bev_invest_costs,
-                    maximum=self._get_maximum_additional_invest(
-                        "charging_potential", "charging_power"
+                    maximum=getattr(
+                        self, "maximum_charging_power_investment", None
                     ),
-                    existing=getattr(self, "charging_power", 0),
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
                     fixed_costs=getattr(self, "fixed_investment_costs", None),
@@ -471,7 +399,6 @@ class Bev(GenericStorage, Facade):
             # set investment, but no costs (as relation input / output = 1)
             flow_out = Flow(
                 investment=Investment(
-                    existing=getattr(self, "charging_power", 0),
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
                 ),
@@ -511,8 +438,6 @@ class Bev(GenericStorage, Facade):
         self.subnodes = subnodes
 
 
-# ToDo: name of class ok?
-# ToDo: adjust parameters
 # ToDo: update docstring
 @dataclass_facade
 class IndividualMobilitySector(Facade):
@@ -540,8 +465,9 @@ class IndividualMobilitySector(Facade):
         `expandable` is set to True, this value represents the average charging power
         in kW. Otherwise, it denotes the charging power for the entire fleet in MW.
         todo: check units
-    charging_potential: float
-        Maximum charging potential in investment optimization.
+    maximum_charging_power_investment: float or sequence
+        Maximum charging power addition in investment optimization. Defined per period
+        p for a multi-period model.
     availability: Union[float, Sequence[float]]
         The ratio of available capacity for charging/vehicle-to-grid due to grid
         connection.
@@ -556,13 +482,6 @@ class IndividualMobilitySector(Facade):
         `expandable` is set to True, this value represents the average storage capacity
         in kWh. Otherwise, it denotes the charging power for the entire fleet in MWh.
         todo: check units
-    initial_storage_capacity: float #todo: initial storage capacity or level?
-        The relative storage content in the timestep before the first
-        time step of optimization (between 0 and 1).
-
-        Note: When investment mode is used in a multi-period model,
-        `initial_storage_level` is not supported.
-        Storage output is forced to zero until the storage unit is invested in.
     min_storage_level: Union[float, Sequence[float]]
         The profile of minimum storage level (min SOC).
     max_storage_level: Union[float, Sequence[float]]
@@ -641,15 +560,13 @@ class IndividualMobilitySector(Facade):
 
     charging_power_inflex: float = None
 
-    charging_potential: float = None
+    maximum_charging_power_investment: Union[float, Sequence[float]] = None
 
     availability: Union[float, Sequence[float]] = 1
 
     storage_capacity_flex: float = 0
 
     storage_capacity_inflex: float = 0
-
-    initial_storage_capacity: float = 0
 
     min_storage_level: Union[float, Sequence[float]] = 0
 
@@ -704,9 +621,9 @@ class IndividualMobilitySector(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_flex,
+            maximum_charging_power_investment=self.maximum_charging_power_investment,
             availability=self.availability,
             storage_capacity=self.storage_capacity_flex,  # defined via constraint
-            initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
             drive_consumption=self.drive_consumption,
@@ -737,9 +654,9 @@ class IndividualMobilitySector(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_flex,
+            maximum_charging_power_investment=self.maximum_charging_power_investment,
             availability=self.availability,
             storage_capacity=self.storage_capacity_flex,
-            initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
             drive_consumption=self.drive_consumption,
@@ -770,9 +687,9 @@ class IndividualMobilitySector(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_inflex,
+            maximum_charging_power_investment=self.maximum_charging_power_investment,
             availability=self.availability,
             storage_capacity=self.storage_capacity_inflex,
-            initial_storage_capacity=self.initial_storage_capacity,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
             drive_consumption=self.drive_consumption,
