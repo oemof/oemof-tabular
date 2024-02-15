@@ -468,9 +468,11 @@ class IndividualMobilitySector(Facade):
     maximum_charging_power_investment: float or sequence
         Maximum charging power addition in investment optimization. Defined per period
         p for a multi-period model.
-    availability: Union[float, Sequence[float]]
+    availability_flex: Union[float, Sequence[float]]
         The ratio of available capacity for charging/vehicle-to-grid due to grid
-        connection.
+        connection. todo: für flex/inflex
+    availability_inflex: Union[float, Sequence[float]]
+        Time series of fixed connection capacity.
     storage_capacity_flex: float
         The storage capacity for grid-to-vehicle (G2V) and vehicle-to-grid (V2G)
         operations. If `expandable` is set to True, this value represents the average
@@ -562,7 +564,9 @@ class IndividualMobilitySector(Facade):
 
     maximum_charging_power_investment: Union[float, Sequence[float]] = None
 
-    availability: Union[float, Sequence[float]] = 1
+    availability_flex: Union[float, Sequence[float]] = 1
+
+    availability_inflex: Union[float, Sequence[float]] = 1
 
     storage_capacity_flex: float = 0
 
@@ -622,7 +626,7 @@ class IndividualMobilitySector(Facade):
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_flex,
             maximum_charging_power_investment=self.maximum_charging_power_investment,
-            availability=self.availability,
+            availability=self.availability_flex,
             storage_capacity=self.storage_capacity_flex,  # defined via constraint
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
@@ -655,7 +659,7 @@ class IndividualMobilitySector(Facade):
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_flex,
             maximum_charging_power_investment=self.maximum_charging_power_investment,
-            availability=self.availability,
+            availability=self.availability_flex,
             storage_capacity=self.storage_capacity_flex,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
@@ -688,7 +692,7 @@ class IndividualMobilitySector(Facade):
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_inflex,
             maximum_charging_power_investment=self.maximum_charging_power_investment,
-            availability=self.availability,
+            availability=self.availability_inflex,
             storage_capacity=self.storage_capacity_inflex,
             min_storage_level=self.min_storage_level,
             max_storage_level=self.max_storage_level,
