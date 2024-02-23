@@ -7,6 +7,13 @@ Changelog
 Unreleased
 ----------
 
+Features
+
+Fixes
+
+
+0.0.5 Patch Release - Miraculous Mary (2024-02-23)
+-----------------------------------------------------
 
 Features
 
