@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
     "name": "renpass-invest-example",
-    "oemof_tabular_version": "0.0.5dev",
+    "oemof_tabular_version": "0.0.5",
     "resources": [
         {
             "path": "data/elements/bus.csv",
