@@ -3,9 +3,9 @@
 min 
 objective:
 +3931.8746311756586 ONE_VAR_CONSTANT
-+683.8240147205426 InvestmentFlowBlock_invest(wind_bus_el_0)
-+487.2332336419946 InvestmentFlowBlock_invest(wind_bus_el_1)
-+350.07562192690494 InvestmentFlowBlock_invest(wind_bus_el_2)
++650.3538603446716 InvestmentFlowBlock_invest(wind_bus_el_0)
++275.1904518438147 InvestmentFlowBlock_invest(wind_bus_el_1)
++19.6391710033939 InvestmentFlowBlock_invest(wind_bus_el_2)
 
 s.t.
 
@@ -90,9 +90,9 @@ c_e_InvestmentFlowBlock_old_rule_exo(wind_bus_el_2)_:
 = 10
 
 c_e_InvestmentFlowBlock_old_rule(wind_bus_el_0)_:
++1 InvestmentFlowBlock_old(wind_bus_el_0)
 -1 InvestmentFlowBlock_old_end(wind_bus_el_0)
 -1 InvestmentFlowBlock_old_exo(wind_bus_el_0)
-+1 InvestmentFlowBlock_old(wind_bus_el_0)
 = 0
 
 c_e_InvestmentFlowBlock_old_rule(wind_bus_el_1)_:
@@ -168,8 +168,9 @@ bounds
    0 <= flow(wind_bus_el_2_8) <= +inf
    0 <= InvestmentFlowBlock_total(wind_bus_el_0) <= +inf
    0 <= InvestmentFlowBlock_total(wind_bus_el_1) <= +inf
-   0 <= InvestmentFlowBlock_old(wind_bus_el_1) <= +inf
    0 <= InvestmentFlowBlock_total(wind_bus_el_2) <= +inf
+   0 <= InvestmentFlowBlock_old(wind_bus_el_0) <= +inf
+   0 <= InvestmentFlowBlock_old(wind_bus_el_1) <= +inf
    0 <= InvestmentFlowBlock_old(wind_bus_el_2) <= +inf
    0 <= InvestmentFlowBlock_old_end(wind_bus_el_0) <= +inf
    0 <= InvestmentFlowBlock_old_end(wind_bus_el_1) <= +inf
@@ -177,5 +178,4 @@ bounds
    0 <= InvestmentFlowBlock_old_exo(wind_bus_el_0) <= +inf
    0 <= InvestmentFlowBlock_old_exo(wind_bus_el_1) <= +inf
    0 <= InvestmentFlowBlock_old_exo(wind_bus_el_2) <= +inf
-   0 <= InvestmentFlowBlock_old(wind_bus_el_0) <= +inf
 end

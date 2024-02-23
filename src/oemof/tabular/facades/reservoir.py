@@ -86,6 +86,7 @@ class Reservoir(GenericStorage, Facade):
     ...     efficiency=0.93)
 
     """
+
     bus: Bus
 
     carrier: str

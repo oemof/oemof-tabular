@@ -44,6 +44,7 @@ class Load(Sink, Facade):
     ...     amount=100,
     ...     profile=[0.3, 0.2, 0.5])
     """
+
     bus: Bus
 
     amount: float

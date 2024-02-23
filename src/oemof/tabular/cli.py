@@ -2,6 +2,7 @@
 Module that contains the command line app.
 
 """
+
 import collections
 import copy
 

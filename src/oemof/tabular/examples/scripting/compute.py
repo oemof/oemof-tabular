@@ -1,8 +1,9 @@
 """
 """
+
+import importlib.resources
 import os
 
-import pkg_resources as pkg
 from oemof.solph import EnergySystem, Model, processing
 
 # DONT REMOVE THIS LINE!
@@ -23,8 +24,9 @@ for example in examples:
     print("Running compute example with datapackage {}".format(example))
 
     # path to directory with datapackage to load
-    datapackage_dir = pkg.resource_filename(
-        "oemof.tabular", "examples/datapackages/{}".format(example)
+    datapackage_dir = os.path.join(
+        importlib.resources.files("oemof.tabular"),
+        "examples/datapackages/{}".format(example),
     )
 
     # create  path for results (we use the datapackage_dir to store results)

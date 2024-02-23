@@ -131,7 +131,7 @@
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "integer",
+                        "type": "array",
                         "format": "default"
                     },
                     {
@@ -259,12 +259,12 @@
                     },
                     {
                         "name": "capacity",
-                        "type": "integer",
+                        "type": "array",
                         "format": "default"
                     },
                     {
                         "name": "capacity_cost",
-                        "type": "integer",
+                        "type": "array",
                         "format": "default"
                     },
                     {
@@ -344,7 +344,7 @@
                     },
                     {
                         "name": "marginal_cost",
-                        "type": "integer",
+                        "type": "array",
                         "format": "default"
                     },
                     {
@@ -425,6 +425,36 @@
                     },
                     {
                         "name": "pv-profile",
+                        "type": "integer",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ]
+            }
+        },
+        {
+            "path": "data/periods/periods.csv",
+            "profile": "tabular-data-resource",
+            "name": "periods",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "timeindex",
+                        "type": "datetime",
+                        "format": "default"
+                    },
+                    {
+                        "name": "periods",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "timeincrement",
                         "type": "integer",
                         "format": "default"
                     }

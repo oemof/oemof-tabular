@@ -5,7 +5,30 @@ Changelog
 
 
 Unreleased
-------------------
+----------
+
+Features
+
+Fixes
+
+
+0.0.5 Patch Release - Miraculous Mary (2024-02-23)
+-----------------------------------------------------
+
+Features
+
+* Improve reading error message `#134 <https://github.com/oemof/oemof-tabular/pull/134>`_
+* Remove facade relicts `#135 <https://github.com/oemof/oemof-tabular/pull/135>`_
+* Add dev install version `#147 <https://github.com/oemof/oemof-tabular/pull/147>`_
+
+Fixes
+
+* Remove specific dirs from flake8 & isort `#136 <https://github.com/oemof/oemof-tabular/pull/136>`_
+* Update lp-files to pyomo6.7 `#148 <https://github.com/oemof/oemof-tabular/pull/148>`_
+* Rework periodic value deserialization `#154 <https://github.com/oemof/oemof-tabular/pull/154>`_
+* Fix oemof.solph version to v0.5.2dev1 `#157 <https://github.com/oemof/oemof-tabular/pull/157>`_
+* Fix oemof.solph version to v0.5.2.dev1 `#159 <https://github.com/oemof/oemof-tabular/pull/159>`_
+
 
 
 0.0.4 Patch Release (2023-08-31)
