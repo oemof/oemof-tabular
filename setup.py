@@ -20,7 +20,7 @@ def read(*names, **kwargs):
 
 setup(
     name="oemof.tabular",
-    version="0.0.5dev",
+    version="0.0.5",
     license="BSD 3-Clause License",
     description="Load oemof energy systems from tabular data sources.",
     long_description="%s\n%s"
@@ -30,7 +30,7 @@ setup(
         ),
         re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst")),
     ),
-    author="Stephan Günther, Simon Hilpert, Martin Söthe",
+    author="Stephan Günther, Simon Hilpert, Martin Söthe, Jann Launer, Hendrik Huyskens, Julian Endres, Felix Maurer",
     author_email="gnn.code@gmail.com",
     url="https://github.com/oemof/oemof-tabular",
     packages=["oemof"] + ["oemof." + p for p in find_packages("src/oemof")],

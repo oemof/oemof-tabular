@@ -43,10 +43,10 @@ if os.getenv('SPELLCHECK'):
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'oemof.tabular'
-year = '2018'
-author = 'Stephan Günther'
+year = '2023'
+author = 'Stephan Günther, Jann Launer, Julian Endres, Hendrik Huyskens'
 copyright = '{0}, {1}'.format(year, author)
-version = release = '0.0.5dev'
+version = release = '0.0.5'
 
 pygments_style = 'trac'
 templates_path = ['.']
