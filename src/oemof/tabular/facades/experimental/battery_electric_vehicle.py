@@ -224,7 +224,7 @@ class Bev(GenericStorage, Facade):
         if (
             self.invest_c_rate is None
             and self.storage_capacity is None
-            and self.cahrging_power is None
+            and self.charging_power is None
         ):
             self.invest_c_rate = 1
         elif (
