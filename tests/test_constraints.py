@@ -48,9 +48,7 @@ def normalize_to_positive_results(lines):
             lines[n] = (
                 "-"
                 if lines[n] and lines[n][0] == "+"
-                else "+"
-                if lines[n]
-                else lines[n]
+                else "+" if lines[n] else lines[n]
             ) + lines[n][1:]
         lines[end] = "= " + lines[end][3:]
     return lines

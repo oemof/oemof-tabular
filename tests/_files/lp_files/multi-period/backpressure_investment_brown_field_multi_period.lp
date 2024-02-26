@@ -1,11 +1,11 @@
 \* Source Pyomo model name=Model *\
 
-min
+min 
 objective:
 +393187.4631175658 ONE_VAR_CONSTANT
-+561.5105784699618 InvestmentFlowBlock_invest(backpressure_electricity_0)
-+386.89361416194254 InvestmentFlowBlock_invest(backpressure_electricity_1)
-+267.76218567632424 InvestmentFlowBlock_invest(backpressure_electricity_2)
++550.3538603446715 InvestmentFlowBlock_invest(backpressure_electricity_0)
++226.09002140491177 InvestmentFlowBlock_invest(backpressure_electricity_1)
++15.604198638169356 InvestmentFlowBlock_invest(backpressure_electricity_2)
 +0.6 flow(fuel_backpressure_0_0)
 +0.6 flow(fuel_backpressure_0_1)
 +0.6 flow(fuel_backpressure_0_2)
@@ -18,40 +18,40 @@ objective:
 
 s.t.
 
-c_e_BusBlock_balance(heat_0_0)_:
-+1 flow(backpressure_heat_0_0)
+c_e_BusBlock_balance(electricity_0_0)_:
++1 flow(backpressure_electricity_0_0)
 = 0
 
-c_e_BusBlock_balance(heat_0_1)_:
-+1 flow(backpressure_heat_0_1)
+c_e_BusBlock_balance(electricity_0_1)_:
++1 flow(backpressure_electricity_0_1)
 = 0
 
-c_e_BusBlock_balance(heat_0_2)_:
-+1 flow(backpressure_heat_0_2)
+c_e_BusBlock_balance(electricity_0_2)_:
++1 flow(backpressure_electricity_0_2)
 = 0
 
-c_e_BusBlock_balance(heat_1_3)_:
-+1 flow(backpressure_heat_1_3)
+c_e_BusBlock_balance(electricity_1_3)_:
++1 flow(backpressure_electricity_1_3)
 = 0
 
-c_e_BusBlock_balance(heat_1_4)_:
-+1 flow(backpressure_heat_1_4)
+c_e_BusBlock_balance(electricity_1_4)_:
++1 flow(backpressure_electricity_1_4)
 = 0
 
-c_e_BusBlock_balance(heat_1_5)_:
-+1 flow(backpressure_heat_1_5)
+c_e_BusBlock_balance(electricity_1_5)_:
++1 flow(backpressure_electricity_1_5)
 = 0
 
-c_e_BusBlock_balance(heat_2_6)_:
-+1 flow(backpressure_heat_2_6)
+c_e_BusBlock_balance(electricity_2_6)_:
++1 flow(backpressure_electricity_2_6)
 = 0
 
-c_e_BusBlock_balance(heat_2_7)_:
-+1 flow(backpressure_heat_2_7)
+c_e_BusBlock_balance(electricity_2_7)_:
++1 flow(backpressure_electricity_2_7)
 = 0
 
-c_e_BusBlock_balance(heat_2_8)_:
-+1 flow(backpressure_heat_2_8)
+c_e_BusBlock_balance(electricity_2_8)_:
++1 flow(backpressure_electricity_2_8)
 = 0
 
 c_e_BusBlock_balance(fuel_0_0)_:
@@ -90,40 +90,40 @@ c_e_BusBlock_balance(fuel_2_8)_:
 +1 flow(fuel_backpressure_2_8)
 = 0
 
-c_e_BusBlock_balance(electricity_0_0)_:
-+1 flow(backpressure_electricity_0_0)
+c_e_BusBlock_balance(heat_0_0)_:
++1 flow(backpressure_heat_0_0)
 = 0
 
-c_e_BusBlock_balance(electricity_0_1)_:
-+1 flow(backpressure_electricity_0_1)
+c_e_BusBlock_balance(heat_0_1)_:
++1 flow(backpressure_heat_0_1)
 = 0
 
-c_e_BusBlock_balance(electricity_0_2)_:
-+1 flow(backpressure_electricity_0_2)
+c_e_BusBlock_balance(heat_0_2)_:
++1 flow(backpressure_heat_0_2)
 = 0
 
-c_e_BusBlock_balance(electricity_1_3)_:
-+1 flow(backpressure_electricity_1_3)
+c_e_BusBlock_balance(heat_1_3)_:
++1 flow(backpressure_heat_1_3)
 = 0
 
-c_e_BusBlock_balance(electricity_1_4)_:
-+1 flow(backpressure_electricity_1_4)
+c_e_BusBlock_balance(heat_1_4)_:
++1 flow(backpressure_heat_1_4)
 = 0
 
-c_e_BusBlock_balance(electricity_1_5)_:
-+1 flow(backpressure_electricity_1_5)
+c_e_BusBlock_balance(heat_1_5)_:
++1 flow(backpressure_heat_1_5)
 = 0
 
-c_e_BusBlock_balance(electricity_2_6)_:
-+1 flow(backpressure_electricity_2_6)
+c_e_BusBlock_balance(heat_2_6)_:
++1 flow(backpressure_heat_2_6)
 = 0
 
-c_e_BusBlock_balance(electricity_2_7)_:
-+1 flow(backpressure_electricity_2_7)
+c_e_BusBlock_balance(heat_2_7)_:
++1 flow(backpressure_heat_2_7)
 = 0
 
-c_e_BusBlock_balance(electricity_2_8)_:
-+1 flow(backpressure_electricity_2_8)
+c_e_BusBlock_balance(heat_2_8)_:
++1 flow(backpressure_heat_2_8)
 = 0
 
 c_e_ConverterBlock_relation(backpressure_fuel_electricity_0_0)_:
@@ -261,9 +261,9 @@ c_e_InvestmentFlowBlock_old_rule_exo(backpressure_electricity_2)_:
 = 1000
 
 c_e_InvestmentFlowBlock_old_rule(backpressure_electricity_0)_:
++1 InvestmentFlowBlock_old(backpressure_electricity_0)
 -1 InvestmentFlowBlock_old_end(backpressure_electricity_0)
 -1 InvestmentFlowBlock_old_exo(backpressure_electricity_0)
-+1 InvestmentFlowBlock_old(backpressure_electricity_0)
 = 0
 
 c_e_InvestmentFlowBlock_old_rule(backpressure_electricity_1)_:
@@ -337,15 +337,6 @@ bounds
    0 <= flow(fuel_backpressure_2_6) <= +inf
    0 <= flow(fuel_backpressure_2_7) <= +inf
    0 <= flow(fuel_backpressure_2_8) <= +inf
-   0 <= flow(backpressure_heat_0_0) <= +inf
-   0 <= flow(backpressure_heat_0_1) <= +inf
-   0 <= flow(backpressure_heat_0_2) <= +inf
-   0 <= flow(backpressure_heat_1_3) <= +inf
-   0 <= flow(backpressure_heat_1_4) <= +inf
-   0 <= flow(backpressure_heat_1_5) <= +inf
-   0 <= flow(backpressure_heat_2_6) <= +inf
-   0 <= flow(backpressure_heat_2_7) <= +inf
-   0 <= flow(backpressure_heat_2_8) <= +inf
    0 <= flow(backpressure_electricity_0_0) <= +inf
    0 <= flow(backpressure_electricity_0_1) <= +inf
    0 <= flow(backpressure_electricity_0_2) <= +inf
@@ -355,10 +346,20 @@ bounds
    0 <= flow(backpressure_electricity_2_6) <= +inf
    0 <= flow(backpressure_electricity_2_7) <= +inf
    0 <= flow(backpressure_electricity_2_8) <= +inf
+   0 <= flow(backpressure_heat_0_0) <= +inf
+   0 <= flow(backpressure_heat_0_1) <= +inf
+   0 <= flow(backpressure_heat_0_2) <= +inf
+   0 <= flow(backpressure_heat_1_3) <= +inf
+   0 <= flow(backpressure_heat_1_4) <= +inf
+   0 <= flow(backpressure_heat_1_5) <= +inf
+   0 <= flow(backpressure_heat_2_6) <= +inf
+   0 <= flow(backpressure_heat_2_7) <= +inf
+   0 <= flow(backpressure_heat_2_8) <= +inf
    0 <= InvestmentFlowBlock_total(backpressure_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_total(backpressure_electricity_1) <= +inf
-   0 <= InvestmentFlowBlock_old(backpressure_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_total(backpressure_electricity_2) <= +inf
+   0 <= InvestmentFlowBlock_old(backpressure_electricity_0) <= +inf
+   0 <= InvestmentFlowBlock_old(backpressure_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_old(backpressure_electricity_2) <= +inf
    0 <= InvestmentFlowBlock_old_end(backpressure_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_old_end(backpressure_electricity_1) <= +inf
@@ -366,5 +367,4 @@ bounds
    0 <= InvestmentFlowBlock_old_exo(backpressure_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_old_exo(backpressure_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_old_exo(backpressure_electricity_2) <= +inf
-   0 <= InvestmentFlowBlock_old(backpressure_electricity_0) <= +inf
 end

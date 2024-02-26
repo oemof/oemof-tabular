@@ -112,6 +112,7 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     ...     thermal_efficiency=0.35)
 
     """
+
     carrier: str
 
     tech: str
