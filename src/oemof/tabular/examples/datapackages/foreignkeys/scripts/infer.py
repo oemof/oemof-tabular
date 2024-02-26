@@ -2,6 +2,7 @@
 Note: This script allow does not create meta data that are valid, you will
 need to set the foreign keys for the marginal_cost yourself.
 """
+
 from oemof.tabular.datapackage import building
 
 # This part is for testing only: It allows to pass

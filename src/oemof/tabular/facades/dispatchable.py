@@ -105,6 +105,7 @@ class Dispatchable(Source, Facade):
     ...         'min': 0.2})
 
     """
+
     bus: Bus
 
     carrier: str

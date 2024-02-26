@@ -76,6 +76,7 @@ class Conversion(Converter, Facade):
     ...     efficiency=0.4)
 
     """
+
     from_bus: Bus
 
     to_bus: Bus

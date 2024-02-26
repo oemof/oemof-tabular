@@ -3,9 +3,9 @@
 min 
 objective:
 +393187.4631175658 ONE_VAR_CONSTANT
-+561.5105784699618 InvestmentFlowBlock_invest(gt_electricity_0)
-+386.89361416194254 InvestmentFlowBlock_invest(gt_electricity_1)
-+267.76218567632424 InvestmentFlowBlock_invest(gt_electricity_2)
++550.3538603446715 InvestmentFlowBlock_invest(gt_electricity_0)
++226.09002140491177 InvestmentFlowBlock_invest(gt_electricity_1)
++15.604198638169356 InvestmentFlowBlock_invest(gt_electricity_2)
 +10 flow(gt_electricity_0_0)
 +10 flow(gt_electricity_0_1)
 +10 flow(gt_electricity_0_2)
@@ -99,9 +99,9 @@ c_e_InvestmentFlowBlock_old_rule_exo(gt_electricity_2)_:
 = 1000
 
 c_e_InvestmentFlowBlock_old_rule(gt_electricity_0)_:
++1 InvestmentFlowBlock_old(gt_electricity_0)
 -1 InvestmentFlowBlock_old_end(gt_electricity_0)
 -1 InvestmentFlowBlock_old_exo(gt_electricity_0)
-+1 InvestmentFlowBlock_old(gt_electricity_0)
 = 0
 
 c_e_InvestmentFlowBlock_old_rule(gt_electricity_1)_:
@@ -222,8 +222,9 @@ bounds
    0 <= flow(gt_electricity_2_8) <= +inf
    0 <= InvestmentFlowBlock_total(gt_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_total(gt_electricity_1) <= +inf
-   0 <= InvestmentFlowBlock_old(gt_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_total(gt_electricity_2) <= +inf
+   0 <= InvestmentFlowBlock_old(gt_electricity_0) <= +inf
+   0 <= InvestmentFlowBlock_old(gt_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_old(gt_electricity_2) <= +inf
    0 <= InvestmentFlowBlock_old_end(gt_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_old_end(gt_electricity_1) <= +inf
@@ -231,5 +232,4 @@ bounds
    0 <= InvestmentFlowBlock_old_exo(gt_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_old_exo(gt_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_old_exo(gt_electricity_2) <= +inf
-   0 <= InvestmentFlowBlock_old(gt_electricity_0) <= +inf
 end

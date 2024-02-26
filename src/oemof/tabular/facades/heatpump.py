@@ -94,6 +94,7 @@ class HeatPump(Converter, Facade):
     ...     low_temperature_bus=heat_bus_low)
 
     """
+
     electricity_bus: Bus
 
     high_temperature_bus: Bus
