@@ -151,7 +151,7 @@ class Facade(Node):
             add_subnodes, sender=self
         )
 
-    def _nominal_value(self):
+    def _nominal_value(self, value=None):
         """Returns None if self.expandable ist True otherwise it returns
         the capacity
         """
@@ -168,18 +168,23 @@ class Facade(Node):
                     "to_from": self.to_from_capacity,
                 }
             else:
-                return self.capacity
+                if value:
+                    return value
+                else:
+                    return self.capacity
 
-    def _investment(self):
+    def _investment(self, bev=False):
         if not self.expandable:
             self.investment = None
             return self.investment
+
         if self.capacity_cost is None:
             msg = (
                 "If you set `expandable`to True you need to set "
                 "attribute `capacity_cost` of component {}!"
             )
             raise ValueError(msg.format(self.label))
+
         # If storage component
         if isinstance(self, GenericStorage):
             # If invest costs/MWH are given
@@ -207,7 +212,7 @@ class Facade(Node):
                     age=getattr(self, "age", 0),
                     fixed_costs=getattr(self, "fixed_costs", None),
                 )
-        # If other component than storage
+        # If other component than storage or Bev
         else:
             self.investment = Investment(
                 ep_costs=self.capacity_cost,

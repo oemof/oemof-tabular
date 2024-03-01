@@ -7,7 +7,7 @@ import pandas as pd
 from oemof.solph import buses, helpers
 
 from oemof import solph
-from oemof.tabular.constraint_facades import GenericIntegralLimit
+from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 from oemof.tabular.facades import (
     BackpressureTurbine,
     Commodity,
@@ -542,7 +542,8 @@ class TestMultiPeriodConstraints:
             output_parameters={"custom_attributes": {"emission_factor": 2.5}},
         )
 
-        emission_constraint = GenericIntegralLimit(
+        emission_constraint = CONSTRAINT_TYPE_MAP["generic_integral_limit"]
+        emission_constraint = emission_constraint(
             name="emission_constraint",
             type="e",
             limit=1000,

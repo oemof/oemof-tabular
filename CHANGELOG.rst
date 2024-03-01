@@ -9,6 +9,9 @@ Unreleased
 
 Features
 
+* Add tests for BEV facades developed in #94 `#142 <https://github.com/oemof/oemof-tabular/pull/142>`_
+
+
 Fixes
 
 
