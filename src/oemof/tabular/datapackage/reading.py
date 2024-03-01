@@ -440,8 +440,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         values: typing.Iterable[float], period_years: typing.Iterable[int]
     ):
         """
-        Creates a value for every year (between two periods)
-        Value of period is continued until next period
+        Creates a value for every year (between two periods/explicit years)
+        Value of investment period is continued until next period.
+        E.g (1,2023), (2,2025) -> [1,1,2]
         Parameters
         ----------
         values values to be interpolated
@@ -463,9 +464,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         """
         Depending on dtype and content:
         Periodically changing values [given as array] are either unpacked into
-            - full periods
-            - yearly values (between periods)
-            - kept as periodical values
+            - full periods (every timestep per explicit year)
+            - yearly values (one value each implicit & explicit years)
+            - kept as periodical values (one value each explicit year)
 
         Decision happens based on
             - value
