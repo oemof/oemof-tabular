@@ -21,6 +21,7 @@ from oemof.tabular.facades import (
     Storage,
     Volatile,
 )
+from oemof.tabular.facades.experimental.methanation_reactor import MethanationReactor
 
 
 def chop_trailing_whitespace(lines):
@@ -488,3 +489,31 @@ class TestConstraints:
         emission_constraint.build_constraint(model)
 
         self.compare_to_reference_lp("emission_constraint.lp", my_om=model)
+
+    def test_methanation_reactor(self):
+
+        h2_bus = solph.Bus(label="h2")
+
+        co2_bus = solph.Bus(label="co2", balanced=False)
+
+        ch4_bus = solph.Bus(label="ch4")
+
+        MethanationReactor(
+            label="m_reactor",
+            carrier="h2_co2",
+            tech="methanation_reactor",
+            h2_bus=h2_bus,
+            co2_bus=co2_bus,
+            ch4_bus=ch4_bus,
+            capacity_charge=50,
+            capacity_discharge=50,
+            storage_capacity_educts=100,
+            storage_capacity_products=1000,
+            efficiency_charge=1,
+            efficiency_discharge=1,
+            methanation_rate=5,  # TODO: Passing lists does not work here yet.
+            efficiency_methanation=0.93,
+            methanation_option="variable_rate",
+        )
+
+        self.compare_to_reference_lp("methanation_reactor.lp")
