@@ -27,8 +27,9 @@ class BevTech(GenericStorage, Facade):
       is given)
 
     Charging and discharging capacity is assumed to be equal.
-    Multiple fleets can be modelled and connected to a common bus
-    (commodity_bus) to apply one demand for all modelled fleets.
+    Multiple bev technologies can be combined and connected to a common bus
+    (commodity_bus) to apply one demand for all modelled bev techs. Use
+    :class:`BevFleet` class for this
 
     Parameters
     ----------
@@ -38,19 +39,19 @@ class BevTech(GenericStorage, Facade):
         A bus which is used to connect a common demand for multiple BEV
         instances (optional).
     charging_power : int
-        If `expandable` is set to True, this value represents the average charging
-        power in kW. Otherwise, it denotes the charging power for the entire fleet in
-        MW.
+        If `expandable` is set to True, this value represents the average
+        charging power in kW. Otherwise, it denotes the charging power for the
+        entire fleet in MW.
         todo: check units
     maximum_charging_power_investment: float or sequence
-        Maximum charging power addition in investment optimization. Defined per period
-        p for a multi-period model.
+        Maximum charging power addition in investment optimization. Defined per
+         period p for a multi-period model.
     availability : float, array of float
         Availability of the fleet at the charging stations (e.g. 0.8).
     storage_capacity: int
-        If `expandable` is set to True, this value represents the average storage
-        capacity in kWh. Otherwise, it denotes the charging power for the entire fleet
-        in MWh.
+        If `expandable` is set to True, this value represents the average
+        storage capacity in kWh. Otherwise, it denotes the charging power for
+        the entire fleet in MWh.
         todo: check units
     min_storage_level : array of float
         This parameter is inherited from the :class:`GenericStorage` class.
@@ -96,12 +97,12 @@ class BevTech(GenericStorage, Facade):
 
     invest_c_rate: float
         The rate of storage capacity invested per unit of charging power.
-        For example, if invest_c_rate is 3, it indicates that 3 units of storage
+        For example, invest_c_rate = 3 indicates that 3 units of storage
         capacity are invested for every unit of charging/discharging power. If
         invest_c_rate is not provided, it is calculated based on the ratio of
-        storage_capacity to charging_power. If invest_c_rate, storage_capacity, and
-        charging_power are provided, invest_c_rate is validated against the calculated
-        value and a warning is issued if they do not match.
+        storage_capacity to charging_power. If invest_c_rate, storage_capacity,
+        and charging_power are provided, invest_c_rate is validated against the
+        calculated value and a warning is issued if they do not match.
     bev_invest_costs: float, array of float
         Investment costs for new vehicle unit. EUR/vehicle
     variable_costs: float, array of float
@@ -130,12 +131,12 @@ class BevTech(GenericStorage, Facade):
     As the Bev is a sub-class of `oemof.solph.GenericStorage` you also
     pass all arguments of this class.
 
-    - Costs are determined by the charging converter (storage input converter) costs,
-    assuming the size equality of storage input and output converters. Additionally,
-    it guarantees that the V2G converter remains smaller than or equal to the storage
-    output converter.
-    - Access to investment variables is restricted until the component is added to the
-    energy system.
+    - Costs are determined by the charging converter (storage input converter)
+    costs, assuming the size equality of storage input and output converters.
+    Additionally, it guarantees that the V2G converter remains smaller than or
+    equal to the storage output converter.
+    - Access to investment variables is restricted until the component is added
+    to the energy system.
     - Utilizes the constraint facade :class:`BevEqualInvest`.
 
     """
@@ -216,11 +217,11 @@ class BevTech(GenericStorage, Facade):
 
         - If no parameters are passed, the default value of 1 is assigned.
         - If only invest_c_rate is passed, it is assigned directly.
-        - If only storage_capacity and charging_power are passed, the invest_c_rate is
-        calculated.
-        - If invest_c_rate, storage_capacity, and charging_power are passed, it ensures
-          that the calculated and passed invest_c_rate are equal. If not, the passed
-          value is assigned and a warning is issued.
+        - If only storage_capacity and charging_power are passed, the
+            invest_c_rate is calculated.
+        - If invest_c_rate, storage_capacity and charging_power are passed, it
+            ensures that the calculated and passed invest_c_rate are equal. If
+            not, the passed value is assigned and a warning is issued.
         """
         if (
             self.invest_c_rate is None
@@ -244,14 +245,15 @@ class BevTech(GenericStorage, Facade):
             )
             if calculated_invest_c_rate != self.invest_c_rate:
                 print(
-                    f"Warning: The passed invest_c_rate ({self.invest_c_rate}) does not"
-                    f" match the calculated value ({calculated_invest_c_rate})."
+                    f"Warning: The passed invest_c_rate ({self.invest_c_rate})"
+                    "does not match the calculated value "
+                    f"({calculated_invest_c_rate})."
                 )
         else:
             self.invest_c_rate = 1
             print(
-                f"Warning: invest_c_rate could not be calculated. Standard value of 1"
-                f" was assigned."
+                "Warning: invest_c_rate could not be calculated. Standard "
+                "value of 1 was assigned."
             )
 
     def build_solph_components(self):
@@ -450,39 +452,44 @@ class BevFleet(Facade):
     ----------
 
     label: str
-        A string representing the label for the IndividualMobilitySector instance.
+        A string representing the label for the IndividualMobilitySector
+        instance.
     electricity_bus: Bus
-        An oemof bus instance representing the connection to the electricity grid.
+        An oemof bus instance representing the connection to the electricity
+        grid.
     transport_commodity_bus: Bus
-        An oemof bus instance representing the connection to the transport commodity.
+        An oemof bus instance representing the connection to the transport
+        commodity.
     charging_power_flex: float
         The charging power for grid-to-vehicle (G2V) and vehicle-to-grid (V2G)
-        operations. If `expandable` is set to True, this value represents the average
-        charging power in kW. Otherwise, it denotes the charging power for the entire
-        fleet in MW.
+        operations. If `expandable` is set to True, this value represents the
+        average charging power in kW. Otherwise, it denotes the charging power
+        for the entire fleet in MW.
         todo: check units
     charging_power_inflex: float
-        The charging power for uncontrolled/fixed charging (inflex) operations. If
-        `expandable` is set to True, this value represents the average charging power
-        in kW. Otherwise, it denotes the charging power for the entire fleet in MW.
+        The charging power for uncontrolled/fixed charging (inflex) operations.
+         If `expandable` is set to True, this value represents the average
+         charging power in kW. Otherwise, it denotes the charging power for the
+         entire fleet in MW.
         todo: check units
     maximum_charging_power_investment: float or sequence
-        Maximum charging power addition in investment optimization. Defined per period
-        p for a multi-period model.
+        Maximum charging power addition in investment optimization. Defined per
+        period p for a multi-period model.
     availability_flex: Union[float, Sequence[float]]
-        The ratio of available capacity for charging/vehicle-to-grid due to grid
-        connection. todo: für flex/inflex
+        The ratio of available capacity for charging/vehicle-to-grid due to
+        grid connection. todo: für flex/inflex
     availability_inflex: Union[float, Sequence[float]]
         Time series of fixed connection capacity.
     storage_capacity: float
-        The storage capacityIf `expandable` is set to True, this value represents the
-        average storage capacity in kWh. Otherwise, it denotes the charging power for
-        the entire fleet in MWh.
+        The storage capacityIf `expandable` is set to True, this value
+        represents the average storage capacity in kWh. Otherwise, it denotes
+        the charging power for the entire fleet in MWh.
         todo: check units
     storage_capacity_inflex: float
-        The storage capacity for uncontrolled/fixed charging (inflex) operations. If
-        `expandable` is set to True, this value represents the average storage capacity
-        in kWh. Otherwise, it denotes the charging power for the entire fleet in MWh.
+        The storage capacity for uncontrolled/fixed charging (inflex)
+        operations. If `expandable` is set to True, this value represents the
+        average storage capacity in kWh. Otherwise, it denotes the charging
+        power for the entire fleet in MWh.
         todo: check units
     min_storage_level: Union[float, Sequence[float]]
         The profile of minimum storage level (min SOC).
@@ -492,7 +499,7 @@ class BevFleet(Facade):
         The total driving capacity of the fleet (e.g. in MW) if no mobility_bus
         is connected.
     drive_consumption: Sequence[float]
-        The profile of drive consumption of the fleet (relative to drive_power).
+        The drive consumption profil of the fleet (relative to drive_power).
     loss_rate: float
         The relative loss of the storage content per time unit (e.g. hour).
     efficiency_mob_g2v: float
@@ -519,12 +526,13 @@ class BevFleet(Facade):
         Age of the existing fleet at the first investment period in years.
     invest_c_rate: float
         The rate of storage capacity invested per unit of charging power.
-        For example, if invest_c_rate is 3, it indicates that 3 units of storage
-        capacity are invested for every unit of charging/discharging power. If
-        invest_c_rate is not provided, it is calculated based on the ratio of
-        storage_capacity to charging_power. If invest_c_rate, storage_capacity, and
-        charging_power are provided, invest_c_rate is validated against the calculated
-        value and a warning is issued if they do not match.
+        For example, if invest_c_rate is 3, it indicates that 3 units of
+        storage capacity are invested for every unit of charging/discharging
+        power. If invest_c_rate is not provided, it is calculated based on the
+        ratio of storage_capacity to charging_power. If invest_c_rate,
+        storage_capacity, and charging_power are provided, invest_c_rate is
+        validated against the calculated value and a warning is issued if they
+        do not match.
     bev_invest_costs: float, array of float
         Investment costs for new vehicle unit. EUR/vehicle
     fixed_costs: float, array of float
@@ -538,14 +546,15 @@ class BevFleet(Facade):
         Couple storage level of first and last time step.
         (Total inflow and total outflow are balanced.)
     input_parameters_inflex: dict
-        Dictionary to specify parameters on the input edge for uncontrolled/fixed
-        charging. You can use all keys that are available for the
-        oemof.solph.network.Flow class. e.g. fixed charging timeseries for the storage
-        can be passed with {"fix": [1,0.5,...]}
+        Dictionary to specify parameters on the input edge for
+        uncontrolled/fixed charging. You can use all keys that are available
+        for the oemof.solph.network.Flow class. e.g. fixed charging timeseries
+        for the storage can be passed with {"fix": [1,0.5,...]}
     output_parameters: dict
         Dictionary to specify parameters on the output edge. You can use
-        all keys that are available for the  oemof.solph.network.Flow class. e.g. fixed
-        discharging timeseries for the storage can be passed with {"fix": [1,0.5,...]}
+        all keys that are available for the  oemof.solph.network.Flow class
+        e.g. fixed discharging timeseries for the storage can be passed
+        with {"fix": [1,0.5,...]}
 
     """
 
@@ -623,7 +632,7 @@ class BevFleet(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_flex,
-            maximum_charging_power_investment=self.maximum_charging_power_investment,
+            maximum_charging_power_investment=self.maximum_charging_power_investment,  # noqa
             availability=self.availability_flex,
             storage_capacity=self.storage_capacity,
             min_storage_level=self.min_storage_level,
@@ -656,7 +665,7 @@ class BevFleet(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_flex,
-            maximum_charging_power_investment=self.maximum_charging_power_investment,
+            maximum_charging_power_investment=self.maximum_charging_power_investment,  # noqa
             availability=self.availability_flex,
             storage_capacity=self.storage_capacity,
             min_storage_level=self.min_storage_level,
@@ -689,7 +698,7 @@ class BevFleet(Facade):
             electricity_bus=self.electricity_bus,
             commodity_bus=self.transport_commodity_bus,
             charging_power=self.charging_power_inflex,
-            maximum_charging_power_investment=self.maximum_charging_power_investment,
+            maximum_charging_power_investment=self.maximum_charging_power_investment,  # noqa
             availability=self.availability_inflex,
             storage_capacity=self.storage_capacity,
             min_storage_level=self.min_storage_level,
