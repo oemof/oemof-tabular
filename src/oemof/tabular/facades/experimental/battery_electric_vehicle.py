@@ -11,11 +11,12 @@ from oemof.tabular._facade import Facade, dataclass_facade
 
 
 @dataclass_facade
-class Bev(GenericStorage, Facade):
-    r"""A fleet of Battery electric vehicles with controlled/flexible charging,
-     (G2V), vehicle-to-grid (V2G) or uncontrolled/fixed charging (inflex).
+class BevTech(GenericStorage, Facade):
+    r"""A Battery electric vehicle technology with either controlled/flexible
+    charging, (G2V), vehicle-to-grid (V2G) or uncontrolled/fixed charging
+    (inflex).
 
-    This facade consists of mulitple oemof.solph components:
+    This facade consists of multiple oemof.solph components:
 
     - a GenericStorage as storage unit
     - a Bus as internal bus
@@ -440,11 +441,11 @@ class Bev(GenericStorage, Facade):
 
 # ToDo: update docstring
 @dataclass_facade
-class IndividualMobilitySector(Facade):
-    r"""A fleet of Battery electric vehicles with different controlled/flexible
-    charging (G2V), vehicle-to-grid (V2G) or uncontrolled/fixed charging (inflex).
-    Note that the investment option is not available for this facade at
-    the current development state. todo: still up to date?
+class BevFleet(Facade):
+    r"""A fleet of Battery electric vehicles of different :class:`BevTech`
+    facades with controlled/flexible charging (G2V), vehicle-to-grid (V2G)
+    and uncontrolled/fixed charging (inflex).
+
     Parameters
     ----------
 
@@ -616,7 +617,7 @@ class IndividualMobilitySector(Facade):
     def build_solph_components(self):
         mobility_nodes = [self.transport_commodity_bus]
 
-        bev_controlled_g2v = Bev(
+        bev_controlled_g2v = BevTech(
             type="bev",
             label=self.label + "_G2V",
             electricity_bus=self.electricity_bus,
@@ -649,7 +650,7 @@ class IndividualMobilitySector(Facade):
 
         mobility_nodes.append(bev_controlled_g2v)
 
-        bev_controlled_v2g = Bev(
+        bev_controlled_v2g = BevTech(
             type="bev",
             label=self.label + "_V2G",
             electricity_bus=self.electricity_bus,
@@ -682,7 +683,7 @@ class IndividualMobilitySector(Facade):
 
         mobility_nodes.append(bev_controlled_v2g)
 
-        bev_inflex = Bev(
+        bev_inflex = BevTech(
             type="bev",
             label=self.label + "_Inflex",
             electricity_bus=self.electricity_bus,
