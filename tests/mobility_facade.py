@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     energysystem.add(pkm_demand)
 
-    """bev_v2g = Bev(
+    """bev_v2g = BevTech(
         type="bev",
         label="BEV-V2G",
         electricity_bus=el_bus,
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     )
     energysystem.add(bev_v2g)
 
-    bev_flex = Bev(
+    bev_flex = BevTech(
         type="bev",
         label="BEV-inflex",
         electricity_bus=el_bus,
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     )
     energysystem.add(bev_flex)
 
-    bev_fix = Bev(
+    bev_fix = BevTech(
         type="bev",
         label="BEV-G2V",
         electricity_bus=el_bus,
@@ -247,9 +247,9 @@ if __name__ == "__main__":
     energysystem.new_results = {}
     for r in energysystem.results:
         if r[1] is not None:
-            energysystem.new_results[
-                f"{r[0].label}: {r[1].label}"
-            ] = energysystem.results[r]
+            energysystem.new_results[f"{r[0].label}: {r[1].label}"] = (
+                energysystem.results[r]
+            )
 
     # postprocessing
     postprocessed_results = calculations.run_postprocessing(energysystem)

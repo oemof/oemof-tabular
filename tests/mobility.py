@@ -8,7 +8,7 @@ from oemof.tabular import __path__ as tabular_path
 from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 from oemof.tabular.datapackage.reading import deserialize_constraints
 from oemof.tabular.facades import Excess, Load, Shortage, Volatile
-from oemof.tabular.facades.experimental.battery_electric_vehicle import Bev
+from oemof.tabular.facades.experimental.battery_electric_vehicle import BevTech
 from oemof.tabular.postprocessing import calculations
 
 if __name__ == "__main__":
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     energysystem.add(pkm_demand)
 
-    bev_v2g = Bev(
+    bev_v2g = BevTech(
         type="bev",
         label="BEV-V2G",
         electricity_bus=el_bus,
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     )
     energysystem.add(bev_v2g)
 
-    bev_flex = Bev(
+    bev_flex = BevTech(
         type="bev",
         label="BEV-inflex",
         electricity_bus=el_bus,
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     )
     energysystem.add(bev_flex)
 
-    bev_fix = Bev(
+    bev_fix = BevTech(
         type="bev",
         label="BEV-G2V",
         electricity_bus=el_bus,
@@ -213,9 +213,9 @@ if __name__ == "__main__":
     energysystem.new_results = {}
     for r in energysystem.results:
         if r[1] is not None:
-            energysystem.new_results[
-                f"{r[0].label}: {r[1].label}"
-            ] = energysystem.results[r]
+            energysystem.new_results[f"{r[0].label}: {r[1].label}"] = (
+                energysystem.results[r]
+            )
 
     # postprocessing
     postprocessed_results = calculations.run_postprocessing(energysystem)
