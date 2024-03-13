@@ -36,8 +36,8 @@ TYPEMAP = {
     "shortage": Shortage,
     "storage": Storage,
     "volatile": Volatile,
-    "bev tech": BevTech,
-    "bev fleet": BevFleet,
+    "bev_tech": BevTech,
+    "bev_fleet": BevFleet,
 }
 
 TECH_COLOR_MAP = {
@@ -61,7 +61,6 @@ TECH_COLOR_MAP = {
     "reservoir": "slateblue",
     "biomass": "olivedrab",
     "storage": "lightsalmon",
-    "battery": "lightsalmon",
     "import": "crimson",
 }
 
