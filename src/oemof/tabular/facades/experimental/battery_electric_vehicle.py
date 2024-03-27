@@ -1,3 +1,5 @@
+import logging
+from collections.abc import Iterable
 from dataclasses import field
 from typing import Sequence, Union
 
