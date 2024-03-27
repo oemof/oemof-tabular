@@ -37,7 +37,7 @@ class BevTech(GenericStorage, Facade):
     ----------
     electricity_bus: oemof.solph.Bus
         The electricity bus where the BEV is connected to.
-    commodity_bus: oemof.solph.Bus
+    demand_bus: oemof.solph.Bus
         A bus which is used to connect a common demand for multiple BEV
         instances (optional).
     charging_power : int
@@ -74,18 +74,15 @@ class BevTech(GenericStorage, Facade):
         This parameter is inherited from the :class:`GenericStorage` class.
         The relative loss/self discharge of the storage content per time unit,
         default: 0
-    efficiency_mob_g2v: float
+    efficiency_mob_g2v: float, array of float
         Efficiency at the charging station (grid-to-vehicle), default: 1
-    efficiency_mob_v2g: float
+    efficiency_mob_v2g: float, array of float
         Efficiency at the charging station (vehicle-to-grid), default: 1
-    efficiency_sto_in: float
+    efficiency_sto_in: float, array of float
         Efficiency of charging the batteries, default: 1
-    efficiency_sto_out: float
+    efficiency_sto_out: float, array of float
         Efficiency of discharging the batteries, default: 1
-    efficiency_mob_electrical: float
-        Efficiency of the electrical drive train per 100 km (optional).
-         default: 1
-    commodity_conversion_rate: float
+    commodity_conversion_rate: float, array of float
         Conversion rate from energy to e.g. pkm if mobility_bus passed
         (optional) default: 1
     expandable: bool
@@ -105,6 +102,7 @@ class BevTech(GenericStorage, Facade):
         storage_capacity to charging_power. If invest_c_rate, storage_capacity,
         and charging_power are provided, invest_c_rate is validated against the
         calculated value and a warning is issued if they do not match.
+        Note: This rate is fixed over all periods.
     bev_invest_costs: float, array of float
         Investment costs for new vehicle unit. EUR/vehicle
     variable_costs: float, array of float
@@ -143,9 +141,11 @@ class BevTech(GenericStorage, Facade):
 
     """
 
+    label: str = None
+
     electricity_bus: Bus = None
 
-    commodity_bus: Bus = None
+    demand_bus: Bus = None
 
     charging_power: float = None
 
@@ -161,17 +161,15 @@ class BevTech(GenericStorage, Facade):
 
     v2g: bool = False
 
-    efficiency_mob_g2v: float = 1
+    efficiency_mob_g2v: Union[float, Sequence[float]] = 1
 
-    efficiency_mob_v2g: float = 1
+    efficiency_mob_v2g: Union[float, Sequence[float]] = 1
 
-    efficiency_sto_in: float = 1
+    efficiency_sto_in: Union[float, Sequence[float]] = 1
 
-    efficiency_sto_out: float = 1
+    efficiency_sto_out: Union[float, Sequence[float]] = 1
 
-    efficiency_mob_electrical: float = 1
-
-    commodity_conversion_rate: float = 1
+    commodity_conversion_rate: Union[float, Sequence[float]] = 1
 
     expandable: bool = False
 
@@ -179,7 +177,7 @@ class BevTech(GenericStorage, Facade):
 
     age: int = 0
 
-    invest_c_rate: Sequence[float] = None
+    invest_c_rate: float = None
 
     bev_invest_costs: Sequence[float] = None
 
@@ -195,20 +193,34 @@ class BevTech(GenericStorage, Facade):
 
     output_parameters: dict = field(default_factory=dict)
 
-    def _converter_investment(self):
+    def _converter_investment(self, limit=False):
         """All parameters are passed, but no investment cost is considered.
         The investment cost will be considered by the storage inflow only.
         """
         if self.expandable:
-            investment = Investment(
-                ep_costs=0,
-                maximum=getattr(
-                    self, "maximum_charging_power_investment", None
-                ),
-                lifetime=getattr(self, "lifetime", None),
-                age=getattr(self, "age", 0),
-                fixed_costs=0,
-            )
+            if limit:
+                investment = Investment(
+                    ep_costs=0,
+                    maximum=getattr(
+                        self, "maximum_charging_power_investment", None
+                    ),
+                    minimum=getattr(
+                        self, "minimum_charging_power_investment", None
+                    ),
+                    lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", 0),
+                    fixed_costs=0,
+                )
+            else:
+                # no investment limitation e.g. drive power strain
+                # only charging is limited by charger but not drive power
+                investment = Investment(
+                    ep_costs=0,
+                    lifetime=getattr(self, "lifetime", None),
+                    age=getattr(self, "age", 0),
+                    fixed_costs=0,
+                )
+
             return investment
         else:
             return None
@@ -246,25 +258,40 @@ class BevTech(GenericStorage, Facade):
                 self.storage_capacity / self.charging_power
             )
             if calculated_invest_c_rate != self.invest_c_rate:
-                print(
+                logging.warning(
                     f"Warning: The passed invest_c_rate ({self.invest_c_rate})"
-                    "does not match the calculated value "
+                    " does not match the calculated value "
                     f"({calculated_invest_c_rate})."
                 )
         else:
             self.invest_c_rate = 1
-            print(
+            logging.warning(
                 "Warning: invest_c_rate could not be calculated. Standard "
                 "value of 1 was assigned."
             )
 
+    @staticmethod
+    def multiply_scalar_or_iterable(a, b):
+        """Multiply scalars or each value of list"""
+        if all([isinstance(i, Iterable) for i in [a, b]]):
+            results = [x * y for x, y in zip(a, b)]
+        elif all([isinstance(i, float) for i in [a, b]]):
+            results = a * b
+        else:
+            raise ValueError(
+                "Value of 'a' and 'b' must be iterables of"
+                "float, or scalar float."
+            )
+        return results
+
     def build_solph_components(self):
+        self.type = "bev"
+
         # use label as prefix for subnodes
         self.facade_label = self.label
-        self.label = self.label + "-storage"
 
-        # convert to solph sequences
-        self.availability = solph_sequence(self.availability)
+        # Label of storage
+        self.label = self.label + "-storage"
 
         self.balanced = self.balanced  # TODO to be false in multi-period
 
@@ -294,6 +321,13 @@ class BevTech(GenericStorage, Facade):
                     internal_bus: Flow(
                         # variable_costs=self.carrier_cost,
                         # **self.input_parameters
+                        # nominal_value=self._nominal_value(
+                        #     value=self.charging_power
+                        # ),
+                        # max=solph_sequence(self.availability),
+                        # variable_costs=None,
+                        # # investment=self._investment(bev=True),
+                        # investment=self._converter_investment(limit=True),
                     )
                 },
                 outputs={
@@ -301,55 +335,62 @@ class BevTech(GenericStorage, Facade):
                         nominal_value=self._nominal_value(
                             value=self.charging_power
                         ),
+                        max=solph_sequence(self.availability),
                         variable_costs=None,
                         # investment=self._investment(bev=True),
-                        investment=self._converter_investment(),
+                        investment=self._converter_investment(limit=True),
                     )
                 },
                 # Includes storage charging efficiencies
                 conversion_factors={
-                    self.electricity_bus: (self.efficiency_mob_v2g)
+                    self.electricity_bus: solph_sequence(
+                        self.efficiency_mob_v2g
+                    )
                 },
             )
             subnodes.append(vehicle_to_grid)
 
         # Drive consumption
-        if self.commodity_bus:
+        if self.demand_bus:
             # ##### Commodity Converter #####
             # converts energy to another commodity e.g. pkm
             # connects it to a special mobility bus
             commodity_converter = Converter(
-                label=self.facade_label + "-2com",
+                label=self.facade_label + "-conversion",
                 inputs={
                     internal_bus: Flow(
                         # **self.output_parameters
                     )
                 },
                 outputs={
-                    self.commodity_bus: Flow(
+                    self.demand_bus: Flow(
                         nominal_value=self._nominal_value(self.charging_power),
-                        # max=self.availability,
                         variable_costs=None,
-                        # investment=self._investment(bev=True),
-                        investment=self._converter_investment(),
+                        # no limitations for drive strain/power
+                        investment=self._converter_investment(limit=False),
                     )
                 },
                 conversion_factors={
-                    self.commodity_bus: self.commodity_conversion_rate
-                    * self.efficiency_mob_electrical
+                    self.demand_bus: solph_sequence(
+                        self.commodity_conversion_rate
+                    )
+                    # * 1/self.efficiency_mob_electrical
                     # * 100  # TODO pro 100 km?
                 },
             )
             subnodes.append(commodity_converter)
 
         else:
+            logging.warning(
+                "BEV without demand-bus is not tested yet." "Take caution!"
+            )
             # ##### Consumption Sink #####
-            # fixed demand for this fleet only
+            # fixed demand for this bev tech only
             if self.expandable:
                 raise NotImplementedError(
                     "Consumption sink for expandable BEV not implemented yet!"
                     "Please use a `mobility_bus` + `Sink` instead. Optimizing"
-                    "one fleet alone may not yield meaningful results."
+                    "one bev-tech alone may not yield meaningful results."
                 )
             else:
                 driving_consumption = Sink(
@@ -370,20 +411,12 @@ class BevTech(GenericStorage, Facade):
             # self.investment = self._investment(bev=False)
             self.invest_relation_input_output = 1  # charge/discharge equal
             # invest_c_rate = Energy/Power = h
-            self.invest_relation_input_capacity = (
-                1 / self.invest_c_rate
+            self.invest_relation_input_capacity = 1 / getattr(
+                self, "invest_c_rate", 1
             )  # Power/Energy
-            self.invest_relation_output_capacity = (
-                1 / self.invest_c_rate
+            self.invest_relation_output_capacity = 1 / getattr(
+                self, "invest_c_rate", 1
             )  # Power/Energy
-
-            for attr in ["invest_relation_input_output"]:
-                if getattr(self, attr) is None:
-                    raise AttributeError(
-                        (
-                            "You need to set attr " "`{}` " "for component {}"
-                        ).format(attr, self.label)
-                    )
 
             # ##### Grid2Vehicle #####
             # contains the whole investment costs for bev
@@ -393,6 +426,9 @@ class BevTech(GenericStorage, Facade):
                     ep_costs=self.bev_invest_costs,
                     maximum=getattr(
                         self, "maximum_charging_power_investment", None
+                    ),
+                    minimum=getattr(
+                        self, "minimum_charging_power_investment", None
                     ),
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
@@ -409,7 +445,7 @@ class BevTech(GenericStorage, Facade):
                 ),
                 **self.output_parameters,
             )
-            # required for correct grouping in oemof.solph.components
+            # Trigger GenericInvestmentStorageBlock
             self._invest_group = True
 
         else:
@@ -426,7 +462,9 @@ class BevTech(GenericStorage, Facade):
             )
 
         self.inflow_conversion_factor = solph_sequence(
-            self.efficiency_mob_g2v * self.efficiency_sto_in
+            self.multiply_scalar_or_iterable(
+                a=self.efficiency_mob_g2v, b=self.efficiency_sto_in
+            )
         )
 
         self.outflow_conversion_factor = solph_sequence(
@@ -459,9 +497,9 @@ class BevFleet(Facade):
     electricity_bus: Bus
         An oemof bus instance representing the connection to the electricity
         grid.
-    transport_commodity_bus: Bus
-        An oemof bus instance representing the connection to the transport
-        commodity.
+    demand_bus: Bus
+        An oemof bus instance representing a common demand for the multiple BEV
+        technologies.
     charging_power_flex: float
         The charging power for grid-to-vehicle (G2V) and vehicle-to-grid (V2G)
         operations. If `expandable` is set to True, this value represents the
@@ -474,6 +512,9 @@ class BevFleet(Facade):
          charging power in kW. Otherwise, it denotes the charging power for the
          entire fleet in MW.
         todo: check units
+    minimum_charging_power_investment: float or sequence
+        Minimum charging power addition in investment optimization. Defined per
+        period p for a multi-period model.
     maximum_charging_power_investment: float or sequence
         Maximum charging power addition in investment optimization. Defined per
         period p for a multi-period model.
@@ -483,15 +524,9 @@ class BevFleet(Facade):
     availability_inflex: Union[float, Sequence[float]]
         Time series of fixed connection capacity.
     storage_capacity: float
-        The storage capacityIf `expandable` is set to True, this value
-        represents the average storage capacity in kWh. Otherwise, it denotes
-        the charging power for the entire fleet in MWh.
-        todo: check units
-    storage_capacity_inflex: float
-        The storage capacity for uncontrolled/fixed charging (inflex)
-        operations. If `expandable` is set to True, this value represents the
-        average storage capacity in kWh. Otherwise, it denotes the charging
-        power for the entire fleet in MWh.
+        This value represents the average storage capacity in kWh if expandable
+        is true. Otherwise it denotes the storage capacity for the entire fleet
+         in MWh.
         todo: check units
     min_storage_level: Union[float, Sequence[float]]
         The profile of minimum storage level (min SOC).
@@ -504,20 +539,17 @@ class BevFleet(Facade):
         The drive consumption profil of the fleet (relative to drive_power).
     loss_rate: float
         The relative loss of the storage content per time unit (e.g. hour).
-    efficiency_mob_g2v: float
+    efficiency_mob_g2v: float, array of float
         Efficiency at the charging station (grid-to-vehicle), default: 1
-    efficiency_mob_v2g: float
+    efficiency_mob_v2g: float, array of float
         Efficiency at the charging station (vehicle-to-grid), default: 1
-    efficiency_sto_in: float
+    efficiency_sto_in: float, array of float
         Efficiency of charging the batteries, default: 1
-    efficiency_sto_out: float
+    efficiency_sto_out: float, array of float
         Efficiency of discharging the batteries, default: 1
-    efficiency_mob_electrical: float
-        Efficiency of the electrical drive train per 100 km (optional).
-         default: 1
-    commodity_conversion_rate: float
-        Conversion rate from energy to e.g. pkm if mobility_bus passed
-        (optional) default: 1
+    commodity_conversion_rate: float, array of float
+        Conversion rate from energy to e.g. pkm if demand_bus is passed
+        (optional). Could also just be eletrical_drive_efficiency. default: 1
     expandable: bool
         If True, the fleet is expandable, default: False
         Charging_power and storage_capacity are then interpreted as existing
@@ -563,15 +595,17 @@ class BevFleet(Facade):
     # TODO: match data formats with actual data
     # Todo: wo müssen werte angegeben werden?
 
-    label: str
+    label: str = None
 
     electricity_bus: Bus = None
 
-    transport_commodity_bus: Bus = None
+    demand_bus: Bus = None
 
     charging_power_flex: float = None
 
     charging_power_inflex: float = None
+
+    minimum_charging_power_investment: Union[float, Sequence[float]] = None
 
     maximum_charging_power_investment: Union[float, Sequence[float]] = None
 
@@ -591,17 +625,15 @@ class BevFleet(Facade):
 
     loss_rate: float = 0
 
-    efficiency_mob_g2v: float = 1
+    efficiency_mob_g2v: Union[float, Sequence[float]] = 1
 
-    efficiency_mob_v2g: float = 1
+    efficiency_mob_v2g: Union[float, Sequence[float]] = 1
 
-    efficiency_sto_in: float = 1
+    efficiency_sto_in: Union[float, Sequence[float]] = 1
 
-    efficiency_sto_out: float = 1
+    efficiency_sto_out: Union[float, Sequence[float]] = 1
 
-    efficiency_mob_electrical: float = 1
-
-    commodity_conversion_rate: float = 1
+    commodity_conversion_rate: Union[float, Sequence[float]] = 1  #
 
     expandable: bool = False
 
@@ -625,14 +657,29 @@ class BevFleet(Facade):
 
     output_parameters: dict = field(default_factory=dict)
 
-    def build_solph_components(self):
-        mobility_nodes = [self.transport_commodity_bus]
+    def _demand_bus(self, bus):
+        if self.demand_bus:
+            return bus
 
+    def build_solph_components(self):
+        subnodes = []
+
+        # BEV Fleet Node connected to eletricity bus, bidirectional
+        self.inputs.update({self.electricity_bus: Flow()})
+        self.outputs.update({self.electricity_bus: Flow()})
+
+        # BEV Fleet connector
+        # merges BEV techs flows and is connected to demand bus
+        if self.demand_bus:
+            fleet = Bus(label=self.label + "-total")
+            fleet.outputs.update({self.demand_bus: Flow()})
+            subnodes.append(fleet)
+
+        # BEV controlled flexibility
         bev_controlled_g2v = BevTech(
-            type="bev",
             label=self.label + "_G2V",
-            electricity_bus=self.electricity_bus,
-            commodity_bus=self.transport_commodity_bus,
+            electricity_bus=self,
+            demand_bus=self._demand_bus(fleet),
             charging_power=self.charging_power_flex,
             maximum_charging_power_investment=self.maximum_charging_power_investment,  # noqa
             availability=self.availability_flex,
@@ -643,10 +690,8 @@ class BevFleet(Facade):
             v2g=False,
             loss_rate=self.loss_rate,
             efficiency_mob_g2v=self.efficiency_mob_g2v,
-            efficiency_mob_v2g=0,
             efficiency_sto_in=self.efficiency_sto_in,
             efficiency_sto_out=self.efficiency_sto_out,
-            efficiency_mob_electrical=self.efficiency_mob_electrical,
             commodity_conversion_rate=self.commodity_conversion_rate,
             expandable=self.expandable,
             lifetime=self.lifetime,
@@ -654,18 +699,17 @@ class BevFleet(Facade):
             invest_c_rate=self.invest_c_rate,
             bev_invest_costs=self.bev_invest_costs,
             fixed_costs=self.fixed_costs,
-            fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
+            fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test # noqa
             variable_costs=self.variable_costs,
             balanced=self.balanced,
         )
+        subnodes.append(bev_controlled_g2v)
 
-        mobility_nodes.append(bev_controlled_g2v)
-
+        # BEV controlled flexibility with vehicle to grid
         bev_controlled_v2g = BevTech(
-            type="bev",
             label=self.label + "_V2G",
-            electricity_bus=self.electricity_bus,
-            commodity_bus=self.transport_commodity_bus,
+            electricity_bus=self,
+            demand_bus=self._demand_bus(fleet),
             charging_power=self.charging_power_flex,
             maximum_charging_power_investment=self.maximum_charging_power_investment,  # noqa
             availability=self.availability_flex,
@@ -679,7 +723,6 @@ class BevFleet(Facade):
             efficiency_mob_v2g=self.efficiency_mob_v2g,
             efficiency_sto_in=self.efficiency_sto_in,
             efficiency_sto_out=self.efficiency_sto_out,
-            efficiency_mob_electrical=self.efficiency_mob_electrical,
             commodity_conversion_rate=self.commodity_conversion_rate,
             expandable=self.expandable,
             lifetime=self.lifetime,
@@ -687,18 +730,17 @@ class BevFleet(Facade):
             invest_c_rate=self.invest_c_rate,
             bev_invest_costs=self.bev_invest_costs,
             fixed_costs=self.fixed_costs,
-            fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
+            fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test # noqa
             variable_costs=self.variable_costs,
             balanced=self.balanced,
         )
+        subnodes.append(bev_controlled_v2g)
 
-        mobility_nodes.append(bev_controlled_v2g)
-
+        # BEV uncontrolled with no flexibility but storage buffer
         bev_inflex = BevTech(
-            type="bev",
-            label=self.label + "_Inflex",
-            electricity_bus=self.electricity_bus,
-            commodity_bus=self.transport_commodity_bus,
+            label=self.label + "_inflex",
+            electricity_bus=self,
+            demand_bus=self._demand_bus(fleet),
             charging_power=self.charging_power_inflex,
             maximum_charging_power_investment=self.maximum_charging_power_investment,  # noqa
             availability=self.availability_inflex,
@@ -712,7 +754,6 @@ class BevFleet(Facade):
             efficiency_mob_v2g=0,
             efficiency_sto_in=self.efficiency_sto_in,
             efficiency_sto_out=self.efficiency_sto_out,
-            efficiency_mob_electrical=self.efficiency_mob_electrical,
             commodity_conversion_rate=self.commodity_conversion_rate,
             expandable=self.expandable,
             lifetime=self.lifetime,
@@ -720,13 +761,12 @@ class BevFleet(Facade):
             invest_c_rate=self.invest_c_rate,
             bev_invest_costs=self.bev_invest_costs,
             fixed_costs=self.fixed_costs,
-            fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test
+            fixed_investment_costs=self.fixed_investment_costs,  # todo: added for test # noqa
             variable_costs=self.variable_costs,
             balanced=self.balanced,
             input_parameters=self.input_parameters_inflex,
         )
+        subnodes.append(bev_inflex)
 
-        mobility_nodes.append(bev_inflex)
-
-        # many components in facade
-        self.subnodes = mobility_nodes
+        # Add subnodes to facade
+        self.subnodes = subnodes
