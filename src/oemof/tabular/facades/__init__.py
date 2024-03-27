@@ -7,7 +7,7 @@ from .commodity import Commodity
 from .conversion import Conversion
 from .dispatchable import Dispatchable
 from .excess import Excess
-from .experimental.battery_electric_vehicle import Bev
+from .experimental.battery_electric_vehicle import BevFleet, BevTech
 from .extraction_turbine import ExtractionTurbine
 from .generator import Generator
 from .heatpump import HeatPump
@@ -36,7 +36,8 @@ TYPEMAP = {
     "shortage": Shortage,
     "storage": Storage,
     "volatile": Volatile,
-    "bev": Bev,
+    "bev_tech": BevTech,
+    "bev_fleet": BevFleet,
 }
 
 TECH_COLOR_MAP = {
@@ -60,7 +61,6 @@ TECH_COLOR_MAP = {
     "reservoir": "slateblue",
     "biomass": "olivedrab",
     "storage": "lightsalmon",
-    "battery": "lightsalmon",
     "import": "crimson",
 }
 

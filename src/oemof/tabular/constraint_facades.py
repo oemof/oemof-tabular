@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from oemof.solph.constraints.integral_limit import generic_integral_limit
 from pyomo.environ import Constraint
 
-from oemof.tabular.facades import Bev
+from oemof.tabular.facades import BevTech
 
 
 def var2str(var):
@@ -88,7 +88,7 @@ class BevShareMob(ConstraintFacade):
     def map_share2vars(model, share_mob, period):
         invest_vars = []
         for node in model.es.nodes:
-            if isinstance(node, Bev):
+            if isinstance(node, BevTech):
                 invest_vars.extend(
                     [
                         inv
@@ -172,7 +172,7 @@ class BevEqualInvest(ConstraintFacade):
     def get_bev_invest_vars(model, period):
         all_invest_vars = {}
         for node in model.es.nodes:
-            if isinstance(node, Bev):
+            if isinstance(node, BevTech):
                 invest_vars_bev = list(
                     set(
                         inv

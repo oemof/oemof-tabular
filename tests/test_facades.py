@@ -6,7 +6,7 @@ from oemof.solph import helpers
 
 from oemof import solph
 from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
-from oemof.tabular.facades import Bev, Excess, Load, Shortage, Volatile
+from oemof.tabular.facades import BevTech, Excess, Load, Shortage, Volatile
 
 # todo remove constraint bev_equal_invest from tests when they are removed as
 #  feature
@@ -107,7 +107,7 @@ class TestBevFacades:
 
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,
@@ -210,7 +210,7 @@ class TestBevFacades:
         )
         self.energysystem.add(pkm_demand)
 
-        bev_inflex = Bev(
+        bev_inflex = BevTech(
             type="bev",
             label="BEV-inflex",
             electricity_bus=el_bus,
@@ -304,7 +304,7 @@ class TestBevFacades:
         )
         self.energysystem.add(pkm_demand)
 
-        bev_g2v = Bev(
+        bev_g2v = BevTech(
             type="bev",
             label="BEV-G2V",
             electricity_bus=el_bus,
@@ -395,7 +395,7 @@ class TestBevFacades:
         )
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,
@@ -417,7 +417,7 @@ class TestBevFacades:
         )
         self.energysystem.add(bev_v2g)
 
-        bev_inflex = Bev(
+        bev_inflex = BevTech(
             type="bev",
             label="BEV-inflex",
             electricity_bus=el_bus,
@@ -444,7 +444,7 @@ class TestBevFacades:
         )
         self.energysystem.add(bev_inflex)
 
-        bev_g2v = Bev(
+        bev_g2v = BevTech(
             type="bev",
             label="BEV-G2V",
             electricity_bus=el_bus,
@@ -551,7 +551,7 @@ class TestBevFacades:
 
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,
@@ -666,7 +666,7 @@ class TestBevFacades:
         )
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,
@@ -693,7 +693,7 @@ class TestBevFacades:
         )
         self.energysystem.add(bev_v2g)
 
-        bev_inflex = Bev(
+        bev_inflex = BevTech(
             type="bev",
             label="BEV-inflex",
             electricity_bus=el_bus,
@@ -725,7 +725,7 @@ class TestBevFacades:
         )
         self.energysystem.add(bev_inflex)
 
-        bev_g2v = Bev(
+        bev_g2v = BevTech(
             type="bev",
             label="BEV-G2V",
             electricity_bus=el_bus,
@@ -907,7 +907,7 @@ class TestBevFacadesMultiPeriodInvest:
         )
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,
@@ -1053,7 +1053,7 @@ class TestBevFacadesMultiPeriodInvest:
         )
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,
@@ -1080,7 +1080,7 @@ class TestBevFacadesMultiPeriodInvest:
         )
         self.energysystem.add(bev_v2g)
 
-        bev_inflex = Bev(
+        bev_inflex = BevTech(
             type="bev",
             label="BEV-inflex",
             electricity_bus=el_bus,
@@ -1111,7 +1111,7 @@ class TestBevFacadesMultiPeriodInvest:
         )
         self.energysystem.add(bev_inflex)
 
-        bev_g2v = Bev(
+        bev_g2v = BevTech(
             type="bev",
             label="BEV-G2V",
             electricity_bus=el_bus,
@@ -1283,7 +1283,7 @@ class TestBevFacadesMultiPeriodInvest:
         )
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,

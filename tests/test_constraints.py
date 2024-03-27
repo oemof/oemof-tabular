@@ -10,7 +10,7 @@ from oemof import solph
 from oemof.tabular.constraint_facades import CONSTRAINT_TYPE_MAP
 from oemof.tabular.facades import (
     BackpressureTurbine,
-    Bev,
+    BevTech,
     Commodity,
     Conversion,
     Dispatchable,
@@ -510,7 +510,7 @@ class TestConstraints:
 
         self.energysystem.add(pkm_demand)
 
-        bev_v2g = Bev(
+        bev_v2g = BevTech(
             type="bev",
             label="BEV-V2G",
             v2g=True,
@@ -538,7 +538,7 @@ class TestConstraints:
 
         self.energysystem.add(bev_v2g)
 
-        bev_flex = Bev(
+        bev_flex = BevTech(
             type="bev",
             label="BEV-inflex",
             electricity_bus=el_bus,
@@ -570,7 +570,7 @@ class TestConstraints:
         )
         self.energysystem.add(bev_flex)
 
-        bev_fix = Bev(
+        bev_fix = BevTech(
             type="bev",
             label="BEV-G2V",
             electricity_bus=el_bus,

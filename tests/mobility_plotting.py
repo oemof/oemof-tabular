@@ -88,6 +88,30 @@ def plot_bev_results(energysystem, facade_label):
 
 def draw_graph(energysystem):
     # Draw the graph
+    def assign_color(nodes):
+        node_colors = list()
+        for n in nodes:
+            if "BEV_V2G" in n:
+                node_colors.append("firebrick")
+            elif "BEV_G2V" in n:
+                node_colors.append("lightblue")
+            elif "BEV_inflex" in n:
+                node_colors.append("darkviolet")
+            elif "excess" in n:
+                node_colors.append("green")
+            elif "shortage" in n:
+                node_colors.append("yellow")
+            elif "load" in n:
+                node_colors.append("orange")
+            elif "wind" in n:
+                node_colors.append("pink")
+            elif "bus" in n:
+                node_colors.append("grey")
+            elif "pkm_demand" in n:
+                node_colors.append("dodgerblue")
+            else:
+                node_colors.append("violet")
+        return node_colors
 
     from oemof.network.graph import create_nx_graph
 
@@ -98,29 +122,8 @@ def draw_graph(energysystem):
         G, prog="neato", args="-Gepsilon=0.0001"
     )
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    node_colors = list()
-    for i in list(G.nodes()):
-        if "storage" in i:
-            node_colors.append("royalblue")
-        elif "BEV-V2G" in i:
-            node_colors.append("firebrick")
-        elif "BEV-G2V" in i:
-            node_colors.append("lightblue")
-        elif "BEV-inflex" in i:
-            node_colors.append("darkviolet")
-        elif "excess" in i:
-            node_colors.append("green")
-        elif "shortage" in i:
-            node_colors.append("yellow")
-        elif "load" in i:
-            node_colors.append("orange")
-        elif "wind" in i:
-            node_colors.append("pink")
-        elif "bus" in i:
-            node_colors.append("grey")
-        else:
-            node_colors.append("violet")
+    fig, ax = plt.subplots(figsize=(20, 16))
+    node_colors = assign_color(list(G.nodes()))
 
     nx.draw(
         G,
@@ -134,11 +137,56 @@ def draw_graph(energysystem):
         node_color=node_colors,
         # node_color=["red", "blue", "green", "yellow", "orange"],
     )
+
+    squares = [n for n in G.nodes() if "storage" in n]
+    square_colors = assign_color(squares)
+
+    # Draw square nodes
+    nx.draw_networkx_nodes(
+        G,
+        pos,
+        nodelist=squares,
+        node_shape="s",  # Square shape
+        node_size=3000,
+        node_color=square_colors,  # Assign colors based on the list
+    )
+
+    diamonds = [n for n in G.nodes() if "conversion" in n or "v2g" in n]
+    diamond_colors = assign_color(diamonds)
+
+    # Draw square nodes
+    nx.draw_networkx_nodes(
+        G,
+        pos,
+        nodelist=diamonds,
+        node_shape="D",  # Square shape
+        node_size=3000,
+        node_color=diamond_colors,  # Assign colors based on the list
+    )
+
+    triangle_circles = [n for n in G.nodes() if "demand" in n]
+    dtriangle_circle_colors = assign_color(triangle_circles)
+
+    # Draw square nodes
+    nx.draw_networkx_nodes(
+        G,
+        pos,
+        nodelist=triangle_circles,
+        node_shape="^",  # Square shape
+        node_size=3000,
+        node_color=dtriangle_circle_colors,  # Assign colors based on the list
+    )
+
     labels = nx.get_edge_attributes(G, "weight")
-    nx.draw_networkx_edge_labels(G, pos=pos, edge_labels=labels)
+    # Adjust label positions
+    # label_pos = {key: (value[0], value[1] - 1e8) for key, value in pos.items()}  # Lower the y-coordinate
+
+    nx.draw_networkx_edge_labels(
+        G, pos=pos, edge_labels=labels, verticalalignment="top"
+    )
 
     # Customize the plot as needed
-    ax.set_title("OEMOF Energy System Graph")
+    ax.set_title("Energy System Graph for BEV Flett")
 
     # Show the plot
     plt.show()
