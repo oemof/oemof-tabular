@@ -577,6 +577,17 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     resource,
                 )
 
+    def get_tsam_parameters():
+        """Extract TSAM parameters from pacakge if given."""
+        if package.get_resource("tsa_parameters"):
+            df_tsa_parameters = pd.DataFrame.from_dict(
+                package.get_resource("tsa_parameters").read(keyed=True)
+            ).set_index("period", drop=True)
+            return df_tsa_parameters.sort_index().to_dict(
+                "records"
+            )
+        return None
+
     # TODO: Find concept how to deal with timeindices and clean up based on
     # concept
     lst = [idx for idx in timeindices.values()]
@@ -597,35 +608,18 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 name="timeindex",
             )
             timeindex = temporal.index
-            es = cls(timeindex=timeindex, temporal=temporal)
+            es = cls(timeindex=timeindex, temporal=temporal, tsa_parameters=get_tsam_parameters())
 
         # if no temporal provided as resource, take the first timeindex
         # from dict
         else:
             # look for periods resource and if present, take periods from it
             if package.get_resource("periods"):
-                # look for tsa_parameters resource and if present, get
-                # tsa_parameters from it
-                # currently only works for multi-period
-                if package.get_resource("tsa_parameters"):
-                    df_tsa_parameters = pd.DataFrame.from_dict(
-                        package.get_resource("tsa_parameters").read(keyed=True)
-                    ).set_index("period", drop=True)
-
                     es = cls(
                         timeindex=period_data["timeindex"],
                         timeincrement=period_data["timeincrement"],
                         periods=period_data["periods"],
-                        tsa_parameters=df_tsa_parameters.sort_index().to_dict(
-                            "records"
-                        ),
-                        infer_last_interval=False,
-                    )
-                else:
-                    es = cls(
-                        timeindex=period_data["timeindex"],
-                        timeincrement=period_data["timeincrement"],
-                        periods=period_data["periods"],
+                        tsam_parameters=get_tsam_parameters(),
                         infer_last_interval=False,
                     )
 
