@@ -630,7 +630,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     idx.values, freq=idx.inferred_freq, name="timeindex"
                 )
                 temporal = None
-                es = cls(timeindex=timeindex, temporal=temporal)
+                es = cls(timeindex=timeindex, temporal=temporal, tsa_parameters=get_tsam_parameters())
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
             # step of today (same as in the EnergySystem __init__ if no
@@ -639,7 +639,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex = pd.date_range(
                     start=pd.to_datetime("today"), periods=1, freq="H"
                 )
-                es = cls(timeindex=timeindex)
+                es = cls(timeindex=timeindex, tsa_parameters=get_tsam_parameters())
 
         es.add(
             *chain(
