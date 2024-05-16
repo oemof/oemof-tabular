@@ -323,6 +323,8 @@ class TestConstraints:
         r""" """
         bus_biomass = solph.Bus("biomass")
         bus_heat = solph.Bus("heat")
+        bus_co2_em = solph.Bus("co2_em")
+        bus_ch4_em = solph.Bus("ch4_em")
 
         conversion = Conversion(
             label="biomass_plant",
@@ -330,6 +332,7 @@ class TestConstraints:
             tech="st",
             from_bus=bus_biomass,
             to_bus=bus_heat,
+            emissions={bus_co2_em: 0.5, bus_ch4_em: 10},
             capacity=100,
             efficiency=0.4,
         )
