@@ -105,6 +105,8 @@ class Conversion(Converter, Facade):
 
     output_parameters: dict = field(default_factory=dict)
 
+    emissions: dict = field(default_factory=dict)
+
     def build_solph_components(self):
         """ """
         self.conversion_factors.update(
@@ -132,3 +134,12 @@ class Conversion(Converter, Facade):
                 )
             }
         )
+
+        if self.emissions:
+            self.outputs.update({bus: Flow() for bus in self.emissions.keys()})
+            self.conversion_factors.update(
+                {
+                    bus: sequence(emission_factor)
+                    for bus, emission_factor in self.emissions.items()
+                }
+            )
