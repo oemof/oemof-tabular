@@ -172,6 +172,18 @@ To create meta-data `json` file you can use the following code:
 
 	from datapackage_utilities import building
 
+	building.infer_metadata_from_data(
+		package_name="my-datapackage",
+		path="/home/user/datpackages/my-datapackage"
+	)
+
+
+Or, if you want to specify manually the relation of the foreign keys, you can use this code:
+
+.. code-block:: python
+
+	from datapackage_utilities import building
+
 	building.infer_metadata(
 		package_name="my-datapackage",
 		foreign_keys={
@@ -354,7 +366,8 @@ field names in the generators-profile resource.
 	.. note::
 
 		This usage breaks with the datapackage standard and creates
-		non-valid resources.**
+		non-valid resources.
+
 
 
 Scripting
