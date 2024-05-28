@@ -63,9 +63,10 @@ def update_package_descriptor():
 def map_sequence_profiles_to_resource_name(
     p, excluded_profiles=("timeindex",)
 ):
-    """Look in every resource which is a sequence and map each of its fields to itself
+    """Look in every sequence resources and map each of its fields to itself
 
-    Within this process the unicity of the field names will be checked, with the exception of the field "timeindex"
+    Within this process the unicity of the field names will be checked,
+    with the exception of the field "timeindex"
 
     """
 
@@ -82,7 +83,9 @@ def map_sequence_profiles_to_resource_name(
 
         if answer:
             warnings.warn(
-                f"The labels of the profiles are not unique across all files within 'sequences' folder: '{','.join(intersect)}' used more than once"
+                f"The labels of the profiles are not unique across all"
+                f"files within 'sequences' folder: '{','.join(intersect)}' "
+                f"used more than once"
             )
         return answer
 
@@ -115,13 +118,16 @@ def map_sequence_profiles_to_resource_name(
 def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
     """Find out the foreign keys within a resource fields
 
-    Look through all field of a resource which are of type 'string' if any of their values are matching a profile header in any of the sequences resources
+    Look through all field of a resource which are of type 'string'
+    if any of their values are matching a profile header in any of
+    the sequences resources
 
 
     Parameters
     ----------
     resource: a :datapackage.Resource: instance
-    sequences_profiles_to_resource: the mapping of sequence profile headers to their resource name
+    sequences_profiles_to_resource: the mapping of sequence profile
+        headers to their resource name
 
     Returns
     -------
@@ -140,7 +146,8 @@ def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
             for potential_fk in data.dropna()[field.name].unique():
 
                 if potential_fk in sequences_profiles_to_resource:
-                    # this is actually a wrong format and should be with a "fields" field under the "reference" fields
+                    # this is actually a wrong format and should be
+                    # with a "fields" field under the "reference" fields
 
                     fk = {
                         "fields": field.name,
@@ -158,7 +165,7 @@ def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
 
 
 def infer_package_foreign_keys(package):
-    """Infer the foreign_keys from data/elements and data/sequences and update meta data
+    """Infer the foreign_keys from elements and sequences and update meta data
 
     Parameters
     ----------
@@ -200,9 +207,11 @@ def infer_metadata_from_data(
     foreign_keys = {}
 
     def infer_resource_basic_foreign_keys(resource):
-        """insert resource foreign_key into a dict formatted for building.infer_metadata
+        """Prepare foreign_keys dict for building.infer_metadata
 
-        Compare the fields of a resource to a list of field names known to be foreign keys. If the field name is within the list, it is used to populate the dict 'foreign_keys'
+        Compare the fields of a resource to a list of field names known
+        to be foreign keys. If the field name is within the list, it is
+        used to populate the dict 'foreign_keys'
         """
         for field in resource.schema.fields:
             if field.name in config.SPECIAL_FIELD_NAMES:
