@@ -179,7 +179,7 @@ def infer_package_foreign_keys(package):
     sequences_profiles_to_resource = map_sequence_profiles_to_resource_name(p)
 
     for r in p.resources:
-        if "/elements/" in r.descriptor["path"]:
+        if os.sep + "elements" + os.sep in r.descriptor["path"]:
             r = infer_resource_foreign_keys(r, sequences_profiles_to_resource)
             p.remove_resource(r.name)
             p.add_resource(r.descriptor)
@@ -213,7 +213,7 @@ def infer_metadata_from_data(
     # Infer the fields from the package data
     path = os.path.abspath(path)
     p0 = Package(base_path=path)
-    p0.infer(os.path.join(path, "**/*.csv"))
+    p0.infer(os.path.join(path, "**" + os.sep + "*.csv"))
     p0.commit()
     p0.save(os.path.join(path, metadata_filename))
 
@@ -236,7 +236,7 @@ def infer_metadata_from_data(
                     foreign_keys[fk_descriptor] = [resource.name]
 
     for r in p0.resources:
-        if "/elements/" in r.descriptor["path"]:
+        if os.sep + "elements" + os.sep in r.descriptor["path"]:
             infer_resource_basic_foreign_keys(r)
     # this function saves the metadata of the package in json format
     infer_metadata(
