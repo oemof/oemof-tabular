@@ -185,6 +185,10 @@ def infer_package_foreign_keys(package):
     for r in p.resources:
         if os.sep + "elements" + os.sep in r.descriptor["path"]:
             r = infer_resource_foreign_keys(r, sequences_profiles_to_resource)
+            # sort foreign_key entries by alphabetically by fields
+            r.descriptor["schema"]["foreignKeys"].sort(
+                key=lambda x: x["fields"]
+            )
             p.remove_resource(r.name)
             p.add_resource(r.descriptor)
 
@@ -430,6 +434,7 @@ def infer_metadata(
             )
             p.add_resource(r.descriptor)
 
+    p.descriptor["resources"].sort(key=lambda x: (x["path"], x["name"]))
     p.commit()
     p.save(metadata_filename)
 
