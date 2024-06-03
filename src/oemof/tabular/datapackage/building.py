@@ -108,7 +108,9 @@ def map_sequence_profiles_to_resource_name(
     if duplicated_labels:
         # write an error message here
         raise ValueError(
-            f"The following sequences labels are not unique across all sequences files: {', '.join(duplicated_labels)} "
+            f"The following sequences labels are not unique"
+            f" across all sequences files: "
+            f"{', '.join(duplicated_labels)}"
         )
     # map each profile to its resource name
     sequences_mapping = {
