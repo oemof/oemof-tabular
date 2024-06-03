@@ -1,6 +1,6 @@
 {
     "profile": "tabular-data-package",
-    "name": "renpass-invest-example",
+    "name": "investment-example",
     "oemof_tabular_version": "0.0.6dev",
     "resources": [
         {
