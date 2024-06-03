@@ -186,15 +186,28 @@ def infer_package_foreign_keys(package):
 
 
 def infer_metadata_from_data(
+    path,
     package_name="default-name",
-    path=None,
     metadata_filename="datapackage.json",
 ):
-    """
+    """Creates a metadata .json file at the root-folder of datapackage
+
+    The foreign keys are inferred from the csv files within
+    "data/elements" and "data/sequences" resources.
+
+    Parameters
+    ----------
+    path: string
+        Absolute path to root-folder of the datapackage
+    package_name: string
+        Name of the data package
+    metadata_filename: basestring
+        Name of the inferred metadata string.
 
     Returns
     -------
-
+    Save a json metadata file at the root-folder of datapackage
+    under the provided path.
     """
 
     # Infer the fields from the package data
