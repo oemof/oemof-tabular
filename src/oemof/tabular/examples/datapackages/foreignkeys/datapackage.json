@@ -113,15 +113,15 @@
                         }
                     },
                     {
-                        "fields": "profile",
-                        "reference": {
-                            "resource": "component_profile"
-                        }
-                    },
-                    {
                         "fields": "marginal_cost",
                         "reference": {
                             "resource": "marginal_cost_profile"
+                        }
+                    },
+                    {
+                        "fields": "profile",
+                        "reference": {
+                            "resource": "component_profile"
                         }
                     }
                 ]

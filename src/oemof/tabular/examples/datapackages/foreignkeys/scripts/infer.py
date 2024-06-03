@@ -11,7 +11,7 @@ if "kwargs" not in locals():
     kwargs = {}
 
 building.infer_metadata(
-    package_name="oemof-tabular-foreignkeys-examples",
+    package_name="foreignkeys-example",
     foreign_keys={
         "bus": ["component"],
         "profile": ["component"],

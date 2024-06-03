@@ -6,7 +6,7 @@ if "kwargs" not in locals():
     kwargs = {}
 
 building.infer_metadata(
-    package_name="renpass-invest-example",
+    package_name="investment_multi_period-example",
     foreign_keys={
         "bus": [
             "volatile",
