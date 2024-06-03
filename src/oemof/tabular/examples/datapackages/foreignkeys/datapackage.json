@@ -1,6 +1,6 @@
 {
     "profile": "tabular-data-package",
-    "name": "oemof-tabular-foreignkeys-examples",
+    "name": "foreignkeys-example",
     "oemof_tabular_version": "0.0.6dev",
     "resources": [
         {
@@ -113,15 +113,15 @@
                         }
                     },
                     {
-                        "fields": "marginal_cost",
-                        "reference": {
-                            "resource": "marginal_cost_profile"
-                        }
-                    },
-                    {
                         "fields": "profile",
                         "reference": {
                             "resource": "component_profile"
+                        }
+                    },
+                    {
+                        "fields": "marginal_cost",
+                        "reference": {
+                            "resource": "marginal_cost_profile"
                         }
                     }
                 ]
