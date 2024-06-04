@@ -1,6 +1,6 @@
 {
     "profile": "tabular-data-package",
-    "name": "oemof-tabular-dispatch-example",
+    "name": "dispatch-example",
     "oemof_tabular_version": "0.0.6dev",
     "resources": [
         {

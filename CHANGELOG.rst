@@ -8,6 +8,7 @@ Unreleased
 ----------
 
 Features
+* Improve the function to infer package metadata `#173 <https://github.com/oemof/oemof-tabular/pull/173>`_
 
 Fixes
 

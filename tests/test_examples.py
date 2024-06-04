@@ -142,5 +142,5 @@ def test_custom_foreign_keys(monkeypatch):
             / "datapackages"
             / "foreignkeys"
         ),
-        package_name="oemof-tabular-foreignkeys-examples",
+        package_name="foreignkeys-example",
     )

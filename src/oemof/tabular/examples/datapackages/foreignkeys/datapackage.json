@@ -1,6 +1,6 @@
 {
     "profile": "tabular-data-package",
-    "name": "oemof-tabular-foreignkeys-examples",
+    "name": "foreignkeys-example",
     "oemof_tabular_version": "0.0.6dev",
     "resources": [
         {
