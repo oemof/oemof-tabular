@@ -106,6 +106,8 @@ class Calculator:
         for key, series in data.items():
             if series.empty:
                 continue
+            if len(key) != 2:
+                continue
             if data_key == "period_scalars":
                 series = series.transpose()
             mindex = pd.MultiIndex.from_tuples(
