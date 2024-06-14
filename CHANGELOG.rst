@@ -12,6 +12,8 @@ Features
 
 Fixes
 
+* MultiIndexError in postprocessing if more than 2 oemof nodes are given `#174 <https://github.com/oemof/oemof-tabular/issues/174>`_
+
 
 0.0.5 Patch Release - Miraculous Mary (2024-02-23)
 -----------------------------------------------------
