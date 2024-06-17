@@ -58,6 +58,8 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
     fixed_costs : numeric (iterable or scalar) (optional)
         The fixed costs associated with a flow.
         Note: Only applicable for a multi-period model. Default: None.
+    emissions: dict (optional)
+        Add emission bus(es) as output flow(s). ({solph.Bus: float})
 
 
     The mathematical description is derived from the oemof base class
@@ -149,6 +151,8 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     conversion_factor_full_condensation: dict = field(default_factory=dict)
 
+    emissions: dict = field(default_factory=dict)
+
     def build_solph_components(self):
         """ """
         self.conversion_factors.update(
@@ -181,3 +185,12 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         self.conversion_factor_full_condensation.update(
             {self.electricity_bus: sequence(self.condensing_efficiency)}
         )
+
+        if self.emissions:
+            self.outputs.update({bus: Flow() for bus in self.emissions.keys()})
+            self.conversion_factors.update(
+                {
+                    bus: sequence(emission_factor)
+                    for bus, emission_factor in self.emissions.items()
+                }
+            )

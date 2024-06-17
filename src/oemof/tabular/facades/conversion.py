@@ -44,6 +44,8 @@ class Conversion(Converter, Facade):
     ouput_parameters: dict (optional)
         Set parameters on the output edge of the conversion unit
          (see oemof.solph for more information on possible parameters)
+    emissions: dict (optional)
+        Add emission bus(es) as output flow(s). ({solph.Bus: float})
 
 
     .. math::
