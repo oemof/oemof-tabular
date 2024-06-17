@@ -303,6 +303,34 @@ class TestConstraints:
 
         self.compare_to_reference_lp("extraction_investment_brown_field.lp")
 
+    def test_extraction_with_emission_buses(self):
+        r"""
+        ExtractionTurbine investment with emission busses.
+        """
+        bus_fuel = solph.Bus(label="gas")
+        bus_el = solph.Bus(label="electricity")
+        bus_heat = solph.Bus(label="heat")
+        bus_co2_em = solph.Bus("co2_em")
+        bus_ch4_em = solph.Bus("ch4_em")
+
+        extchp = ExtractionTurbine(
+            label="extraction",
+            carrier="gas",
+            tech="extraction",
+            fuel_bus=bus_fuel,
+            heat_bus=bus_heat,
+            electricity_bus=bus_el,
+            emissions={bus_co2_em: 0.5, bus_ch4_em: 10},
+            capacity=1000,
+            carrier_cost=0.6,
+            condensing_efficiency=0.5,
+            electric_efficiency=0.4,
+            thermal_efficiency=0.35,
+        )
+        self.energysystem.add(bus_el, bus_fuel, bus_heat, extchp)
+
+        self.compare_to_reference_lp("extraction_em_buses.lp")
+
     def test_commodity(self):
         r""" """
         bus_biomass = solph.Bus("biomass")
@@ -323,6 +351,24 @@ class TestConstraints:
         r""" """
         bus_biomass = solph.Bus("biomass")
         bus_heat = solph.Bus("heat")
+
+        conversion = Conversion(
+            label="biomass_plant",
+            carrier="biomass",
+            tech="st",
+            from_bus=bus_biomass,
+            to_bus=bus_heat,
+            capacity=100,
+            efficiency=0.4,
+        )
+        self.energysystem.add(bus_heat, bus_biomass, conversion)
+
+        self.compare_to_reference_lp("conversion.lp")
+
+    def test_conversion_with_emission_buses(self):
+        r""" """
+        bus_biomass = solph.Bus("biomass")
+        bus_heat = solph.Bus("heat")
         bus_co2_em = solph.Bus("co2_em")
         bus_ch4_em = solph.Bus("ch4_em")
 
@@ -338,7 +384,7 @@ class TestConstraints:
         )
         self.energysystem.add(bus_heat, bus_biomass, conversion)
 
-        self.compare_to_reference_lp("conversion.lp")
+        self.compare_to_reference_lp("conversion_em_buses.lp")
 
     def test_dispatchable(self):
         bus = solph.Bus("electricity")
