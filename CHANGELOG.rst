@@ -9,6 +9,7 @@ Unreleased
 
 Features
 * Improve the function to infer package metadata `#173 <https://github.com/oemof/oemof-tabular/pull/173>`_
+* Add optional emission buses to conversion and extraction turbine facades `#170 <https://github.com/oemof/oemof-tabular/pull/170>`_
 
 Fixes
 

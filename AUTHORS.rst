@@ -15,3 +15,4 @@ Authors
 * Julian Endres
 * Felix Maurer
 * Pierre-Francois Duc
+* Sabine Haas
