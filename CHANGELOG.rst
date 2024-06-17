@@ -8,8 +8,11 @@ Unreleased
 ----------
 
 Features
+* Improve the function to infer package metadata `#173 <https://github.com/oemof/oemof-tabular/pull/173>`_
 
 Fixes
+
+* MultiIndexError in postprocessing if more than 2 oemof nodes are given `#174 <https://github.com/oemof/oemof-tabular/issues/174>`_
 
 
 0.0.5 Patch Release - Miraculous Mary (2024-02-23)
