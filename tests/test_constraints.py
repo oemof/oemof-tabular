@@ -11,7 +11,9 @@ from oemof.tabular.constraint_facades import GenericIntegralLimit
 from oemof.tabular.facades import (
     BackpressureTurbine,
     Commodity,
+    CommodityGHG,
     Conversion,
+    ConversionGHG,
     Dispatchable,
     Excess,
     ExtractionTurbine,
@@ -319,6 +321,25 @@ class TestConstraints:
 
         self.compare_to_reference_lp("commodity.lp")
 
+    def test_commodity_ghg(self):
+        r""" """
+        bus_gas = solph.Bus("gas")
+        bus_co2 = solph.Bus("co2")
+
+        commodity = CommodityGHG(
+            label="gas-commodity",
+            bus=bus_gas,
+            emission_bus_0=bus_co2,
+            carrier="gas",
+            amount=1000,
+            marginal_cost=10,
+            output_parameters={"max": [0.9, 0.5, 0.4]},
+            emission_factor_co2=56,
+        )
+        self.energysystem.add(bus_gas, commodity)
+
+        self.compare_to_reference_lp("commodity_ghg.lp")
+
     def test_conversion(self):
         r""" """
         bus_biomass = solph.Bus("biomass")
@@ -336,6 +357,27 @@ class TestConstraints:
         self.energysystem.add(bus_heat, bus_biomass, conversion)
 
         self.compare_to_reference_lp("conversion.lp")
+
+    def test_conversion_ghg(self):
+        r""" """
+        bus_biomass = solph.Bus("biomass")
+        bus_heat = solph.Bus("heat")
+        bus_co2 = solph.Bus("co2")
+
+        conversion = ConversionGHG(
+            label="biomass_plant",
+            carrier="biomass",
+            tech="st",
+            from_bus=bus_biomass,
+            to_bus=bus_heat,
+            emission_bus_0=bus_co2,
+            capacity=100,
+            efficiency=0.4,
+            emission_factor_co2=56,
+        )
+        self.energysystem.add(bus_heat, bus_biomass, bus_co2, conversion)
+
+        self.compare_to_reference_lp("conversion_ghg.lp")
 
     def test_dispatchable(self):
         bus = solph.Bus("electricity")
