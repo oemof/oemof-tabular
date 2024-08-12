@@ -191,7 +191,6 @@ class CommodityGHGBlock(ScalarBlock):
                                 rhs = m.flow[n, o, p, t]
                                 block.relation.add((n, o, p, t), (lhs == rhs))
                             except KeyError:
-                                pass
                                 raise KeyError(
                                     "Error in constraint creation",
                                     "source: {0}, target: {1}".format(
