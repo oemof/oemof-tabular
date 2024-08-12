@@ -8,6 +8,18 @@ objective:
 
 s.t.
 
+c_e_BusBlock_balance(co2_0_0)_:
++1 flow(gas_commodity_co2_0_0)
+= 0
+
+c_e_BusBlock_balance(co2_0_1)_:
++1 flow(gas_commodity_co2_0_1)
+= 0
+
+c_e_BusBlock_balance(co2_0_2)_:
++1 flow(gas_commodity_co2_0_2)
+= 0
+
 c_e_BusBlock_balance(gas_0_0)_:
 +1 flow(gas_commodity_gas_0_0)
 = 0
@@ -27,17 +39,17 @@ c_u_SimpleFlowBlock_full_load_time_max_constr(gas_commodity_gas)_:
 <= 1000
 
 c_e_CommodityGHGBlock_relation(gas_commodity_co2_0_0)_:
-+56 flow(gas_commodity_gas_0_0)
+-2 flow(gas_commodity_gas_0_0)
 -1 flow(gas_commodity_co2_0_0)
 = 0
 
 c_e_CommodityGHGBlock_relation(gas_commodity_co2_0_1)_:
-+56 flow(gas_commodity_gas_0_1)
+-2 flow(gas_commodity_gas_0_1)
 -1 flow(gas_commodity_co2_0_1)
 = 0
 
 c_e_CommodityGHGBlock_relation(gas_commodity_co2_0_2)_:
-+56 flow(gas_commodity_gas_0_2)
+-2 flow(gas_commodity_gas_0_2)
 -1 flow(gas_commodity_co2_0_2)
 = 0
 

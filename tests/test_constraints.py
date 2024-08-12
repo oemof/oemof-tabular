@@ -334,9 +334,9 @@ class TestConstraints:
             amount=1000,
             marginal_cost=10,
             output_parameters={"max": [0.9, 0.5, 0.4]},
-            emission_factor_co2=56,
+            emission_factor_co2=-2,
         )
-        self.energysystem.add(bus_gas, commodity)
+        self.energysystem.add(bus_gas, bus_co2, commodity)
 
         self.compare_to_reference_lp("commodity_ghg.lp")
 
