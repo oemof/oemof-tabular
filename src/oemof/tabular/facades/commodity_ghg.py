@@ -88,7 +88,7 @@ class CommodityGHG(Commodity):
         """Adds emissions buses as output flows and drops them from kwargs"""
         for key, bus in list(kwargs.items()):
             if key.startswith("emission_bus"):
-                self.outputs.update({bus: Flow()})
+                self.outputs.update({bus: Flow(bidirectional=True)})
                 kwargs.pop(key)
 
     def init_emission_factors(self, buses, kwargs):
