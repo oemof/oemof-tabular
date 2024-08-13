@@ -56,9 +56,11 @@ Currently we provide the following facades:
 * :py:class:`~oemof.tabular.facades.ExtractionTurbine`
 * :py:class:`~oemof.tabular.facades.Commodity`
 * :py:class:`~oemof.tabular.facades.Conversion`
-* :py:class:`~oemof.tabular.facades.Load`.
+* :py:class:`~oemof.tabular.facades.Load`
 * :py:class:`~oemof.tabular.facades.Link`
 * :py:class:`~oemof.tabular.facades.Excess`
+* :py:class:`~oemof.tabular.facades.CommodityGHG`: a commodity unit with green house gases
+* :py:class:`~oemof.tabular.facades.ConversionGHG`: a conversion unit with green house gases.
 
 These can be mixed with all oemof solph classes if your are scripting.
 
