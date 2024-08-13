@@ -13,7 +13,7 @@ from .commodity import Commodity
 @dataclasses.dataclass(unsafe_hash=False, frozen=False, eq=False)
 class CommodityGHG(Commodity):
     r"""
-    Commodity element with one output and additionally emission outputs.
+    Commodity element with one output and additionally green house gas outputs.
 
     Parameters
     ----------
@@ -34,12 +34,12 @@ class CommodityGHG(Commodity):
 
     Notes
     -----
-    Emission buses are defined by starting with 'emission_bus', see Examples
-    section.
+    Emission buses carring the green house gases (GHG) are defined by starting
+    with 'emission_bus', see Examples section.
     Emission factors are defined by the following naming convention:
     'emission_factor_<label_of_emission_bus>.
-    The realation between the main output (`bus`) and the emissions are set via
-    :class:`~oemof.tabular.facades.commodity_ghg.CommodityGHGBlock`.
+    The realation between the main output (`bus`) and the emission buses are
+    set via :class:`~oemof.tabular.facades.commodity_ghg.CommodityGHGBlock`.
 
     For additional constraints set through `output_parameters` see
     oemof.solph.Flow class.

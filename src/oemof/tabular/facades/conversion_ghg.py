@@ -11,7 +11,7 @@ from .conversion import Conversion
 @dataclasses.dataclass(unsafe_hash=False, frozen=False, eq=False)
 class ConversionGHG(Conversion):
     r"""
-    Conversion unit with one input, one output and emission outputs.
+    Conversion unit with one input, one output and  green house gas outputs.
 
     Cost parameters like `carrier_cost` are associated with `from_bus` like in
     Conversion facade.
@@ -53,8 +53,8 @@ class ConversionGHG(Conversion):
 
     Notes
     -----
-    Emission buses are defined by starting with 'emission_bus', see Examples
-    section.
+    Emission buses carring the green house gases (GHG) are defined by starting
+    with 'emission_bus', see Examples section.
     Emission factors are defined by the following naming convention:
     'emission_factor_<label_of_emission_bus>.
 
