@@ -112,8 +112,27 @@ class ConversionGHG(Conversion):
         for key, value in list(kwargs.items()):
             if key.startswith("emission_factor"):
                 bus_label = key.split("_")[-1]
-                bus = [
-                    bus for bus in buses.items() if bus[1].label == bus_label
-                ][0][1]
+                try:
+                    bus = [
+                        bus
+                        for bus in buses.items()
+                        if bus[1].label == bus_label
+                    ][0][1]
+                except IndexError:
+                    raise Warning(
+                        f"Emission factor is given for a non-existent emission"
+                        f" bus: '{bus_label}'. Check your inputs for "
+                        f"'{self.label}' of type '{self.type}'. "
+                    )
                 self.conversion_factors.update({bus: sequence(value)})
                 kwargs.pop(key)
+
+        # check that every bus has a conversion factor, otherwise an error
+        # occurs in oemof.solph.components._converter.py
+        if not len(self.outputs) + len(self.inputs) == len(
+            self.conversion_factors
+        ):
+            raise Warning(
+                f"Every emission_bus needs an emission_factor. Check your "
+                f"inputs for '{self.label}' of type '{self.type}'."
+            )

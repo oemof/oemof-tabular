@@ -98,9 +98,18 @@ class CommodityGHG(Commodity):
         for key, value in list(kwargs.items()):
             if key.startswith("emission_factor"):
                 bus_label = key.split("_")[-1]
-                bus = [
-                    bus for bus in buses.items() if bus[1].label == bus_label
-                ][0][1]
+                try:
+                    bus = [
+                        bus
+                        for bus in buses.items()
+                        if bus[1].label == bus_label
+                    ][0][1]
+                except IndexError:
+                    raise Warning(
+                        f"Emission factor is given for a non-existent emission"
+                        f" bus: '{bus_label}'. Check your inputs for "
+                        f"'{self.label}' of type '{self.type}'. "
+                    )
                 emission_factors.update({bus: sequence(value)})
                 kwargs.pop(key)
         return emission_factors
@@ -194,9 +203,9 @@ class CommodityGHGBlock(ScalarBlock):
                             except KeyError:
                                 raise KeyError(
                                     "Error in constraint creation",
-                                    "source: {0}, target: {1}".format(
-                                        n.label, o.label
-                                    ),
+                                    "source: {0}, target: {1}. You supposedly "
+                                    "forgot to define an emission factor for "
+                                    "this target.".format(n.label, o.label),
                                 )
 
         self.relation_build = BuildAction(rule=_emission_relation)
