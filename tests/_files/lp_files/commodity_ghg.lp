@@ -54,10 +54,10 @@ c_e_CommodityGHGBlock_relation(gas_commodity_co2_0_2)_:
 = 0
 
 bounds
+   -inf <= flow(gas_commodity_co2_0_0) <= +inf
+   -inf <= flow(gas_commodity_co2_0_1) <= +inf
+   -inf <= flow(gas_commodity_co2_0_2) <= +inf
    0 <= flow(gas_commodity_gas_0_0) <= 900.0
    0 <= flow(gas_commodity_gas_0_1) <= 500.0
    0 <= flow(gas_commodity_gas_0_2) <= 400.0
-   0 <= flow(gas_commodity_co2_0_0) <= +inf
-   0 <= flow(gas_commodity_co2_0_1) <= +inf
-   0 <= flow(gas_commodity_co2_0_2) <= +inf
 end
