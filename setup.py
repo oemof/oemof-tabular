@@ -75,6 +75,7 @@ setup(
         "oemof.network==0.5.0a4",  # Temporal fix due to braking changes in 0.5.1
         "paramiko",
         "toml",
+        "numpy<2.0.0",
     ],
     extras_require={
         "cli": ["click"],
