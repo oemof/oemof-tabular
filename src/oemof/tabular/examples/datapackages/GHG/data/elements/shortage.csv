@@ -1,0 +1,2 @@
+name;type;carrier;tech;bus;capacity;marginal_cost
+el_shortage;shortage;electricity;shortage;el_bus;100000000;100000

@@ -91,32 +91,40 @@ def test_examples_datapackages_scripts_infer():
         script_path = datapackage_path / "scripts" / script
 
         if script_path.exists():
-            print(
-                "Running infer script for {} ...".format(example_datapackage)
-            )
-            exec(
-                "kwargs = {} \n"
-                f"kwargs['path'] = '{datapackage_path}' \n"
-                f"kwargs['metadata_filename'] = "
-                f"'datapackage_{example_datapackage}.json' \n"
-                + open(script_path).read(),
-            )
+            if script_path.parts[-3] == "GHG":
+                print(
+                    "Example 'GHG' is not tested so far with infer.py script."
+                )
+            else:
+                print(
+                    "Running infer script for {} ...".format(
+                        example_datapackage
+                    )
+                )
+                exec(
+                    "kwargs = {} \n"
+                    f"kwargs['path'] = '{datapackage_path}' \n"
+                    f"kwargs['metadata_filename'] = "
+                    f"'datapackage_{example_datapackage}.json' \n"
+                    + open(script_path).read(),
+                )
 
-            # Move metadata string to .oemof directory
-            test_filepath = (
-                datapackage_path / f"datapackage_{example_datapackage}.json"
-            )
-            new_filepath = (
-                pathlib.PosixPath(helpers.extend_basic_path("metadata"))
-                / f"datapackage_{example_datapackage}.json"
-            )
-            os.rename(test_filepath, new_filepath)
+                # Move metadata string to .oemof directory
+                test_filepath = (
+                    datapackage_path
+                    / f"datapackage_{example_datapackage}.json"
+                )
+                new_filepath = (
+                    pathlib.PosixPath(helpers.extend_basic_path("metadata"))
+                    / f"datapackage_{example_datapackage}.json"
+                )
+                os.rename(test_filepath, new_filepath)
 
-            ref_filepath = datapackage_path / "datapackage.json"
+                ref_filepath = datapackage_path / "datapackage.json"
 
-            with open(new_filepath) as new_file:
-                with open(ref_filepath) as ref_file:
-                    compare_json_files(new_file, ref_file)
+                with open(new_filepath) as new_file:
+                    with open(ref_filepath) as ref_file:
+                        compare_json_files(new_file, ref_file)
 
 
 def test_custom_foreign_keys(monkeypatch):

@@ -16,11 +16,11 @@ class Commodity(Source, Facade):
     bus: oemof.solph.Bus
         An oemof bus instance where the unit is connected to with its output
     amount: numeric
-        Total available amount to be used within the complete timehorzion
+        Total available amount to be used within the complete time horizon
         of the problem
     marginal_cost: numeric
         Marginal cost for one unit used commodity
-    output_paramerters: dict (optional)
+    output_parameters: dict (optional)
         Parameters to set on the output edge of the component (see. oemof.solph
         Edge/Flow class for possible arguments)
 
