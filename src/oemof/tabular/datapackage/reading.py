@@ -100,6 +100,9 @@ def read_facade(
                 )
             )
         )
+    # This is to avoid an error
+    if "carrier" not in facade:
+        facade["carrier"] = ""
     instance = create(mapping, facade, facade)
     facades[facade["name"]] = instance
     return instance
