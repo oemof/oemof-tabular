@@ -105,17 +105,17 @@
                         "format": "default"
                     },
                     {
-                        "name": "emission_factor_co2",
+                        "name": "emission_factor_emi_co2",
                         "type": "number",
                         "format": "default"
                     },
                     {
-                        "name": "emission_factor_ch4",
+                        "name": "emission_factor_emi_ch4",
                         "type": "number",
                         "format": "default"
                     },
                     {
-                        "name": "emission_factor_n2o",
+                        "name": "emission_factor_emi_n2o",
                         "type": "number",
                         "format": "default"
                     }
@@ -213,7 +213,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "emission_factor_co2",
+                        "name": "emission_factor_emi_co2",
                         "type": "number",
                         "format": "default"
                     }
