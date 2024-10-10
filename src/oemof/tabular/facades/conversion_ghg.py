@@ -111,7 +111,7 @@ class ConversionGHG(Conversion):
         """Adds emission factors as `conversion_factors"""
         for key, value in list(kwargs.items()):
             if key.startswith("emission_factor"):
-                bus_label = key.split("_")[-1]
+                bus_label = key.removeprefix("emission_factor_")
                 try:
                     bus = [
                         bus
