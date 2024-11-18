@@ -147,7 +147,10 @@ class InvestedCapacity(core.Calculation):
         target_is_none = (
             self.dependency("investment").index.get_level_values(1).isnull()
         )
-        return self.dependency("investment").loc[~target_is_none]
+        invested_capacity = self.dependency("investment").loc[~target_is_none]
+        if self.calculator.is_multi_period:
+            invested_capacity = helper.get_value_by_year(invested_capacity.T)
+        return invested_capacity
 
 
 class InvestedStorageCapacity(core.Calculation):
@@ -179,12 +182,12 @@ class InvestedCapacityCosts(core.Calculation):
                 "costs per period"
             )
             invested_capacity_costs = helper.multiply_var_with_param(
-                self.dependency("invested_capacity").sum(axis=1),
+                self.dependency("invested_capacity"),
                 self.dependency("ep_costs"),
             )
         else:
             invested_capacity_costs = helper.multiply_var_with_param(
-                self.dependency("invested_capacity"),
+                self.dependency("invested_capacity").sum(axis=1),
                 self.dependency("ep_costs"),
             )
         if invested_capacity_costs.empty:
