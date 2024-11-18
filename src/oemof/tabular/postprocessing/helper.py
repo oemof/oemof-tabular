@@ -260,3 +260,36 @@ def group_by_element(scalars):
         elements[name] = df
 
     return elements
+
+
+def get_value_by_year(data):
+    """
+    Combines data of all columns to one column and adds column "year".
+
+    Value column is named "var_value".
+
+    Parameters
+    ----------
+    data: pd.DataFrame
+        Transposed result of core.Calculation.depencency().
+        Index contains years, columns contain the corresponding data.
+        Multi-index columns ["source", "target", "var_name"].
+
+    Returns
+    -------
+    df : pd.DataFrame
+        Data in column "var_value", corresponding year in column "year". Index
+        is generated from the columns names of `data` (MultiIndex).
+
+    """
+    # drop irrelevant years
+    df = data.loc[(data != 0).any(axis=1)]
+    # year as column and use year as identifier to melt df
+    # --> all values in one column, identifier is year
+    df["year"] = df.index
+    df = df.melt(id_vars=[df.columns[-1]], ignore_index=False)
+    # set multi-index
+    df.set_index(["source", "target", "var_name"], inplace=True)
+    # non multi-index columns
+    df.columns = ["year", "var_value"]
+    return df
