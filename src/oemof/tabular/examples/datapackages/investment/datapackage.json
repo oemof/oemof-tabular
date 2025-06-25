@@ -493,11 +493,6 @@
                         "name": "bus",
                         "type": "string",
                         "format": "default"
-                    },
-                    {
-                        "name": "tech",
-                        "type": "string",
-                        "format": "default"
                     }
                 ],
                 "missingValues": [

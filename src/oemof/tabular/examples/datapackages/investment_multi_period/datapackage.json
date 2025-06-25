@@ -531,11 +531,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "tech",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
                         "name": "lifetime",
                         "type": "integer",
                         "format": "default"
