@@ -65,8 +65,8 @@ setup(
     ],
     python_requires=">=3.9, <3.14",
     install_requires=[
-        "datapackage==1.15.4",
-        "tableschema==1.21.0",  # newer versions (v1.8.0 and up) fail!
+        "datapackage>=1.5.1",
+        "tableschema>=1.7.4",
         # "oemof.solph>=0.5.1",
         # Upcomming upgrade to solph 0.5.2 postponed due to many changes necessary for implementing
         # explicit arguments and upgrade to network 0.5.1
