@@ -69,7 +69,6 @@ class CommodityGHG(Commodity):
     """
 
     def __init__(self, **kwargs):
-
         super().__init__(
             **kwargs,
         )

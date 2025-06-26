@@ -137,9 +137,18 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         if "foreignKeys" not in resource["schema"]:
             continue
         # Busses are real ForeignKeys and can stay in ForeignKeys field
-        # Foreign Keys to sequences must be extracted and handled separately from datapackage
-        sequence_foreign_keys[resource["name"]] = [fk for fk in resource["schema"]["foreignKeys"] if fk["reference"]["resource"] != "bus"]
-        resource["schema"]["foreignKeys"] = [fk for fk in resource["schema"]["foreignKeys"] if fk["reference"]["resource"] == "bus"]
+        # Foreign Keys to sequences must be extracted and handled separately
+        # from datapackage
+        sequence_foreign_keys[resource["name"]] = [
+            fk
+            for fk in resource["schema"]["foreignKeys"]
+            if fk["reference"]["resource"] != "bus"
+        ]
+        resource["schema"]["foreignKeys"] = [
+            fk
+            for fk in resource["schema"]["foreignKeys"]
+            if fk["reference"]["resource"] == "bus"
+        ]
     datapackage_folder = path[:-17]  # Remove "/datapackage.json" form path
     package = dp.Package(datapackage_json, base_path=datapackage_folder)
 
@@ -574,7 +583,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
             foreign_keys = {
                 fk["fields"]: fk["reference"]
-                for fk in r.descriptor["schema"].get("foreignKeys", []) + sequence_foreign_keys[r.name]
+                for fk in r.descriptor["schema"].get("foreignKeys", [])
+                + sequence_foreign_keys[r.name]
             }
 
             for facade in facade_data:
