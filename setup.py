@@ -63,7 +63,7 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires=">=3.9, <3.11",
+    python_requires=">=3.9, <3.14",
     install_requires=[
         "datapackage==1.15.4",
         "tableschema==1.21.0",  # newer versions (v1.8.0 and up) fail!
