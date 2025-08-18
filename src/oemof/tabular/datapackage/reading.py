@@ -12,6 +12,7 @@ along with how to use the functions in this module.
 
 import collections.abc as cabc
 import json
+import os
 import re
 import typing
 import warnings
@@ -149,7 +150,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             for fk in resource["schema"]["foreignKeys"]
             if fk["reference"]["resource"] == "bus"
         ]
-    datapackage_folder = path[:-17]  # Remove "/datapackage.json" form path
+    datapackage_folder = os.path.dirname(path)  # Remove "/datapackage.json" form path
     package = dp.Package(datapackage_json, base_path=datapackage_folder)
 
     # This is necessary because before reading a resource for the first
