@@ -17,42 +17,6 @@ objective:
 
 s.t.
 
-c_e_BusBlock_balance(electricity_0_0)_:
-+1 flow(extraction_electricity_0_0)
-= 0
-
-c_e_BusBlock_balance(electricity_0_1)_:
-+1 flow(extraction_electricity_0_1)
-= 0
-
-c_e_BusBlock_balance(electricity_0_2)_:
-+1 flow(extraction_electricity_0_2)
-= 0
-
-c_e_BusBlock_balance(electricity_1_3)_:
-+1 flow(extraction_electricity_1_3)
-= 0
-
-c_e_BusBlock_balance(electricity_1_4)_:
-+1 flow(extraction_electricity_1_4)
-= 0
-
-c_e_BusBlock_balance(electricity_1_5)_:
-+1 flow(extraction_electricity_1_5)
-= 0
-
-c_e_BusBlock_balance(electricity_2_6)_:
-+1 flow(extraction_electricity_2_6)
-= 0
-
-c_e_BusBlock_balance(electricity_2_7)_:
-+1 flow(extraction_electricity_2_7)
-= 0
-
-c_e_BusBlock_balance(electricity_2_8)_:
-+1 flow(extraction_electricity_2_8)
-= 0
-
 c_e_BusBlock_balance(gas_0_0)_:
 +1 flow(gas_extraction_0_0)
 = 0
@@ -87,6 +51,42 @@ c_e_BusBlock_balance(gas_2_7)_:
 
 c_e_BusBlock_balance(gas_2_8)_:
 +1 flow(gas_extraction_2_8)
+= 0
+
+c_e_BusBlock_balance(electricity_0_0)_:
++1 flow(extraction_electricity_0_0)
+= 0
+
+c_e_BusBlock_balance(electricity_0_1)_:
++1 flow(extraction_electricity_0_1)
+= 0
+
+c_e_BusBlock_balance(electricity_0_2)_:
++1 flow(extraction_electricity_0_2)
+= 0
+
+c_e_BusBlock_balance(electricity_1_3)_:
++1 flow(extraction_electricity_1_3)
+= 0
+
+c_e_BusBlock_balance(electricity_1_4)_:
++1 flow(extraction_electricity_1_4)
+= 0
+
+c_e_BusBlock_balance(electricity_1_5)_:
++1 flow(extraction_electricity_1_5)
+= 0
+
+c_e_BusBlock_balance(electricity_2_6)_:
++1 flow(extraction_electricity_2_6)
+= 0
+
+c_e_BusBlock_balance(electricity_2_7)_:
++1 flow(extraction_electricity_2_7)
+= 0
+
+c_e_BusBlock_balance(electricity_2_8)_:
++1 flow(extraction_electricity_2_8)
 = 0
 
 c_e_BusBlock_balance(heat_0_0)_:
@@ -170,9 +170,9 @@ c_e_InvestmentFlowBlock_old_rule_exo(extraction_electricity_2)_:
 = 0
 
 c_e_InvestmentFlowBlock_old_rule(extraction_electricity_0)_:
-+1 InvestmentFlowBlock_old(extraction_electricity_0)
 -1 InvestmentFlowBlock_old_end(extraction_electricity_0)
 -1 InvestmentFlowBlock_old_exo(extraction_electricity_0)
++1 InvestmentFlowBlock_old(extraction_electricity_0)
 = 0
 
 c_e_InvestmentFlowBlock_old_rule(extraction_electricity_1)_:
@@ -236,55 +236,55 @@ c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_0_0)_:
 +1 flow(gas_extraction_0_0)
 -2.0 flow(extraction_electricity_0_0)
 -0.5714285714285713 flow(extraction_heat_0_0)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_0_1)_:
 +1 flow(gas_extraction_0_1)
 -2.0 flow(extraction_electricity_0_1)
 -0.5714285714285713 flow(extraction_heat_0_1)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_0_2)_:
 +1 flow(gas_extraction_0_2)
 -2.0 flow(extraction_electricity_0_2)
 -0.5714285714285713 flow(extraction_heat_0_2)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_1_3)_:
 +1 flow(gas_extraction_1_3)
 -2.0 flow(extraction_electricity_1_3)
 -0.5714285714285713 flow(extraction_heat_1_3)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_1_4)_:
 +1 flow(gas_extraction_1_4)
 -2.0 flow(extraction_electricity_1_4)
 -0.5714285714285713 flow(extraction_heat_1_4)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_1_5)_:
 +1 flow(gas_extraction_1_5)
 -2.0 flow(extraction_electricity_1_5)
 -0.5714285714285713 flow(extraction_heat_1_5)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_2_6)_:
 +1 flow(gas_extraction_2_6)
 -2.0 flow(extraction_electricity_2_6)
 -0.5714285714285713 flow(extraction_heat_2_6)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_2_7)_:
 +1 flow(gas_extraction_2_7)
 -2.0 flow(extraction_electricity_2_7)
 -0.5714285714285713 flow(extraction_heat_2_7)
-= 0
+= 0.0
 
 c_e_ExtractionTurbineCHPBlock_input_output_relation(extraction_2_8)_:
 +1 flow(gas_extraction_2_8)
 -2.0 flow(extraction_electricity_2_8)
 -0.5714285714285713 flow(extraction_heat_2_8)
-= 0
+= 0.0
 
 c_u_ExtractionTurbineCHPBlock_out_flow_relation(extraction_0_0)_:
 -1 flow(extraction_electricity_0_0)
@@ -364,9 +364,8 @@ bounds
    0 <= flow(extraction_heat_2_8) <= +inf
    0 <= InvestmentFlowBlock_total(extraction_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_total(extraction_electricity_1) <= +inf
-   0 <= InvestmentFlowBlock_total(extraction_electricity_2) <= +inf
-   0 <= InvestmentFlowBlock_old(extraction_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_old(extraction_electricity_1) <= +inf
+   0 <= InvestmentFlowBlock_total(extraction_electricity_2) <= +inf
    0 <= InvestmentFlowBlock_old(extraction_electricity_2) <= +inf
    0 <= InvestmentFlowBlock_old_end(extraction_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_old_end(extraction_electricity_1) <= +inf
@@ -374,4 +373,5 @@ bounds
    0 <= InvestmentFlowBlock_old_exo(extraction_electricity_0) <= +inf
    0 <= InvestmentFlowBlock_old_exo(extraction_electricity_1) <= +inf
    0 <= InvestmentFlowBlock_old_exo(extraction_electricity_2) <= +inf
+   0 <= InvestmentFlowBlock_old(extraction_electricity_0) <= +inf
 end

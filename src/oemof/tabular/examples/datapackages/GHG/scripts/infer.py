@@ -11,12 +11,15 @@ if "kwargs" not in locals():
     kwargs = {}
 
 building.infer_metadata(
-    package_name="dispatch-example",
+    package_name="GHG-test",
     foreign_keys={
-        "bus": ["volatile", "dispatchable", "storage", "load"],
-        "profile": ["load", "volatile"],
-        "from_to_bus": ["link"],
-        "chp": [],
+        "bus": ["commodity_ghg", "load", "excess", "gas_import"],
+        "profile": ["load"],
+        "from_bus": ["conversion_ghg"],
+        "to_bus": ["conversion_ghg"],
+        "emission_bus_0": ["conversion_ghg", "commodity_ghg"],
+        "emission_bus_1": ["conversion_ghg"],
+        "emission_bus_2": ["conversion_ghg"],
     },
     **kwargs,
 )

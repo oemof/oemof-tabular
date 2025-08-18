@@ -7,6 +7,19 @@ Changelog
 Unreleased
 ----------
 
+Features
+* Improve the function to infer package metadata `#173 <https://github.com/oemof/oemof-tabular/pull/173>`_
+* Add facades `CommodityGHG` and `ConversionGHG` to enable multiple output flows (emissions) `#180 <https://github.com/oemof/oemof-tabular/pull/180>`_
+
+Fixes
+
+* MultiIndexError in postprocessing if more than 2 oemof nodes are given `#174 <https://github.com/oemof/oemof-tabular/issues/174>`_
+* Updated dependencies for datapackage and tableschema
+* Error due to "fake" foreign keys in datapackage resources
+
+
+0.0.5 Patch Release - Miraculous Mary (2024-02-23)
+-----------------------------------------------------
 
 Features
 
@@ -19,6 +32,9 @@ Fixes
 
 * Remove specific dirs from flake8 & isort `#136 <https://github.com/oemof/oemof-tabular/pull/136>`_
 * Update lp-files to pyomo6.7 `#148 <https://github.com/oemof/oemof-tabular/pull/148>`_
+* Rework periodic value deserialization `#154 <https://github.com/oemof/oemof-tabular/pull/154>`_
+* Fix oemof.solph version to v0.5.2dev1 `#157 <https://github.com/oemof/oemof-tabular/pull/157>`_
+* Fix oemof.solph version to v0.5.2.dev1 `#159 <https://github.com/oemof/oemof-tabular/pull/159>`_
 
 
 

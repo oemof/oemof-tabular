@@ -14,3 +14,5 @@ Authors
 * Marie-Claire Gering
 * Julian Endres
 * Felix Maurer
+* Pierre-Francois Duc
+* Sabine Haas

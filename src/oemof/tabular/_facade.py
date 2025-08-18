@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" Facade's are classes providing a simplified view on more complex classes.
+"""Facade's are classes providing a simplified view on more complex classes.
 
 More specifically, the `Facade`s in this module act as simplified, energy
 specific  wrappers around `oemof`'s and `oemof.solph`'s more abstract and

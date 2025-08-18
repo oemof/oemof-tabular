@@ -1,0 +1,6 @@
+name;type;balanced
+emi_co2;bus;false
+emi_ch4;bus;false
+emi_n2o;bus;false
+el_bus;bus;true
+gas_bus;bus;true

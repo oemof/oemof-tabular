@@ -20,7 +20,7 @@ def read(*names, **kwargs):
 
 setup(
     name="oemof.tabular",
-    version="0.0.5dev",
+    version="0.0.6dev",
     license="BSD 3-Clause License",
     description="Load oemof energy systems from tabular data sources.",
     long_description="%s\n%s"
@@ -30,7 +30,7 @@ setup(
         ),
         re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst")),
     ),
-    author="Stephan Günther, Simon Hilpert, Martin Söthe",
+    author="Stephan Günther, Simon Hilpert, Martin Söthe, Jann Launer, Hendrik Huyskens, Julian Endres, Felix Maurer",
     author_email="gnn.code@gmail.com",
     url="https://github.com/oemof/oemof-tabular",
     packages=["oemof"] + ["oemof." + p for p in find_packages("src/oemof")],
@@ -63,14 +63,12 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires=">=3.9, <3.11",
+    python_requires=">=3.9, <3.14",
     install_requires=[
-        "datapackage==1.5.1",
-        "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
-        # "oemof.solph>=0.5.1",
-        # Fixing solph version. Might Upgrade later but depends on explicit arguments
-        "oemof.solph @ git+https://github.com/oemof/oemof-solph.git@feature/integrate_tsam",
-        "oemof.network==0.5.0.a5",
+        "datapackage>=1.5.1",
+        "tableschema>=1.7.4",
+        "oemof.solph==0.6.0",
+        "oemof.network==0.5.0",
         "pandas>=0.22",
         "paramiko",
         "toml",

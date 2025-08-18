@@ -20,7 +20,7 @@ class ParametrizedCalculation:
 def get_dependency_name(
     calculation: Union[
         "Calculation", Type["Calculation"], ParametrizedCalculation
-    ]
+    ],
 ):
     if isinstance(calculation, Calculation):
         # Get name from instance
@@ -105,6 +105,8 @@ class Calculator:
         results = []
         for key, series in data.items():
             if series.empty:
+                continue
+            if len(key) != 2:
                 continue
             if data_key == "period_scalars":
                 series = series.transpose()

@@ -56,9 +56,11 @@ Currently we provide the following facades:
 * :py:class:`~oemof.tabular.facades.ExtractionTurbine`
 * :py:class:`~oemof.tabular.facades.Commodity`
 * :py:class:`~oemof.tabular.facades.Conversion`
-* :py:class:`~oemof.tabular.facades.Load`.
+* :py:class:`~oemof.tabular.facades.Load`
 * :py:class:`~oemof.tabular.facades.Link`
 * :py:class:`~oemof.tabular.facades.Excess`
+* :py:class:`~oemof.tabular.facades.CommodityGHG`: a commodity unit with green house gases
+* :py:class:`~oemof.tabular.facades.ConversionGHG`: a conversion unit with green house gases.
 
 These can be mixed with all oemof solph classes if your are scripting.
 
@@ -167,6 +169,18 @@ This can also be done for sequences and geometries.
 
 To create meta-data `json` file you can use the following code:
 
+
+.. code-block:: python
+
+	from datapackage_utilities import building
+
+	building.infer_metadata_from_data(
+		package_name="my-datapackage",
+		path="/home/user/datpackages/my-datapackage"
+	)
+
+
+Or, if you want to specify manually the relation of the foreign keys, you can use this code:
 
 .. code-block:: python
 
@@ -354,7 +368,8 @@ field names in the generators-profile resource.
 	.. note::
 
 		This usage breaks with the datapackage standard and creates
-		non-valid resources.**
+		non-valid resources.
+
 
 
 Scripting

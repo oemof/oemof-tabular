@@ -1,0 +1,2 @@
+name;type;carrier;tech;capacity;from_bus;to_bus;emission_bus_0;emission_bus_1;emission_bus_2;marginal_cost;efficiency;emission_factor_emi_co2;emission_factor_emi_ch4;emission_factor_emi_n2o
+gtGHG;conversion_ghg;electricity;gt;300;gas_bus;el_bus;emi_co2;emi_ch4;emi_n2o;10;0.5;56;0.4;0.017

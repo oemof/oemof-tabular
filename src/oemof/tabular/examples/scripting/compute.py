@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 import importlib.resources
 import os
@@ -20,6 +19,7 @@ examples = [
     "investment_multi_period",
     "foreignkeys",
     "emission_constraint",
+    "GHG",
 ]
 for example in examples:
     print("Running compute example with datapackage {}".format(example))

@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
-    "name": "renpass-invest-example",
-    "oemof_tabular_version": "0.0.5dev",
+    "name": "investment_multi_period-example",
+    "oemof_tabular_version": "0.0.6dev",
     "resources": [
         {
             "path": "data/elements/bus.csv",
@@ -531,11 +531,6 @@
                         "format": "default"
                     },
                     {
-                        "name": "tech",
-                        "type": "string",
-                        "format": "default"
-                    },
-                    {
                         "name": "lifetime",
                         "type": "integer",
                         "format": "default"
@@ -558,6 +553,36 @@
                             "fields": "name"
                         }
                     }
+                ]
+            }
+        },
+        {
+            "path": "data/periods/periods.csv",
+            "profile": "tabular-data-resource",
+            "name": "periods",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "timeindex",
+                        "type": "datetime",
+                        "format": "default"
+                    },
+                    {
+                        "name": "periods",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "timeincrement",
+                        "type": "integer",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
                 ]
             }
         },
@@ -633,36 +658,6 @@
                     {
                         "name": "wind-profile",
                         "type": "number",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            }
-        },
-        {
-            "path": "data/periods/periods.csv",
-            "profile": "tabular-data-resource",
-            "name": "periods",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "timeindex",
-                        "type": "datetime",
-                        "format": "default"
-                    },
-                    {
-                        "name": "periods",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
-                        "name": "timeincrement",
-                        "type": "integer",
                         "format": "default"
                     }
                 ],

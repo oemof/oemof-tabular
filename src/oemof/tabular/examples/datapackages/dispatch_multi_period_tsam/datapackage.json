@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
     "name": "oemof-tabular-dispatch-example",
-    "oemof_tabular_version": "0.0.5dev",
+    "oemof_tabular_version": "0.0.6dev",
     "resources": [
         {
             "path": "data/elements/bus.csv",
@@ -380,6 +380,36 @@
             }
         },
         {
+            "path": "data/periods/periods.csv",
+            "profile": "tabular-data-resource",
+            "name": "periods",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "timeindex",
+                        "type": "datetime",
+                        "format": "default"
+                    },
+                    {
+                        "name": "periods",
+                        "type": "integer",
+                        "format": "default"
+                    },
+                    {
+                        "name": "timeincrement",
+                        "type": "integer",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ]
+            }
+        },
+        {
             "path": "data/sequences/load_profile.csv",
             "profile": "tabular-data-resource",
             "name": "load_profile",
@@ -426,36 +456,6 @@
                     {
                         "name": "pv-profile",
                         "type": "number",
-                        "format": "default"
-                    }
-                ],
-                "missingValues": [
-                    ""
-                ]
-            }
-        },
-        {
-            "path": "data/periods/periods.csv",
-            "profile": "tabular-data-resource",
-            "name": "periods",
-            "format": "csv",
-            "mediatype": "text/csv",
-            "encoding": "utf-8",
-            "schema": {
-                "fields": [
-                    {
-                        "name": "timeindex",
-                        "type": "datetime",
-                        "format": "default"
-                    },
-                    {
-                        "name": "periods",
-                        "type": "integer",
-                        "format": "default"
-                    },
-                    {
-                        "name": "timeincrement",
-                        "type": "integer",
                         "format": "default"
                     }
                 ],

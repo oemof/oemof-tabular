@@ -1,4 +1,4 @@
-""" Tools to deserialize energy systems from datapackages.
+"""Tools to deserialize energy systems from datapackages.
 
 **WARNING**
 
@@ -128,7 +128,30 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         if value.get("name") is None:
             attributemap[k]["name"] = "label"
 
-    package = dp.Package(path)
+    # Extract ForeignKeys from datapackage upfront in order to avoid FK-Errors
+    with open(path, "r") as f:
+        datapackage_json = json.load(f)
+
+    sequence_foreign_keys = {}
+    for resource in datapackage_json["resources"]:
+        if "foreignKeys" not in resource["schema"]:
+            continue
+        # Busses are real ForeignKeys and can stay in ForeignKeys field
+        # Foreign Keys to sequences must be extracted and handled separately
+        # from datapackage
+        sequence_foreign_keys[resource["name"]] = [
+            fk
+            for fk in resource["schema"]["foreignKeys"]
+            if fk["reference"]["resource"] != "bus"
+        ]
+        resource["schema"]["foreignKeys"] = [
+            fk
+            for fk in resource["schema"]["foreignKeys"]
+            if fk["reference"]["resource"] == "bus"
+        ]
+    datapackage_folder = path[:-17]  # Remove "/datapackage.json" form path
+    package = dp.Package(datapackage_json, base_path=datapackage_folder)
+
     # This is necessary because before reading a resource for the first
     # time its `headers` attribute is `None`.
     for r in package.resources:
@@ -440,8 +463,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         values: typing.Iterable[float], period_years: typing.Iterable[int]
     ):
         """
-        Creates a value for every year (between two periods)
-        Value of period is continued until next period
+        Creates a value for every year (between two periods/explicit years)
+        Value of investment period is continued until next period.
+        E.g (1,2023), (2,2025) -> [1,1,2]
         Parameters
         ----------
         values values to be interpolated
@@ -463,9 +487,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         """
         Depending on dtype and content:
         Periodically changing values [given as array] are either unpacked into
-            - full periods
-            - yearly values (between periods)
-            - kept as periodical values
+            - full periods (every timestep per explicit year)
+            - yearly values (one value each implicit & explicit years)
+            - kept as periodical values (one value each explicit year)
 
         Decision happens based on
             - value
@@ -559,7 +583,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
             foreign_keys = {
                 fk["fields"]: fk["reference"]
-                for fk in r.descriptor["schema"].get("foreignKeys", ())
+                for fk in r.descriptor["schema"].get("foreignKeys", [])
+                + sequence_foreign_keys[r.name]
             }
 
             for facade in facade_data:
@@ -583,9 +608,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             df_tsa_parameters = pd.DataFrame.from_dict(
                 package.get_resource("tsa_parameters").read(keyed=True)
             ).set_index("period", drop=True)
-            return df_tsa_parameters.sort_index().to_dict(
-                "records"
-            )
+            return df_tsa_parameters.sort_index().to_dict("records")
         return None
 
     # TODO: Find concept how to deal with timeindices and clean up based on
@@ -608,20 +631,24 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 name="timeindex",
             )
             timeindex = temporal.index
-            es = cls(timeindex=timeindex, temporal=temporal, tsa_parameters=get_tsam_parameters())
+            es = cls(
+                timeindex=timeindex,
+                temporal=temporal,
+                tsa_parameters=get_tsam_parameters(),
+            )
 
         # if no temporal provided as resource, take the first timeindex
         # from dict
         else:
             # look for periods resource and if present, take periods from it
             if package.get_resource("periods"):
-                    es = cls(
-                        timeindex=period_data["timeindex"],
-                        timeincrement=period_data["timeincrement"],
-                        periods=period_data["periods"],
-                        tsam_parameters=get_tsam_parameters(),
-                        infer_last_interval=False,
-                    )
+                es = cls(
+                    timeindex=period_data["timeindex"],
+                    timeincrement=period_data["timeincrement"],
+                    periods=period_data["periods"],
+                    tsam_parameters=get_tsam_parameters(),
+                    infer_last_interval=False,
+                )
 
             # if lst is not empty
             elif lst:
@@ -630,7 +657,11 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     idx.values, freq=idx.inferred_freq, name="timeindex"
                 )
                 temporal = None
-                es = cls(timeindex=timeindex, temporal=temporal, tsa_parameters=get_tsam_parameters())
+                es = cls(
+                    timeindex=timeindex,
+                    temporal=temporal,
+                    tsa_parameters=get_tsam_parameters(),
+                )
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
             # step of today (same as in the EnergySystem __init__ if no
@@ -639,7 +670,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex = pd.date_range(
                     start=pd.to_datetime("today"), periods=1, freq="H"
                 )
-                es = cls(timeindex=timeindex, tsa_parameters=get_tsam_parameters())
+                es = cls(
+                    timeindex=timeindex, tsa_parameters=get_tsam_parameters()
+                )
 
         es.add(
             *chain(

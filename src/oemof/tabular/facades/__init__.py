@@ -4,7 +4,9 @@ from oemof.solph.flows.experimental import ElectricalLine
 
 from .backpressure_turbine import BackpressureTurbine
 from .commodity import Commodity
+from .commodity_ghg import CommodityGHG
 from .conversion import Conversion
+from .conversion_ghg import ConversionGHG
 from .dispatchable import Dispatchable
 from .excess import Excess
 from .extraction_turbine import ExtractionTurbine
@@ -22,7 +24,9 @@ TYPEMAP = {
     "bus": Bus,
     "heatpump": HeatPump,
     "commodity": Commodity,
+    "commodity_ghg": CommodityGHG,
     "conversion": Conversion,
+    "conversion_ghg": ConversionGHG,
     "dispatchable": Dispatchable,
     "electrical bus": ElectricalBus,
     "electrical line": ElectricalLine,

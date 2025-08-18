@@ -12,7 +12,7 @@ if "kwargs" not in locals():
 
 
 building.infer_metadata(
-    package_name="oemof-tabular-dispatch-example",
+    package_name="emission_constraint-example",
     foreign_keys={
         "bus": ["volatile", "dispatchable", "storage", "load", "excess"],
         "profile": ["load", "volatile"],
