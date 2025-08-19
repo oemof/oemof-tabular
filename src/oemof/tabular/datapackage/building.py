@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import errno
+import logging
 import os
 import pathlib
 import shutil
@@ -10,6 +11,7 @@ import warnings
 import zipfile
 from ftplib import FTP
 from urllib.parse import urlparse
+import tableschema
 
 import pandas as pd
 import paramiko
@@ -139,30 +141,40 @@ def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
 
     """
     r = resource
-    data = pd.DataFrame.from_records(r.read(keyed=True))
+    try:
+        data = pd.DataFrame.from_records(r.read(keyed=True))
+    except tableschema.exceptions.CastError as err:
+        if err.errors:
+            logging.error(
+                f"The resource {r.name} has the following casting errors: {','.join([str(e) for e in err.errors])}")
+        else:
+            logging.error(f"The resource {r.name} has the following casting error: {err}")
+        data = pd.DataFrame()
+
+
     # TODO not sure this should be set here
     r.descriptor["schema"]["primaryKey"] = "name"
     if "foreignKeys" not in r.descriptor["schema"]:
         r.descriptor["schema"]["foreignKeys"] = []
+    if not data.empty:
+        for field in r.schema.fields:
+            if field.type == "string":
+                for potential_fk in data[field.name].dropna().unique():
+                    if potential_fk in sequences_profiles_to_resource:
+                        # this is actually a wrong format and should be
+                        # with a "fields" field under the "reference" fields
 
-    for field in r.schema.fields:
-        if field.type == "string":
-            for potential_fk in data[field.name].dropna().unique():
-                if potential_fk in sequences_profiles_to_resource:
-                    # this is actually a wrong format and should be
-                    # with a "fields" field under the "reference" fields
+                        fk = {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": sequences_profiles_to_resource[
+                                    potential_fk
+                                ],
+                            },
+                        }
 
-                    fk = {
-                        "fields": field.name,
-                        "reference": {
-                            "resource": sequences_profiles_to_resource[
-                                potential_fk
-                            ],
-                        },
-                    }
-
-                    if fk not in r.descriptor["schema"]["foreignKeys"]:
-                        r.descriptor["schema"]["foreignKeys"].append(fk)
+                        if fk not in r.descriptor["schema"]["foreignKeys"]:
+                            r.descriptor["schema"]["foreignKeys"].append(fk)
     r.commit()
     return r
 
