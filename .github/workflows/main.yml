@@ -22,9 +22,6 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.13"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -35,10 +32,10 @@ jobs:
         run: sudo apt install coinor-cbc
 
       # Set up python envs
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.13"
 
       - name: Install dependencies via pip
         run: |
