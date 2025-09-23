@@ -30,7 +30,10 @@ setup(
         ),
         re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst")),
     ),
-    author="Stephan Günther, Simon Hilpert, Martin Söthe, Jann Launer, Hendrik Huyskens, Julian Endres, Felix Maurer",
+    author=(
+        "Stephan Günther, Simon Hilpert, Martin Söthe, Jann Launer, "
+        "Hendrik Huyskens, Julian Endres, Felix Maurer"
+    ),
     author_email="gnn.code@gmail.com",
     url="https://github.com/oemof/oemof-tabular",
     packages=["oemof"] + ["oemof." + p for p in find_packages("src/oemof")],
@@ -65,11 +68,8 @@ setup(
     ],
     python_requires=">=3.9, <3.14",
     install_requires=[
-        "datapackage>=1.5.1",
-        "tableschema>=1.7.4",
-        # "oemof.solph>=0.5.1",
-        # Upcomming upgrade to solph 0.5.2 postponed due to many changes necessary for implementing
-        # explicit arguments and upgrade to network 0.5.1
+        "datapackage==1.5.1",
+        "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
         "oemof.solph==0.5.2.dev1",
         "pandas>=0.22",
         "oemof.network==0.5.0a4",  # Temporal fix due to braking changes in 0.5.1
