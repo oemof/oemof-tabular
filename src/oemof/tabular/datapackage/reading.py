@@ -323,6 +323,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     def create(cls, init, attributes):
         """Creates an instance of `cls` and sets `attributes`."""
         init.update(attributes)
+
+        init.pop("type") # if Facades class no longer exists
         instance = cls(**remap(init, attributemap, cls))
         for k, v in remap(attributes, attributemap, cls).items():
             if not hasattr(instance, k):
@@ -644,7 +646,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     idx.values, freq=idx.inferred_freq, name="timeindex"
                 )
                 temporal = None
-                es = cls(timeindex=timeindex, temporal=temporal)
+                es = cls(timeindex=timeindex, periods=temporal)
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
             # step of today (same as in the EnergySystem __init__ if no
