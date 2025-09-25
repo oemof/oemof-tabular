@@ -252,32 +252,10 @@ def infer_metadata_from_data(
     p0.commit()
     p0.save(os.path.join(path, metadata_filename))
 
-    foreign_keys = {}
-
-    def infer_resource_basic_foreign_keys(resource):
-        """Prepare foreign_keys dict for building.infer_metadata
-
-        Compare the fields of a resource to a list of field names known
-        to be foreign keys. If the field name is within the list, it is
-        used to populate the dict 'foreign_keys'
-        """
-        for field in resource.schema.fields:
-            if field.name in config.SPECIAL_FIELD_NAMES:
-                fk_descriptor = config.SPECIAL_FIELD_NAMES[field.name]
-                if fk_descriptor in foreign_keys:
-                    if resource.name not in foreign_keys[fk_descriptor]:
-                        foreign_keys[fk_descriptor].append(resource.name)
-                else:
-                    foreign_keys[fk_descriptor] = [resource.name]
-
-    for r in p0.resources:
-        if "/elements/" in r.descriptor["path"]:
-            infer_resource_basic_foreign_keys(r)
     # this function saves the metadata of the package in json format
     infer_metadata(
         package_name=package_name,
         path=path,
-        foreign_keys=foreign_keys,
         metadata_filename=metadata_filename,
     )
 
@@ -346,38 +324,6 @@ def infer_metadata(
             r.descriptor["schema"]["primaryKey"] = "name"
 
             r.descriptor["schema"]["foreignKeys"] = []
-
-            # Define foreign keys from dictionary 'foreign_key_descriptors'
-            for label, descriptor in config.FOREIGN_KEY_DESCRIPTORS.items():
-                if r.name in foreign_keys.get(label, []):
-                    r.descriptor["schema"]["foreignKeys"].extend(descriptor)
-
-            # Define foreign keys for 'profile' as <resource name>_profile
-            if r.name in foreign_keys.get("profile", []):
-                r.descriptor["schema"]["foreignKeys"].append(
-                    {
-                        "fields": "profile",
-                        "reference": {"resource": r.name + "_profile"},
-                    }
-                )
-
-            # Define all undefined foreign keys for as <var name>_profile
-            for key in foreign_keys:
-                if key not in (
-                    ["profile"] + list(config.FOREIGN_KEY_DESCRIPTORS)
-                ):
-                    if r.name in foreign_keys[key]:
-                        r.descriptor["schema"]["foreignKeys"].append(
-                            {
-                                "fields": key,
-                                "reference": {"resource": key + "_profile"},
-                            }
-                        )
-
-            # sort foreign_key entries by alphabetically by fields
-            r.descriptor["schema"]["foreignKeys"].sort(
-                key=lambda x: x["fields"]
-            )
 
             r.commit()
             r.save(
