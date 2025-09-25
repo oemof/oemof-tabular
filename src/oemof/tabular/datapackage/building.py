@@ -122,13 +122,14 @@ def map_sequence_profiles_to_resource_name(
 
 
 def infer_resource_foreign_keys(
-    resource, sequences_profiles_to_resource, bus_names
+    resource, sequences_profiles_to_resource, fk_targets_mapping
 ):
     """Find out the foreign keys within a resource fields
 
     Look through all field of a resource which are of type 'string'
     if any of their values are matching a profile header in any of
-    the sequences resources
+    the sequences resources or a value within the column name of resources present
+    in fk_targets_mapping
 
 
     Parameters
@@ -136,7 +137,7 @@ def infer_resource_foreign_keys(
     resource: a :datapackage.Resource: instance
     sequences_profiles_to_resource: the mapping of sequence profile
         headers to their resource name
-    bus_names: a list with all bus names contained within the resource "bus.csv"
+    fk_targets_mapping: a mapping of potential foreign keys targets mapped to their resource
     Returns
     -------
     The :datapackage.Resource: instance with updated "foreignKeys" field
@@ -167,7 +168,7 @@ def infer_resource_foreign_keys(
                     # Check that the potential foreign key does not have multiple matches
                     if (
                         potential_fk in sequences_profiles_to_resource
-                        and potential_fk in bus_names
+                        and potential_fk in fk_targets_mapping
                     ):
                         raise ValueError(
                             f"The potential foreign key '{potential_fk}' has a match in both the 'name' "
@@ -190,10 +191,13 @@ def infer_resource_foreign_keys(
 
                         if fk not in r.descriptor["schema"]["foreignKeys"]:
                             r.descriptor["schema"]["foreignKeys"].append(fk)
-                    elif potential_fk in bus_names:
+                    elif potential_fk in fk_targets_mapping:
                         fk = {
                             "fields": field.name,
-                            "reference": {"resource": "bus", "fields": "name"},
+                            "reference": {
+                                "resource": fk_targets_mapping[potential_fk],
+                                "fields": "name",
+                            },
                         }
                         if fk not in r.descriptor["schema"]["foreignKeys"]:
                             r.descriptor["schema"]["foreignKeys"].append(fk)
@@ -201,13 +205,14 @@ def infer_resource_foreign_keys(
     return r
 
 
-def infer_package_foreign_keys(package):
+def infer_package_foreign_keys(package, fk_targets=None):
     """Infer the foreign_keys from elements and sequences and update meta data
 
     Parameters
     ----------
-    package
+    package: a Package instance
 
+    fk_targets: resources containing potential foreign keys targets
     Returns
     -------
 
@@ -215,15 +220,27 @@ def infer_package_foreign_keys(package):
     p = package
     sequences_profiles_to_resource = map_sequence_profiles_to_resource_name(p)
 
-    bus_names = pd.DataFrame.from_records(
-        p.get_resource("bus").read(keyed=True)
-    ).name.to_list()
+    if fk_targets is None:
+        fk_targets = ["bus"]
+
+    # The resource bus is special and is always expected to get foreign keys
+    if "bus" not in fk_targets:
+        fk_targets.append("bus")
+
+    # map each potential foreign key target to its resource
+    fk_targets_to_resource = {}
+    for res in fk_targets:
+        fk_list = pd.DataFrame.from_records(
+            p.get_resource(res).read(keyed=True)
+        ).name.to_list()
+        fk_targets_to_resource.update({k: res for k in fk_list})
+
     for r in p.resources:
-        if "/elements/" in r.descriptor["path"] and r.name != "bus":
+        if "/elements/" in r.descriptor["path"] and r.name not in fk_targets:
             r = infer_resource_foreign_keys(
-                r, sequences_profiles_to_resource, bus_names
+                r, sequences_profiles_to_resource, fk_targets_to_resource
             )
-            # sort foreign_key entries by alphabetically by fields
+            # sort foreign_key entries alphabetically by fields
             r.descriptor["schema"]["foreignKeys"].sort(
                 key=lambda x: x["fields"]
             )
@@ -235,6 +252,7 @@ def infer_metadata_from_data(
     path,
     package_name="default-name",
     metadata_filename="datapackage.json",
+    fk_targets=None,
 ):
     """Creates a metadata .json file at the root-folder of datapackage
 
@@ -249,6 +267,8 @@ def infer_metadata_from_data(
         Name of the data package
     metadata_filename: basestring
         Name of the inferred metadata string.
+    fk_targets: list of string
+        List of resources name containing potential foreign keys targets
 
     Returns
     -------
@@ -272,7 +292,7 @@ def infer_metadata_from_data(
 
     # reload the package from the saved json file
     p = Package(os.path.join(path, metadata_filename))
-    infer_package_foreign_keys(p)
+    infer_package_foreign_keys(p, fk_targets=fk_targets)
     p.descriptor["resources"].sort(key=lambda x: (x["path"], x["name"]))
     p.commit()
     p.save(os.path.join(path, metadata_filename))
@@ -304,7 +324,6 @@ def infer_metadata(
     metadata_filename: basestring
         Name of the inferred metadata string.
     """
-    foreign_keys = foreign_keys or config.FOREIGN_KEYS
 
     current_path = os.getcwd()
     if path:
