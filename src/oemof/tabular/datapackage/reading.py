@@ -22,6 +22,7 @@ from itertools import chain, groupby, repeat
 import datapackage as dp
 import pandas as pd
 from oemof.network.network import Bus, Component
+from oemof.network.network import Node
 
 from oemof.tabular.config.config import supported_oemof_tabular_versions
 
@@ -102,7 +103,12 @@ def read_facade(
             )
         )
     instance = create(mapping, facade, facade)
-    facades[facade["name"]] = instance
+    if isinstance(instance, Node):
+        facades[facade["name"]] = instance
+    else:
+        warnings.warn(
+            f'The instance of the {str(mapping)} class with name "{facade["name"]}" does not inherit from oemof.network.Node and will therefore not be added to the energy system'
+        )
     return instance
 
 
