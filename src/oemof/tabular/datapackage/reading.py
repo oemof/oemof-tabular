@@ -365,8 +365,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     ),
                 )
             ),
-            {"label": name},
-            bus["parameters"],
+            init={"label": name},
+            attributes=bus["parameters"],
         )
         for name, bus in sorted(data["buses"].items())
         for mapping in (typemap.get(bus.get("type", "bus")),)
@@ -407,7 +407,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     data["components"] = {
         name: create(
             typemap[element.get("type", DEFAULT)],
-            {
+            init={
                 "label": name,
                 "inputs": {
                     data["buses"][bus]: flow(
@@ -422,7 +422,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     for bus, kwargs in sorted(element["outputs"].items())
                 },
             },
-            resolve_object_references(
+            attributes=resolve_object_references(
                 element["parameters"], f=lambda r: r == "buses"
             ),
         )
