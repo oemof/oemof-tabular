@@ -340,7 +340,11 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         init.update(attributes)
 
         init.pop("type")  # if Facades class no longer exists
-        instance = cls(**remap(init, attributemap, cls))
+        # only remap the argument of the classes which inherit from Node
+        if issubclass(cls, Node):
+            init = remap(init, attributemap, cls)
+
+        instance = cls(**init)
         for k, v in remap(attributes, attributemap, cls).items():
             if not hasattr(instance, k):
                 setattr(instance, k, v)
