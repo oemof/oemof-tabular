@@ -121,7 +121,9 @@ def map_sequence_profiles_to_resource_name(
     return sequences_mapping
 
 
-def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
+def infer_resource_foreign_keys(
+    resource, sequences_profiles_to_resource, bus_names
+):
     """Find out the foreign keys within a resource fields
 
     Look through all field of a resource which are of type 'string'
@@ -134,7 +136,7 @@ def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
     resource: a :datapackage.Resource: instance
     sequences_profiles_to_resource: the mapping of sequence profile
         headers to their resource name
-
+    bus_names: a list with all bus names contained within the resource "bus.csv"
     Returns
     -------
     The :datapackage.Resource: instance with updated "foreignKeys" field
@@ -146,11 +148,13 @@ def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
     except tableschema.exceptions.CastError as err:
         if err.errors:
             logging.error(
-                f"The resource {r.name} has the following casting errors: {','.join([str(e) for e in err.errors])}")
+                f"The resource {r.name} has the following casting errors: {','.join([str(e) for e in err.errors])}"
+            )
         else:
-            logging.error(f"The resource {r.name} has the following casting error: {err}")
+            logging.error(
+                f"The resource {r.name} has the following casting error: {err}"
+            )
         data = pd.DataFrame()
-
 
     # TODO not sure this should be set here
     r.descriptor["schema"]["primaryKey"] = "name"
@@ -175,6 +179,13 @@ def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
 
                         if fk not in r.descriptor["schema"]["foreignKeys"]:
                             r.descriptor["schema"]["foreignKeys"].append(fk)
+                    elif potential_fk in bus_names:
+                        fk = {
+                            "fields": field.name,
+                            "reference": {"resource": "bus", "fields": "name"},
+                        }
+                        if fk not in r.descriptor["schema"]["foreignKeys"]:
+                            r.descriptor["schema"]["foreignKeys"].append(fk)
     r.commit()
     return r
 
@@ -193,9 +204,14 @@ def infer_package_foreign_keys(package):
     p = package
     sequences_profiles_to_resource = map_sequence_profiles_to_resource_name(p)
 
+    bus_names = pd.DataFrame.from_records(
+        p.get_resource("bus").read(keyed=True)
+    ).name.to_list()
     for r in p.resources:
-        if os.sep + "elements" + os.sep in r.descriptor["path"]:
-            r = infer_resource_foreign_keys(r, sequences_profiles_to_resource)
+        if "/elements/" in r.descriptor["path"] and r.name != "bus":
+            r = infer_resource_foreign_keys(
+                r, sequences_profiles_to_resource, bus_names
+            )
             # sort foreign_key entries by alphabetically by fields
             r.descriptor["schema"]["foreignKeys"].sort(
                 key=lambda x: x["fields"]
@@ -255,7 +271,7 @@ def infer_metadata_from_data(
                     foreign_keys[fk_descriptor] = [resource.name]
 
     for r in p0.resources:
-        if os.sep + "elements" + os.sep in r.descriptor["path"]:
+        if "/elements/" in r.descriptor["path"]:
             infer_resource_basic_foreign_keys(r)
     # this function saves the metadata of the package in json format
     infer_metadata(
