@@ -134,23 +134,32 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         datapackage_json = json.load(f)
 
     sequence_foreign_keys = {}
+
+    # the fk to resources within sequences are not real ForeignKeys because they do not provide "fields" under
+    # their "reference". This is why we need to handle them separately from the datapackage
+    sequences_resources = [
+        r["name"]
+        for r in datapackage_json["resources"]
+        if "sequences" in r["path"]
+    ]
     for resource in datapackage_json["resources"]:
         if "foreignKeys" not in resource["schema"]:
             continue
-        # Busses are real ForeignKeys and can stay in ForeignKeys field
-        # Foreign Keys to sequences must be extracted and handled separately
-        # from datapackage
+        # collect fake ForeignKeys to resources within sequences separately
         sequence_foreign_keys[resource["name"]] = [
             fk
             for fk in resource["schema"]["foreignKeys"]
-            if fk["reference"]["resource"] != "bus"
+            if fk["reference"]["resource"] in sequences_resources
         ]
+        # keep all ForeignKeys which are not a fake ForeignKey to resources within sequences
         resource["schema"]["foreignKeys"] = [
             fk
             for fk in resource["schema"]["foreignKeys"]
-            if fk["reference"]["resource"] == "bus"
+            if fk["reference"]["resource"] not in sequences_resources
         ]
-    datapackage_folder = os.path.dirname(path)  # Remove "/datapackage.json" form path
+    datapackage_folder = os.path.dirname(
+        path
+    )  # Remove "/datapackage.json" form path
     package = dp.Package(datapackage_json, base_path=datapackage_folder)
 
     # This is necessary because before reading a resource for the first
@@ -324,7 +333,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         """Creates an instance of `cls` and sets `attributes`."""
         init.update(attributes)
 
-        init.pop("type") # if Facades class no longer exists
+        init.pop("type")  # if Facades class no longer exists
         instance = cls(**remap(init, attributemap, cls))
         for k, v in remap(attributes, attributemap, cls).items():
             if not hasattr(instance, k):
