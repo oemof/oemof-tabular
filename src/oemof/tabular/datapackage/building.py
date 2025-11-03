@@ -148,7 +148,6 @@ def infer_resource_foreign_keys(resource, sequences_profiles_to_resource):
     for field in r.schema.fields:
         if field.type == "string":
             for potential_fk in data[field.name].dropna().unique():
-
                 if potential_fk in sequences_profiles_to_resource:
                     # this is actually a wrong format and should be
                     # with a "fields" field under the "reference" fields

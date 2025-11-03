@@ -12,6 +12,7 @@ along with how to use the functions in this module.
 
 import collections.abc as cabc
 import json
+import os
 import re
 import typing
 import warnings
@@ -128,7 +129,30 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         if value.get("name") is None:
             attributemap[k]["name"] = "label"
 
-    package = dp.Package(path)
+    # Extract ForeignKeys from datapackage upfront in order to avoid FK-Errors
+    with open(path, "r") as f:
+        datapackage_json = json.load(f)
+
+    sequence_foreign_keys = {}
+    for resource in datapackage_json["resources"]:
+        if "foreignKeys" not in resource["schema"]:
+            continue
+        # Busses are real ForeignKeys and can stay in ForeignKeys field
+        # Foreign Keys to sequences must be extracted and handled separately
+        # from datapackage
+        sequence_foreign_keys[resource["name"]] = [
+            fk
+            for fk in resource["schema"]["foreignKeys"]
+            if fk["reference"]["resource"] != "bus"
+        ]
+        resource["schema"]["foreignKeys"] = [
+            fk
+            for fk in resource["schema"]["foreignKeys"]
+            if fk["reference"]["resource"] == "bus"
+        ]
+    datapackage_folder = os.path.dirname(path)  # Remove "/datapackage.json" form path
+    package = dp.Package(datapackage_json, base_path=datapackage_folder)
+
     # This is necessary because before reading a resource for the first
     # time its `headers` attribute is `None`.
     for r in package.resources:
@@ -560,7 +584,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
             foreign_keys = {
                 fk["fields"]: fk["reference"]
-                for fk in r.descriptor["schema"].get("foreignKeys", ())
+                for fk in r.descriptor["schema"].get("foreignKeys", [])
+                + sequence_foreign_keys[r.name]
             }
 
             for facade in facade_data:
