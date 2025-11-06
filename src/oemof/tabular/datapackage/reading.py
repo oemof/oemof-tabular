@@ -646,7 +646,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     timeindex=period_data["timeindex"],
                     timeincrement=period_data["timeincrement"],
                     periods=period_data["periods"],
-                    tsam_parameters=get_tsam_parameters(),
+                    tsa_parameters=get_tsam_parameters(),
                     infer_last_interval=False,
                 )
 
