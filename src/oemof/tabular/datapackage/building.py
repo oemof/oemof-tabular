@@ -164,6 +164,17 @@ def infer_resource_foreign_keys(
         for field in r.schema.fields:
             if field.type == "string":
                 for potential_fk in data[field.name].dropna().unique():
+                    # Check that the potential foreign key does not have multiple matches
+                    if (
+                        potential_fk in sequences_profiles_to_resource
+                        and potential_fk in bus_names
+                    ):
+                        raise ValueError(
+                            f"The potential foreign key '{potential_fk}' has a match in both the 'name' "
+                            f"column of the 'bus.csv' resource and in the headers of "
+                            f"the '{sequences_profiles_to_resource[potential_fk]}' resource."
+                        )
+
                     if potential_fk in sequences_profiles_to_resource:
                         # this is actually a wrong format and should be
                         # with a "fields" field under the "reference" fields
