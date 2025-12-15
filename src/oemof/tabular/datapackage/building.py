@@ -338,6 +338,21 @@ def infer_metadata(
     if not os.path.exists("resources"):
         os.makedirs("resources")
 
+    # create meta data resources from csv files in root
+    if os.path.exists("data"):
+        for f in os.listdir("data"):
+            if os.path.isfile(os.path.join("data",f)):
+                r = Resource(
+                    {"path": str(pathlib.PurePosixPath("data", f))}
+                )
+                r.infer()
+                r.commit()
+                r.save(
+                    pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+                )
+                p.add_resource(r.descriptor)
+
+
     # create meta data resources elements
     if not os.path.exists("data/elements"):
         print(
