@@ -674,13 +674,6 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 data["components"].values(),
                 data["buses"].values(),
                 facades.values(),
-                chain(
-                    *[
-                        f.subnodes
-                        for f in facades.values()
-                        if hasattr(f, "subnodes")
-                    ]
-                ),
             )
         )
 
