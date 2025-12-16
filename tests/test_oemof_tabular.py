@@ -2,19 +2,19 @@ import oemof.solph
 from oemof.network.energy_system import EnergySystem
 from oemof.network.network import Bus
 
-import oemof.tabular
-from oemof.tabular.facades import Reservoir
+import oemof.datapackage
+from oemof.datapackage.facades import Reservoir
 
 
 def test_version_specification():
-    """`oemof.tabular`'s version specification is importable and a string."""
-    assert isinstance(oemof.tabular.__version__, str)
+    """`oemof.datapackage`'s version specification is importable and a string."""
+    assert isinstance(oemof.datapackage.__version__, str)
     assert isinstance(oemof.solph.__version__, str)
 
 
 def test_project_name():
-    """`oemof.tabular`'s project name is importable and correct."""
-    assert oemof.tabular.__project__ == "oemof.tabular"
+    """`oemof.datapackage`'s project name is importable and correct."""
+    assert oemof.datapackage.__project__ == "oemof.datapackage"
 
 
 def test_adding_subnodes():

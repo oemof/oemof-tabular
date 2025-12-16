@@ -7,8 +7,8 @@ import pandas as pd
 from oemof.solph import buses, helpers
 
 from oemof import solph
-from oemof.tabular.constraint_facades import GenericIntegralLimit
-from oemof.tabular.facades import (
+from oemof.datapackage.constraint_facades import GenericIntegralLimit
+from oemof.datapackage.facades import (
     BackpressureTurbine,
     Commodity,
     Conversion,

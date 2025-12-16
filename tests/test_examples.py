@@ -11,8 +11,8 @@ from oemof.solph import helpers
 # The import below is only used to monkey patch `EnergySystem`.
 # Hence the `noqa` because otherwise, style checkers would complain about an
 # unused import.
-import oemof.tabular.datapackage  # noqa: F401
-from oemof.tabular.facades import TYPEMAP
+import oemof.datapackage.datapackage  # noqa: F401
+from oemof.datapackage.facades import TYPEMAP
 
 ROOT_DIR = pathlib.Path(__file__).parent.parent
 
@@ -51,7 +51,7 @@ def test_example_datapackage_readability():
 
     systems = []
     datapackage_dir = os.path.join(
-        importlib.resources.files("oemof.tabular"), "examples/datapackages"
+        importlib.resources.files("oemof.datapackage"), "examples/datapackages"
     )
     for example in os.listdir(datapackage_dir):
         print("Runnig reading datapackage example {} ...".format(example))
@@ -71,7 +71,7 @@ def test_scripting_examples():
 
     exclude = ["plotting.py", "__pycache__"]
     examples_dir = os.path.join(
-        importlib.resources.files("oemof.tabular"), "examples/scripting"
+        importlib.resources.files("oemof.datapackage"), "examples/scripting"
     )
     for example in os.listdir(examples_dir):
         if not example.endswith(".ipynb") and example not in exclude:
@@ -83,7 +83,7 @@ def test_examples_datapackages_scripts_infer():
     """ """
     script = "infer.py"
 
-    module_path = pathlib.Path(oemof.tabular.__file__).parent
+    module_path = pathlib.Path(oemof.datapackage.__file__).parent
     example_path = module_path / "examples" / "datapackages"
 
     for datapackage_path in example_path.iterdir():
@@ -132,20 +132,20 @@ def test_custom_foreign_keys(monkeypatch):
     Set custom foreign keys
     """
     monkeypatch.setenv(
-        "OEMOF_TABULAR_FOREIGN_KEY_DESCRIPTORS_FILE",
+        "OEMOF_datapackage_FOREIGN_KEY_DESCRIPTORS_FILE",
         ROOT_DIR / "tests" / "custom_foreign_key_descriptors.json",
     )
     monkeypatch.setenv(
-        "OEMOF_TABULAR_FOREIGN_KEYS_FILE",
+        "OEMOF_datapackage_FOREIGN_KEYS_FILE",
         ROOT_DIR / "tests" / "custom_foreign_keys.json",
     )
-    importlib.reload(oemof.tabular.config.config)
-    oemof.tabular.datapackage.building.infer_metadata(
+    importlib.reload(oemof.datapackage.config.config)
+    oemof.datapackage.datapackage.building.infer_metadata(
         path=str(
             ROOT_DIR
             / "src"
             / "oemof"
-            / "tabular"
+            / "datapackage"
             / "examples"
             / "datapackages"
             / "foreignkeys"

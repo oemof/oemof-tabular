@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import os
 import sys
 
-from oemof.tabular.facades import TYPEMAP
+from oemof.datapackage.facades import TYPEMAP
 
 sys.path.append("code")
 from get_facade_attributes import get_facade_attrs, write_table_rst
@@ -42,7 +42,7 @@ if os.getenv('SPELLCHECK'):
 
 source_suffix = '.rst'
 master_doc = 'index'
-project = 'oemof.tabular'
+project = 'oemof.datapackage'
 year = '2023'
 author = 'Stephan Günther, Jann Launer, Julian Endres, Hendrik Huyskens'
 copyright = '{0}, {1}'.format(year, author)
@@ -51,8 +51,8 @@ version = release = '0.0.6dev'
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/oemof/oemof-tabular/issues/%s', '#'),
-    'pr': ('https://github.com/oemof/oemof-tabular/pull/%s', 'PR #'),
+    'issue': ('https://github.com/oemof/oemof-datapackage/issues/%s', '#'),
+    'pr': ('https://github.com/oemof/oemof-datapackage/pull/%s', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

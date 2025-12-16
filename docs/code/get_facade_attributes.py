@@ -36,7 +36,7 @@ Facade attributes overview
     for csv_file in csv_files:
         txt += \
 f"""
-:py:class:`~oemof.tabular.facades.{os.path.splitext(csv_file)[0]}`
+:py:class:`~oemof.datapackage.facades.{os.path.splitext(csv_file)[0]}`
 
 .. csv-table::
   :delim: ,

@@ -19,10 +19,10 @@ def read(*names, **kwargs):
 
 
 setup(
-    name="oemof.tabular",
+    name="oemof.datapackage",
     version="0.0.6dev",
     license="BSD 3-Clause License",
-    description="Load oemof energy systems from tabular data sources.",
+    description="Load oemof energy systems from datapackage data sources.",
     long_description="%s\n%s"
     % (
         re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub(
@@ -35,7 +35,7 @@ setup(
         "Hendrik Huyskens, Julian Endres, Felix Maurer"
     ),
     author_email="gnn.code@gmail.com",
-    url="https://github.com/oemof/oemof-tabular",
+    url="https://github.com/oemof/oemof-datapackage",
     packages=["oemof"] + ["oemof." + p for p in find_packages("src/oemof")],
     package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
@@ -69,6 +69,7 @@ setup(
     python_requires=">=3.9, <3.14",
     install_requires=[
         "datapackage==1.5.1",
+        "cchardet==2.2.0a2",
         "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
         "oemof.solph==0.5.2.dev1",
         "pandas>=0.22",
@@ -84,5 +85,5 @@ setup(
         "aggregation": ["tsam"],
         "geometry": ["shapely", "scipy", "pyproj", "geojson", "pyshp"],
     },
-    entry_points={"console_scripts": ["ota = oemof.tabular.cli:main"]},
+    entry_points={"console_scripts": ["ota = oemof.datapackage.cli:main"]},
 )

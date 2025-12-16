@@ -2,10 +2,10 @@
 API Reference
 =============
 
-oemof.tabular.datapackage package
+oemof.datapackage.datapackage package
 =================================
 
-.. automodule:: oemof.tabular.datapackage
+.. automodule:: oemof.datapackage.datapackage
     :members:
     :undoc-members:
     :show-inheritance:
@@ -13,42 +13,42 @@ oemof.tabular.datapackage package
 Submodules
 ----------
 
-oemof.tabular.datapackage.aggregation module
+oemof.datapackage.datapackage.aggregation module
 --------------------------------------------
 
-.. automodule:: oemof.tabular.datapackage.aggregation
+.. automodule:: oemof.datapackage.datapackage.aggregation
     :members:
     :undoc-members:
     :show-inheritance:
 
-oemof.tabular.datapackage.building module
+oemof.datapackage.datapackage.building module
 -----------------------------------------
 
-.. automodule:: oemof.tabular.datapackage.building
+.. automodule:: oemof.datapackage.datapackage.building
     :members:
     :undoc-members:
     :show-inheritance:
 
-oemof.tabular.datapackage.processing module
+oemof.datapackage.datapackage.processing module
 -------------------------------------------
 
-.. automodule:: oemof.tabular.datapackage.processing
+.. automodule:: oemof.datapackage.datapackage.processing
     :members:
     :undoc-members:
     :show-inheritance:
 
-oemof.tabular.datapackage.reading module
+oemof.datapackage.datapackage.reading module
 ----------------------------------------
 
-.. automodule:: oemof.tabular.datapackage.reading
+.. automodule:: oemof.datapackage.datapackage.reading
     :members:
     :undoc-members:
     :show-inheritance:
 
-oemof.tabular.tools package
+oemof.datapackage.tools package
 ===========================
 
-.. automodule:: oemof.tabular.tools
+.. automodule:: oemof.datapackage.tools
     :members:
     :undoc-members:
     :show-inheritance:
@@ -56,20 +56,20 @@ oemof.tabular.tools package
 Submodules
 ----------
 
-oemof.tabular.tools.geometry module
+oemof.datapackage.tools.geometry module
 -----------------------------------
 
-.. automodule:: oemof.tabular.tools.geometry
+.. automodule:: oemof.datapackage.tools.geometry
     :members:
     :undoc-members:
     :show-inheritance:
 
 
 
-oemof.tabular.facades module
+oemof.datapackage.facades module
 =============================
 
-.. automodule:: oemof.tabular.facades
+.. automodule:: oemof.datapackage.facades
     :members:
     :undoc-members:
     :show-inheritance:

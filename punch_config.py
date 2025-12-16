@@ -8,7 +8,7 @@ FILES = [
     {"path": "README.rst", "serializer": "{{major}}.{{minor}}.{{patch}}"},
     "docs/conf.py",
     "setup.py",
-    "src/oemof/tabular/__init__.py",
+    "src/oemof/datapackage/__init__.py",
 ]
 
 VERSION = [

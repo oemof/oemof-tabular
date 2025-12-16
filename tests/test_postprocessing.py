@@ -4,8 +4,8 @@ from unittest import mock
 import pandas
 import pytest
 
-from oemof.tabular import datapackage  # noqa: F401
-from oemof.tabular.postprocessing import calculations, core
+from oemof.datapackage import datapackage  # noqa: F401
+from oemof.datapackage.postprocessing import calculations, core
 
 TEST_FILES_DIR = pathlib.Path(__file__).parent / "_files"
 

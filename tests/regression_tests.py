@@ -1,12 +1,12 @@
 import pytest
 
-import oemof.tabular.datapackage.building as otdb
+import oemof.datapackage.datapackage.building as otdb
 
 
 def test_how_initialize_loads_the_default_configuration():
     """Test how `initialize` handles a `False`y first argument.
 
-    If `initialize <oemof.tabular.datapackage.building.initialize>` is
+    If `initialize <oemof.datapackage.datapackage.building.initialize>` is
     called with a first argument that evaluates to `False` when
     converted to boolean it should try to load the default
     configuration. This test makes sure that this is happening, by

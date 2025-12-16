@@ -1,0 +1,942 @@
+# -*- coding: utf-8 -*-
+import errno
+import logging
+import os
+import pathlib
+import shutil
+import sys
+import tarfile
+import urllib.request
+import warnings
+import zipfile
+from ftplib import FTP
+from urllib.parse import urlparse
+import tableschema
+
+import pandas as pd
+import paramiko
+import toml
+from datapackage import Package, Resource
+
+from oemof.datapackage import __version__ as oemof_datapackage_version
+from oemof.datapackage.config import config
+
+
+def infer_resources(directory="data/elements"):
+    """Method looks at all files in `directory` and creates
+    datapackage.Resource object that will be stored
+
+    Parameters
+    ----------
+    directory: string
+        Path to directory from where resources are inferred
+
+    """
+    if not os.path.exists("resources"):
+        os.makedirs("resources")
+
+    # create meta data resources
+    for f in sorted(os.listdir(directory)):
+        r = Resource({"path": os.path.join(directory, f)})
+        r.infer()
+        r.save(os.path.join("resources", f.replace(".csv", ".json")))
+
+
+def update_package_descriptor():
+    """ """
+    p = Package("datapackage.json")
+
+    for f in sorted(os.listdir("resources")):
+        path = os.path.join("resources", f)
+
+        r = Resource(path)
+
+        p.add_resource(r.descriptor)
+
+        p.commit()
+
+        os.remove(path)
+
+    os.rmdir("resources")
+
+    p.save("datapackage.json")
+
+
+def map_sequence_profiles_to_resource_name(
+    p, excluded_profiles=("timeindex",)
+):
+    """Look in every sequence resources and map each of its fields to itself
+
+    Within this process the unicity of the field names will be checked,
+    with the exception of the field "timeindex"
+
+    """
+
+    def check_sequences_labels_unicity(labels, new_labels):
+        intersect = set(labels).intersection(new_labels)
+        if len(intersect) == 1:
+            intersect = intersect.pop()
+            if not intersect == "timeindex":
+                answer = [intersect]
+            else:
+                answer = []
+        else:
+            answer = list(intersect)
+
+        if answer:
+            warnings.warn(
+                f"The labels of the profiles are not unique across all"
+                f"files within 'sequences' folder: '{','.join(intersect)}' "
+                f"used more than once"
+            )
+        return answer
+
+    sequences = {}
+    sequence_labels = []
+    duplicated_labels = []
+    for r in p.resources:
+        if "/sequences/" in r.descriptor["path"]:
+            field_labels = [
+                f.name
+                for f in r.schema.fields
+                if f.name not in excluded_profiles
+            ]
+            sequences[r.descriptor["name"]] = field_labels
+            duplicated_labels += check_sequences_labels_unicity(
+                sequence_labels, field_labels
+            )
+            sequence_labels += field_labels
+
+    if duplicated_labels:
+        # write an error message here
+        raise ValueError(
+            f"The following sequences labels are not unique"
+            f" across all sequences files: "
+            f"{', '.join(duplicated_labels)}"
+        )
+    # map each profile to its resource name
+    sequences_mapping = {
+        value: key for (key, values) in sequences.items() for value in values
+    }
+    return sequences_mapping
+
+
+def infer_resource_foreign_keys(
+    resource, sequences_profiles_to_resource, fk_targets_mapping
+):
+    """Find out the foreign keys within a resource fields
+
+    Look through all field of a resource which are of type 'string'
+    if any of their values are matching a profile header in any of
+    the sequences resources or a value within the column name of resources present
+    in fk_targets_mapping
+
+
+    Parameters
+    ----------
+    resource: a :datapackage.Resource: instance
+    sequences_profiles_to_resource: the mapping of sequence profile
+        headers to their resource name
+    fk_targets_mapping: a mapping of potential foreign keys targets mapped to their resource
+    Returns
+    -------
+    The :datapackage.Resource: instance with updated "foreignKeys" field
+
+    """
+    r = resource
+    try:
+        data = pd.DataFrame.from_records(r.read(keyed=True))
+    except tableschema.exceptions.CastError as err:
+        if err.errors:
+            logging.error(
+                f"The resource {r.name} has the following casting errors: {','.join([str(e) for e in err.errors])}"
+            )
+        else:
+            logging.error(
+                f"The resource {r.name} has the following casting error: {err}"
+            )
+        data = pd.DataFrame()
+
+    # TODO not sure this should be set here
+    r.descriptor["schema"]["primaryKey"] = "name"
+    if "foreignKeys" not in r.descriptor["schema"]:
+        r.descriptor["schema"]["foreignKeys"] = []
+    if not data.empty:
+        for field in r.schema.fields:
+            if field.type == "string":
+                for potential_fk in data[field.name].dropna().unique():
+                    # Check that the potential foreign key does not have multiple matches
+                    if (
+                        potential_fk in sequences_profiles_to_resource
+                        and potential_fk in fk_targets_mapping
+                    ):
+                        raise ValueError(
+                            f"The potential foreign key '{potential_fk}' has a match in both the 'name' "
+                            f"column of the 'bus.csv' resource and in the headers of "
+                            f"the '{sequences_profiles_to_resource[potential_fk]}' resource."
+                        )
+
+                    if potential_fk in sequences_profiles_to_resource:
+                        # this is actually a wrong format and should be
+                        # with a "fields" field under the "reference" fields
+
+                        fk = {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": sequences_profiles_to_resource[
+                                    potential_fk
+                                ],
+                            },
+                        }
+
+                        if fk not in r.descriptor["schema"]["foreignKeys"]:
+                            r.descriptor["schema"]["foreignKeys"].append(fk)
+                    elif potential_fk in fk_targets_mapping:
+                        fk = {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": fk_targets_mapping[potential_fk],
+                                "fields": "name",
+                            },
+                        }
+                        if fk not in r.descriptor["schema"]["foreignKeys"]:
+                            r.descriptor["schema"]["foreignKeys"].append(fk)
+    r.commit()
+    return r
+
+
+def infer_package_foreign_keys(package, fk_targets=None):
+    """Infer the foreign_keys from elements and sequences and update meta data
+
+    Parameters
+    ----------
+    package: a Package instance
+
+    fk_targets: resources containing potential foreign keys targets
+    Returns
+    -------
+
+    """
+    p = package
+    sequences_profiles_to_resource = map_sequence_profiles_to_resource_name(p)
+
+    if fk_targets is None:
+        fk_targets = ["bus"]
+
+    # The resource bus is special and is always expected to get foreign keys
+    if "bus" not in fk_targets:
+        fk_targets.append("bus")
+
+    # map each potential foreign key target to its resource
+    fk_targets_to_resource = {}
+    for res in fk_targets:
+        fk_list = pd.DataFrame.from_records(
+            p.get_resource(res).read(keyed=True)
+        ).name.to_list()
+        fk_targets_to_resource.update({k: res for k in fk_list})
+
+    for r in p.resources:
+        if "/elements/" in r.descriptor["path"] and r.name not in fk_targets:
+            r = infer_resource_foreign_keys(
+                r, sequences_profiles_to_resource, fk_targets_to_resource
+            )
+            # sort foreign_key entries alphabetically by fields
+            r.descriptor["schema"]["foreignKeys"].sort(
+                key=lambda x: x["fields"]
+            )
+            p.remove_resource(r.name)
+            p.add_resource(r.descriptor)
+
+
+def infer_metadata_from_data(
+    path,
+    package_name="default-name",
+    metadata_filename="datapackage.json",
+    fk_targets=None,
+):
+    """Creates a metadata .json file at the root-folder of datapackage
+
+    The foreign keys are inferred from the csv files within
+    "data/elements" and "data/sequences" resources.
+
+    Parameters
+    ----------
+    path: string
+        Absolute path to root-folder of the datapackage
+    package_name: string
+        Name of the data package
+    metadata_filename: basestring
+        Name of the inferred metadata string.
+    fk_targets: list of string
+        List of resources name containing potential foreign keys targets
+
+    Returns
+    -------
+    Save a json metadata file at the root-folder of datapackage
+    under the provided path.
+    """
+
+    # Infer the fields from the package data
+    path = os.path.abspath(path)
+    p0 = Package(base_path=path)
+    p0.infer(os.path.join(path, "**" + os.sep + "*.csv"))
+    p0.commit()
+    p0.save(os.path.join(path, metadata_filename))
+
+    # this function saves the metadata of the package in json format
+    infer_metadata(
+        package_name=package_name,
+        path=path,
+        metadata_filename=metadata_filename,
+    )
+
+    # reload the package from the saved json file
+    p = Package(os.path.join(path, metadata_filename))
+    infer_package_foreign_keys(p, fk_targets=fk_targets)
+    p.descriptor["resources"].sort(key=lambda x: (x["path"], x["name"]))
+    p.commit()
+    p.save(os.path.join(path, metadata_filename))
+
+
+def infer_metadata(
+    package_name="default-name",
+    keep_resources=False,
+    foreign_keys=None,
+    path=None,
+    metadata_filename="datapackage.json",
+):
+    """Add basic meta data for a datapackage
+
+    Parameters
+    ----------
+    package_name: string
+        Name of the data package
+    keep_resources: boolean
+        Flag indicating of the resources meta data json-files should be kept
+        after main datapackage.json is created. The resource meta data will
+        be stored in the `resources` directory.
+    foreign_keys: dict
+        Dictionary with foreign key specification. Keys for dictionary are:
+        'bus', 'profile', 'from_to_bus'. Values are list with
+        strings with the name of the resources
+    path: string
+        Absolute path to root-folder of the datapackage
+    metadata_filename: basestring
+        Name of the inferred metadata string.
+    """
+
+    current_path = os.getcwd()
+    if path:
+        print("Setting current work directory to {}".format(path))
+        os.chdir(path)
+
+    p = Package()
+    p.descriptor["name"] = package_name
+    p.descriptor["profile"] = "datapackage-data-package"
+    p.descriptor["oemof_datapackage_version"] = oemof_datapackage_version
+    p.commit()
+    if not os.path.exists("resources"):
+        os.makedirs("resources")
+
+    # create meta data resources from csv files in root
+    if os.path.exists("data"):
+        for f in os.listdir("data"):
+            if os.path.isfile(os.path.join("data",f)):
+                r = Resource(
+                    {"path": str(pathlib.PurePosixPath("data", f))}
+                )
+                r.infer()
+                r.commit()
+                r.save(
+                    pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+                )
+                p.add_resource(r.descriptor)
+
+
+    # create meta data resources elements
+    if not os.path.exists("data/elements"):
+        print(
+            "No data path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in sorted(os.listdir("data/elements")):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "elements", f))}
+            )
+            r.infer()
+            r.descriptor["schema"]["primaryKey"] = "name"
+
+            r.descriptor["schema"]["foreignKeys"] = []
+
+            r.commit()
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
+            p.add_resource(r.descriptor)
+
+    # create meta data resources sequences
+    if not os.path.exists("data/sequences"):
+        print(
+            "No data path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in sorted(os.listdir("data/sequences")):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "sequences", f))}
+            )
+            r.infer()
+            r.commit()
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
+            p.add_resource(r.descriptor)
+
+    # create meta data resources geometries
+    if not os.path.exists("data/geometries"):
+        print(
+            "No geometries path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in sorted(os.listdir("data/geometries")):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "geometries", f))}
+            )
+            r.infer()
+            r.commit()
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
+            p.add_resource(r.descriptor)
+
+    # create meta data resources constraints
+    if not os.path.exists("data/constraints"):
+        print(
+            "No constraints path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in os.listdir("data/constraints"):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "constraints", f))}
+            )
+            r.infer()
+            r.commit()
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
+            p.add_resource(r.descriptor)
+
+    # create meta data resources periods
+    if not os.path.exists("data/periods"):
+        print(
+            "No periods path found in directory {}. Skipping...".format(
+                os.getcwd()
+            )
+        )
+    else:
+        for f in os.listdir("data/periods"):
+            r = Resource(
+                {"path": str(pathlib.PurePosixPath("data", "periods", f))}
+            )
+            r.infer()
+            r.commit()
+            r.save(
+                pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+            )
+            p.add_resource(r.descriptor)
+
+    p.descriptor["resources"].sort(key=lambda x: (x["path"], x["name"]))
+    p.commit()
+    p.save(metadata_filename)
+
+    if not keep_resources:
+        shutil.rmtree("resources")
+
+    os.chdir(current_path)
+
+
+def package_from_resources(resource_path, output_path, clean=True):
+    """Collects resource descriptors and merges them in a datapackage.json
+
+    Parameters
+    ----------
+    resource_path: string
+        Path to directory with resources (in .json format)
+    output_path: string
+        Root path of datapackage where the newly created datapckage.json is
+        stored
+    clean: boolean
+        If true, resources will be deleted
+    """
+    p = Package()
+
+    p.descriptor["profile"] = "datapackage-data-package"
+    p.commit()
+
+    for f in sorted(os.listdir(resource_path)):
+        path = os.path.join(resource_path, f)
+
+        r = Resource(path)
+
+        p.add_resource(r.descriptor)
+
+        p.commit()
+
+        os.remove(path)
+
+    if clean:
+        os.rmdir(resource_path)
+
+    p.save(os.path.join(output_path, "datapackage.json"))
+
+
+def _ftp(remotepath, localpath, hostname, username=None, passwd=""):
+    """Download data with FTP
+
+    Parameters
+    ----------
+    remotepath: str
+        The remote file to copy.
+    localpath: str
+        The destination path on localhost.
+    hostname: str
+        The server to connect to.
+    username: str
+        The username to authenticate as.
+    passwd: str
+        The password to authenticate with.
+    """
+
+    ftp = FTP(hostname)
+
+    if username:
+        ftp.login(user=username, passwd=passwd)
+    else:
+        ftp.login()
+
+    ftp.retrbinary("RETR " + remotepath, open(localpath, "wb").write)
+    ftp.quit()
+
+    return
+
+
+def _sftp(
+    remotepath, localpath, hostname="", username="rutherford", password=""
+):
+    """Download data with SFTP
+
+    Parameters
+    ----------
+    remotepath: str
+        The remote file to copy.
+    localpath: str
+        The destination path on localhost.
+    hostname: str
+        The server to connect to.
+    username:
+        The username to authenticate as.
+    """
+
+    client = paramiko.SSHClient()
+    client.load_host_keys(os.path.expanduser("~/.ssh/known_hosts"))
+
+    client.connect(hostname=hostname, username=username, password=password)
+
+    sftp = client.open_sftp()
+    sftp.get(remotepath, localpath)
+
+    sftp.close()
+    client.close()
+
+    return
+
+
+def _http(url, path):
+    """Download data with HTTP
+
+    Parameters
+    ----------
+    url: str
+        Url of file to be downloaded.
+    path: str
+        The destination path on localhost.
+    """
+
+    user_agent = (
+        "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) "
+        "Gecko/2009021910 "
+        "Firefox/3.0.7"
+    )
+    headers = {"User-Agent": user_agent}
+    request = urllib.request.Request(url, None, headers)
+
+    f = urllib.request.urlopen(request)
+    data = f.read()
+    with open(path, "wb") as code:
+        code.write(data)
+
+    return
+
+
+def download_data(url, directory="cache", unzip_file=None, **kwargs):
+    """
+    Downloads data and stores it in specified directory
+
+    Parameters
+    ----------
+    url: str
+        Url of file to be downloaded.
+    directory: str
+        Name of directory where to store the downloaded data.
+        Default is 'cache'-
+    unzip_file: str
+        Regular or directory file name to be extracted from zip source.
+    kwargs:
+        Additional keyword arguments.
+    """
+
+    scheme, netloc, path, params, query, fragment = urlparse(url)
+
+    if not unzip_file:
+        filepath = os.path.join(directory, os.path.basename(path))
+        copypath = filepath
+    else:
+        filepath = os.path.join(directory, unzip_file)
+        copypath = os.path.join(directory, os.path.basename(path))
+
+    if os.path.exists(filepath):
+        return filepath
+
+    else:
+        if scheme in ["http", "https"]:
+            _http(url, copypath)
+
+        elif scheme == "sftp":
+            _sftp(path, copypath, hostname=netloc, **kwargs)
+
+        elif scheme == "ftp":
+            _ftp(path, copypath, hostname=netloc, **kwargs)
+
+        else:
+            raise ValueError(
+                "Cannot download data. Not supported scheme \
+                             in {}.".format(
+                    url
+                )
+            )
+
+    if unzip_file is not None:
+
+        def member(x):
+            return x.startswith(unzip_file.split("/")[0])
+
+        if copypath.endswith(".zip"):
+            zipped = zipfile.ZipFile(copypath, "r")
+            if unzip_file.endswith("/"):
+                zipped.extractall(
+                    filepath, members=list(filter(member, zipped.namelist()))
+                )
+            elif unzip_file == "":
+                zipped.extractall(directory)
+            else:
+                zipped.extract(unzip_file, directory)
+
+            zipped.close()
+
+        elif copypath.endswith(".tar.gz"):
+            tar = tarfile.open(copypath, "r:gz")
+            if unzip_file.endswith("/"):
+                tar.extractall(
+                    filepath,
+                    members=list(
+                        filter(member, [t.name for t in tar.getmembers()])
+                    ),
+                )
+            else:
+                tar.extract(unzip_file, directory)
+
+            tar.close()
+
+        os.remove(copypath)
+
+    return filepath
+
+
+def timeindex(year, periods=8760, freq="H"):
+    """Create pandas datetimeindex.
+
+    Parameters
+    ----------
+    year: string
+        Year of the index
+    periods: string
+        Number of periods, default: 8760
+    freq: string
+        Freq of the datetimeindex, default: 'H'
+    """
+
+    idx = pd.date_range(start=year, periods=periods, freq=freq)
+
+    return idx
+
+
+def initialize(config, directory="."):
+    """Initialize datapackage by reading config file and creating required
+    directories (data/elements, data/sequences etc.) if directories are
+    not specified in the config file, the default directory setup up
+    will be used.
+
+    """
+    sub_directories = {
+        "elements": "data/elements",
+        "sequences": "data/sequences",
+        "geometries": "data/geometries",
+    }
+
+    if not config:
+        try:
+            default = "config.json"
+            config = read_build_config(default)
+        except FileNotFoundError as e:
+            message = (
+                "{}\n"
+                "Cause:\n"
+                "Default path `{}` of config file could not be found!"
+            ).format(e, default)
+            raise FileNotFoundError(message).with_traceback(
+                sys.exc_info()[2]
+            ) from None
+
+    sub_directories.update(config.get("sub-directories", {}))
+
+    for subdir in sub_directories.values():
+        try:
+            os.makedirs(os.path.join(directory, subdir))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+    return sub_directories
+
+
+def input_filepath(file, directory="archive/"):
+    """ """
+    file_path = os.path.join(directory, file)
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(
+            """File with name
+
+            {}
+
+            does not exist. Please make sure you download the file from
+            the sources listed and store it in the directory:
+
+            {}.
+            """.format(
+                file_path, directory
+            )
+        )
+
+    return file_path
+
+
+def read_build_config(file="build.toml"):
+    """Read config build file in toml format
+
+    Parameters
+    ----------
+    file: string
+        String with name of config file
+    """
+    try:
+        config = toml.load(file)
+
+        # create paths
+        if config.get("directories"):
+            config["directories"] = {
+                k: os.path.join(os.getcwd(), v)
+                for k, v in config["directories"].items()
+            }
+    except Exception as e:
+        message = (
+            "{}\n" "Cause:\n" "Build config file '{}' could not be read."
+        ).format(e, file)
+        raise type(e)(message).with_traceback(sys.exc_info()[2]) from None
+
+    return config
+
+
+def read_sequences(filename, directory="data/sequences"):
+    """Reads sequence resources from the datapackage
+
+    Parameters
+    ----------
+    filename: string
+        Name of the sequences to be read, for example `load_profile.csv`
+    directory: string
+        Directory from where the file should be read. Default: `data/sequences`
+    """
+
+    path = os.path.join(directory, filename)
+
+    if os.path.exists(path):
+        sequences = pd.read_csv(
+            path, sep=";", index_col=["timeindex"], parse_dates=True
+        )
+
+    else:
+        sequences = pd.DataFrame(columns=["timeindex"]).set_index("timeindex")
+
+    return sequences
+
+
+def read_elements(filename, directory="data/elements"):
+    """
+    Reads element resources from the datapackage
+
+    Parameters
+    ----------
+    filename: string
+        Name of the elements to be read, for example `load.csv`
+    directory: string
+        Directory where the file is located. Default: `data/elements`
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    path = os.path.join(directory, filename)
+
+    if os.path.exists(path):
+        elements = pd.read_csv(path, sep=";")
+        elements.set_index("name", inplace=True)
+    else:
+        elements = pd.DataFrame(columns=["name"]).set_index("name")
+
+    return elements
+
+
+def write_elements(
+    filename,
+    elements,
+    directory="data/elements",
+    replace=False,
+    overwrite=False,
+    create_dir=True,
+):
+    """Writes elements to filesystem.
+
+    Parameters
+    ----------
+    filename: string
+        Name of the elements to be read, for example `reservoir.csv`
+    elements: pd.DataFrame
+        Elements to be stored in data frame. Index: `name`
+    directory: string
+        Directory where the file is stored. Default: `data/elements`
+    replace: boolean
+        If set, existing data will be overwritten. Otherwise integrity of
+        data (unique indices) will be checked
+    overwrite: boolean
+        If set, existing elements will be overwritten
+    create_dir: boolean
+        Create the directory if not exists
+    Returns
+    -------
+    path: string
+        Returns the path where the file has been stored.
+    """
+
+    path = os.path.join(directory, filename)
+
+    if create_dir:
+        if not os.path.exists(directory):
+            print("Path {} does not exist. Creating...".format(directory))
+            os.makedirs(directory)
+
+    if elements.index.name != "name":
+        elements.index.name = "name"
+
+    if not replace:
+        existing_elements = read_elements(filename, directory=directory)
+        if overwrite:
+            overlapp = list(set(elements.index) & set(existing_elements.index))
+            existing_elements.drop(overlapp, inplace=True)
+        elements = pd.concat(
+            [existing_elements, elements], verify_integrity=True, sort=False
+        )
+
+    elements = elements.reindex(sorted(elements.columns), axis=1)
+
+    elements.reset_index(inplace=True)
+
+    elements.to_csv(path, sep=";", quotechar="'", index=0)
+
+    return path
+
+
+def write_sequences(
+    filename,
+    sequences,
+    directory="data/sequences",
+    replace=False,
+    create_dir=True,
+):
+    """Writes sequences to filesystem.
+
+    Parameters
+    ----------
+    filename: string
+        Name of the sequences to be read, for example `load_profile.csv`
+    sequences: pd.DataFrame
+        Sequences to be stored in data frame. Index: `datetimeindex` with
+        format %Y-%m-%dT%H:%M:%SZ
+    directory: string
+        Directory where the file is stored. Default: `data/elements`
+    replace: boolean
+        If set, existing data will be overwritten. Otherwise integrity of
+        data (unique indices) will be checked
+    create_dir: boolean
+        Create the directory if not exists
+    Returns
+    -------
+    path: string
+        Returns the path where the file has been stored.
+    """
+
+    path = os.path.join(directory, filename)
+
+    if create_dir:
+        if not os.path.exists(directory):
+            print("Path {} does not exist. Creating...".format(directory))
+            os.makedirs(directory)
+
+    if sequences.index.name != "timeindex":
+        sequences.index.name = "timeindex"
+
+    if replace:
+        sequences = sequences
+    else:
+        existing_sequences = read_sequences(filename, directory=directory)
+        sequences = pd.concat(
+            [existing_sequences, sequences], axis=1, verify_integrity=True
+        )
+        # TODO: Adapt to new build config file
+        # if len(sequences.index.difference(timeindex())) > 0:
+        #     raise ValueError(
+        #         "Wrong timeindex for sequence {}.".format(filename)
+        #     )
+
+    sequences = sequences.reindex(sorted(sequences.columns), axis=1)
+
+    sequences.to_csv(path, sep=";", date_format="%Y-%m-%dT%H:%M:%SZ")
+
+    return path

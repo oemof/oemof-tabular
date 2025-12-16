@@ -2,15 +2,15 @@
 Usage
 =====
 
-To use oemof.tabular in a project::
+To use oemof.datapackage in a project::
 
-	import oemof.tabular
+	import oemof.datapackage
 
 
 Background
 =============
 
-The underlying concept of **oemof-tabular** is the
+The underlying concept of **oemof-datapackage** is the
 `oemof solph  <https://oemof.readthedocs.io/en/stable/oemof_solph.html>`_
 package.
 The Open Energy Modelling Framework (oemof) 	is based on a graph structure at its core.
@@ -30,10 +30,10 @@ However, in some cases complexity of this internal logic and full functionality
 is neither necessary nor suitable for model users. Therefore we provide
 so called **facade classes** that provide an energy specific and reduced
 access to the underlying oemof.solph functionality. More importantly theses
-classes provide an interface to tabular data sources from that models can be
+classes provide an interface to datapackage data sources from that models can be
 created easily.
 
-.. note:: To see the implemented facades check out the :py:mod:`~oemof.tabular.facades` module.
+.. note:: To see the implemented facades check out the :py:mod:`~oemof.datapackage.facades` module.
 
 
 Facades
@@ -42,25 +42,25 @@ Facades
 Modelling energy systems based on these classes is straightforward.
 Parametrization of an energy system can either be done via python scripting or
 by using the datapackage structure described below.
-The documentation for the facades can be found :py:mod:`~oemof.tabular.facades`.
+The documentation for the facades can be found :py:mod:`~oemof.datapackage.facades`.
 In addition you can check out the jupyter notebook from the tutorials
 and the examples directory.
 
 Currently we provide the following facades:
 
-* :py:class:`~oemof.tabular.facades.Dispatchable`
-* :py:class:`~oemof.tabular.facades.Volatile`
-* :py:class:`~oemof.tabular.facades.Storage`
-* :py:class:`~oemof.tabular.facades.Reservoir`
-* :py:class:`~oemof.tabular.facades.BackpressureTurbine`
-* :py:class:`~oemof.tabular.facades.ExtractionTurbine`
-* :py:class:`~oemof.tabular.facades.Commodity`
-* :py:class:`~oemof.tabular.facades.Conversion`
-* :py:class:`~oemof.tabular.facades.Load`
-* :py:class:`~oemof.tabular.facades.Link`
-* :py:class:`~oemof.tabular.facades.Excess`
-* :py:class:`~oemof.tabular.facades.CommodityGHG`: a commodity unit with green house gases
-* :py:class:`~oemof.tabular.facades.ConversionGHG`: a conversion unit with green house gases.
+* :py:class:`~oemof.datapackage.facades.Dispatchable`
+* :py:class:`~oemof.datapackage.facades.Volatile`
+* :py:class:`~oemof.datapackage.facades.Storage`
+* :py:class:`~oemof.datapackage.facades.Reservoir`
+* :py:class:`~oemof.datapackage.facades.BackpressureTurbine`
+* :py:class:`~oemof.datapackage.facades.ExtractionTurbine`
+* :py:class:`~oemof.datapackage.facades.Commodity`
+* :py:class:`~oemof.datapackage.facades.Conversion`
+* :py:class:`~oemof.datapackage.facades.Load`
+* :py:class:`~oemof.datapackage.facades.Link`
+* :py:class:`~oemof.datapackage.facades.Excess`
+* :py:class:`~oemof.datapackage.facades.CommodityGHG`: a commodity unit with green house gases
+* :py:class:`~oemof.datapackage.facades.ConversionGHG`: a conversion unit with green house gases.
 
 These can be mixed with all oemof solph classes if your are scripting.
 
@@ -82,7 +82,7 @@ full postprocessing functionality we recommend using one of the types listed bel
 
 We recommend use the following naming convention for your facade names
 `bus-carrier-tech-number`. For example: *DE-gas-ocgt-1*. This allows you to also
-take advantage of the color map from :py:mod:`~oemof.tabular.facades` module.
+take advantage of the color map from :py:mod:`~oemof.datapackage.facades` module.
 
 .. code-block:: python
 
@@ -112,7 +112,7 @@ based on the datapackage standard (see: Reproducible Workflows).
 How to create a Datapackage
 -----------------------------
 
-We adhere to the frictionless `(tabular) datapackage standard  <https://frictionlessdata.io/specs/tabular-data-package/>`_.
+We adhere to the frictionless `(datapackage) datapackage standard  <https://frictionlessdata.io/specs/datapackage-data-package/>`_.
 On top of that structure we add our own logic. We require at least two things:
 
 	1. A directory named *data* containing at least one sub-folder called *elements*
@@ -139,7 +139,7 @@ The resulting tree of the datapackage could for example look like this:
         |-- datapackage.json
 
 Inside the datapackage, data is stored in so called resources. For a
-tabular-datapackage, these resources are CSV files. Columns of such
+datapackage-datapackage, these resources are CSV files. Columns of such
 resources are referred to as *fields*. In this sense field names of the
 resources are equivalent to parameters of the energy system elements and
 sequences.
@@ -150,14 +150,14 @@ the data directory. In addition, geometrical information can be stored under
 can hold data describing global constraints.
 To simplifiy the process of creating
 and processing a datapackage you may
-also use the funtionalities of the :py:mod:`~oemof.tabular.datapackage`
+also use the funtionalities of the :py:mod:`~oemof.datapackage.datapackage`
 
 You can use functions to read and write resources (pandas.DataFrames in python).
 This can also be done for sequences and geometries.
 
 .. code-block:: python
 
-		from oemof.tabular.datapackage import building
+		from oemof.datapackage.datapackage import building
 		...
 
 		building.read_elements('volatile.csv')
@@ -213,7 +213,7 @@ Or, if you want to specify manually the relation of the foreign keys, you can us
 Elements
 --------
 
-We recommend using one tabular data resource (i.e. one csv-file) for each
+We recommend using one datapackage data resource (i.e. one csv-file) for each
 type you want to model. The fields (i.e. column names) match the attribute
 names specified in the description of the facade classes.
 
@@ -411,20 +411,20 @@ the results.
 Postprocessing
 --------------
 After solving the energysystem model, results can be calculated using the
-:py:mod:`~oemof.tabular.postprocessing` module. The postprocessing module itself consists of four modules:
-- :py:mod:`~oemof.tabular.postprocessing.core` holds base classes for postprocessing
-- :py:mod:`~oemof.tabular.postprocessing.calculations` holds predefined calculations
-- :py:mod:`~oemof.tabular.postprocessing.helper` holds helper functions which are used in calculations
-- :py:mod:`~oemof.tabular.postprocessing.naming` holds functions for naming results and adding additional information
+:py:mod:`~oemof.datapackage.postprocessing` module. The postprocessing module itself consists of four modules:
+- :py:mod:`~oemof.datapackage.postprocessing.core` holds base classes for postprocessing
+- :py:mod:`~oemof.datapackage.postprocessing.calculations` holds predefined calculations
+- :py:mod:`~oemof.datapackage.postprocessing.helper` holds helper functions which are used in calculations
+- :py:mod:`~oemof.datapackage.postprocessing.naming` holds functions for naming results and adding additional information
 
 The standard way of using the postprocessing module is to initiate the
-:py:class:`~oemof.tabular.postprocessing.core.Calculator` class from
-:py:mod:`~oemof.tabular.postprocessing.core` module with parameters and results from an optimized :py:mod:`~oemof.solph` `Energysystem`.
-Afterwards, calculations can be performed by either using predefined calculations from :py:mod:`~oemof.tabular.postprocessing.calculations` or
-by self-defined calculations inherited from :py:class:`~oemof.tabular.postprocessing.core.Calculation` class in
-:py:mod:`~oemof.tabular.postprocessing.core`.
+:py:class:`~oemof.datapackage.postprocessing.core.Calculator` class from
+:py:mod:`~oemof.datapackage.postprocessing.core` module with parameters and results from an optimized :py:mod:`~oemof.solph` `Energysystem`.
+Afterwards, calculations can be performed by either using predefined calculations from :py:mod:`~oemof.datapackage.postprocessing.calculations` or
+by self-defined calculations inherited from :py:class:`~oemof.datapackage.postprocessing.core.Calculation` class in
+:py:mod:`~oemof.datapackage.postprocessing.core`.
 
-See the following example on how to use the :py:mod:`~oemof.tabular.postprocessing` module:
+See the following example on how to use the :py:mod:`~oemof.datapackage.postprocessing` module:
 
 .. code-block:: python
 
@@ -479,12 +479,12 @@ from an additional repository which adheres to FAIR principles, like zenodo.
 If you provide raw data, make sure the license is compatiple with other data
 in your repository. The `scenarios` directory allows you
 to specify different scenarios and describe them in a basic way via config files.
-The `toml` standard is used by oemof-tabular, howerver you may also use `yaml`,
+The `toml` standard is used by oemof-datapackage, howerver you may also use `yaml`,
 `json`, etc..
 The scripts inside the `scripts` directory will build input data for your
 scenarios from the `.toml` files and the raw-data. This data will be in the
 format
-that oemof-tabular datapackage reader can understand. In addition the script
+that oemof-datapackage datapackage reader can understand. In addition the script
 to compute the models and postprocess results are stored there.
 
 Of course the structure may be adapted to your needs. However you should
@@ -508,14 +508,14 @@ Components do not end up in the model
 Errors when reading a datapackage
 -----------------------------------------
 
-	* Does the column order match the order of fields in the (tabular) data
+	* Does the column order match the order of fields in the (datapackage) data
 	  resource?
 	* Does the type match the types in of the columns (i.e. for integer, obviously
 	  only integer values should be in the respective column)
 
 
 If you encounter this error message when reading a datapackage, you most likely
-provided `output_parameters` that are of type object for a tabular resource.
+provided `output_parameters` that are of type object for a datapackage resource.
 However, there will be emtpy entries in the field of your `output_parameters`.
 
 
@@ -527,7 +527,7 @@ However, there will be emtpy entries in the field of your `output_parameters`.
 
 	.. note::
 
-		If your column / field in a tabular resource is of a specific type, make
+		If your column / field in a datapackage resource is of a specific type, make
 		sure every entry in thies column has this type! For example numeric and
 		empty entries in combination will yield string as a type and not numeric!
 
@@ -584,7 +584,7 @@ Also the following error might occure:
 	.. code-block:: python
 
 		...
-		File "/home/admin/projects/oemof-tabular/venv/lib/python3.6/site-packages/pyomo/repn/plugins/cpxlp.py", line 849, in _print_model_LP
+		File "/home/admin/projects/oemof-datapackage/venv/lib/python3.6/site-packages/pyomo/repn/plugins/cpxlp.py", line 849, in _print_model_LP
 	 	% (_no_negative_zero(vardata_ub)))
 		TypeError: must be real number, not str
 

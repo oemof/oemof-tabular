@@ -9,33 +9,33 @@ Overview
 |docs| |wheel|
 
 
-.. |docs| image:: https://readthedocs.org/projects/oemof-tabular/badge/?style=flat
-    :target: https://readthedocs.org/projects/oemof-tabular
+.. |docs| image:: https://readthedocs.org/projects/oemof-datapackage/badge/?style=flat
+    :target: https://readthedocs.org/projects/oemof-datapackage
     :alt: Documentation Status
 
-.. |version| image:: https://img.shields.io/pypi/v/oemof.tabular.svg
+.. |version| image:: https://img.shields.io/pypi/v/oemof.datapackage.svg
     :alt: PyPI Package latest release
-    :target: https://pypi.org/project/oemof.tabular
+    :target: https://pypi.org/project/oemof.datapackage
 
-.. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-tabular%2Fcompare%2Fv0.0.5...dev&query=%24.total_commits&colorB=blue
+.. |commits-since| image:: https://img.shields.io/badge/dynamic/json.svg?label=%2B&url=https%3A%2F%2Fapi.github.com%2Frepos%2Foemof%2Foemof-datapackage%2Fcompare%2Fv0.0.5...dev&query=%24.total_commits&colorB=blue
     :alt: Commits since latest release
-    :target: https://github.com/oemof/oemof-tabular/compare/v0.0.5...dev
+    :target: https://github.com/oemof/oemof-datapackage/compare/v0.0.5...dev
 
-.. |wheel| image:: https://img.shields.io/pypi/wheel/oemof.tabular.svg
+.. |wheel| image:: https://img.shields.io/pypi/wheel/oemof.datapackage.svg
     :alt: PyPI Wheel
-    :target: https://pypi.org/project/oemof.tabular
+    :target: https://pypi.org/project/oemof.datapackage
 
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/oemof.tabular.svg
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/oemof.datapackage.svg
     :alt: Supported versions
-    :target: https://pypi.org/project/oemof.tabular
+    :target: https://pypi.org/project/oemof.datapackage
 
-.. |license| image:: https://img.shields.io/pypi/l/oemof-tabular.svg?colorB=blue
+.. |license| image:: https://img.shields.io/pypi/l/oemof-datapackage.svg?colorB=blue
     :alt: PyPI - License
-    :target: https://github.com/oemof/oemof-tabular/blob/master/LICENSE
+    :target: https://github.com/oemof/oemof-datapackage/blob/master/LICENSE
 
 .. end-badges
 
-Load oemof energy systems from tabular data sources.
+Load oemof energy systems from datapackage data sources.
 
 * Free software: BSD 3-Clause License
 
@@ -46,14 +46,14 @@ Simpy run:
 
 ::
 
-    pip install oemof.tabular
+    pip install oemof.datapackage
 
 
 Documentation
 =============
 
 
-https://oemof-tabular.readthedocs.io/
+https://oemof-datapackage.readthedocs.io/
 
 
 Development
