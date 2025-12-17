@@ -13,13 +13,18 @@ Copyright 2015-2017 Frankfurt Institute for Advanced Studies
 import os
 from collections import OrderedDict
 from functools import partial
-from itertools import product, takewhile
-from operator import attrgetter, itemgetter
+from itertools import product
+from itertools import takewhile
+from operator import attrgetter
+from operator import itemgetter
 
 import pandas as pd
 
 try:
-    from shapely.geometry import LinearRing, MultiPolygon, Polygon, shape
+    from shapely.geometry import LinearRing
+    from shapely.geometry import MultiPolygon
+    from shapely.geometry import Polygon
+    from shapely.geometry import shape
     from shapely.ops import transform
     from shapely.prepared import prep
 except ImportError:
@@ -31,7 +36,10 @@ except ImportError:
     raise ImportError("Need to install pyproj to use geometry module!")
 
 try:
-    from geojson import Feature, FeatureCollection, dump, load
+    from geojson import Feature
+    from geojson import FeatureCollection
+    from geojson import dump
+    from geojson import load
 except ImportError:
     raise ImportError("Need to install geojson to use geometry module!")
 

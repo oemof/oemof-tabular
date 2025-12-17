@@ -30,6 +30,7 @@ line-length=79
 profile = "black"
 forced_separate = ["conftest"]
 force_single_line = true
+line_length = 79
 
 [tool.ruff]
 extend-exclude = ["static", "ci/templates"]
