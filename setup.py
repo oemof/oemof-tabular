@@ -66,7 +66,7 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires=">=3.9, <3.14",
+    python_requires=">=3.9",
     install_requires=[
         "datapackage==1.5.1",
         "cchardet==2.2.0a2",
