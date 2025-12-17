@@ -631,7 +631,9 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
         else:
             raise ValueError(
                 "Cannot download data. Not supported scheme \
-                             in {}.".format(url)
+                             in {}.".format(
+                    url
+                )
             )
 
     if unzip_file is not None:
@@ -742,7 +744,9 @@ def input_filepath(file, directory="archive/"):
             the sources listed and store it in the directory:
 
             {}.
-            """.format(file_path, directory)
+            """.format(
+                file_path, directory
+            )
         )
 
     return file_path
