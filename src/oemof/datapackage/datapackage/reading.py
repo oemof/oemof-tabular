@@ -1,4 +1,4 @@
-""" Tools to deserialize energy systems from datapackages.
+"""Tools to deserialize energy systems from datapackages.
 
 **WARNING**
 
@@ -24,7 +24,9 @@ import pandas as pd
 from oemof.network.network import Bus, Component
 from oemof.network.network import Node
 
-from oemof.datapackage.config.config import supported_oemof_datapackage_versions
+from oemof.datapackage.config.config import (
+    supported_oemof_datapackage_versions,
+)
 
 from ..tools import HSN, raisestatement, remap
 
@@ -107,12 +109,20 @@ def read_facade(
         facades[facade["name"]] = instance
     else:
         warnings.warn(
-            f'The instance of the {str(mapping)} class with name "{facade["name"]}" does not inherit from oemof.network.Node and will therefore not be added to the energy system'
+            f'The instance of the {str(mapping)} class with name "'
+            f'{facade["name"]}" does not inherit from oemof.network.Node '
+            f'and will therefore not be added to the energy system'
         )
     return instance
 
 
-def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
+def deserialize_energy_system(cls, path, typemap=None, attributemap=None):
+    if typemap is None:
+        typemap = {}
+
+    if attributemap is None:
+        attributemap = {}
+
     cast_error_msg = (
         "Metadata structure of resource `{}` does not match data "
         "structure. Check the column names, types and their order."
@@ -134,8 +144,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
     sequence_foreign_keys = {}
 
-    # the fk to resources within sequences are not real ForeignKeys because they do not provide "fields" under
-    # their "reference". This is why we need to handle them separately from the datapackage
+    # the fk to resources within sequences are not real ForeignKeys because
+    # they do not provide "fields" under their "reference". This is why we need
+    # to handle them separately from the datapackage
     sequences_resources = [
         r["name"]
         for r in datapackage_json["resources"]
@@ -150,7 +161,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             for fk in resource["schema"]["foreignKeys"]
             if fk["reference"]["resource"] in sequences_resources
         ]
-        # keep all ForeignKeys which are not a fake ForeignKey to resources within sequences
+        # keep all ForeignKeys which are not a fake ForeignKey to resources
+        # within sequences
         resource["schema"]["foreignKeys"] = [
             fk
             for fk in resource["schema"]["foreignKeys"]
@@ -169,7 +181,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         except dp.exceptions.CastError as e:
             raise dp.exceptions.CastError(
                 "\n"
-                + (cast_error_msg).format(r.name)
+                + cast_error_msg.format(r.name)
                 + "\n"
                 + "\n ".join([str(i) for i in e.errors])
             )
@@ -178,7 +190,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     empty.headers = ()
 
     # check version that was used to create metadata
-    oemof_datapackage_version = package.descriptor.get("oemof_datapackage_version")
+    oemof_datapackage_version = package.descriptor.get(
+        "oemof_datapackage_version"
+    )
 
     if oemof_datapackage_version not in supported_oemof_datapackage_versions:
         warnings.warn(
@@ -328,19 +342,19 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
     objects = {}
 
-    def create(cls, init, attributes):
-        """Creates an instance of `cls` and sets `attributes`."""
+    def create(clsi, init, attributes):
+        """Creates an instance of `clsi` and sets `attributes`."""
         init.update(attributes)
 
         init.pop("type")  # if Facades class no longer exists
         # only remap the argument of the classes which inherit from Node
-        if issubclass(cls, Node):
-            init = remap(init, attributemap, cls)
+        if issubclass(clsi, Node):
+            init = remap(init, attributemap, clsi)
 
-        instance = cls(**init)
-        for k, v in remap(attributes, attributemap, cls).items():
-            if not hasattr(instance, k):
-                setattr(instance, k, v)
+        instance = clsi(**init)
+        for key, val in remap(attributes, attributemap, clsi).items():
+            if not hasattr(instance, key):
+                setattr(instance, key, val)
             name = getattr(instance, "name", getattr(instance, "label", None))
             if name is not None:
                 objects[name] = instance
@@ -371,11 +385,11 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         """
 
         def find(n, d):
-            found = []
-            for resource in d:
-                if n in d[resource]:
-                    assert getattr(d[resource][n], "label", n) == n
-                    found.append(d[resource][n])
+            found_rsrc = []
+            for rsrc in d:
+                if n in d[rsrc]:
+                    assert getattr(d[rsrc][n], "label", n) == n
+                    found_rsrc.append(d[rsrc][n])
                 assert len(found) <= 1
             return found
 
@@ -579,6 +593,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
 
     facades = {}
     for r in package.resources:
+        print(r.descriptor)
         if all(
             re.match(r"^data/elements/.*$", p)
             for p in listify(r.descriptor["path"], 1)

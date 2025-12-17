@@ -28,3 +28,9 @@ line-length=79
 
 [tool.isort]
 profile = "black"
+
+[tool.ruff]
+extend-exclude = ["static", "ci/templates"]
+line-length = 79
+src = ["src", "tests"]
+target-version = "py313"
