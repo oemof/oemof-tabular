@@ -150,7 +150,8 @@ def infer_resource_foreign_keys(
     except tableschema.exceptions.CastError as err:
         if err.errors:
             logging.error(
-                f"The resource {r.name} has the following casting errors: {','.join([str(e) for e in err.errors])}"
+                f"The resource {r.name} has the following casting errors: "
+                f"{','.join([str(e) for e in err.errors])}"
             )
         else:
             logging.error(
@@ -166,15 +167,18 @@ def infer_resource_foreign_keys(
         for field in r.schema.fields:
             if field.type == "string":
                 for potential_fk in data[field.name].dropna().unique():
-                    # Check that the potential foreign key does not have multiple matches
+                    # Check that the potential foreign key does not have
+                    # multiple matches
                     if (
                         potential_fk in sequences_profiles_to_resource
                         and potential_fk in fk_targets_mapping
                     ):
                         raise ValueError(
-                            f"The potential foreign key '{potential_fk}' has a match in both the 'name' "
-                            f"column of the 'bus.csv' resource and in the headers of "
-                            f"the '{sequences_profiles_to_resource[potential_fk]}' resource."
+                            f"The potential foreign key '{potential_fk}' has "
+                            f"a match in both the 'name' column of the "
+                            f"'bus.csv' resource and in the headers of the "
+                            f"'{sequences_profiles_to_resource[potential_fk]}'"
+                            f" resource."
                         )
 
                     if potential_fk in sequences_profiles_to_resource:

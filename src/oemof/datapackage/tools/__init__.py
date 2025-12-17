@@ -1,4 +1,4 @@
-""" `oemof.datapackage`'s kitchen sink module.
+"""`oemof.datapackage`'s kitchen sink module.
 
 Contains all the general tools needed by other tools dealing with specific
 datapackage data sources.

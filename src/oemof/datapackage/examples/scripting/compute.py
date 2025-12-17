@@ -1,10 +1,9 @@
-"""
-"""
-
 import importlib.resources
 import os
 
-from oemof.solph import EnergySystem, Model, processing
+from oemof.solph import EnergySystem
+from oemof.solph import Model
+from oemof.solph import processing
 
 # DONT REMOVE THIS LINE!
 from oemof.datapackage import datapackage  # noqa

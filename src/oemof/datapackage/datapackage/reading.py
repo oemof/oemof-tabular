@@ -27,7 +27,9 @@ from oemof.network.network import Bus
 from oemof.network.network import Component
 from oemof.network.network import Node
 
-from oemof.datapackage.config.config import supported_oemof_datapackage_versions
+from oemof.datapackage.config.config import (
+    supported_oemof_datapackage_versions,
+)
 
 from ..tools import HSN
 from ..tools import raisestatement
@@ -148,8 +150,8 @@ def deserialize_energy_system(cls, path, typemap=None, attributemap=None):
     sequence_foreign_keys = {}
 
     # the fk to resources within sequences are not real ForeignKeys because
-    # they do not provide "fields" under their "reference". This is why we need
-    # to handle them separately from the datapackage
+    # they do not provide "fields" under their "reference". This is why we
+    # need to handle them separately from the datapackage
     sequences_resources = [
         r["name"]
         for r in datapackage_json["resources"]
