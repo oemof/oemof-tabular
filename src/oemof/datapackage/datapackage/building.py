@@ -11,12 +11,13 @@ import warnings
 import zipfile
 from ftplib import FTP
 from urllib.parse import urlparse
-import tableschema
 
 import pandas as pd
 import paramiko
+import tableschema
 import toml
-from datapackage import Package, Resource
+from datapackage import Package
+from datapackage import Resource
 
 from oemof.datapackage import __version__ as oemof_datapackage_version
 from oemof.datapackage.config import config
@@ -341,17 +342,16 @@ def infer_metadata(
     # create meta data resources from csv files in root
     if os.path.exists("data"):
         for f in os.listdir("data"):
-            if os.path.isfile(os.path.join("data",f)):
-                r = Resource(
-                    {"path": str(pathlib.PurePosixPath("data", f))}
-                )
+            if os.path.isfile(os.path.join("data", f)):
+                r = Resource({"path": str(pathlib.PurePosixPath("data", f))})
                 r.infer()
                 r.commit()
                 r.save(
-                    pathlib.PurePosixPath("resources", f.replace(".csv", ".json"))
+                    pathlib.PurePosixPath(
+                        "resources", f.replace(".csv", ".json")
+                    )
                 )
                 p.add_resource(r.descriptor)
-
 
     # create meta data resources elements
     if not os.path.exists("data/elements"):
@@ -627,9 +627,7 @@ def download_data(url, directory="cache", unzip_file=None, **kwargs):
         else:
             raise ValueError(
                 "Cannot download data. Not supported scheme \
-                             in {}.".format(
-                    url
-                )
+                             in {}.".format(url)
             )
 
     if unzip_file is not None:
@@ -740,9 +738,7 @@ def input_filepath(file, directory="archive/"):
             the sources listed and store it in the directory:
 
             {}.
-            """.format(
-                file_path, directory
-            )
+            """.format(file_path, directory)
         )
 
     return file_path
@@ -767,7 +763,7 @@ def read_build_config(file="build.toml"):
             }
     except Exception as e:
         message = (
-            "{}\n" "Cause:\n" "Build config file '{}' could not be read."
+            "{}\nCause:\nBuild config file '{}' could not be read."
         ).format(e, file)
         raise type(e)(message).with_traceback(sys.exc_info()[2]) from None
 

@@ -17,18 +17,21 @@ import re
 import typing
 import warnings
 from decimal import Decimal
-from itertools import chain, groupby, repeat
+from itertools import chain
+from itertools import groupby
+from itertools import repeat
 
 import datapackage as dp
 import pandas as pd
-from oemof.network.network import Bus, Component
+from oemof.network.network import Bus
+from oemof.network.network import Component
 from oemof.network.network import Node
 
-from oemof.datapackage.config.config import (
-    supported_oemof_datapackage_versions,
-)
+from oemof.datapackage.config.config import supported_oemof_datapackage_versions
 
-from ..tools import HSN, raisestatement, remap
+from ..tools import HSN
+from ..tools import raisestatement
+from ..tools import remap
 
 DEFAULT = object()
 FLOW_TYPE = object()
@@ -111,7 +114,7 @@ def read_facade(
         warnings.warn(
             f'The instance of the {str(mapping)} class with name "'
             f'{facade["name"]}" does not inherit from oemof.network.Node '
-            f'and will therefore not be added to the energy system'
+            f"and will therefore not be added to the energy system"
         )
     return instance
 

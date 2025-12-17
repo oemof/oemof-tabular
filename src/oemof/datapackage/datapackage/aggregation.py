@@ -3,11 +3,13 @@
 Module used for aggregation sequences and elements.
 
 """
+
 import os
 import re
 
 import pandas as pd
-from datapackage import Package, Resource
+from datapackage import Package
+from datapackage import Resource
 
 try:
     import tsam.timeseriesaggregation as tsam
@@ -88,9 +90,9 @@ def temporal_skip(datapackage, n, path="/tmp", name=None, *args):
     r = Resource({"path": "data/temporal.csv"})
     r.infer()
 
-    r.descriptor[
-        "description"
-    ] = "Temporal selection based on skipped timesteps. Skipped n={}".format(n)
+    r.descriptor["description"] = (
+        "Temporal selection based on skipped timesteps. Skipped n={}".format(n)
+    )
 
     # Update meta-data of copied package
     cp = Package("datapackage.json")
@@ -212,9 +214,9 @@ def temporal_clustering(datapackage, n, path="/tmp", how="daily"):
     r = Resource({"path": "data/temporal.csv"})
     r.infer()
     # TODO: Add meta-data description
-    r.descriptor[
-        "description"
-    ] = "Temporal selection based on hierachical clustering..."
+    r.descriptor["description"] = (
+        "Temporal selection based on hierachical clustering..."
+    )
 
     # Update meta-data of copied package
     cp = Package("datapackage.json")
