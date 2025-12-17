@@ -20,7 +20,6 @@ from datapackage import Package
 from datapackage import Resource
 
 from oemof.datapackage import __version__ as oemof_datapackage_version
-from oemof.datapackage.config import config
 
 
 def infer_resources(directory="data/elements"):
