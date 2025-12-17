@@ -129,16 +129,17 @@ def infer_resource_foreign_keys(
 
     Look through all field of a resource which are of type 'string'
     if any of their values are matching a profile header in any of
-    the sequences resources or a value within the column name of resources present
-    in fk_targets_mapping
-
+    the sequences resources or a value within the column name of resources
+    present in fk_targets_mapping
 
     Parameters
     ----------
     resource: a :datapackage.Resource: instance
     sequences_profiles_to_resource: the mapping of sequence profile
         headers to their resource name
-    fk_targets_mapping: a mapping of potential foreign keys targets mapped to their resource
+    fk_targets_mapping: a mapping of potential foreign keys targets mapped to
+    their resource
+
     Returns
     -------
     The :datapackage.Resource: instance with updated "foreignKeys" field
