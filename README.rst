@@ -6,12 +6,16 @@ Overview
 
 |version| |commits-since| |supported-versions| |license|
 
-|docs| |wheel|
+|docs| [tests] |wheel|
 
 
 .. |docs| image:: https://readthedocs.org/projects/oemof-datapackage/badge/?style=flat
     :target: https://readthedocs.org/projects/oemof-datapackage
     :alt: Documentation Status
+
+.. |tests| image:: https://github.com/oemof/oemof-datapackage/actions/workflows/main.yml/badge.svg
+    :target: https://github.com/oemof/oemof-datapackage/actions/workflows/main.yml
+    :alt: CI Status
 
 .. |version| image:: https://img.shields.io/pypi/v/oemof.datapackage.svg
     :alt: PyPI Package latest release
