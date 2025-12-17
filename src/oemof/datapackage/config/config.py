@@ -1,7 +1,3 @@
-import json
-import os
-import pathlib
-
 supported_oemof_datapackage_versions = [
     None,
     "0.0.1",
