@@ -2,17 +2,6 @@
 from __future__ import unicode_literals
 
 import os
-import sys
-
-from oemof.datapackage.facades import TYPEMAP
-
-sys.path.append("code")
-from get_facade_attributes import get_facade_attrs, write_table_rst
-
-facade_attrs = get_facade_attrs(TYPEMAP)
-for facade, attrs in facade_attrs.items():
-    attrs.to_csv(os.path.join("facade_attributes", facade + ".csv"))
-write_table_rst("facade_attributes", "facades.rst")
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -43,7 +32,7 @@ if os.getenv('SPELLCHECK'):
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'oemof.datapackage'
-year = '2023'
+year = '2025'
 author = 'Stephan Günther, Jann Launer, Julian Endres, Hendrik Huyskens'
 copyright = '{0}, {1}'.format(year, author)
 version = release = '0.0.6dev'

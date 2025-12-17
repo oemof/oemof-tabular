@@ -36,62 +36,6 @@ created easily.
 .. note:: To see the implemented facades check out the :py:mod:`~oemof.datapackage.facades` module.
 
 
-Facades
----------------------------------
-
-Modelling energy systems based on these classes is straightforward.
-Parametrization of an energy system can either be done via python scripting or
-by using the datapackage structure described below.
-The documentation for the facades can be found :py:mod:`~oemof.datapackage.facades`.
-In addition you can check out the jupyter notebook from the tutorials
-and the examples directory.
-
-Currently we provide the following facades:
-
-* :py:class:`~oemof.datapackage.facades.Dispatchable`
-* :py:class:`~oemof.datapackage.facades.Volatile`
-* :py:class:`~oemof.datapackage.facades.Storage`
-* :py:class:`~oemof.datapackage.facades.Reservoir`
-* :py:class:`~oemof.datapackage.facades.BackpressureTurbine`
-* :py:class:`~oemof.datapackage.facades.ExtractionTurbine`
-* :py:class:`~oemof.datapackage.facades.Commodity`
-* :py:class:`~oemof.datapackage.facades.Conversion`
-* :py:class:`~oemof.datapackage.facades.Load`
-* :py:class:`~oemof.datapackage.facades.Link`
-* :py:class:`~oemof.datapackage.facades.Excess`
-* :py:class:`~oemof.datapackage.facades.CommodityGHG`: a commodity unit with green house gases
-* :py:class:`~oemof.datapackage.facades.ConversionGHG`: a conversion unit with green house gases.
-
-These can be mixed with all oemof solph classes if your are scripting.
-
-Datamodel and Naming Conventions
-----------------------------------
-
-Facades require specific attributes. For all facades the attribute `carrier`,
-'tech' and 'type' need to be set. The type of the attribute is string,
-therefore you can choose string for these. However, if you want to leverage
-full postprocessing functionality we recommend using one of the types listed below
-
-**Carriers**
-
-* solar, wind, biomass, coal, lignite, uranium, oil, gas, hydro, waste, electricity, heat, other
-
-**Tech types**
-
-* st, ocgt, ccgt, ce, pv, onshore, offshore, ror, rsv, phs, ext, bp, battery
-
-We recommend use the following naming convention for your facade names
-`bus-carrier-tech-number`. For example: *DE-gas-ocgt-1*. This allows you to also
-take advantage of the color map from :py:mod:`~oemof.datapackage.facades` module.
-
-.. code-block:: python
-
-		from oemof.facades import TECH_COLOR_MAP, CARRIER_COLER_MAP
-
-		biomass_color = CARRIER_COLER_MAP["biomass"]
-		pv_color = TECH_COLOR_MAP["pv"]
-
-
 Datapackage
 ============
 To construct a model based on the datapackage the following 2

@@ -63,13 +63,3 @@ oemof.datapackage.tools.geometry module
     :members:
     :undoc-members:
     :show-inheritance:
-
-
-
-oemof.datapackage.facades module
-=============================
-
-.. automodule:: oemof.datapackage.facades
-    :members:
-    :undoc-members:
-    :show-inheritance:
