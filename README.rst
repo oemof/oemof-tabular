@@ -6,7 +6,7 @@ Overview
 
 |version| |commits-since| |supported-versions| |license|
 
-|docs| [tests] |wheel|
+|docs| |tests| |wheel|
 
 
 .. |docs| image:: https://readthedocs.org/projects/oemof-datapackage/badge/?style=flat
