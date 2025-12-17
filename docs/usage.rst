@@ -352,41 +352,6 @@ the results.
 		datapackage and map those to the facade classes (use `typemap` attribute for
 		this)
 
-Postprocessing
---------------
-After solving the energysystem model, results can be calculated using the
-:py:mod:`~oemof.datapackage.postprocessing` module. The postprocessing module itself consists of four modules:
-- :py:mod:`~oemof.datapackage.postprocessing.core` holds base classes for postprocessing
-- :py:mod:`~oemof.datapackage.postprocessing.calculations` holds predefined calculations
-- :py:mod:`~oemof.datapackage.postprocessing.helper` holds helper functions which are used in calculations
-- :py:mod:`~oemof.datapackage.postprocessing.naming` holds functions for naming results and adding additional information
-
-The standard way of using the postprocessing module is to initiate the
-:py:class:`~oemof.datapackage.postprocessing.core.Calculator` class from
-:py:mod:`~oemof.datapackage.postprocessing.core` module with parameters and results from an optimized :py:mod:`~oemof.solph` `Energysystem`.
-Afterwards, calculations can be performed by either using predefined calculations from :py:mod:`~oemof.datapackage.postprocessing.calculations` or
-by self-defined calculations inherited from :py:class:`~oemof.datapackage.postprocessing.core.Calculation` class in
-:py:mod:`~oemof.datapackage.postprocessing.core`.
-
-See the following example on how to use the :py:mod:`~oemof.datapackage.postprocessing` module:
-
-.. code-block:: python
-
-    from oemoflex.postprocessing import core, calculations
-
-    calculator = core.Calculator(es.params, es.results)
-
-    aggregated_flows = calculations.AggregatedFlows(calculator).result
-    storage_losses = calculations.StorageLosses(calculator).result
-    transmission_losses = calculations.TransmissionLosses(calculator).result
-    invested_capacity = calculations.InvestedCapacity(calculator).result
-    invested_storage_capacity = calculations.InvestedStorageCapacity(calculator).result
-    invested_capacity_costs = calculations.InvestedCapacityCosts(calculator).result
-    invested_storage_capacity_costs = calculations.InvestedStorageCapacityCosts(calculator).result
-    summed_carrier_costs = calculations.SummedCarrierCosts(calculator).result
-    summed_marginal_costs = calculations.SummedMarginalCosts(calculator).result
-    total_system_costs = calculations.TotalSystemCosts(calculator).result
-
 
 Reproducible Workflows
 =======================

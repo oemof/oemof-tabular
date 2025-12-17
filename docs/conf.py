@@ -27,7 +27,7 @@ nbsphinx_timeout = 360
 if os.getenv('SPELLCHECK'):
     extensions += 'sphinxcontrib.spelling',
     spelling_show_suggestions = True
-    spelling_lang = 'en_US'
+    spelling_lang = 'en_GB'
 
 source_suffix = '.rst'
 master_doc = 'index'
