@@ -28,8 +28,8 @@ line-length=79
 
 [tool.isort]
 profile = "black"
-forced-separate = ["conftest"]
-force-single-line = true
+forced_separate = ["conftest"]
+force_single_line = true
 
 [tool.ruff]
 extend-exclude = ["static", "ci/templates"]
