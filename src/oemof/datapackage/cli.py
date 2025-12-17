@@ -6,7 +6,8 @@ Module that contains the command line app.
 import collections
 import copy
 
-from datapackage import Package, exceptions
+from datapackage import Package
+from datapackage import exceptions
 
 try:
     import click

@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import
+from __future__ import print_function
 
 import io
 import re
 from glob import glob
-from os.path import basename, dirname, join, splitext
+from os.path import basename
+from os.path import dirname
+from os.path import join
+from os.path import splitext
 
-from setuptools import find_packages, setup
+from setuptools import find_packages
+from setuptools import setup
 
 
 def read(*names, **kwargs):
@@ -20,8 +25,8 @@ def read(*names, **kwargs):
 
 setup(
     name="oemof.datapackage",
-    version="0.0.6dev",
-    license="BSD 3-Clause License",
+    version="0.0.6.dev0",
+    license="BSD-3-Clause",
     description="Load oemof energy systems from datapackage data sources.",
     long_description="%s\n%s"
     % (
@@ -48,7 +53,6 @@ setup(
         #
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
         "Operating System :: Unix",
         "Operating System :: POSIX",
         "Operating System :: Microsoft :: Windows",
