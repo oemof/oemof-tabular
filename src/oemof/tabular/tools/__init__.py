@@ -1,4 +1,4 @@
-""" `oemof.tabular`'s kitchen sink module.
+"""`oemof.tabular`'s kitchen sink module.
 
 Contains all the general tools needed by other tools dealing with specific
 tabular data sources.

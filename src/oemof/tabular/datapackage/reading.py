@@ -1,4 +1,4 @@
-""" Tools to deserialize energy systems from datapackages.
+"""Tools to deserialize energy systems from datapackages.
 
 **WARNING**
 
@@ -603,6 +603,15 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     resource,
                 )
 
+    def get_tsam_parameters():
+        """Extract TSAM parameters from pacakge if given."""
+        if package.get_resource("tsa_parameters"):
+            df_tsa_parameters = pd.DataFrame.from_dict(
+                package.get_resource("tsa_parameters").read(keyed=True)
+            ).set_index("period", drop=True)
+            return df_tsa_parameters.sort_index().to_dict("records")
+        return None
+
     # TODO: Find concept how to deal with timeindices and clean up based on
     # concept
     lst = [idx for idx in timeindices.values()]
@@ -623,7 +632,11 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 name="timeindex",
             )
             timeindex = temporal.index
-            es = cls(timeindex=timeindex, temporal=temporal)
+            es = cls(
+                timeindex=timeindex,
+                temporal=temporal,
+                tsa_parameters=get_tsam_parameters(),
+            )
 
         # if no temporal provided as resource, take the first timeindex
         # from dict
@@ -634,6 +647,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     timeindex=period_data["timeindex"],
                     timeincrement=period_data["timeincrement"],
                     periods=period_data["periods"],
+                    tsa_parameters=get_tsam_parameters(),
                     infer_last_interval=False,
                 )
 
@@ -644,7 +658,11 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     idx.values, freq=idx.inferred_freq, name="timeindex"
                 )
                 temporal = None
-                es = cls(timeindex=timeindex, temporal=temporal)
+                es = cls(
+                    timeindex=timeindex,
+                    temporal=temporal,
+                    tsa_parameters=get_tsam_parameters(),
+                )
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
             # step of today (same as in the EnergySystem __init__ if no
@@ -653,7 +671,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex = pd.date_range(
                     start=pd.to_datetime("today"), periods=1, freq="H"
                 )
-                es = cls(timeindex=timeindex)
+                es = cls(
+                    timeindex=timeindex, tsa_parameters=get_tsam_parameters()
+                )
 
         es.add(
             *chain(
