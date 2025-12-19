@@ -21,6 +21,7 @@ SPDX-License-Identifier: BSD-3-Clause
 import dataclasses
 import inspect
 import warnings
+from abc import abstractmethod
 from collections import deque
 from dataclasses import dataclass
 
@@ -146,20 +147,18 @@ class Facade(Node):
 
         super().__init__(*args, **kwargs)
 
-        self.subnodes = []
         EnergySystem.signals[EnergySystem.add].connect(
             add_subnodes, sender=self
         )
 
-    def _nominal_value(self):
-        """Returns None if self.expandable ist True otherwise it returns
+        self.build_solph_components()
+
+    def _nominal_capacity(self):
+        """Returns investment if self.expandable ist True otherwise it returns
         the capacity
         """
         if self.expandable is True:
-            if isinstance(self, Link):
-                return {"from_to": None, "to_from": None}
-            else:
-                return None
+            return self._investment()
 
         else:
             if isinstance(self, Link):
@@ -171,9 +170,6 @@ class Facade(Node):
                 return self.capacity
 
     def _investment(self):
-        if not self.expandable:
-            self.investment = None
-            return self.investment
         if self.capacity_cost is None:
             msg = (
                 "If you set `expandable`to True you need to set "
@@ -250,3 +246,7 @@ class Facade(Node):
 
     def update(self):
         self.build_solph_components()
+
+    @abstractmethod
+    def build_solph_components(self) -> None:
+        raise NotImplementedError("Must be implemented by facade.")
