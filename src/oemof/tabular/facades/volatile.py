@@ -1,15 +1,13 @@
-from dataclasses import field
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 from oemof.solph.buses import Bus
 from oemof.solph.components import Source
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Volatile(Source, Facade):
+class Volatile(Facade, Source):
     r"""Volatile element with one output. This class can be used to model
     PV oder Wind power plants.
 
@@ -101,41 +99,48 @@ class Volatile(Source, Facade):
 
     """
 
-    bus: Bus
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        carrier: str,
+        tech: str,
+        profile: Union[float, Sequence[float]],
+        capacity: Optional[float] = None,
+        capacity_potential: float = float("+inf"),
+        capacity_minimum: Optional[float] = None,
+        expandable: bool = False,
+        marginal_cost: float = 0.0,
+        capacity_cost: Optional[float] = None,
+        lifetime: Optional[int] = None,
+        age: int = 0,
+        fixed_costs: Optional[Union[float, Sequence[float]]] = None,
+        output_parameters: Optional[dict] = None,
+        **kwargs
+    ):
+        self.bus = bus
+        self.carrier = carrier
+        self.tech = tech
+        self.profile = profile
+        self.capacity = capacity
+        self.capacity_potential = capacity_potential
+        self.capacity_minimum = capacity_minimum
+        self.expandable = expandable
+        self.marginal_cost = marginal_cost
+        self.capacity_cost = capacity_cost
+        self.lifetime = lifetime
+        self.age = age
+        self.fixed_costs = fixed_costs
+        self.output_parameters = output_parameters or {}
 
-    carrier: str
-
-    tech: str
-
-    profile: Union[float, Sequence[float]]
-
-    capacity: float = None
-
-    capacity_potential: float = float("+inf")
-
-    capacity_minimum: float = None
-
-    expandable: bool = False
-
-    marginal_cost: float = 0
-
-    capacity_cost: float = None
-
-    lifetime: int = None
-
-    age: int = 0
-
-    fixed_costs: Union[float, Sequence[float]] = None
-
-    output_parameters: dict = field(default_factory=dict)
+        super().__init__(label=label, outputs={}, **kwargs)
 
     def build_solph_components(self):
         """ """
         f = Flow(
-            nominal_value=self._nominal_value(),
+            nominal_capacity=self._nominal_capacity(),
             variable_costs=self.marginal_cost,
             fix=self.profile,
-            investment=self._investment(),
             **self.output_parameters,
         )
 

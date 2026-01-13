@@ -1,15 +1,13 @@
-from dataclasses import field
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 from oemof.solph.buses import Bus
 from oemof.solph.components import Sink
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Load(Sink, Facade):
+class Load(Facade, Sink):
     r"""Load object with one input
 
     Parameters
@@ -45,22 +43,34 @@ class Load(Sink, Facade):
     ...     profile=[0.3, 0.2, 0.5])
     """
 
-    bus: Bus
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        amount: float,
+        profile: Union[float, Sequence[float]],
+        carrier: Optional[str] = None,
+        tech: Optional[str] = None,
+        marginal_utility: float = 0,
+        input_parameters: Optional[dict] = None,
+        **kwargs
+    ):
+        self.bus = bus
+        self.carrier = carrier
+        self.tech = tech
+        self.amount = amount
+        self.profile = profile
+        self.marginal_utility = marginal_utility
+        self.input_parameters = input_parameters or {}
 
-    amount: float
-
-    profile: Union[float, Sequence[float]]
-
-    marginal_utility: float = 0
-
-    input_parameters: dict = field(default_factory=dict)
+        super().__init__(label=label, inputs={}, **kwargs)
 
     def build_solph_components(self):
         """ """
         self.inputs.update(
             {
                 self.bus: Flow(
-                    nominal_value=self.amount,
+                    nominal_capacity=self.amount,
                     fix=self.profile,
                     variable_costs=self.marginal_utility,
                     **self.input_parameters,

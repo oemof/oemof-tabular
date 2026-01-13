@@ -1,13 +1,14 @@
+from typing import Optional
+
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
 from oemof.solph.components import Link
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Link(Link, Facade):
+class Link(Facade, Link):
     """Bidirectional link for two buses, e.g. to model transshipment.
 
     Parameters
@@ -59,41 +60,50 @@ class Link(Link, Facade):
     ...     loss=0.04)
     """
 
-    from_bus: Bus
+    def __init__(
+        self,
+        label: str,
+        from_bus: Bus,
+        to_bus: Bus,
+        carrier: Optional[str] = None,
+        tech: Optional[str] = None,
+        capacity: Optional[float] = None,
+        from_to_capacity: Optional[float] = None,
+        to_from_capacity: Optional[float] = None,
+        loss: float = 0,
+        capacity_cost: Optional[float] = None,
+        marginal_cost: float = 0,
+        expandable: bool = False,
+        limit_direction: bool = False,
+        **kwargs
+    ):
+        self.from_bus = from_bus
+        self.to_bus = to_bus
+        self.carrier = carrier
+        self.tech = tech
+        self.from_to_capacity = from_to_capacity or capacity
+        self.to_from_capacity = to_from_capacity or capacity
+        self.loss = loss
+        self.capacity_cost = capacity_cost
+        self.marginal_cost = marginal_cost
+        self.expandable = expandable
+        self.limit_direction = limit_direction
 
-    to_bus: Bus
-
-    from_to_capacity: float = None
-
-    to_from_capacity: float = None
-
-    loss: float = 0
-
-    capacity_cost: float = None
-
-    marginal_cost: float = 0
-
-    expandable: bool = False
-
-    limit_direction: bool = False
+        super().__init__(label=label, **kwargs)
 
     def build_solph_components(self):
         """ """
-        investment = self._investment()
-
         self.inputs.update({self.from_bus: Flow(), self.to_bus: Flow()})
 
         self.outputs.update(
             {
                 self.from_bus: Flow(
                     variable_costs=self.marginal_cost,
-                    nominal_value=self._nominal_value()["to_from"],
-                    investment=investment,
+                    nominal_capacity=self._nominal_capacity()["to_from"],
                 ),
                 self.to_bus: Flow(
                     variable_costs=self.marginal_cost,
-                    nominal_value=self._nominal_value()["from_to"],
-                    investment=investment,
+                    nominal_capacity=self._nominal_capacity()["from_to"],
                 ),
             }
         )

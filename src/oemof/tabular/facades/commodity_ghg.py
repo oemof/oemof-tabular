@@ -1,16 +1,15 @@
-import dataclasses
+from typing import Optional
 
+from oemof.network.network.nodes import Bus
+from oemof.solph import Bus as SolphBus
 from oemof.solph._plumbing import sequence
 from oemof.solph.flows import Flow
 from pyomo.core import BuildAction, Constraint
 from pyomo.core.base.block import ScalarBlock
 
-from oemof import solph
-
 from .commodity import Commodity
 
 
-@dataclasses.dataclass(unsafe_hash=False, frozen=False, eq=False)
 class CommodityGHG(Commodity):
     r"""
     Commodity element with one output and additionally green house gas outputs.
@@ -68,33 +67,48 @@ class CommodityGHG(Commodity):
     56
     """
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        carrier: str,
+        amount: float,
+        marginal_cost: float = 0,
+        output_parameters: Optional[dict] = None,
+        **kwargs,
+    ):
+        buses = {
+            key: kwargs.pop(key)
+            for key, value in list(
+                kwargs.items()
+            )  # must be turned into a list to pop from it
+            if isinstance(value, (SolphBus, Bus))
+        }
         super().__init__(
+            label=label,
+            bus=bus,
+            carrier=carrier,
+            amount=amount,
+            marginal_cost=marginal_cost,
+            output_parameters=output_parameters,
             **kwargs,
         )
 
-        buses = {
-            key: value
-            for key, value in kwargs.items()
-            if type(value) is type(solph.Bus())
-        }
-
         self.build_solph_components()
-        self.init_emission_buses(kwargs)
+        self.init_emission_buses(buses)
         self.emission_factors = self.init_emission_factors(buses, kwargs)
 
-    def init_emission_buses(self, kwargs):
+    def init_emission_buses(self, buses):
         """Adds emissions buses as output flows and drops them from kwargs"""
-        for key, value in list(kwargs.items()):
+        for key, value in buses.items():
             if key.startswith("emission_bus"):
                 # then value is a solph.Bus object and is added to self.outputs
                 self.outputs.update({value: Flow(bidirectional=True)})
-                kwargs.pop(key)
 
     def init_emission_factors(self, buses, kwargs):
         """Returns emission factors as values in dict with buses as keys"""
         emission_factors = {}
-        for key, value in list(kwargs.items()):
+        for key, value in kwargs.items():
             if key.startswith("emission_factor"):
                 bus_label = key.removeprefix("emission_factor_")
                 try:
@@ -110,7 +124,6 @@ class CommodityGHG(Commodity):
                         f"'{self.label}' of type '{self.type}'. "
                     )
                 emission_factors.update({bus: sequence(value)})
-                kwargs.pop(key)
         return emission_factors
 
     def constraint_group(self):
@@ -178,8 +191,8 @@ class CommodityGHGBlock(ScalarBlock):
 
         self.relation = Constraint(
             [
-                (n, o, p, t)
-                for p, t in m.TIMEINDEX
+                (n, o, t)
+                for t in m.TIMESTEPS
                 for n in group
                 for o in out_flows[n]
             ],
@@ -187,18 +200,18 @@ class CommodityGHGBlock(ScalarBlock):
         )
 
         def _emission_relation(block):
-            for p, t in m.TIMEINDEX:
+            for t in m.TIMESTEPS:
                 for n in group:
                     for o in out_flows[n]:
                         # only emission buses
                         if o is not n.bus:
                             try:
                                 lhs = (
-                                    m.flow[n, n.bus, p, t]
+                                    m.flow[n, n.bus, t]
                                     * n.emission_factors[o][t]
                                 )
-                                rhs = m.flow[n, o, p, t]
-                                block.relation.add((n, o, p, t), (lhs == rhs))
+                                rhs = m.flow[n, o, t]
+                                block.relation.add((n, o, t), (lhs == rhs))
                             except KeyError:
                                 raise KeyError(
                                     "Error in constraint creation",

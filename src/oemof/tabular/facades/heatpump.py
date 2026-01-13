@@ -6,10 +6,9 @@ from oemof.solph.buses import Bus
 from oemof.solph.components import Converter
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
 class HeatPump(Converter, Facade):
     r"""HeatPump unit with two inputs and one output.
 
@@ -155,9 +154,8 @@ class HeatPump(Converter, Facade):
         self.outputs.update(
             {
                 self.high_temperature_bus: Flow(
-                    nominal_value=self._nominal_value(),
+                    nominal_capacity=self._nominal_capacity(),
                     variable_costs=self.marginal_cost,
-                    investment=self._investment(),
                     **self.high_temperature_parameters,
                 )
             }

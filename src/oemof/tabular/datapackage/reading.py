@@ -21,10 +21,11 @@ from itertools import chain, groupby, repeat
 
 import datapackage as dp
 import pandas as pd
-from oemof.network.network import Bus, Component
+from oemof.network.network import Component
 
 from oemof.tabular.config.config import supported_oemof_tabular_versions
 
+from ..facades.bus import Bus
 from ..tools import HSN, raisestatement, remap
 
 DEFAULT = object()
@@ -150,7 +151,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             for fk in resource["schema"]["foreignKeys"]
             if fk["reference"]["resource"] == "bus"
         ]
-    datapackage_folder = os.path.dirname(path)  # Remove "/datapackage.json" form path
+    datapackage_folder = os.path.dirname(
+        path
+    )  # Remove "/datapackage.json" form path
     package = dp.Package(datapackage_json, base_path=datapackage_folder)
 
     # This is necessary because before reading a resource for the first
@@ -657,10 +660,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex = pd.DatetimeIndex(
                     idx.values, freq=idx.inferred_freq, name="timeindex"
                 )
-                temporal = None
                 es = cls(
                     timeindex=timeindex,
-                    temporal=temporal,
                     tsa_parameters=get_tsam_parameters(),
                 )
             # if for any reason lst of datetimeindices is empty

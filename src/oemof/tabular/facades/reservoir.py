@@ -1,16 +1,14 @@
-from dataclasses import field
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
 from oemof.solph.components import GenericStorage, Source
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Reservoir(GenericStorage, Facade):
+class Reservoir(Facade, GenericStorage):
     r"""A Reservoir storage unit, that is initially half full.
 
     Note that the investment option is not available for this facade at
@@ -87,23 +85,31 @@ class Reservoir(GenericStorage, Facade):
 
     """
 
-    bus: Bus
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        carrier: str,
+        tech: str,
+        efficiency: float,
+        profile: Union[float, Sequence[float]],
+        storage_capacity: Optional[float] = None,
+        capacity: Optional[float] = None,
+        output_parameters: Optional[dict] = None,
+        expandable: bool = False,
+        **kwargs
+    ):
+        self.bus = bus
+        self.carrier = carrier
+        self.tech = tech
+        self.efficiency = efficiency
+        self.profile = profile
+        self.storage_capacity = storage_capacity
+        self.capacity = capacity
+        self.output_parameters = output_parameters or {}
+        self.expandable = expandable
 
-    carrier: str
-
-    tech: str
-
-    efficiency: float
-
-    profile: Union[float, Sequence[float]]
-
-    storage_capacity: float = None
-
-    capacity: float = None
-
-    output_parameters: dict = field(default_factory=dict)
-
-    expandable: bool = False
+        super().__init__(label=label, **kwargs)
 
     def build_solph_components(self):
         """ """
@@ -116,17 +122,16 @@ class Reservoir(GenericStorage, Facade):
                 "Investment for reservoir class is not implemented."
             )
 
-        inflow = Source(
-            label=self.label + "-inflow",
-            outputs={self: Flow(nominal_value=1, max=self.profile)},
-        )
-
         self.outputs.update(
             {
                 self.bus: Flow(
-                    nominal_value=self.capacity, **self.output_parameters
+                    nominal_capacity=self.capacity, **self.output_parameters
                 )
             }
         )
 
-        self.subnodes = (inflow,)
+        self.subnode(
+            Source,
+            local_name=self.label + "-inflow",
+            outputs={self: Flow(nominal_capacity=1, max=self.profile)},
+        )

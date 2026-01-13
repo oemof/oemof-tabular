@@ -1,14 +1,13 @@
-import dataclasses
+from typing import Optional
 
+from oemof.network.network.nodes import Bus
+from oemof.solph import Bus as SolphBus
 from oemof.solph._plumbing import sequence
 from oemof.solph.flows import Flow
-
-from oemof import solph
 
 from .conversion import Conversion
 
 
-@dataclasses.dataclass(unsafe_hash=False, frozen=False, eq=False)
 class ConversionGHG(Conversion):
     r"""
     Conversion unit with one input, one output and  green house gas outputs.
@@ -84,28 +83,61 @@ class ConversionGHG(Conversion):
     56
     """
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        label: str,
+        from_bus: Bus,
+        to_bus: Bus,
+        carrier: str,
+        tech: str,
+        capacity: float = None,
+        efficiency: float = 1.0,
+        marginal_cost: float = 0.0,
+        carrier_cost: float = 0.0,
+        capacity_cost: Optional[float] = None,
+        expandable: bool = False,
+        capacity_potential: float = float("+inf"),
+        capacity_minimum: Optional[float] = None,
+        input_parameters: Optional[dict] = None,
+        output_parameters: Optional[dict] = None,
+        **kwargs,
+    ):
+        buses = {
+            key: kwargs.pop(key)
+            for key, value in list(
+                kwargs.items()
+            )  # must be turned into a list to pop from it
+            if isinstance(value, (SolphBus, Bus))
+        }
         super().__init__(
+            label,
+            from_bus,
+            to_bus,
+            carrier,
+            tech,
+            capacity,
+            efficiency,
+            marginal_cost,
+            carrier_cost,
+            capacity_cost,
+            expandable,
+            capacity_potential,
+            capacity_minimum,
+            input_parameters,
+            output_parameters,
             **kwargs,
         )
 
-        buses = {
-            key: value
-            for key, value in kwargs.items()
-            if type(value) is type(solph.Bus())
-        }
-
         self.build_solph_components()  # inputs, outputs, conversion_factors
-        self.init_emission_buses(kwargs)
+        self.init_emission_buses(buses)
         self.init_emission_factors(buses, kwargs)
 
-    def init_emission_buses(self, kwargs):
+    def init_emission_buses(self, buses):
         """Adds emissions buses as output flows and drops them from kwargs"""
-        for key, value in list(kwargs.items()):
+        for key, value in list(buses.items()):
             if key.startswith("emission_bus"):
                 # then value is a solph.Bus object and is added to self.outputs
                 self.outputs.update({value: Flow()})
-                kwargs.pop(key)
 
     def init_emission_factors(self, buses, kwargs):
         """Adds emission factors as `conversion_factors"""
@@ -125,7 +157,6 @@ class ConversionGHG(Conversion):
                         f"'{self.label}' of type '{self.type}'. "
                     )
                 self.conversion_factors.update({bus: sequence(value)})
-                kwargs.pop(key)
 
         # check that every bus has a conversion factor, otherwise an error
         # occurs in oemof.solph.components._converter.py

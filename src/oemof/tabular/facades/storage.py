@@ -1,15 +1,12 @@
-from dataclasses import field
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 from oemof.solph import Bus, Flow, Investment
-from oemof.solph._plumbing import sequence
 from oemof.solph.components import GenericStorage
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Storage(GenericStorage, Facade):
+class Storage(Facade, GenericStorage):
     r"""Storage unit
 
     Parameters
@@ -98,52 +95,64 @@ class Storage(GenericStorage, Facade):
 
     """
 
-    bus: Bus
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        carrier: str,
+        tech: str,
+        storage_capacity: float = 0,
+        capacity: float = 0,
+        capacity_cost: float = 0,
+        storage_capacity_cost: Optional[float] = None,
+        storage_capacity_potential: float = float("+inf"),
+        capacity_potential: float = float("+inf"),
+        expandable: bool = False,
+        lifetime: Optional[int] = None,
+        age: int = 0,
+        fixed_costs: Union[float, Sequence[float]] = 0,
+        marginal_cost: float = 0,
+        efficiency: float = 1,
+        input_parameters: Optional[dict] = None,
+        output_parameters: Optional[dict] = None,
+        **kwargs
+    ):
+        self.bus = bus
+        self.carrier = carrier
+        self.tech = tech
+        self.storage_capacity = storage_capacity
+        self.capacity = capacity
+        self.capacity_cost = capacity_cost
+        self.storage_capacity_cost = storage_capacity_cost
+        self.storage_capacity_potential = storage_capacity_potential
+        self.capacity_potential = capacity_potential
+        self.expandable = expandable
+        self.lifetime = lifetime
+        self.age = age
+        self.fixed_costs = fixed_costs
+        self.marginal_cost = marginal_cost
+        self.input_parameters = input_parameters or {}
+        self.output_parameters = output_parameters or {}
 
-    carrier: str
-
-    tech: str
-
-    storage_capacity: float = 0
-
-    capacity: float = 0
-
-    capacity_cost: float = 0
-
-    storage_capacity_cost: float = None
-
-    storage_capacity_potential: float = float("+inf")
-
-    capacity_potential: float = float("+inf")
-
-    expandable: bool = False
-
-    lifetime: int = None
-
-    age: int = 0
-
-    fixed_costs: Union[float, Sequence[float]] = 0
-
-    marginal_cost: float = 0
-
-    efficiency: float = 1
-
-    input_parameters: dict = field(default_factory=dict)
-
-    output_parameters: dict = field(default_factory=dict)
-
-    def build_solph_components(self):
-        """ """
         self.nominal_storage_capacity = self.storage_capacity
 
-        self.inflow_conversion_factor = sequence(self.efficiency)
-
-        self.outflow_conversion_factor = sequence(self.efficiency)
-
         # make it investment but don't set costs (set below for flow (power))
-        self.investment = self._investment()
+        self.nominal_capacity = self._investment()
 
-        if self.investment:
+        inputs, outputs = self.__init_flows()
+
+        super().__init__(
+            label=label,
+            nominal_capacity=self.nominal_capacity,
+            inflow_conversion_factor=efficiency,
+            outflow_conversion_factor=efficiency,
+            inputs=inputs,
+            outputs=outputs,
+            **kwargs,
+        )
+
+    def __init_flows(self):
+        if self.nominal_capacity:
             self.invest_relation_input_output = 1
 
             for attr in ["invest_relation_input_output"]:
@@ -156,7 +165,7 @@ class Storage(GenericStorage, Facade):
 
             # set capacity costs at one of the flows
             fi = Flow(
-                investment=Investment(
+                nominal_capacity=Investment(
                     ep_costs=self.capacity_cost,
                     maximum=self._get_maximum_additional_invest(
                         "capacity_potential", "capacity"
@@ -170,7 +179,7 @@ class Storage(GenericStorage, Facade):
             )
             # set investment, but no costs (as relation input / output = 1)
             fo = Flow(
-                investment=Investment(
+                nominal_capacity=Investment(
                     existing=self.capacity,
                     lifetime=getattr(self, "lifetime", None),
                     age=getattr(self, "age", 0),
@@ -182,16 +191,16 @@ class Storage(GenericStorage, Facade):
             self._invest_group = True
         else:
             fi = Flow(
-                nominal_value=self._nominal_value(), **self.input_parameters
+                nominal_capacity=self._nominal_capacity(),
+                **self.input_parameters,
             )
             fo = Flow(
-                nominal_value=self._nominal_value(),
+                nominal_capacity=self._nominal_capacity(),
                 variable_costs=self.marginal_cost,
                 **self.output_parameters,
             )
 
-        self.inputs.update({self.bus: fi})
+        return {self.bus: fi}, {self.bus: fo}
 
-        self.outputs.update({self.bus: fo})
-
-        self._set_flows()
+    def build_solph_components(self) -> None:
+        pass

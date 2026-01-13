@@ -5,7 +5,7 @@ import pathlib
 import re
 from difflib import unified_diff
 
-from oemof.network.energy_system import EnergySystem as ES
+from oemof.solph import EnergySystem as ES
 from oemof.solph import helpers
 
 # The import below is only used to monkey patch `EnergySystem`.

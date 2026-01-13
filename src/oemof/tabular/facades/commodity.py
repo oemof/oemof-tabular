@@ -1,14 +1,13 @@
-from dataclasses import field
+from typing import Optional
 
 from oemof.solph.buses import Bus
 from oemof.solph.components import Source
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Commodity(Source, Facade):
+class Commodity(Facade, Source):
     r"""Commodity element with one output for example a biomass commodity
 
     Parameters
@@ -48,21 +47,29 @@ class Commodity(Source, Facade):
 
     """
 
-    bus: Bus
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        carrier: str,
+        amount: float,
+        marginal_cost: float = 0,
+        output_parameters: Optional[dict] = None,
+        **kwargs
+    ):
+        self.bus = bus
+        self.carrier = carrier
+        self.amount = amount
+        self.marginal_cost = marginal_cost
+        self.output_parameters = output_parameters or {}
 
-    carrier: str
-
-    amount: float
-
-    marginal_cost: float = 0
-
-    output_parameters: dict = field(default_factory=dict)
+        super().__init__(label=label, outputs={}, **kwargs)
 
     def build_solph_components(self):
         """ """
 
         f = Flow(
-            nominal_value=self.amount,
+            nominal_capacity=self.amount,
             variable_costs=self.marginal_cost,
             full_load_time_max=1,
             **self.output_parameters,

@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
     "name": "oemof-tabular-dispatch-example",
-    "oemof_tabular_version": "0.0.6dev",
+    "oemof_tabular_version": "0.0.7",
     "resources": [
         {
             "path": "data/elements/bus.csv",
@@ -270,6 +270,11 @@
                     {
                         "name": "storage_capacity_initial",
                         "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "lifetime",
+                        "type": "integer",
                         "format": "default"
                     },
                     {

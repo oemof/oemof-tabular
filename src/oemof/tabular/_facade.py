@@ -18,15 +18,9 @@ hood the `Facade` then uses these arguments to construct an `oemof` or
 
 SPDX-License-Identifier: BSD-3-Clause
 """
-import dataclasses
-import inspect
 import warnings
 from abc import abstractmethod
-from collections import deque
-from dataclasses import dataclass
 
-from oemof.network.energy_system import EnergySystem
-from oemof.network.network import Node
 from oemof.solph import Investment
 from oemof.solph.components import GenericStorage, Link
 from oemof.tools.debugging import SuspiciousUsageWarning
@@ -35,123 +29,64 @@ from oemof.tools.debugging import SuspiciousUsageWarning
 warnings.filterwarnings("ignore", category=SuspiciousUsageWarning)
 
 
-def kwargs_to_parent(cls):
-    r"""
-    Decorates the __init__ of a given class by first
-    passing args and kwargs to the __init__ of the parent
-    class.
-
-    Parameters
-    ----------
-    cls : Class with an __init__ to decorate
-
-    Returns
-    -------
-    cls : Class with decorated __init__
-    """
-    original_init = cls.__init__
-
-    def new_init(self, *args, **kwargs):
-        # pass only those kwargs to the dataclass which are expected
-        dataclass_kwargs = {
-            key: value
-            for key, value in kwargs.items()
-            if key in [f.name for f in dataclasses.fields(cls)]
-        }
-
-        # pass args and kwargs to the dataclasses' __init_
-        original_init(self, *args, **dataclass_kwargs)
-
-        # update kwargs with default arguments
-        kwargs.update(dataclasses.asdict(self))
-
-        # Pass only those arguments to solph component's __init__ that
-        # are expected.
-        init_expected_args = list(
-            inspect.signature(super(cls, self).__init__).parameters
-        )
-
-        kwargs_expected = {
-            key: value
-            for key, value in kwargs.items()
-            if key in init_expected_args
-        }
-
-        kwargs_unexpected = {
-            key: value
-            for key, value in kwargs.items()
-            if key not in init_expected_args
-        }
-
-        if "custom_attributes" in init_expected_args:
-            kwargs_expected["custom_attributes"] = kwargs_unexpected
-
-        if kwargs_unexpected and "custom_attributes" not in init_expected_args:
-            warnings.warn(
-                f"No custom_attributes in parent class {cls.__mro__[1]}"
-            )
-
-        super(cls, self).__init__(
-            **kwargs_expected,
-        )
-
-        if not kwargs.get("build_solph_components") is False:
-            self.build_solph_components()
-
-    cls.__init__ = new_init
-    return cls
-
-
-def dataclass_facade(cls):
-    r"""
-    Decorates a facade class by first as a
-    dataclass, taking care of args and kwargs
-    in the __init__
-
-    Parameters
-    ----------
-    cls : facade class
-
-    Returns
-    -------
-    cls : facade class
-    """
-    assert issubclass(cls, Facade)
-
-    # First, decorate as dataclass.
-    # The settings are important to not override the __hash__ method
-    # defined in oemof.network.Node
-    cls = dataclass(cls, unsafe_hash=False, frozen=False, eq=False)
-
-    # Second, decorate to handle kwargs in __init__
-    cls = kwargs_to_parent(cls)
-
-    return cls
-
-
-def add_subnodes(n, **kwargs):
-    deque((kwargs["EnergySystem"].add(sn) for sn in n.subnodes), maxlen=0)
-
-
-class Facade(Node):
+class Facade:
     """
     Parent class for oemof.tabular facades.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """ """
 
         self.mapped_type = type(self)
 
         self.type = kwargs.get("type")
 
-        super().__init__(*args, **kwargs)
-
-        EnergySystem.signals[EnergySystem.add].connect(
-            add_subnodes, sender=self
+        allowed_kwargs = self.__get_allowed_kwargs_from_solph_component(
+            **kwargs
         )
+        super().__init__(**allowed_kwargs)
 
         self.build_solph_components()
+
+    def __get_allowed_kwargs_from_solph_component(self, **kwargs):
+        """
+        Read allowed paramaters of related oemof.solph component.
+
+        Store parameters which are not present in "custom_properties" if
+        exists.
+        """
+        # Get the signature of the parent class __init__
+        import inspect
+
+        parent_class = super(Facade, self)
+        parent_init = parent_class.__init__
+
+        # Get allowed parameters for parent __init__
+        try:
+            sig = inspect.signature(parent_init)
+            allowed_params = set(sig.parameters.keys()) - {"self"}
+        except (ValueError, TypeError):
+            # If we can't get signature, assume all kwargs are allowed
+            allowed_params = set(kwargs.keys())
+
+        # Always allow "label":
+        allowed_params = allowed_params | {"label"}
+
+        # Split kwargs into allowed and custom
+        allowed_kwargs = {}
+        custom_properties = {}
+
+        for key, value in kwargs.items():
+            if key in allowed_params:
+                allowed_kwargs[key] = value
+            else:
+                custom_properties[key] = value
+
+        # Pass allowed kwargs to super and store custom properties if allowed
+        if custom_properties and "custom_properties" in allowed_params:
+            allowed_kwargs["custom_properties"] = custom_properties
+
+        return allowed_kwargs
 
     def _nominal_capacity(self):
         """Returns investment if self.expandable ist True otherwise it returns
@@ -180,7 +115,7 @@ class Facade(Node):
         if isinstance(self, GenericStorage):
             # If invest costs/MWH are given
             if self.storage_capacity_cost is not None:
-                self.investment = Investment(
+                return Investment(
                     ep_costs=self.storage_capacity_cost,
                     maximum=self._get_maximum_additional_invest(
                         "storage_capacity_potential", "storage_capacity"
@@ -193,7 +128,7 @@ class Facade(Node):
                 )
             # If invest costs/MWh are not given
             else:
-                self.investment = Investment(
+                return Investment(
                     maximum=self._get_maximum_additional_invest(
                         "storage_capacity_potential", "storage_capacity"
                     ),
@@ -205,7 +140,7 @@ class Facade(Node):
                 )
         # If other component than storage
         else:
-            self.investment = Investment(
+            return Investment(
                 ep_costs=self.capacity_cost,
                 maximum=self._get_maximum_additional_invest(
                     "capacity_potential", "capacity"
@@ -216,7 +151,6 @@ class Facade(Node):
                 age=getattr(self, "age", 0),
                 fixed_costs=getattr(self, "fixed_costs", None),
             )
-        return self.investment
 
     def _get_maximum_additional_invest(self, attr_potential, attr_existing):
         r"""

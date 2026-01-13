@@ -38,4 +38,4 @@ def test_adding_subnodes():
         assert sn.label not in es.groups
     es.add(reservoir)
     for sn in reservoir.subnodes:
-        assert sn.label in es.groups
+        assert str(sn.label) in es.groups

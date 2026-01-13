@@ -29,10 +29,10 @@
             "reference": {"resource": "bus", "fields": "name"}
         }
     ],
-    "marginal_cost": [
+    "marginal_utility": [
         {
-            "fields": "marginal_cost",
-            "reference": {"resource": "marginal_cost_profile"}
+            "fields": "marginal_utility",
+            "reference": {"resource": "marginal_utility_profile"}
         }
     ]
 }

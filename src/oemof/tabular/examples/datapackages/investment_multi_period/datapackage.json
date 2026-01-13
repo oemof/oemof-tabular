@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
     "name": "investment_multi_period-example",
-    "oemof_tabular_version": "0.0.6dev",
+    "oemof_tabular_version": "0.0.7",
     "resources": [
         {
             "path": "data/elements/bus.csv",

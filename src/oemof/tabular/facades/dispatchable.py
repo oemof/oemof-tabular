@@ -7,7 +7,7 @@ from oemof.solph.flows import Flow
 from oemof.tabular._facade import Facade
 
 
-class Dispatchable(Source, Facade):
+class Dispatchable(Facade, Source):
     r""" Dispatchable element with one output for example a gas-turbine
 
     Parameters
@@ -106,7 +106,7 @@ class Dispatchable(Source, Facade):
 
     def __init__(
         self,
-        label,
+        label: str,
         bus: Bus,
         carrier: str,
         tech: str,
@@ -121,6 +121,7 @@ class Dispatchable(Source, Facade):
         capacity_minimum: float = None,
         expandable: bool = False,
         output_parameters: dict = None,
+        **kwargs
     ):
         self.bus = bus
         self.carrier = carrier
@@ -137,7 +138,7 @@ class Dispatchable(Source, Facade):
         self.expandable = expandable
         self.output_parameters = output_parameters or {}
 
-        super().__init__(label=label, outputs={})
+        super().__init__(label=label, outputs={}, **kwargs)
 
     def build_solph_components(self):
         """ """
