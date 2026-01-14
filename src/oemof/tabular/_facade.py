@@ -20,7 +20,9 @@ SPDX-License-Identifier: BSD-3-Clause
 """
 import warnings
 from abc import abstractmethod
+from collections.abc import Iterable
 
+import numpy as np
 from oemof.solph import Investment
 from oemof.solph.components import GenericStorage, Link
 from oemof.tools.debugging import SuspiciousUsageWarning
@@ -168,9 +170,17 @@ class Facade:
         if _potential is None:
             _potential = float("+inf")
 
-        maximum = _potential - _existing
+        if isinstance(_potential, Iterable) and not isinstance(
+            _existing, Iterable
+        ):
+            _existing = [_existing] * len(_potential)
+        if isinstance(_existing, Iterable) and not isinstance(
+            _potential, Iterable
+        ):
+            _potential = [_potential] * len(_existing)
+        maximum = np.array(_potential) - np.array(_existing)
 
-        if maximum < 0:
+        if bool(maximum.min() < 0):
             raise ValueError(
                 f"Existing {attr_existing}={_existing} is larger"
                 f" than {attr_potential}={_potential}."
