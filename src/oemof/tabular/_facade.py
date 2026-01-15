@@ -95,16 +95,19 @@ class Facade:
         the capacity
         """
         if self.expandable is True:
-            return self._investment()
-
-        else:
             if isinstance(self, Link):
                 return {
-                    "from_to": self.from_to_capacity,
-                    "to_from": self.to_from_capacity,
+                    "from_to": self._investment(),
+                    "to_from": self._investment(),
                 }
-            else:
-                return self.capacity
+            return self._investment()
+
+        if isinstance(self, Link):
+            return {
+                "from_to": self.from_to_capacity,
+                "to_from": self.to_from_capacity,
+            }
+        return self.capacity
 
     def _investment(self):
         if self.capacity_cost is None:
