@@ -2,217 +2,217 @@
 
 min 
 objective:
-+550.3538603446715 InvestmentFlowBlock_invest(backpressure_bus_el_0)
-+226.09002140491177 InvestmentFlowBlock_invest(backpressure_bus_el_1)
-+15.604198638169356 InvestmentFlowBlock_invest(backpressure_bus_el_2)
-+0.6 flow(bus_fuel_backpressure_0_0)
-+0.6 flow(bus_fuel_backpressure_0_1)
-+0.6 flow(bus_fuel_backpressure_0_2)
-+0.49220897992509305 flow(bus_fuel_backpressure_1_3)
-+0.49220897992509305 flow(bus_fuel_backpressure_1_4)
-+0.49220897992509305 flow(bus_fuel_backpressure_1_5)
-+0.40378279986483445 flow(bus_fuel_backpressure_2_6)
-+0.40378279986483445 flow(bus_fuel_backpressure_2_7)
-+0.40378279986483445 flow(bus_fuel_backpressure_2_8)
++650.0 InvestmentFlowBlock_invest(backpressure_bus_el_0)
++359.92657536218167 InvestmentFlowBlock_invest(backpressure_bus_el_1)
++32.99787833947502 InvestmentFlowBlock_invest(backpressure_bus_el_2)
++0.6 flow(bus_fuel_backpressure_0)
++0.6 flow(bus_fuel_backpressure_1)
++0.6 flow(bus_fuel_backpressure_2)
++0.49220897992509305 flow(bus_fuel_backpressure_3)
++0.49220897992509305 flow(bus_fuel_backpressure_4)
++0.49220897992509305 flow(bus_fuel_backpressure_5)
++0.40378279986483445 flow(bus_fuel_backpressure_6)
++0.40378279986483445 flow(bus_fuel_backpressure_7)
++0.40378279986483445 flow(bus_fuel_backpressure_8)
 
 s.t.
 
-c_e_BusBlock_balance(bus_el_0_0)_:
-+1 flow(backpressure_bus_el_0_0)
+c_e_BusBlock_balance(bus_el_0)_:
++1 flow(backpressure_bus_el_0)
 = 0
 
-c_e_BusBlock_balance(bus_el_0_1)_:
-+1 flow(backpressure_bus_el_0_1)
+c_e_BusBlock_balance(bus_el_1)_:
++1 flow(backpressure_bus_el_1)
 = 0
 
-c_e_BusBlock_balance(bus_el_0_2)_:
-+1 flow(backpressure_bus_el_0_2)
+c_e_BusBlock_balance(bus_el_2)_:
++1 flow(backpressure_bus_el_2)
 = 0
 
-c_e_BusBlock_balance(bus_el_1_3)_:
-+1 flow(backpressure_bus_el_1_3)
+c_e_BusBlock_balance(bus_el_3)_:
++1 flow(backpressure_bus_el_3)
 = 0
 
-c_e_BusBlock_balance(bus_el_1_4)_:
-+1 flow(backpressure_bus_el_1_4)
+c_e_BusBlock_balance(bus_el_4)_:
++1 flow(backpressure_bus_el_4)
 = 0
 
-c_e_BusBlock_balance(bus_el_1_5)_:
-+1 flow(backpressure_bus_el_1_5)
+c_e_BusBlock_balance(bus_el_5)_:
++1 flow(backpressure_bus_el_5)
 = 0
 
-c_e_BusBlock_balance(bus_el_2_6)_:
-+1 flow(backpressure_bus_el_2_6)
+c_e_BusBlock_balance(bus_el_6)_:
++1 flow(backpressure_bus_el_6)
 = 0
 
-c_e_BusBlock_balance(bus_el_2_7)_:
-+1 flow(backpressure_bus_el_2_7)
+c_e_BusBlock_balance(bus_el_7)_:
++1 flow(backpressure_bus_el_7)
 = 0
 
-c_e_BusBlock_balance(bus_el_2_8)_:
-+1 flow(backpressure_bus_el_2_8)
+c_e_BusBlock_balance(bus_el_8)_:
++1 flow(backpressure_bus_el_8)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_0_0)_:
-+1 flow(bus_fuel_backpressure_0_0)
+c_e_BusBlock_balance(bus_fuel_0)_:
++1 flow(bus_fuel_backpressure_0)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_0_1)_:
-+1 flow(bus_fuel_backpressure_0_1)
+c_e_BusBlock_balance(bus_fuel_1)_:
++1 flow(bus_fuel_backpressure_1)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_0_2)_:
-+1 flow(bus_fuel_backpressure_0_2)
+c_e_BusBlock_balance(bus_fuel_2)_:
++1 flow(bus_fuel_backpressure_2)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_1_3)_:
-+1 flow(bus_fuel_backpressure_1_3)
+c_e_BusBlock_balance(bus_fuel_3)_:
++1 flow(bus_fuel_backpressure_3)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_1_4)_:
-+1 flow(bus_fuel_backpressure_1_4)
+c_e_BusBlock_balance(bus_fuel_4)_:
++1 flow(bus_fuel_backpressure_4)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_1_5)_:
-+1 flow(bus_fuel_backpressure_1_5)
+c_e_BusBlock_balance(bus_fuel_5)_:
++1 flow(bus_fuel_backpressure_5)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_2_6)_:
-+1 flow(bus_fuel_backpressure_2_6)
+c_e_BusBlock_balance(bus_fuel_6)_:
++1 flow(bus_fuel_backpressure_6)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_2_7)_:
-+1 flow(bus_fuel_backpressure_2_7)
+c_e_BusBlock_balance(bus_fuel_7)_:
++1 flow(bus_fuel_backpressure_7)
 = 0
 
-c_e_BusBlock_balance(bus_fuel_2_8)_:
-+1 flow(bus_fuel_backpressure_2_8)
+c_e_BusBlock_balance(bus_fuel_8)_:
++1 flow(bus_fuel_backpressure_8)
 = 0
 
-c_e_BusBlock_balance(bus_heat_0_0)_:
-+1 flow(backpressure_bus_heat_0_0)
+c_e_BusBlock_balance(bus_heat_0)_:
++1 flow(backpressure_bus_heat_0)
 = 0
 
-c_e_BusBlock_balance(bus_heat_0_1)_:
-+1 flow(backpressure_bus_heat_0_1)
+c_e_BusBlock_balance(bus_heat_1)_:
++1 flow(backpressure_bus_heat_1)
 = 0
 
-c_e_BusBlock_balance(bus_heat_0_2)_:
-+1 flow(backpressure_bus_heat_0_2)
+c_e_BusBlock_balance(bus_heat_2)_:
++1 flow(backpressure_bus_heat_2)
 = 0
 
-c_e_BusBlock_balance(bus_heat_1_3)_:
-+1 flow(backpressure_bus_heat_1_3)
+c_e_BusBlock_balance(bus_heat_3)_:
++1 flow(backpressure_bus_heat_3)
 = 0
 
-c_e_BusBlock_balance(bus_heat_1_4)_:
-+1 flow(backpressure_bus_heat_1_4)
+c_e_BusBlock_balance(bus_heat_4)_:
++1 flow(backpressure_bus_heat_4)
 = 0
 
-c_e_BusBlock_balance(bus_heat_1_5)_:
-+1 flow(backpressure_bus_heat_1_5)
+c_e_BusBlock_balance(bus_heat_5)_:
++1 flow(backpressure_bus_heat_5)
 = 0
 
-c_e_BusBlock_balance(bus_heat_2_6)_:
-+1 flow(backpressure_bus_heat_2_6)
+c_e_BusBlock_balance(bus_heat_6)_:
++1 flow(backpressure_bus_heat_6)
 = 0
 
-c_e_BusBlock_balance(bus_heat_2_7)_:
-+1 flow(backpressure_bus_heat_2_7)
+c_e_BusBlock_balance(bus_heat_7)_:
++1 flow(backpressure_bus_heat_7)
 = 0
 
-c_e_BusBlock_balance(bus_heat_2_8)_:
-+1 flow(backpressure_bus_heat_2_8)
+c_e_BusBlock_balance(bus_heat_8)_:
++1 flow(backpressure_bus_heat_8)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_0_0)_:
-+0.4 flow(bus_fuel_backpressure_0_0)
--1 flow(backpressure_bus_el_0_0)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_0)_:
++0.4 flow(bus_fuel_backpressure_0)
+-1 flow(backpressure_bus_el_0)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_0_0)_:
-+0.35 flow(bus_fuel_backpressure_0_0)
--1 flow(backpressure_bus_heat_0_0)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_0)_:
++0.35 flow(bus_fuel_backpressure_0)
+-1 flow(backpressure_bus_heat_0)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_0_1)_:
-+0.4 flow(bus_fuel_backpressure_0_1)
--1 flow(backpressure_bus_el_0_1)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_1)_:
++0.4 flow(bus_fuel_backpressure_1)
+-1 flow(backpressure_bus_el_1)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_0_1)_:
-+0.35 flow(bus_fuel_backpressure_0_1)
--1 flow(backpressure_bus_heat_0_1)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_1)_:
++0.35 flow(bus_fuel_backpressure_1)
+-1 flow(backpressure_bus_heat_1)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_0_2)_:
-+0.4 flow(bus_fuel_backpressure_0_2)
--1 flow(backpressure_bus_el_0_2)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_2)_:
++0.4 flow(bus_fuel_backpressure_2)
+-1 flow(backpressure_bus_el_2)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_0_2)_:
-+0.35 flow(bus_fuel_backpressure_0_2)
--1 flow(backpressure_bus_heat_0_2)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_2)_:
++0.35 flow(bus_fuel_backpressure_2)
+-1 flow(backpressure_bus_heat_2)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_1_3)_:
-+0.4 flow(bus_fuel_backpressure_1_3)
--1 flow(backpressure_bus_el_1_3)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_3)_:
++0.4 flow(bus_fuel_backpressure_3)
+-1 flow(backpressure_bus_el_3)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_1_3)_:
-+0.35 flow(bus_fuel_backpressure_1_3)
--1 flow(backpressure_bus_heat_1_3)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_3)_:
++0.35 flow(bus_fuel_backpressure_3)
+-1 flow(backpressure_bus_heat_3)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_1_4)_:
-+0.4 flow(bus_fuel_backpressure_1_4)
--1 flow(backpressure_bus_el_1_4)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_4)_:
++0.4 flow(bus_fuel_backpressure_4)
+-1 flow(backpressure_bus_el_4)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_1_4)_:
-+0.35 flow(bus_fuel_backpressure_1_4)
--1 flow(backpressure_bus_heat_1_4)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_4)_:
++0.35 flow(bus_fuel_backpressure_4)
+-1 flow(backpressure_bus_heat_4)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_1_5)_:
-+0.4 flow(bus_fuel_backpressure_1_5)
--1 flow(backpressure_bus_el_1_5)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_5)_:
++0.4 flow(bus_fuel_backpressure_5)
+-1 flow(backpressure_bus_el_5)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_1_5)_:
-+0.35 flow(bus_fuel_backpressure_1_5)
--1 flow(backpressure_bus_heat_1_5)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_5)_:
++0.35 flow(bus_fuel_backpressure_5)
+-1 flow(backpressure_bus_heat_5)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_2_6)_:
-+0.4 flow(bus_fuel_backpressure_2_6)
--1 flow(backpressure_bus_el_2_6)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_6)_:
++0.4 flow(bus_fuel_backpressure_6)
+-1 flow(backpressure_bus_el_6)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_2_6)_:
-+0.35 flow(bus_fuel_backpressure_2_6)
--1 flow(backpressure_bus_heat_2_6)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_6)_:
++0.35 flow(bus_fuel_backpressure_6)
+-1 flow(backpressure_bus_heat_6)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_2_7)_:
-+0.4 flow(bus_fuel_backpressure_2_7)
--1 flow(backpressure_bus_el_2_7)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_7)_:
++0.4 flow(bus_fuel_backpressure_7)
+-1 flow(backpressure_bus_el_7)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_2_7)_:
-+0.35 flow(bus_fuel_backpressure_2_7)
--1 flow(backpressure_bus_heat_2_7)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_7)_:
++0.35 flow(bus_fuel_backpressure_7)
+-1 flow(backpressure_bus_heat_7)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_2_8)_:
-+0.4 flow(bus_fuel_backpressure_2_8)
--1 flow(backpressure_bus_el_2_8)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_el_8)_:
++0.4 flow(bus_fuel_backpressure_8)
+-1 flow(backpressure_bus_el_8)
 = 0
 
-c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_2_8)_:
-+0.35 flow(bus_fuel_backpressure_2_8)
--1 flow(backpressure_bus_heat_2_8)
+c_e_ConverterBlock_relation(backpressure_bus_fuel_bus_heat_8)_:
++0.35 flow(bus_fuel_backpressure_8)
+-1 flow(backpressure_bus_heat_8)
 = 0
 
 c_e_InvestmentFlowBlock_total_rule(backpressure_bus_el_0)_:
@@ -278,47 +278,47 @@ c_e_InvestmentFlowBlock_old_rule(backpressure_bus_el_2)_:
 = 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_0_0)_:
-+1 flow(backpressure_bus_el_0_0)
++1 flow(backpressure_bus_el_0)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_0)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_0_1)_:
-+1 flow(backpressure_bus_el_0_1)
++1 flow(backpressure_bus_el_1)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_0)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_0_2)_:
-+1 flow(backpressure_bus_el_0_2)
++1 flow(backpressure_bus_el_2)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_0)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_1_3)_:
-+1 flow(backpressure_bus_el_1_3)
++1 flow(backpressure_bus_el_3)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_1)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_1_4)_:
-+1 flow(backpressure_bus_el_1_4)
++1 flow(backpressure_bus_el_4)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_1)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_1_5)_:
-+1 flow(backpressure_bus_el_1_5)
++1 flow(backpressure_bus_el_5)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_1)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_2_6)_:
-+1 flow(backpressure_bus_el_2_6)
++1 flow(backpressure_bus_el_6)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_2)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_2_7)_:
-+1 flow(backpressure_bus_el_2_7)
++1 flow(backpressure_bus_el_7)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_2)
 <= 0
 
 c_u_InvestmentFlowBlock_max(backpressure_bus_el_2_8)_:
-+1 flow(backpressure_bus_el_2_8)
++1 flow(backpressure_bus_el_8)
 -1 InvestmentFlowBlock_total(backpressure_bus_el_2)
 <= 0
 
@@ -326,33 +326,33 @@ bounds
    0 <= InvestmentFlowBlock_invest(backpressure_bus_el_0) <= +inf
    0 <= InvestmentFlowBlock_invest(backpressure_bus_el_1) <= +inf
    0 <= InvestmentFlowBlock_invest(backpressure_bus_el_2) <= +inf
-   0 <= flow(bus_fuel_backpressure_0_0) <= +inf
-   0 <= flow(bus_fuel_backpressure_0_1) <= +inf
-   0 <= flow(bus_fuel_backpressure_0_2) <= +inf
-   0 <= flow(bus_fuel_backpressure_1_3) <= +inf
-   0 <= flow(bus_fuel_backpressure_1_4) <= +inf
-   0 <= flow(bus_fuel_backpressure_1_5) <= +inf
-   0 <= flow(bus_fuel_backpressure_2_6) <= +inf
-   0 <= flow(bus_fuel_backpressure_2_7) <= +inf
-   0 <= flow(bus_fuel_backpressure_2_8) <= +inf
-   0 <= flow(backpressure_bus_el_0_0) <= +inf
-   0 <= flow(backpressure_bus_el_0_1) <= +inf
-   0 <= flow(backpressure_bus_el_0_2) <= +inf
-   0 <= flow(backpressure_bus_el_1_3) <= +inf
-   0 <= flow(backpressure_bus_el_1_4) <= +inf
-   0 <= flow(backpressure_bus_el_1_5) <= +inf
-   0 <= flow(backpressure_bus_el_2_6) <= +inf
-   0 <= flow(backpressure_bus_el_2_7) <= +inf
-   0 <= flow(backpressure_bus_el_2_8) <= +inf
-   0 <= flow(backpressure_bus_heat_0_0) <= +inf
-   0 <= flow(backpressure_bus_heat_0_1) <= +inf
-   0 <= flow(backpressure_bus_heat_0_2) <= +inf
-   0 <= flow(backpressure_bus_heat_1_3) <= +inf
-   0 <= flow(backpressure_bus_heat_1_4) <= +inf
-   0 <= flow(backpressure_bus_heat_1_5) <= +inf
-   0 <= flow(backpressure_bus_heat_2_6) <= +inf
-   0 <= flow(backpressure_bus_heat_2_7) <= +inf
-   0 <= flow(backpressure_bus_heat_2_8) <= +inf
+   0 <= flow(bus_fuel_backpressure_0) <= +inf
+   0 <= flow(bus_fuel_backpressure_1) <= +inf
+   0 <= flow(bus_fuel_backpressure_2) <= +inf
+   0 <= flow(bus_fuel_backpressure_3) <= +inf
+   0 <= flow(bus_fuel_backpressure_4) <= +inf
+   0 <= flow(bus_fuel_backpressure_5) <= +inf
+   0 <= flow(bus_fuel_backpressure_6) <= +inf
+   0 <= flow(bus_fuel_backpressure_7) <= +inf
+   0 <= flow(bus_fuel_backpressure_8) <= +inf
+   0 <= flow(backpressure_bus_el_0) <= +inf
+   0 <= flow(backpressure_bus_el_1) <= +inf
+   0 <= flow(backpressure_bus_el_2) <= +inf
+   0 <= flow(backpressure_bus_el_3) <= +inf
+   0 <= flow(backpressure_bus_el_4) <= +inf
+   0 <= flow(backpressure_bus_el_5) <= +inf
+   0 <= flow(backpressure_bus_el_6) <= +inf
+   0 <= flow(backpressure_bus_el_7) <= +inf
+   0 <= flow(backpressure_bus_el_8) <= +inf
+   0 <= flow(backpressure_bus_heat_0) <= +inf
+   0 <= flow(backpressure_bus_heat_1) <= +inf
+   0 <= flow(backpressure_bus_heat_2) <= +inf
+   0 <= flow(backpressure_bus_heat_3) <= +inf
+   0 <= flow(backpressure_bus_heat_4) <= +inf
+   0 <= flow(backpressure_bus_heat_5) <= +inf
+   0 <= flow(backpressure_bus_heat_6) <= +inf
+   0 <= flow(backpressure_bus_heat_7) <= +inf
+   0 <= flow(backpressure_bus_heat_8) <= +inf
    0 <= InvestmentFlowBlock_total(backpressure_bus_el_0) <= +inf
    0 <= InvestmentFlowBlock_total(backpressure_bus_el_1) <= +inf
    0 <= InvestmentFlowBlock_total(backpressure_bus_el_2) <= +inf
