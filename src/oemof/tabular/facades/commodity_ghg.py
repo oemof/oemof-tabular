@@ -1,7 +1,6 @@
 from typing import Optional
 
-from oemof.network.network.nodes import Bus
-from oemof.solph import Bus as SolphBus
+from oemof.network.network.nodes import Node
 from oemof.solph._plumbing import sequence
 from oemof.solph.flows import Flow
 from pyomo.core import BuildAction, Constraint
@@ -70,7 +69,7 @@ class CommodityGHG(Commodity):
     def __init__(
         self,
         label: str,
-        bus: Bus,
+        bus: Node,
         carrier: str,
         amount: float,
         marginal_cost: float = 0,
@@ -82,7 +81,7 @@ class CommodityGHG(Commodity):
             for key, value in list(
                 kwargs.items()
             )  # must be turned into a list to pop from it
-            if isinstance(value, (SolphBus, Bus))
+            if isinstance(value, Node)
         }
         super().__init__(
             label=label,
