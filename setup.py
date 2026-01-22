@@ -73,14 +73,14 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "datapackage==1.5.1",
-        "cchardet==2.2.0a2",
-        "tableschema==1.7.4",  # newer versions (v1.8.0 and up) fail!
-        "oemof.solph==0.5.2.dev1",
+        "cchardet",
+        "tableschema",  # newer versions (v1.8.0 and up) fail!
+        "oemof.solph",
         "pandas>=0.22",
-        "oemof.network==0.5.0a4",  # Temporal fix due to braking changes in 0.5.1
+        "oemof.network",  # Temporal fix due to braking changes in 0.5.1
         "paramiko",
         "toml",
-        "numpy<2.0.0",  # To be deleted with higher oemof.solph version
+        "numpy",  # To be deleted with higher oemof.solph version
     ],
     extras_require={
         "cli": ["click"],
