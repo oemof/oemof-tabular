@@ -588,7 +588,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             foreign_keys = {
                 fk["fields"]: fk["reference"]
                 for fk in r.descriptor["schema"].get("foreignKeys", [])
-                + sequence_foreign_keys[r.name]
+                + sequence_foreign_keys.get(r.name, [])
             }
 
             for facade in facade_data:
