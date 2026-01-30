@@ -107,7 +107,9 @@ def read_facade(
     return instance
 
 
-def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
+def deserialize_energy_system(
+    cls, path, typemap={}, attributemap={}, **kwargs
+):
     cast_error_msg = (
         "Metadata structure of resource `{}` does not match data "
         "structure. Check the column names, types and their order."
@@ -639,6 +641,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 timeindex=timeindex,
                 temporal=temporal,
                 tsa_parameters=get_tsam_parameters(),
+                **kwargs,
             )
 
         # if no temporal provided as resource, take the first timeindex
@@ -652,6 +655,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     periods=period_data["periods"],
                     tsa_parameters=get_tsam_parameters(),
                     infer_last_interval=False,
+                    **kwargs,
                 )
 
             # if lst is not empty
@@ -663,6 +667,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 es = cls(
                     timeindex=timeindex,
                     tsa_parameters=get_tsam_parameters(),
+                    **kwargs,
                 )
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
@@ -673,7 +678,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     start=pd.to_datetime("today"), periods=1, freq="H"
                 )
                 es = cls(
-                    timeindex=timeindex, tsa_parameters=get_tsam_parameters()
+                    timeindex=timeindex,
+                    tsa_parameters=get_tsam_parameters(),
+                    **kwargs,
                 )
 
         es.add(
