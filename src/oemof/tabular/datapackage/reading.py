@@ -1,4 +1,4 @@
-""" Tools to deserialize energy systems from datapackages.
+"""Tools to deserialize energy systems from datapackages.
 
 **WARNING**
 
@@ -73,7 +73,11 @@ def read_facade(
             facade[field] = facades[facade[field][reference["fields"]]]
         else:
             foreign_keys = {
-                fk["fields"]: fk["reference"]
+                (
+                    fk["fields"]
+                    if isinstance(fk["fields"], str)
+                    else fk["fields"][0]
+                ): fk["reference"]
                 for fk in (
                     resources(reference["resource"])
                     .descriptor["schema"]
@@ -150,7 +154,9 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
             for fk in resource["schema"]["foreignKeys"]
             if fk["reference"]["resource"] == "bus"
         ]
-    datapackage_folder = os.path.dirname(path)  # Remove "/datapackage.json" form path
+    datapackage_folder = os.path.dirname(
+        path
+    )  # Remove "/datapackage.json" form path
     package = dp.Package(datapackage_json, base_path=datapackage_folder)
 
     # This is necessary because before reading a resource for the first
