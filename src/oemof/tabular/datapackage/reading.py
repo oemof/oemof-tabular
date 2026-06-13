@@ -22,6 +22,7 @@ from itertools import chain, groupby, repeat
 import datapackage as dp
 import pandas as pd
 from oemof.network.network import Bus, Component
+from oemof.network.network import Node
 
 from oemof.tabular.config.config import supported_oemof_tabular_versions
 
@@ -106,7 +107,12 @@ def read_facade(
             )
         )
     instance = create(mapping, facade, facade)
-    facades[facade["name"]] = instance
+    if isinstance(instance, Node):
+        facades[facade["name"]] = instance
+    else:
+        warnings.warn(
+            f'The instance of the {str(mapping)} class with name "{facade["name"]}" does not inherit from oemof.network.Node and will therefore not be added to the energy system'
+        )
     return instance
 
 
@@ -138,21 +144,28 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         datapackage_json = json.load(f)
 
     sequence_foreign_keys = {}
+
+    # the fk to resources within sequences are not real ForeignKeys because they do not provide "fields" under
+    # their "reference". This is why we need to handle them separately from the datapackage
+    sequences_resources = [
+        r["name"]
+        for r in datapackage_json["resources"]
+        if "sequences" in r["path"]
+    ]
     for resource in datapackage_json["resources"]:
         if "foreignKeys" not in resource["schema"]:
             continue
-        # Busses are real ForeignKeys and can stay in ForeignKeys field
-        # Foreign Keys to sequences must be extracted and handled separately
-        # from datapackage
+        # collect fake ForeignKeys to resources within sequences separately
         sequence_foreign_keys[resource["name"]] = [
             fk
             for fk in resource["schema"]["foreignKeys"]
-            if fk["reference"]["resource"] != "bus"
+            if fk["reference"]["resource"] in sequences_resources
         ]
+        # keep all ForeignKeys which are not a fake ForeignKey to resources within sequences
         resource["schema"]["foreignKeys"] = [
             fk
             for fk in resource["schema"]["foreignKeys"]
-            if fk["reference"]["resource"] == "bus"
+            if fk["reference"]["resource"] not in sequences_resources
         ]
     datapackage_folder = os.path.dirname(
         path
@@ -329,7 +342,13 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     def create(cls, init, attributes):
         """Creates an instance of `cls` and sets `attributes`."""
         init.update(attributes)
-        instance = cls(**remap(init, attributemap, cls))
+
+        init.pop("type")  # if Facades class no longer exists
+        # only remap the argument of the classes which inherit from Node
+        if issubclass(cls, Node):
+            init = remap(init, attributemap, cls)
+
+        instance = cls(**init)
         for k, v in remap(attributes, attributemap, cls).items():
             if not hasattr(instance, k):
                 setattr(instance, k, v)
@@ -350,8 +369,8 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     ),
                 )
             ),
-            {"label": name},
-            bus["parameters"],
+            init={"label": name},
+            attributes=bus["parameters"],
         )
         for name, bus in sorted(data["buses"].items())
         for mapping in (typemap.get(bus.get("type", "bus")),)
@@ -392,7 +411,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
     data["components"] = {
         name: create(
             typemap[element.get("type", DEFAULT)],
-            {
+            init={
                 "label": name,
                 "inputs": {
                     data["buses"][bus]: flow(
@@ -407,7 +426,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     for bus, kwargs in sorted(element["outputs"].items())
                 },
             },
-            resolve_object_references(
+            attributes=resolve_object_references(
                 element["parameters"], f=lambda r: r == "buses"
             ),
         )
@@ -654,7 +673,7 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                     idx.values, freq=idx.inferred_freq, name="timeindex"
                 )
                 temporal = None
-                es = cls(timeindex=timeindex, temporal=temporal)
+                es = cls(timeindex=timeindex, periods=temporal)
             # if for any reason lst of datetimeindices is empty
             # (i.e. no sequences) have been provided, set datetime to one time
             # step of today (same as in the EnergySystem __init__ if no
@@ -670,13 +689,6 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
                 data["components"].values(),
                 data["buses"].values(),
                 facades.values(),
-                chain(
-                    *[
-                        f.subnodes
-                        for f in facades.values()
-                        if hasattr(f, "subnodes")
-                    ]
-                ),
             )
         )
 
