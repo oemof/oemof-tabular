@@ -49,9 +49,7 @@ def normalize_to_positive_results(lines):
             lines[n] = (
                 "-"
                 if lines[n] and lines[n][0] == "+"
-                else "+"
-                if lines[n]
-                else lines[n]
+                else "+" if lines[n] else lines[n]
             ) + lines[n][1:]
         lines[end] = "= " + lines[end][3:]
     return lines
@@ -84,7 +82,7 @@ def compare_lp_files(lp_file_1, lp_file_2, ignored=None):
         )
 
 
-class TestConstraints:
+class TestBase:
     @classmethod
     def setup_class(cls):
         cls.objective_pattern = re.compile(
@@ -99,7 +97,9 @@ class TestConstraints:
     @classmethod
     def setup_method(cls):
         cls.energysystem = solph.EnergySystem(
-            groupings=solph.GROUPINGS, timeindex=cls.date_time_index
+            groupings=solph.GROUPINGS,
+            timeindex=cls.date_time_index,
+            infer_last_interval=True,
         )
 
     def get_om(self):
@@ -127,80 +127,8 @@ class TestConstraints:
             with open(ref_filepath) as ref_file:
                 compare_lp_files(new_file, ref_file)
 
-    def test_storage_investment_green_field(self):
-        r"""
-        Storage investment without existing capacities.
-        """
-        el_bus = solph.Bus(label="electricity")
 
-        storage = Storage(
-            label="storage",
-            carrier="electricity",
-            tech="storage",
-            bus=el_bus,
-            efficiency=0.9,
-            expandable=True,
-            storage_capacity=0,  # No initially installed storage capacity
-            storage_capacity_potential=10,
-            storage_capacity_cost=1300,
-            capacity=0,  # No initially installed capacity
-            capacity_cost=240,
-            capacity_potential=3,
-        )
-        self.energysystem.add(el_bus, storage)
-
-        self.compare_to_reference_lp("storage_investment_green_field.lp")
-
-    def test_storage_investment_brown_field(self):
-        r"""
-        Storage investment with existing capacities.
-        """
-        bus_el = solph.Bus(label="electricity")
-
-        storage = Storage(
-            label="storage",
-            carrier="electricity",
-            tech="storage",
-            bus=bus_el,
-            efficiency=0.9,
-            expandable=True,
-            storage_capacity=2,  # Existing storage capacity
-            storage_capacity_potential=10,
-            storage_capacity_cost=1300,
-            capacity=1,  # Existing capacity
-            capacity_cost=240,
-            capacity_potential=5,
-        )
-        self.energysystem.add(bus_el, storage)
-
-        self.compare_to_reference_lp("storage_investment_brown_field.lp")
-
-    def test_storage_investment_brown_field_no_storage_capacity_cost(self):
-        r"""
-        Storage investment with existing capacities. No costs for storage
-        capacity (units of energy).
-        """
-        bus_el = solph.Bus(label="electricity")
-
-        storage = Storage(
-            label="storage",
-            carrier="electricity",
-            tech="storage",
-            bus=bus_el,
-            efficiency=0.9,
-            expandable=True,
-            storage_capacity=2,  # Existing storage capacity
-            storage_capacity_potential=10,
-            capacity=1,  # Existing capacity
-            capacity_cost=240,
-            capacity_potential=5,
-        )
-        self.energysystem.add(bus_el, storage)
-
-        self.compare_to_reference_lp(
-            "storage_investment_brown_field_no_storage_capacity_cost.lp"
-        )
-
+class TestConstraints(TestBase):
     def test_backpressure_investment_green_field(self):
         r"""
         BackpressureTurbine investment without existing capacities.
@@ -481,7 +409,7 @@ class TestConstraints:
             marginal_cost=5,
             balanced=True,  # oemof.solph argument
             initial_storage_level=0.5,  # oemof.solph argument
-            max_storage_level=[0.75, 0.5, 0.25],
+            max_storage_level=[0.75, 0.5, 0.25, 1],
             expandable=True,
         )
         self.energysystem.add(bus, storage)
@@ -532,3 +460,87 @@ class TestConstraints:
         emission_constraint.build_constraint(model)
 
         self.compare_to_reference_lp("emission_constraint.lp", my_om=model)
+
+
+class TestStorageConstraints(TestBase):
+    @classmethod
+    def setup_method(cls):
+        cls.energysystem = solph.EnergySystem(
+            groupings=solph.GROUPINGS,
+            timeindex=cls.date_time_index,
+            infer_last_interval=False,
+        )
+
+    def test_storage_investment_green_field(self):
+        r"""
+        Storage investment without existing capacities.
+        """
+        el_bus = solph.Bus(label="electricity")
+
+        storage = Storage(
+            label="storage",
+            carrier="electricity",
+            tech="storage",
+            bus=el_bus,
+            efficiency=0.9,
+            expandable=True,
+            storage_capacity=0,  # No initially installed storage capacity
+            storage_capacity_potential=10,
+            storage_capacity_cost=1300,
+            capacity=0,  # No initially installed capacity
+            capacity_cost=240,
+            capacity_potential=3,
+        )
+        self.energysystem.add(el_bus, storage)
+
+        self.compare_to_reference_lp("storage_investment_green_field.lp")
+
+    def test_storage_investment_brown_field(self):
+        r"""
+        Storage investment with existing capacities.
+        """
+        bus_el = solph.Bus(label="electricity")
+
+        storage = Storage(
+            label="storage",
+            carrier="electricity",
+            tech="storage",
+            bus=bus_el,
+            efficiency=0.9,
+            expandable=True,
+            storage_capacity=2,  # Existing storage capacity
+            storage_capacity_potential=10,
+            storage_capacity_cost=1300,
+            capacity=1,  # Existing capacity
+            capacity_cost=240,
+            capacity_potential=5,
+        )
+        self.energysystem.add(bus_el, storage)
+
+        self.compare_to_reference_lp("storage_investment_brown_field.lp")
+
+    def test_storage_investment_brown_field_no_storage_capacity_cost(self):
+        r"""
+        Storage investment with existing capacities. No costs for storage
+        capacity (units of energy).
+        """
+        bus_el = solph.Bus(label="electricity")
+
+        storage = Storage(
+            label="storage",
+            carrier="electricity",
+            tech="storage",
+            bus=bus_el,
+            efficiency=0.9,
+            expandable=True,
+            storage_capacity=2,  # Existing storage capacity
+            storage_capacity_potential=10,
+            capacity=1,  # Existing capacity
+            capacity_cost=240,
+            capacity_potential=5,
+        )
+        self.energysystem.add(bus_el, storage)
+
+        self.compare_to_reference_lp(
+            "storage_investment_brown_field_no_storage_capacity_cost.lp"
+        )

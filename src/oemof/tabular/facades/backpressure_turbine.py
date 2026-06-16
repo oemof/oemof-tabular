@@ -1,16 +1,14 @@
-from dataclasses import field
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
 from oemof.solph.components import Converter
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class BackpressureTurbine(Converter, Facade):
+class BackpressureTurbine(Facade, Converter):
     r""" Combined Heat and Power (backpressure) unit with one input and
     two outputs.
 
@@ -105,37 +103,45 @@ class BackpressureTurbine(Converter, Facade):
 
     """
 
-    fuel_bus: Bus
+    def __init__(
+        self,
+        label: str,
+        fuel_bus: Bus,
+        heat_bus: Bus,
+        electricity_bus: Bus,
+        carrier: str,
+        tech: str,
+        electric_efficiency: Union[float, Sequence[float]],
+        thermal_efficiency: Union[float, Sequence[float]],
+        capacity: Optional[float] = None,
+        capacity_cost: Optional[float] = None,
+        carrier_cost: float = 0,
+        marginal_cost: float = 0,
+        expandable: bool = False,
+        lifetime: Optional[int] = None,
+        age: int = 0,
+        fixed_costs: Optional[Union[float, Sequence[float]]] = None,
+        input_parameters: Optional[dict] = None,
+        **kwargs
+    ):
+        self.fuel_bus = fuel_bus
+        self.heat_bus = heat_bus
+        self.electricity_bus = electricity_bus
+        self.carrier = carrier
+        self.tech = tech
+        self.electric_efficiency = electric_efficiency
+        self.thermal_efficiency = thermal_efficiency
+        self.capacity = capacity
+        self.capacity_cost = capacity_cost
+        self.carrier_cost = carrier_cost
+        self.marginal_cost = marginal_cost
+        self.expandable = expandable
+        self.lifetime = lifetime
+        self.age = age
+        self.fixed_costs = fixed_costs
+        self.input_parameters = input_parameters or {}
 
-    heat_bus: Bus
-
-    electricity_bus: Bus
-
-    carrier: str
-
-    tech: str
-
-    electric_efficiency: Union[float, Sequence[float]]
-
-    thermal_efficiency: Union[float, Sequence[float]]
-
-    capacity: float = None
-
-    capacity_cost: float = None
-
-    carrier_cost: float = 0
-
-    marginal_cost: float = 0
-
-    expandable: bool = False
-
-    lifetime: int = None
-
-    age: int = 0
-
-    fixed_costs: Union[float, Sequence[float]] = None
-
-    input_parameters: dict = field(default_factory=dict)
+        super().__init__(label=label, **kwargs)
 
     def build_solph_components(self):
         """ """
@@ -158,8 +164,7 @@ class BackpressureTurbine(Converter, Facade):
         self.outputs.update(
             {
                 self.electricity_bus: Flow(
-                    nominal_value=self._nominal_value(),
-                    investment=self._investment(),
+                    nominal_value=self._nominal_capacity(),
                 ),
                 self.heat_bus: Flow(),
             }

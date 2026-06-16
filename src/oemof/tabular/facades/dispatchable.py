@@ -1,15 +1,13 @@
-from dataclasses import field
 from typing import Sequence, Union
 
 from oemof.solph.buses import Bus
 from oemof.solph.components import Source
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Dispatchable(Source, Facade):
+class Dispatchable(Facade, Source):
     r""" Dispatchable element with one output for example a gas-turbine
 
     Parameters
@@ -106,33 +104,41 @@ class Dispatchable(Source, Facade):
 
     """
 
-    bus: Bus
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        carrier: str,
+        tech: str,
+        profile: Union[float, Sequence[float]] = 1,
+        capacity: float = None,
+        capacity_potential: float = float("+inf"),
+        marginal_cost: float = 0,
+        capacity_cost: float = None,
+        lifetime: int = None,
+        age: int = 0,
+        fixed_costs: Union[float, Sequence[float]] = None,
+        capacity_minimum: float = None,
+        expandable: bool = False,
+        output_parameters: dict = None,
+        **kwargs
+    ):
+        self.bus = bus
+        self.carrier = carrier
+        self.tech = tech
+        self.profile = profile
+        self.capacity = capacity
+        self.capacity_potential = capacity_potential
+        self.marginal_cost = marginal_cost
+        self.capacity_cost = capacity_cost
+        self.lifetime = lifetime
+        self.age = age
+        self.fixed_costs = fixed_costs
+        self.capacity_minimum = capacity_minimum
+        self.expandable = expandable
+        self.output_parameters = output_parameters or {}
 
-    carrier: str
-
-    tech: str
-
-    profile: Union[float, Sequence[float]] = 1
-
-    capacity: float = None
-
-    capacity_potential: float = float("+inf")
-
-    marginal_cost: float = 0
-
-    capacity_cost: float = None
-
-    lifetime: int = None
-
-    age: int = 0
-
-    fixed_costs: Union[float, Sequence[float]] = None
-
-    capacity_minimum: float = None
-
-    expandable: bool = False
-
-    output_parameters: dict = field(default_factory=dict)
+        super().__init__(label=label, outputs={}, **kwargs)
 
     def build_solph_components(self):
         """ """
@@ -141,10 +147,9 @@ class Dispatchable(Source, Facade):
             self.profile = 1
 
         f = Flow(
-            nominal_value=self._nominal_value(),
+            nominal_capacity=self._nominal_capacity(),
             variable_costs=self.marginal_cost,
             max=self.profile,
-            investment=self._investment(),
             **self.output_parameters,
         )
 

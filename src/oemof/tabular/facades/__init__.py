@@ -1,7 +1,3 @@
-from oemof.solph import Bus
-from oemof.solph.buses.experimental import ElectricalBus
-from oemof.solph.flows.experimental import ElectricalLine
-
 from .backpressure_turbine import BackpressureTurbine
 from .commodity import Commodity
 from .commodity_ghg import CommodityGHG
@@ -21,15 +17,12 @@ from .volatile import Volatile
 
 TYPEMAP = {
     "backpressure": BackpressureTurbine,
-    "bus": Bus,
     "heatpump": HeatPump,
     "commodity": Commodity,
     "commodity_ghg": CommodityGHG,
     "conversion": Conversion,
     "conversion_ghg": ConversionGHG,
     "dispatchable": Dispatchable,
-    "electrical bus": ElectricalBus,
-    "electrical line": ElectricalLine,
     "excess": Excess,
     "extraction": ExtractionTurbine,
     "generator": Generator,

@@ -1,38 +1,48 @@
-from dataclasses import field
+from typing import Optional
 
 from oemof.solph.buses import Bus
 from oemof.solph.components import Sink
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Excess(Sink, Facade):
+class Excess(Facade, Sink):
     """ """
 
-    bus: Bus
+    def __init__(
+        self,
+        label: str,
+        bus: Bus,
+        carrier: Optional[str] = None,
+        tech: Optional[str] = None,
+        marginal_cost: float = 0,
+        capacity: Optional[float] = None,
+        capacity_potential: float = float("+inf"),
+        capacity_cost: Optional[float] = None,
+        capacity_minimum: Optional[float] = None,
+        expandable: bool = False,
+        input_parameters: Optional[dict] = None,
+        **kwargs
+    ):
+        self.bus = bus
+        self.carrier = carrier
+        self.tech = tech
+        self.marginal_cost = marginal_cost
+        self.capacity = capacity
+        self.capacity_potential = capacity_potential
+        self.capacity_cost = capacity_cost
+        self.capacity_minimum = capacity_minimum
+        self.expandable = expandable
+        self.input_parameters = input_parameters or {}
 
-    marginal_cost: float = 0
-
-    capacity: float = None
-
-    capacity_potential: float = float("+inf")
-
-    capacity_cost: float = None
-
-    capacity_minimum: float = None
-
-    expandable: bool = False
-
-    input_parameters: dict = field(default_factory=dict)
+        super().__init__(label=label, inputs={}, **kwargs)
 
     def build_solph_components(self):
         """ """
         f = Flow(
-            nominal_value=self._nominal_value(),
+            nominal_capacity=self._nominal_capacity(),
             variable_costs=self.marginal_cost,
-            investment=self._investment(),
             **self.input_parameters,
         )
 

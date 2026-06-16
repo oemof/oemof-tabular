@@ -1,15 +1,14 @@
-from dataclasses import field
+from typing import Optional
 
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
 from oemof.solph.components import Converter
 from oemof.solph.flows import Flow
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class Conversion(Converter, Facade):
+class Conversion(Facade, Converter):
     r"""Conversion unit with one input and one output.
 
     Parameters
@@ -77,33 +76,41 @@ class Conversion(Converter, Facade):
 
     """
 
-    from_bus: Bus
+    def __init__(
+        self,
+        label: str,
+        from_bus: Bus,
+        to_bus: Bus,
+        carrier: str,
+        tech: str,
+        capacity: float = None,
+        efficiency: float = 1.0,
+        marginal_cost: float = 0.0,
+        carrier_cost: float = 0.0,
+        capacity_cost: Optional[float] = None,
+        expandable: bool = False,
+        capacity_potential: float = float("+inf"),
+        capacity_minimum: Optional[float] = None,
+        input_parameters: Optional[dict] = None,
+        output_parameters: Optional[dict] = None,
+        **kwargs
+    ):
+        self.from_bus = from_bus
+        self.to_bus = to_bus
+        self.carrier = carrier
+        self.tech = tech
+        self.capacity = capacity
+        self.efficiency = efficiency
+        self.marginal_cost = marginal_cost
+        self.carrier_cost = carrier_cost
+        self.capacity_cost = capacity_cost
+        self.expandable = expandable
+        self.capacity_potential = capacity_potential
+        self.capacity_minimum = capacity_minimum
+        self.input_parameters = input_parameters or {}
+        self.output_parameters = output_parameters or {}
 
-    to_bus: Bus
-
-    carrier: str
-
-    tech: str
-
-    capacity: float = None
-
-    efficiency: float = 1
-
-    marginal_cost: float = 0
-
-    carrier_cost: float = 0
-
-    capacity_cost: float = None
-
-    expandable: bool = False
-
-    capacity_potential: float = float("+inf")
-
-    capacity_minimum: float = None
-
-    input_parameters: dict = field(default_factory=dict)
-
-    output_parameters: dict = field(default_factory=dict)
+        super().__init__(label=label, **kwargs)
 
     def build_solph_components(self):
         """ """
@@ -125,9 +132,8 @@ class Conversion(Converter, Facade):
         self.outputs.update(
             {
                 self.to_bus: Flow(
-                    nominal_value=self._nominal_value(),
+                    nominal_capacity=self._nominal_capacity(),
                     variable_costs=self.marginal_cost,
-                    investment=self._investment(),
                     **self.output_parameters,
                 )
             }

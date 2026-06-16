@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
     "name": "foreignkeys-example",
-    "oemof_tabular_version": "0.0.6dev",
+    "oemof_tabular_version": "0.0.7",
     "resources": [
         {
             "path": "data/elements/bus.csv",
@@ -95,7 +95,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "marginal_cost",
+                        "name": "marginal_utility",
                         "type": "string",
                         "format": "default"
                     }
@@ -113,9 +113,9 @@
                         }
                     },
                     {
-                        "fields": "marginal_cost",
+                        "fields": "marginal_utility",
                         "reference": {
-                            "resource": "marginal_cost_profile"
+                            "resource": "marginal_utility_profile"
                         }
                     },
                     {
@@ -158,9 +158,9 @@
             }
         },
         {
-            "path": "data/sequences/marginal_cost_profile.csv",
+            "path": "data/sequences/marginal_utility_profile.csv",
             "profile": "tabular-data-resource",
-            "name": "marginal_cost_profile",
+            "name": "marginal_utility_profile",
             "format": "csv",
             "mediatype": "text/csv",
             "encoding": "utf-8",

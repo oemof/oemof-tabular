@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
     "name": "dispatch-example",
-    "oemof_tabular_version": "0.0.6dev",
+    "oemof_tabular_version": "0.0.7",
     "resources": [
         {
             "path": "data/elements/bus.csv",
@@ -268,7 +268,7 @@
                         "format": "default"
                     },
                     {
-                        "name": "storage_capacity_initial",
+                        "name": "initial_storage_level",
                         "type": "number",
                         "format": "default"
                     },

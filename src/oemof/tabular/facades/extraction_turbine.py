@@ -1,15 +1,13 @@
-from dataclasses import field
 from typing import Sequence, Union
 
 from oemof.solph import Bus, Flow
 from oemof.solph._plumbing import sequence
 from oemof.solph.components import ExtractionTurbineCHP
 
-from oemof.tabular._facade import Facade, dataclass_facade
+from oemof.tabular._facade import Facade
 
 
-@dataclass_facade
-class ExtractionTurbine(ExtractionTurbineCHP, Facade):
+class ExtractionTurbine(Facade, ExtractionTurbineCHP):
     r""" Combined Heat and Power (extraction) unit with one input and
     two outputs.
 
@@ -113,41 +111,53 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
 
     """
 
-    carrier: str
+    def __init__(
+        self,
+        label: str,
+        carrier: str,
+        tech: str,
+        electricity_bus: Bus,
+        heat_bus: Bus,
+        fuel_bus: Bus,
+        condensing_efficiency: Union[float, Sequence[float]],
+        electric_efficiency: Union[float, Sequence[float]],
+        thermal_efficiency: Union[float, Sequence[float]],
+        capacity: float = None,
+        carrier_cost: float = 0,
+        marginal_cost: float = 0,
+        capacity_cost: float = None,
+        expandable: bool = False,
+        lifetime: int = None,
+        age: int = 0,
+        fixed_costs: Union[float, Sequence[float]] = None,
+        input_parameters: dict = None,
+        conversion_factor_full_condensation: dict = None,
+        **kwargs
+    ):
+        self.carrier = carrier
+        self.tech = tech
+        self.electricity_bus = electricity_bus
+        self.heat_bus = heat_bus
+        self.fuel_bus = fuel_bus
+        self.condensing_efficiency = condensing_efficiency
+        self.electric_efficiency = electric_efficiency
+        self.thermal_efficiency = thermal_efficiency
+        self.capacity = capacity
+        self.carrier_cost = carrier_cost
+        self.marginal_cost = marginal_cost
+        self.capacity_cost = capacity_cost
+        self.expandable = expandable
+        self.lifetime = lifetime
+        self.age = age
+        self.fixed_costs = fixed_costs
+        self.input_parameters = input_parameters or {}
+        self.conversion_factor_full_condensation = (
+            conversion_factor_full_condensation or {}
+        )
 
-    tech: str
-
-    electricity_bus: Bus
-
-    heat_bus: Bus
-
-    fuel_bus: Bus
-
-    condensing_efficiency: Union[float, Sequence[float]]
-
-    electric_efficiency: Union[float, Sequence[float]]
-
-    thermal_efficiency: Union[float, Sequence[float]]
-
-    capacity: float = None
-
-    carrier_cost: float = 0
-
-    marginal_cost: float = 0
-
-    capacity_cost: float = None
-
-    expandable: bool = False
-
-    lifetime: int = None
-
-    age: int = 0
-
-    fixed_costs: Union[float, Sequence[float]] = None
-
-    input_parameters: dict = field(default_factory=dict)
-
-    conversion_factor_full_condensation: dict = field(default_factory=dict)
+        super().__init__(
+            label=label, conversion_factor_full_condensation={}, **kwargs
+        )
 
     def build_solph_components(self):
         """ """
@@ -170,9 +180,8 @@ class ExtractionTurbine(ExtractionTurbineCHP, Facade):
         self.outputs.update(
             {
                 self.electricity_bus: Flow(
-                    nominal_value=self._nominal_value(),
+                    nominal_capacity=self._nominal_capacity(),
                     variable_costs=self.marginal_cost,
-                    investment=self._investment(),
                 ),
                 self.heat_bus: Flow(),
             }
