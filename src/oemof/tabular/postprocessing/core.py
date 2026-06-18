@@ -20,7 +20,7 @@ class ParametrizedCalculation:
 def get_dependency_name(
     calculation: Union[
         "Calculation", Type["Calculation"], ParametrizedCalculation
-    ]
+    ],
 ):
     if isinstance(calculation, Calculation):
         # Get name from instance
