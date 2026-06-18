@@ -640,11 +640,13 @@ def deserialize_energy_system(cls, path, typemap={}, attributemap={}):
         else:
             # look for periods resource and if present, take periods from it
             if package.get_resource("periods"):
+                use_representative_years = True if period_data["years"].size>1 else False
                 es = cls(
                     timeindex=period_data["timeindex"],
                     timeincrement=period_data["timeincrement"],
                     periods=period_data["periods"],
                     infer_last_interval=False,
+                    use_representative_years=use_representative_years,
                 )
 
             # if lst is not empty
