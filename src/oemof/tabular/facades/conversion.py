@@ -1,4 +1,5 @@
 from dataclasses import field
+from typing import Optional
 
 from oemof.solph._plumbing import sequence
 from oemof.solph.buses import Bus
@@ -81,9 +82,9 @@ class Conversion(Converter, Facade):
 
     to_bus: Bus
 
-    carrier: str
-
     tech: str
+
+    carrier: Optional[str] = None
 
     capacity: float = None
 
