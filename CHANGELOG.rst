@@ -11,6 +11,9 @@ Features
 * Improve the function to infer package metadata `#173 <https://github.com/oemof/oemof-tabular/pull/173>`_
 * Add facades `CommodityGHG` and `ConversionGHG` to enable multiple output flows (emissions) `#180 <https://github.com/oemof/oemof-tabular/pull/180>`_
 
+* Add tests for BEV facades developed in #94 `#142 <https://github.com/oemof/oemof-tabular/pull/142>`_
+
+
 Fixes
 
 * MultiIndexError in postprocessing if more than 2 oemof nodes are given `#174 <https://github.com/oemof/oemof-tabular/issues/174>`_

@@ -13,6 +13,7 @@ Authors
 * Sarah Berendes
 * Marie-Claire Gering
 * Julian Endres
+* Sabine Haas
 * Felix Maurer
 * Pierre-Francois Duc
 * Sabine Haas
